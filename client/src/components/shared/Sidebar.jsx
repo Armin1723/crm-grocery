@@ -1,0 +1,131 @@
+import React, { useState } from "react";
+import Avatar from "../utils/Avatar";
+import { MdChevronRight } from "react-icons/md";
+import { Link, useLocation } from "react-router-dom";
+import { useSelector } from "react-redux";
+import LogoutButton from "../utils/LogoutButton";
+import { links } from "../utils";
+
+const Sidebar = () => {
+  const user = useSelector((state) => state.user);
+  const [expanded, setExpanded] = useState(true);
+  const pathname = useLocation().pathname;
+
+  return (
+    <div
+      className={`nav max-sm:hidden sticky top-0 z-[90] ${
+        expanded
+          ? "min-w-[17%] max-w-[20%]"
+          : "min-w-[5%] max-lg:min-w-[8%] max-w-[5%]"
+      } h-screen flex  border-r border-neutral-500/50 flex-col py-3 bg-[var(--color-sidebar)] text-[var(--color-text)] transition-all duration-300 ease-in`}
+    >
+      <div className="top flex w-full justify-between px-4 relative py-2 border-b border-neutral-500/50">
+        <div className="logo flex items-center justify-start ">
+          <p className="text-2xl font-bold">
+            CRM <span className={`${!expanded && "hidden"}`}>- Grocery </span>
+          </p>
+        </div>
+
+        <button
+          onClick={() => setExpanded((prev) => !prev)}
+          className={`absolute top-1/2 -translate-y-1/2 !z-[99] right-0 translate-x-1/2 p-2 bg-[var(--color-primary)] border border-neutral-500/90 hover:shadow-md hover:bg-opacity-75 rounded-full ${
+            expanded ? "rotate-180" : "scale-75 origin-center"
+          } transition-all duration-300 ease-in`}
+        >
+          <MdChevronRight />
+        </button>
+      </div>
+      <div className="links-container flex-1 mt-4">
+        <ul className="links min-h-[50px] max-h-[60vh] overflow-y-auto hide-scrollbar">
+          {links.map((link, index) => {
+            const isActive =
+              link.to === "/"
+                ? pathname === link.to
+                : pathname.includes(link.to);
+
+            // const [subLinkExpanded, setSubLinkExpanded] = useState(false);
+            return (
+              <div key={index} className="link">
+                <Link
+                  to={link.to}
+                  className={`link flex items-center gap-4 py-2 group hover:bg-accent/5 transition-all relative duration-300 ease-in group ${
+                    !expanded && "justify-start gap-2 "
+                  } ${
+                    isActive
+                      ? "border-l-4 border-accent bg-accent/10 px-4"
+                      : "px-5"
+                  }`}
+                >
+                  <div
+                    className={`icon ${isActive && "text-accent"} ${
+                      !expanded && "text-xl my-1"
+                    } transition-all duration-300 ease-in group-hover:text-accent/80`}
+                  >
+                    <link.icon />
+                  </div>
+                  <p
+                    className={`${
+                      expanded ? "max-w-full" : "max-w-0"
+                    } overflow-hidden transition-all duration-300 ease-in group-hover:text-accent ${
+                      isActive && "text-accent font-bold"
+                    }`}
+                  >
+                    {link.title}
+                  </p>
+                  {/* {link.subLinks && expanded && (
+                    <button
+                      onClick={() => setSubLinkExpanded((prev) => !prev)}
+                      className={`${subLinkExpanded ? "rotate-180" : ""} ${
+                        isActive && "text-accent"
+                      } transition-all duration-300 ease-in`}
+                    >
+                      <FaChevronCircleDown />
+                    </button>
+                  )} */}
+                </Link>
+                {/* <div
+                  className={` ${
+                    subLinkExpanded ? "max-h-screen" : "max-h-0"
+                  } subLinks-container flex flex-col pl-4 overflow-hidden transition-all duration-500 ease-in-out`}
+                >
+                  {link?.subLinks &&
+                    link?.subLinks.map((sublink, subIndex) => {
+                      const isSubActive = pathname.includes(sublink.title);
+                      return (
+                        <Link
+                          to={`/admin/products/${sublink.title}`}
+                          key={subIndex}
+                          className={`link flex items-center gap-4 py-2 px-4 group hover:bg-accent/10 transition-all duration-300 ease-in group ${
+                            isSubActive && "border-l-4 border-accent"
+                          } transition-all duration-300 ease-in`}
+                        >
+                          {sublink.title}
+                        </Link>
+                      );
+                    })}
+                </div> */}
+              </div>
+            );
+          })}
+        </ul>
+      </div>
+
+      <div className="bottom flex flex-col gap-1 cursor-pointer items-center border-t border-neutral-500/50 pt-4 px-4">
+        <div className="pofile flex items-center gap-2">
+          <Avatar image={user?.avatar} />
+          <p
+            className={` ${
+              expanded ? "max-w-full opacity-100" : "max-w-0 opacity-0"
+            } overflow-hidden transition-all duration-300 ease-in flex flex-col`}
+          >
+            <span className="font-semibold">{user?.name}</span>
+            <span className="font-light text-xs">{user?.uuid}</span>
+          </p>
+        </div>
+        <LogoutButton expanded={expanded} />
+      </div>
+    </div>
+  );
+};
+
+export default Sidebar;
