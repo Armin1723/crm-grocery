@@ -1,5 +1,6 @@
 require("dotenv").config();
 const Product = require("../models/product.model");
+const Sale = require('../models/sale.model'); 
 
 const getProduct = async (req, res) => {
   try {
@@ -76,6 +77,38 @@ const getProducts = async (req, res) => {
   }
 };
 
+const getTrendingProducts = async (req, res) => {
+  try {
+    const trendingProducts = await Sale.aggregate([
+      { $unwind: "$products" },
+      {
+        $group: {
+          _id: "$products.product", // Group by product ID
+          totalSales: { $sum: "$products.quantity" }, // Calculate total quantity sold
+        },
+      },
+      { $sort: { totalSales: -1 } },
+      { $limit: 5 },
+    ]);
+
+    // Populate product details
+    const populatedTrendingProducts = await Product.populate(trendingProducts, {
+      path: "_id",
+      select: "name category", // Select fields to simplify response
+    });
+
+    // Flatten the response structure
+    const formattedProducts = populatedTrendingProducts.map((item) => ({
+      product: item._id, // Rename '_id' to 'product'
+      totalSales: item.totalSales,
+    }));
+
+    res.status(200).json({ success: true, trendingProducts: formattedProducts });
+  } catch (err) {
+    res.status(500).json({ success: false, message: "Failed to fetch trending products", error: err.message });
+  }
+};
+
 const searchProduct = async (req, res) => {
   try {
     const { query, limit = 10, page = 1 } = req.query;
@@ -149,6 +182,7 @@ const deleteProduct = async (req, res) => {
 module.exports = {
   getProduct,
   getProducts,
+  getTrendingProducts,
   addProduct,
   setStockPreference,
   searchProduct,

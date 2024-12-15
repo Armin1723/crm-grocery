@@ -14,6 +14,8 @@ import Purchases from "./components/home/Purchases";
 import Inventory from "./components/home/Inventory";
 import Stats from "./components/home/Stats";
 import NotFound from "./pages/NotFound";
+import ViewProducts from "./components/products/ViewProducts";
+import AddProduct from "./components/products/AddProduct";
 
 const App = () => {
   const theme = useSelector((state) => state.theme.value);
@@ -31,7 +33,10 @@ const App = () => {
       <Routes>
         <Route path="/" element={<Home />}>
           <Route path="" element={<Stats />} />
-          <Route path="products" element={<Products />} />
+          <Route path="products" element={<Products />} >
+            <Route path="" element={<ViewProducts />} />
+            <Route path="add" element={<AddProduct />} />
+          </Route>
           <Route path="sales" element={<Sales />} />
           <Route path="purchases" element={<Purchases />} />
           <Route path="inventory" element={<Inventory />} />

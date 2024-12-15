@@ -6,11 +6,14 @@ const {
   addProduct,
   searchProduct,
   setStockPreference,
+  getTrendingProducts,
 } = require("../controllers/product.controller");
 
 const router = require("express").Router();
 
 router.get("/", getProducts);
+
+router.get("/trending", getTrendingProducts);
 
 router.post("/", addProduct);
 

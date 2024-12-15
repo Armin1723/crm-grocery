@@ -64,7 +64,7 @@ const Cards = () => {
   },[]);
   
   return (
-    <div className="cards-page flex flex-col gap-2 my-2 w-full">
+    <div className="cards-page flex flex-col gap-2 mt-2 w-full">
       <div
         className={` ${
           expanded ? "max-h-screen" : "max-h-0 "
@@ -76,7 +76,7 @@ const Cards = () => {
         })}
 
       </div>
-      <div className="border-t border-neutral-500/50 relative">
+      {/* <div className="border-t border-neutral-500/50 relative">
         <div
           onClick={() => setExpanded((prev) => !prev)}
           className={`absolute right-4 -translate-y-1/2 p-1 rounded-full bg-[var(--color-sidebar)] border-2 border-neutral-500/50 flex items-center justify-center transition-all duration-600 ease-in-out cursor-pointer ${
@@ -85,7 +85,7 @@ const Cards = () => {
         >
           <GoChevronDown title="Show Cards"/>
         </div>
-      </div>
+      </div> */}
     </div>
   );
 };

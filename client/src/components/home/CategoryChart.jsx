@@ -71,7 +71,7 @@ const CategoryChart = () => {
           <p className="text-xs text-neutral-500">by category</p>
         </div>
 
-        <div className="chart flex-1 relative cursor-pointer">
+        <div className="chart flex-1 relative cursor-pointer min-h-[18vh]">
           <ResponsiveContainer width="99%" height="99%">
             <PieChart>
               <Pie

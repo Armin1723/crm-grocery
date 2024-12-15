@@ -70,7 +70,7 @@ const Card = ({ data, index, chartData = {} }) => {
       className="snap-start flex min-w-[25%] max-lg:min-w-[50%] max-sm:min-w-full "
     >
       <div
-        className="card-wrapper relative overflow-hidden mx-2 flex w-full aspect-[16/8] border rounded-md items-center border-b-4 border-neutral-500/50 shadow-md"
+        className="card-wrapper relative overflow-hidden mx-2 flex w-full aspect-[16/8] border rounded-md items-center bg-[var(--color-sidebar)] border-b-4 border-neutral-500/50 shadow-md"
         style={{
           shadowColor: data?.color,
         }}

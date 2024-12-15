@@ -605,7 +605,9 @@ const salesPurchaseChart = async (req, res) => {
     ]);
 
     // Format the response
-    const formattedData = salesData.map((salesItem) => {
+    let formattedData;
+    if(salesData.length > purchaseData.length){
+    formattedData = salesData.map((salesItem) => {
       const purchaseItem = purchaseData.find(
         (item) => item._id === salesItem._id
       );
@@ -615,6 +617,18 @@ const salesPurchaseChart = async (req, res) => {
         purchases: purchaseItem ? purchaseItem.totalPurchases : 0,
       };
     });
+  }else{
+    formattedData = purchaseData.map((purchaseItem) => {
+      const salesItem = salesData.find(
+        (item) => item._id === purchaseItem._id
+      );
+      return {
+        name: purchaseItem._id,
+        sales: salesItem ? salesItem.totalSales : 0,
+        purchases: purchaseItem.totalPurchases,
+      };
+    });
+  }
 
     res.json({ success: true, stats: formattedData });
   } catch (error) {
