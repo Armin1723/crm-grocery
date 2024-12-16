@@ -76,7 +76,7 @@ const ExportButton = ({title = "", params = ""}) => {
   return (
     <div
       ref={menuRef}
-      className="relative flex items-center bg-[var(--color-card)] px-3 py rounded-md cursor-pointer border border-neutral-500/50"
+      className="relative flex items-center bg-[var(--color-card)] px-3 !py-1.5 h-fit rounded-md cursor-pointer border border-neutral-500/50"
     >
       {/* Button */}
       <div

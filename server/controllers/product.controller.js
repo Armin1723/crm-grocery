@@ -1,6 +1,7 @@
 require("dotenv").config();
 const Product = require("../models/product.model");
-const Sale = require('../models/sale.model'); 
+const Sale = require("../models/sale.model");
+const { sendMail } = require("../helpers");
 
 const getProduct = async (req, res) => {
   try {
@@ -59,16 +60,20 @@ const getProducts = async (req, res) => {
     const {
       limit = 10,
       page = 1,
-      category = { $exists: true },
+      category,
       sort = "createdAt",
       sortType = "desc",
     } = req.query;
-    const products = await Product.find({ category })
+
+    const categoryFilter = category
+      ? { category: { $regex: category, $options: "i" } } // Case-insensitive regex
+      : {};
+    const products = await Product.find(categoryFilter)
       .limit(limit)
       .skip((page - 1) * limit)
       .sort({ [sort]: sortType });
 
-    const totalProducts = await Product.countDocuments({ category });
+    const totalProducts = await Product.countDocuments(categoryFilter);
     const totalPages = Math.ceil(totalProducts / limit);
 
     res.json({ success: true, products, page, totalProducts, totalPages });
@@ -103,9 +108,15 @@ const getTrendingProducts = async (req, res) => {
       totalSales: item.totalSales,
     }));
 
-    res.status(200).json({ success: true, trendingProducts: formattedProducts });
+    res
+      .status(200)
+      .json({ success: true, trendingProducts: formattedProducts });
   } catch (err) {
-    res.status(500).json({ success: false, message: "Failed to fetch trending products", error: err.message });
+    res.status(500).json({
+      success: false,
+      message: "Failed to fetch trending products",
+      error: err.message,
+    });
   }
 };
 
@@ -146,11 +157,23 @@ const setStockPreference = async (req, res) => {
     const { quantity } = req.body;
     const product = await Product.findById(req.params.id);
     if (!product) {
-      return res.status(404).json({ message: "Product not found", success: false });
+      return res
+        .status(404)
+        .json({ message: "Product not found", success: false });
     }
 
     product.stockAlert.preference = !product.stockAlert.preference;
-    product.stockAlert.quantity = product.stockAlert.preference ? quantity : undefined;
+    product.stockAlert.quantity = product.stockAlert.preference
+      ? quantity
+      : undefined;
+
+    if (product.stockAlert.preference) {
+      sendMail(
+        (to = process.env.ADMIN_EMAIL),
+        (subject = "Stock Alert Set"),
+        (text = `Stock alert set for ${product.name}. You will be notified when the stock reaches ${quantity} ${product.unit}`)
+      );
+    }
 
     await product.save();
     res.json({ success: true, product, message: "Stock preference updated" });
@@ -160,15 +183,15 @@ const setStockPreference = async (req, res) => {
 };
 
 const editProduct = async (req, res) => {
-    try {
-        const product = await Product.findByIdAndUpdate(req.params.id, req.body, {
-            new: true,
-        });
-        res.json({ success: true, product });
-    } catch (error) {
-        res.status(500).json({ message: error.message, success: false });
-    }
-}
+  try {
+    const product = await Product.findByIdAndUpdate(req.params.id, req.body, {
+      new: true,
+    });
+    res.json({ success: true, product });
+  } catch (error) {
+    res.status(500).json({ message: error.message, success: false });
+  }
+};
 
 const deleteProduct = async (req, res) => {
   try {

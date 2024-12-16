@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from "react";
-import ExportButton from "../utils/ExportButton";
-import Pagination from "../utils/Pagination";
-import SortableLink from "../utils/SortableLink";
-import ProductActionButton from "./ProductActionButton";
-import CategorySelection from "./CategorySelection";
+import ExportButton from "../../utils/ExportButton";
+import SortableLink from "../../utils/SortableLink";
+import Pagination from "../../utils/Pagination";
+import { formatDate } from "../../utils";
+import PurchaseActionButton from "./PurchaseActionButton";
 
-const ViewProducts = () => {
+const ViewPurchases = () => {
   const [loading, setLoading] = useState(false);
   const [refetch, setRefetch] = useState(false);
 
@@ -13,20 +13,22 @@ const ViewProducts = () => {
   const [page, setPage] = useState(1);
   const [sort, setSort] = useState("name");
   const [sortType, setSortType] = useState("asc");
-  const [category, setCategory] = useState(null);
 
   const steps = [10, 20, 50, 100];
 
   const [results, setResults] = useState();
 
   useEffect(() => {
-    const fetchProducts = async () => {
+    const fetchPurchases = async () => {
       try {
         setLoading(true);
         const response = await fetch(
           `${
             import.meta.env.VITE_BACKEND_URL
-          }/api/v1/products?sort=${sort}&sortType=${sortType}&limit=${limit}&page=${page}${category ? `&category=${category}` : ''}`
+          }/api/v1/purchases?sort=${sort}&sortType=${sortType}&limit=${limit}&page=${page}`,
+          {
+            credentials: "include",
+          }
         );
         const data = await response.json();
         if (!response.ok) {
@@ -39,23 +41,21 @@ const ViewProducts = () => {
         setLoading(false);
       }
     };
-    fetchProducts();
-  }, [refetch, limit, page, sort, sortType, category]);
-
+    fetchPurchases();
+  }, [refetch, limit, page, sort, sortType]);
   return (
     <div className="p-3 rounded-md flex h-full flex-col gap-2 border border-neutral-500/50 bg-[var(--color-sidebar)]">
       <div className="top flex w-full justify-between flex-wrap my-2">
         <div className="title flex items-center gap-2 flex-wrap ">
-          <p className="text-xl max-lg:text-lg font-bold ">View Products</p>
+          <p className="text-xl max-lg:text-lg font-bold ">View Purchases</p>
           <p
             className={`${
               loading && "animate-spin"
             } w-4 aspect-square rounded-full border-t border-b border-accent/90 cursor-pointer`}
             onClick={() => setRefetch((p) => !p)}
           ></p>
-          <CategorySelection category={category} setCategory={setCategory} />
         </div>
-        <ExportButton title="Products" />
+        <ExportButton title="Purchases" />
       </div>
 
       <div className="table-wrapper flex relative max-h-[55vh] flex-1 my-2 overflow-x-scroll">
@@ -67,88 +67,81 @@ const ViewProducts = () => {
           <div className="table-headers flex w-full justify-between py-3 px-4 border rounded-t-md border-neutral-500  max-sm:px-1 sticky top-0 bg-[var(--color-card)] z-[20] font-semibold gap-2">
             <div className="w-1/5 min-w-[50px] flex items-center gap-2 ">
               <SortableLink
-                title="name"
-                isActive={sort === "name"}
+                title="supplier"
+                isActive={sort === "supplier"}
                 sortType={sortType}
                 setSort={setSort}
                 setSortType={setSortType}
               />
             </div>
-            <div className="w-[10%] min-w-[50px] flex items-center  ">
+            <div className="w-[15%] min-w-[80px] flex items-center  ">
               <SortableLink
-                title="rate"
-                isActive={sort === "rate"}
+                title="totalAmount"
+                isActive={sort === "totalAmount"}
                 sortType={sortType}
                 setSort={setSort}
                 setSortType={setSortType}
               />
             </div>
-            <div className="w-[10%] min-w-[50px] flex items-center  ">
+            <div className="w-[15%] min-w-[50px] flex items-center  ">
               <SortableLink
-                title="category"
-                isActive={sort === "category"}  
+                title="signedBy"
+                isActive={sort === "signedBy"}
                 sortType={sortType}
                 setSort={setSort}
                 setSortType={setSortType}
               />
             </div>
-            <div className="w-[10%] min-w-[50px] flex items-center  ">
+            <div className="w-1/5 min-w-[50px] flex items-center  ">
               <SortableLink
-                title="unit"
-                isActive={sort === "unit"}
+                title="date"
+                isActive={sort === "createdAt"}
                 sortType={sortType}
-                setSort={setSort}
+                setSort={() => setSort("createdAt")}
                 setSortType={setSortType}
               />
             </div>
-            <p className="w-1/5 min-w-[100px] py-1">Tags</p>
             <p className="w-[10%] min-w-[50px] py-1">Actions</p>
           </div>
-          {results?.products?.length ?
-            results?.products?.map((product, index) => {
+          {results?.purchases?.length ? (
+            results?.purchases?.map((purchase, index) => {
               return (
                 <div
                   key={index}
                   className="tr border-r border-l border-neutral-500 flex w-full justify-between items-center py-2 px-4 max-sm:px-1 gap-2 hover:bg-accent/10"
                 >
                   <div className="w-1/5 min-w-[50px]">
-                    {product?.name}
+                    {purchase?.supplier?.name}
                   </div>
-                  <div className="w-[10%] min-w-[50px] px-2">
-                    {product?.rate || "N/A"}
+                  <div className="w-[15%] min-w-[80px] px-2">
+                    {purchase?.totalAmount || "N/A"}
                   </div>
-                  <div className="w-[10%] min-w-[50px] px-2 capitalize">
-                    {product?.category || "N/A"}
+                  <div className="w-[15%] min-w-[50px] px-2 capitalize">
+                    {purchase?.signedBy?.name || "N/A"}
                   </div>
-                  <div className="w-[10%] min-w-[50px] px-2">
-                    {product?.unit || "N/A"}
-                  </div>
-                  <div className="flex items-center flex-wrap gap-2 w-1/5 min-w-[50px]">
-                    {product?.tags?.length ? product?.tags?.map((tag, index) => {
-                      return (
-                        <span
-                          key={index}
-                          className="px-2 py-0.5 bg-accent/10 rounded-xl border border-neutral-500/50 gap-3 capitalize flex text-sm max-sm:text-xs"
-                        >
-                          {tag}
-                        </span>
-                      );
-                    }) : "N/A"}
+                  <div className="w-1/5 min-w-[50px] px-2 text-sm max-sm:text-xs">
+                    {formatDate(purchase?.createdAt) || "N/A"}
                   </div>
                   <div className="actions w-[10%] min-w-[50px] flex items-center justify-center gap-2">
-                    <ProductActionButton product={product} setRefetch={setRefetch}/>
+                    <PurchaseActionButton
+                      purchase={purchase}
+                      setRefetch={setRefetch}
+                    />
                   </div>
                 </div>
               );
-            }): <div className="tr border-l border-r border-neutral-500 flex w-full flex-1 items-start py-2 px-4 max-sm:px-1 gap-2">
-              <p>No products found</p>
-              </div>}
+            })
+          ) : (
+            <div className="tr border-l border-r border-neutral-500 flex w-full flex-1 items-start py-2 px-4 max-sm:px-1 gap-2">
+              <p>No purchases found</p>
+            </div>
+          )}
           <div className="table-footer border border-neutral-500 rounded-b-md select-none flex w-full justify-between items-center max-lg:items-start p-3 px-4 max-sm:px-1 sticky bottom-0 bg-[var(--color-card)] font-semibold gap-2">
             <div className="flex items-center">
               <span>
                 Showing {(page - 1) * limit + 1} -{" "}
-                {Math.min(page * limit, results?.totalProducts)} of{" "}
-                {results?.totalProducts} results.
+                {Math.min(page * limit, results?.totalPurchases) || 1} of{" "}
+                {results?.totalPurchases} results.
               </span>
               <div className="flex items-center gap-2 mx-2">
                 <button
@@ -163,7 +156,9 @@ const ViewProducts = () => {
                       return prev;
                     });
                   }}
-                  disabled={limit === steps[0] || results.totalProducts < limit}
+                  disabled={
+                    limit === steps[0] || results.totalPurchases < limit
+                  }
                   className="px-3 flex items-center justify-center rounded-md bg-[var(--color-primary)] w-6 aspect-square border border-neutral-500/50 hover:opacity-75 disabled:opacity-50 disabled:cursor-not-allowed disabled:border-neutral-500/20"
                 >
                   -
@@ -204,4 +199,4 @@ const ViewProducts = () => {
   );
 };
 
-export default ViewProducts;
+export default ViewPurchases;

@@ -14,7 +14,7 @@ const NotFound = () => {
       }}
       className="bg-[var(--color-primary)] text-[var(--color-text)]"
     >
-      <div style={{ textAlign: "center" }} className="flex flex-col items-center justify-center">
+      <div style={{ textAlign: "center" }} className="flex flex-col items-center justify-center mx-4">
         <h1 className="text-6xl text-accentDark font-extrabold">404</h1>
         <h2 className="my-4 text-4xl max-lg:text-2xl max-sm:text-xl font-bold">
           Oops! Page not found.

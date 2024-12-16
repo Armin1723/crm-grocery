@@ -2,12 +2,14 @@ const Supplier = require("../models/supplier.model");
 
 const getSuppliers = async (req, res) => {
   try {
-    const { limit = 10, page = 1 } = req.query;
-    const suppliers = await Supplier.find()
-      .limit(limit)
+    const { limit = 10, page = 1, name } = req.query;
+
+    const nameQuery = name ? { name: { $regex: name, $options: "i" } } : {};
+    const suppliers = await Supplier.find(nameQuery)
+      .limit(name ? 5 : limit)
       .skip((page - 1) * limit);
 
-    const totalSuppliers = await Supplier.countDocuments();
+    const totalSuppliers = await Supplier.countDocuments(nameQuery);
     const totalPages = Math.ceil(totalSuppliers / limit) || 1;
 
     res.json({ success: true, suppliers, page, totalSuppliers, totalPages });
@@ -29,7 +31,7 @@ const getSupplier = async (req, res) => {
 };
 
 const addSupplier = async (req, res) => {
-  try{
+  try {
     const supplier = new Supplier(req.body);
     await supplier.save();
     res.json({ success: true, supplier });

@@ -10,6 +10,7 @@ const TrendingProducts = () => {
         const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/v1/products/trending`);
         if (response.ok) {
           const data = await response.json();
+
           // Format data to include product name and category for the chart
           const formattedData = data.trendingProducts.map((item) => ({
             name: item.product.name,
@@ -56,7 +57,7 @@ const TrendingProducts = () => {
                 itemStyle={{ fontSize: "14px", lineHeight: "1" }}
                 formatter={(value, name, props) => [
                   `${value} sold`,
-                  <div style={{ fontWeight: "bold", fontSize: "16px", marginBottom: "5px" }}>
+                  <div style={{ fontWeight: "bold", fontSize: "12px", marginBottom: "5px" }}>
                     {props.payload.name}
                   </div>,
                 ]}

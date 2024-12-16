@@ -1,19 +1,13 @@
 import React, { useState, useEffect, useRef } from "react";
-import { FaBell, FaEdit } from "react-icons/fa";
+import { FaBell, FaEdit, FaEye, FaFileInvoice } from "react-icons/fa";
 import { HiDotsVertical } from "react-icons/hi";
-import { useNavigate } from "react-router-dom";
-import ProductForm from "./ProductForm";
-import AlertForm from "./AlertForm";
+import { Link } from "react-router-dom";
 
-const ProductActionButton = ({ product, setRefetch = () => {} }) => {
+const PurchaseActionButton = ({ purchase, setRefetch = () => {} }) => {
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef(null);
-  const navigate = useNavigate();
 
-  const [quantity, setQuantity] = useState("");
-
-  const [editModalOpen, setEditModalOpen] = useState(false);
-  const [alertModalOpen, setAlertModalOpen] = useState(false);
+  const [invoiceModalOpen, setInvoiceModalOpen] = useState(false);
 
   // Close menu when clicking outside
   useEffect(() => {
@@ -73,68 +67,44 @@ const ProductActionButton = ({ product, setRefetch = () => {} }) => {
           tabIndex={0}
           onClick={() => {
             setMenuOpen(false);
-            setEditModalOpen(true);
+            setInvoiceModalOpen(true);
           }}
         >
-          <FaEdit />
-          <p className="capitalize">Edit</p>
+          <FaFileInvoice />
+          <p className="capitalize">Invoice</p>
         </div>
 
-        <div
+        <Link
+          to={`/purchases/${purchase?._id}`}
           className="menu-item px-4 py-1 text-sm text-center hover:bg-accentDark/10 cursor-pointer transition-all duration-200 ease-in flex items-center gap-2"
           role="menuitem"
           tabIndex={0}
           onClick={() => {
             setMenuOpen(false);
-            setAlertModalOpen(true);
           }}
         >
-          <FaBell />
-          <p className="capitalize">Set Alert</p>
-        </div>
+          <FaEye />
+          <p className="capitalize">View</p>
+        </Link>
       </div>
 
       {/* Edit Modal */}
-      {editModalOpen && (
+      {invoiceModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-[1000]">
           <div className="bg-[var(--color-sidebar)] rounded-md p-6 w-1/2 max-sm:w-[90%] overflow-y-auto max-h-[90vh] max-sm:px-6">
             <div className="flex items-center gap-2 w-full justify-between my-4">
-              <h2 className="text-lg font-bold ">Edit Product</h2>
+              <h2 className="text-lg font-bold ">View Invoice</h2>
               <button
                 className="bg-red-500 text-white px-3 py-1 rounded-md"
-                onClick={() => setEditModalOpen(false)}
+                onClick={() => setInvoiceModalOpen(false)}
               >
                 Close
               </button>
             </div>
             {/* Modal Content for Editing */}
             <div>
-              <ProductForm
-                product={product}
-                title="Edit"
-                setRefetch={setRefetch}
-                closeModal={() => setEditModalOpen(false)}
-              />
+                <embed src={purchase?.invoice} type="application/pdf" width="100%" height="500px" />
             </div>
-          </div>
-        </div>
-      )}
-
-      {/* Set Alert Modal */}
-      {alertModalOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-[1000]">
-          <div className="bg-[var(--color-sidebar)] rounded-md p-6 w-1/3 max-sm:w-[90%] overflow-y-auto max-h-[90vh] max-sm:px-6">
-            <div className="flex items-center gap-2 w-full justify-between my-4">
-              <h2 className="text-lg font-bold ">Set Alert</h2>
-              <button
-                className="bg-red-500 text-white px-3 py-1 rounded-md"
-                onClick={() => setAlertModalOpen(false)}
-              >
-                Close
-              </button>
-            </div>
-            {/* Modal Content for setting alert */}
-            <AlertForm product={product} closeModal={()=> setAlertModalOpen(false)} />
           </div>
         </div>
       )}
@@ -142,4 +112,4 @@ const ProductActionButton = ({ product, setRefetch = () => {} }) => {
   );
 };
 
-export default ProductActionButton;
+export default PurchaseActionButton;

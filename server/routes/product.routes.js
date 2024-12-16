@@ -21,9 +21,9 @@ router.get("/search", searchProduct);
 
 router.get("/:id", getProduct);
 
-router.put("/:id", editProduct);
+router.post("/:id", editProduct);
 
-router.post("/:id/stock", setStockPreference);
+router.post("/:id/alert", setStockPreference);
 
 router.delete("/:id", deleteProduct);
 

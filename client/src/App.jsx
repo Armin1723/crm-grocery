@@ -16,6 +16,8 @@ import Stats from "./components/home/Stats";
 import NotFound from "./pages/NotFound";
 import ViewProducts from "./components/products/ViewProducts";
 import AddProduct from "./components/products/AddProduct";
+import ViewPurchases from "./components/home/purchases/ViewPurchases";
+import AddPurchase from "./components/home/purchases/AddPurchase";
 
 const App = () => {
   const theme = useSelector((state) => state.theme.value);
@@ -29,16 +31,30 @@ const App = () => {
 
   return (
     <BrowserRouter>
-      <ToastContainer theme={theme} />
+      <ToastContainer
+        theme={theme}
+        toastStyle={{
+          backgroundColor: "var(--color-sidebar)",
+          border: "1px solid var(--color-card)",
+        }}
+      />
       <Routes>
         <Route path="/" element={<Home />}>
           <Route path="" element={<Stats />} />
-          <Route path="products" element={<Products />} >
+
+          {/* Product Routes */}
+          <Route path="products" element={<Products />}>
             <Route path="" element={<ViewProducts />} />
             <Route path="add" element={<AddProduct />} />
           </Route>
+
+          {/* Purchase Routes */}
+          <Route path="purchases" element={<Purchases />}>
+            <Route path="" element={<ViewPurchases />} />
+            <Route path="add" element={<AddPurchase />} />
+          </Route>
+
           <Route path="sales" element={<Sales />} />
-          <Route path="purchases" element={<Purchases />} />
           <Route path="inventory" element={<Inventory />} />
         </Route>
 

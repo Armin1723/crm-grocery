@@ -10,8 +10,18 @@ const { sendMail, generatePurchaseInvoice } = require("../helpers");
 
 const getPurchases = async (req, res) => {
   try {
-    const { limit = 10, page = 1, supplierId = { $exists: true } } = req.query;
+    const {
+      limit = 10,
+      page = 1,
+      supplierId = { $exists: true },
+      sort = "createdAt",
+      sortType = "desc",
+    } = req.query;
     const purchases = await Purchase.find({ supplier: supplierId })
+      .populate("products.product")
+      .populate("supplier")
+      .populate("signedBy")
+      .sort({ [sort]: sortType })
       .limit(limit)
       .skip((page - 1) * limit);
 
@@ -146,9 +156,67 @@ const addPurchase = async (req, res) => {
   }
 };
 
+const getRecentPurchase = async (req, res) => {
+  try {
+    // Find the most recent purchase by sorting by date descending
+    const recentPurchase = await Purchase.findOne({})
+      .sort({ date: -1 })
+      .populate("products.product")
+      .populate("supplier")
+      .populate("signedBy");
+
+    if (!recentPurchase) {
+      return res.status(404).json({ error: "No recent purchases found." });
+    }
+
+    // Format the recent purchase data to include all the relevant details
+    const recentPurchaseDetails = {
+      purchaseId: recentPurchase._id,
+      date: recentPurchase.date,
+      totalAmount: recentPurchase.totalAmount,
+      products: recentPurchase.products.map((item) => ({
+        productName: item.product.name,
+        quantity: item.quantity,
+        unit: item.product.unit,
+        rate: item.purchaseRate,
+        totalPrice: item.quantity * item.purchaseRate,
+      })),
+      supplier: recentPurchase.supplier
+        ? {
+            name: recentPurchase.supplier.name,
+            contact: recentPurchase.supplier.contact,
+            email: recentPurchase.supplier.email,
+          }
+        : null,
+      signedBy: recentPurchase.signedBy
+        ? {
+            name: recentPurchase.signedBy.name,
+            email: recentPurchase.signedBy.email,
+            phone: recentPurchase.signedBy.phone,
+          }
+        : null,
+      customer: recentPurchase.customer
+        ? {
+            name: recentPurchase.customer.name,
+            email: recentPurchase.customer.email,
+            phone: recentPurchase.customer.phone,
+          }
+        : null,
+    };
+
+    res.json({ recentPurchase: recentPurchaseDetails });
+  } catch (error) {
+    console.error("Error fetching recent purchase:", error.message);
+    res
+      .status(500)
+      .json({ error: "Failed to fetch the most recent purchase." });
+  }
+};
+
 module.exports = {
   getPurchases,
   getEmployeePurchases,
+  getRecentPurchase,
   getPurchase,
   addPurchase,
 };
