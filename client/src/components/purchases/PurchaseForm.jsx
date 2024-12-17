@@ -172,7 +172,7 @@ const PurchaseForm = ({ setRefetch = () => {}, closeModal = () => {} }) => {
     <div>
       <form
         onSubmit={handleSubmit(addPurchase)}
-        className="flex flex-col max-sm:px-2 gap-2 w-full flex-1 min-h-[50vh] max-h-[58vh] overflow-x-hidden"
+        className="flex flex-col max-sm:px-2 gap-2 w-full flex-1 min-h-[50vh] max-h-[58vh] "
       >
         {/* Supplier Input */}
         <p className="my-1 font-semibold text-lg max-sm:text-base">Supplier</p>
@@ -260,7 +260,7 @@ const PurchaseForm = ({ setRefetch = () => {}, closeModal = () => {} }) => {
           )}
         </div>
         {products.length > 0 ? (
-          <div className="products-container overflow-x-scroll table flex-col w-fit min-w-full max-sm:text-sm">
+          <div className="products-container overflow-x-scroll w-fir table flex-col min-w-full max-sm:text-sm">
             <div className="th flex w-fit min-w-full flex-1 justify-between items-center gap-2 border border-neutral-500/50 bg-[var(--color-card)] rounded-t-md px-2 py-1 sticky top-0 ">
               <p className="w-[5%] min-w-[30px]">*</p>
               <p className="w-1/5 min-w-[100px]">Name</p>
