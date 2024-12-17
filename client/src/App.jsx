@@ -16,8 +16,10 @@ import Stats from "./components/home/Stats";
 import NotFound from "./pages/NotFound";
 import ViewProducts from "./components/products/ViewProducts";
 import AddProduct from "./components/products/AddProduct";
-import ViewPurchases from "./components/home/purchases/ViewPurchases";
-import AddPurchase from "./components/home/purchases/AddPurchase";
+import ViewPurchases from "./components/purchases/ViewPurchases";
+import AddPurchase from "./components/purchases/AddPurchase";
+import ViewSales from "./components/sales/ViewSales";
+import AddSale from "./components/sales/AddSale";
 
 const App = () => {
   const theme = useSelector((state) => state.theme.value);
@@ -54,7 +56,12 @@ const App = () => {
             <Route path="add" element={<AddPurchase />} />
           </Route>
 
-          <Route path="sales" element={<Sales />} />
+          {/* Sales Routes */}
+          <Route path="sales" element={<Sales />}>
+            <Route path="" element={<ViewSales />} />
+            <Route path="add" element={<AddSale />} />
+          </Route>
+
           <Route path="inventory" element={<Inventory />} />
         </Route>
 

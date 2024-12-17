@@ -53,11 +53,11 @@ const Pagination = ({ page= 1, setPage=()=>{}, totalPages = 10 }) => {
   };
 
   return (
-    <div className="flex items-center space-x-2 justify-center">
+    <div className="flex items-center space-x-1 justify-center">
       <button
         onClick={() => handlePageChange(page - 1)}
         disabled={page === 1}
-        className="px-3 py-1 rounded cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+        className="px-2 py-1 rounded cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
       >
         &lt;
       </button>
@@ -65,7 +65,7 @@ const Pagination = ({ page= 1, setPage=()=>{}, totalPages = 10 }) => {
       <button
         onClick={() => handlePageChange(page + 1)}
         disabled={page === totalPages}
-        className="px-3 py-1 rounded disabled:opacity-50 disabled-cursor-not-allowed"
+        className="px-2 py-1 rounded disabled:opacity-50 disabled-cursor-not-allowed"
       >
         &gt;
       </button>

@@ -4,8 +4,6 @@ const Purchase = require("../models/purchase.model");
 const Inventory = require("../models/inventory.model");
 const Product = require("../models/product.model");
 
-const { roundToTwo } = require("../utils");
-
 const { sendMail, generatePurchaseInvoice } = require("../helpers");
 
 const getPurchases = async (req, res) => {
@@ -13,11 +11,17 @@ const getPurchases = async (req, res) => {
     const {
       limit = 10,
       page = 1,
-      supplierId = { $exists: true },
+      supplierId,
       sort = "createdAt",
-      sortType = "desc",
+      sortType = "asc",
     } = req.query;
-    const purchases = await Purchase.find({ supplier: supplierId })
+
+    const query = {};
+    if (supplierId) {
+      query.supplier = supplierId;
+    }
+
+    const purchases = await Purchase.find(query)
       .populate("products.product")
       .populate("supplier")
       .populate("signedBy")
@@ -25,13 +29,11 @@ const getPurchases = async (req, res) => {
       .limit(limit)
       .skip((page - 1) * limit);
 
-    const totalPurchases = await Purchase.countDocuments({
-      supplier: supplierId,
-    });
+    const totalPurchases = await Purchase.countDocuments(query);
     res.json({
       success: true,
       purchases,
-      totalPages: Math.ceil(totalPurchases.length / limit) || 1,
+      totalPages: Math.ceil(totalPurchases / limit) ,
       page,
       totalPurchases,
     });
@@ -84,32 +86,28 @@ const addPurchase = async (req, res) => {
           tax: 0,
         },
       ],
-      signedBy,
       supplier,
+      subTotal,
       otherCharges = 0,
       discount = 0,
+      totalAmount,
     } = req.body;
 
     const purchase = await Purchase.create({
-      products,
-      signedBy,
+      products: req.body.products.map(product => ({
+        product: product._id,               
+        sellingRate: product.sellingRate || 0, 
+        purchaseRate: product.purchaseRate || 100, 
+        quantity: product.quantity || 1,
+      })),
+      signedBy : req.user.id,
       supplier,
+      subTotal,
       otherCharges,
       discount,
+      totalAmount,
     });
 
-    purchase.subTotal = roundToTwo(
-      purchase.products.reduce(
-        (acc, product) =>
-          acc +
-          product.purchaseRate * product.quantity +
-          product.tax * product.purchaseRate * product.quantity * 0.01,
-        0
-      )
-    );
-    purchase.totalAmount = roundToTwo(
-      purchase.subTotal + otherCharges - discount
-    );
     await purchase.save();
 
     // Update Inventory
@@ -117,8 +115,14 @@ const addPurchase = async (req, res) => {
       const inventory = await Inventory.findOne({
         product: product.product,
         purchaseRate: product.purchaseRate,
+        sellingRate: product.sellingRate,
       });
-      const detailedProduct = await Product.findById(product.product);
+      const detailedProduct = await Product.findById(product._id);
+
+      if(!detailedProduct.rate && product.sellingRate){
+        detailedProduct.rate = product.sellingRate;
+        await detailedProduct.save();
+      }
 
       let updatedInventory;
 
@@ -130,10 +134,11 @@ const addPurchase = async (req, res) => {
           product: product.product,
           quantity: product.quantity,
           purchaseRate: product.purchaseRate,
+          sellingRate: product.sellingRate,
         });
       }
 
-      // Send Mail to Admin if rate not found
+       // Send Mail to Admin if rate not found
       if (!detailedProduct.rate) {
         sendMail(
           (to = process.env.ADMIN_EMAIL),
@@ -160,7 +165,7 @@ const getRecentPurchase = async (req, res) => {
   try {
     // Find the most recent purchase by sorting by date descending
     const recentPurchase = await Purchase.findOne({})
-      .sort({ date: -1 })
+      .sort({ createdAt: -1 })
       .populate("products.product")
       .populate("supplier")
       .populate("signedBy");
@@ -172,7 +177,7 @@ const getRecentPurchase = async (req, res) => {
     // Format the recent purchase data to include all the relevant details
     const recentPurchaseDetails = {
       purchaseId: recentPurchase._id,
-      date: recentPurchase.date,
+      date: recentPurchase.createdAt,
       totalAmount: recentPurchase.totalAmount,
       products: recentPurchase.products.map((item) => ({
         productName: item.product.name,

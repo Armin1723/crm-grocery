@@ -1,11 +1,10 @@
 import React, { useEffect, useState } from "react";
-import ExportButton from "../../utils/ExportButton";
-import SortableLink from "../../utils/SortableLink";
-import Pagination from "../../utils/Pagination";
-import { formatDate } from "../../utils";
-import PurchaseActionButton from "./PurchaseActionButton";
+import ExportButton from "../utils/ExportButton";
+import SortableLink from "../utils/SortableLink";
+import Pagination from "../utils/Pagination";
+import { formatDate } from "../utils";
 
-const ViewPurchases = () => {
+const ViewSales = () => {
   const [loading, setLoading] = useState(false);
   const [refetch, setRefetch] = useState(false);
 
@@ -25,7 +24,7 @@ const ViewPurchases = () => {
         const response = await fetch(
           `${
             import.meta.env.VITE_BACKEND_URL
-          }/api/v1/purchases?sort=${sort}&sortType=${sortType}&limit=${limit}&page=${page}`,
+          }/api/v1/sales?sort=${sort}&sortType=${sortType}&limit=${limit}&page=${page}`,
           {
             credentials: "include",
           }
@@ -47,7 +46,7 @@ const ViewPurchases = () => {
     <div className="p-3 rounded-md flex h-full flex-col gap-2 border border-neutral-500/50 bg-[var(--color-sidebar)]">
       <div className="top flex w-full justify-between flex-wrap my-2">
         <div className="title flex items-center gap-2 flex-wrap ">
-          <p className="text-xl max-lg:text-lg font-bold ">View Purchases</p>
+          <p className="text-xl max-lg:text-lg font-bold ">View Sales</p>
           <p
             className={`${
               loading && "animate-spin"
@@ -55,7 +54,7 @@ const ViewPurchases = () => {
             onClick={() => setRefetch((p) => !p)}
           ></p>
         </div>
-        <ExportButton title="Purchases" />
+        <ExportButton title="Sales" />
       </div>
 
       <div className="table-wrapper flex relative max-h-[55vh] flex-1 my-2 overflow-x-scroll">
@@ -67,8 +66,8 @@ const ViewPurchases = () => {
           <div className="table-headers flex w-full justify-between py-3 px-4 border rounded-t-md border-neutral-500  max-sm:px-1 sticky top-0 bg-[var(--color-card)] z-[20] font-semibold gap-2">
             <div className="w-1/5 min-w-[50px] flex items-center gap-2 ">
               <SortableLink
-                title="supplier"
-                isActive={sort === "supplier"}
+                title="customer"
+                isActive={sort === "customer"}
                 sortType={sortType}
                 setSort={setSort}
                 setSortType={setSortType}
@@ -103,45 +102,44 @@ const ViewPurchases = () => {
             </div>
             <p className="w-[10%] min-w-[50px] py-1">Actions</p>
           </div>
-          {results?.purchases?.length ? (
-            results?.purchases?.map((purchase, index) => {
+          <div className="table-row-goup flex-1 border-l border-r border-neutral-500 flex flex-col justify-between">
+          {results?.sales?.length ? (
+            results?.sales?.map((sale, index) => {
               return (
                 <div
                   key={index}
-                  className="tr border-r border-l border-neutral-500 flex w-full justify-between items-center py-2 px-4 max-sm:px-1 gap-2 hover:bg-accent/10"
+                  className="tr flex w-full justify-between items-center py-2 px-4 max-sm:px-1 gap-2 hover:bg-accent/10"
                 >
                   <div className="w-1/5 min-w-[50px]">
-                    {purchase?.supplier?.name}
+                    {sale?.customer?.name || 'No data'}
                   </div>
                   <div className="w-[15%] min-w-[80px] px-2">
-                    {purchase?.totalAmount || "N/A"}
+                    {sale?.totalAmount || "N/A"}
                   </div>
                   <div className="w-[15%] min-w-[50px] px-2 capitalize">
-                    {purchase?.signedBy?.name || "N/A"}
+                    {sale?.signedBy?.name || "N/A"}
                   </div>
                   <div className="w-1/5 min-w-[50px] px-2 text-sm max-sm:text-xs">
-                    {formatDate(purchase?.createdAt) || "N/A"}
+                    {formatDate(sale?.createdAt) || "N/A"}
                   </div>
                   <div className="actions w-[10%] min-w-[50px] flex items-center justify-center gap-2">
-                    <PurchaseActionButton
-                      purchase={purchase}
-                      setRefetch={setRefetch}
-                    />
+                   View
                   </div>
                 </div>
               );
             })
           ) : (
             <div className="tr border-l border-r border-neutral-500 flex w-full flex-1 items-start py-2 px-4 max-sm:px-1 gap-2">
-              <p>No purchases found</p>
+              <p>No sales found</p>
             </div>
           )}
+          </div>
           <div className="table-footer border border-neutral-500 rounded-b-md select-none flex w-full justify-between items-center max-lg:items-start p-3 px-4 max-sm:px-1 sticky bottom-0 bg-[var(--color-card)] font-semibold gap-2">
             <div className="flex items-center">
               <span>
                 Showing {(page - 1) * limit + 1} -{" "}
-                {Math.min(page * limit, results?.totalPurchases) || 1} of{" "}
-                {results?.totalPurchases} results.
+                {Math.min(page * limit, results?.totalSales) || 1} of{" "}
+                {results?.totalSales} results.
               </span>
               <div className="flex items-center gap-2 mx-2">
                 <button
@@ -157,7 +155,7 @@ const ViewPurchases = () => {
                     });
                   }}
                   disabled={
-                    limit === steps[0] || results.totalPurchases < limit
+                    limit === steps[0] || results.totalSales < limit
                   }
                   className="px-3 flex items-center justify-center rounded-md bg-[var(--color-primary)] w-6 aspect-square border border-neutral-500/50 hover:opacity-75 disabled:opacity-50 disabled:cursor-not-allowed disabled:border-neutral-500/20"
                 >
@@ -199,4 +197,4 @@ const ViewPurchases = () => {
   );
 };
 
-export default ViewPurchases;
+export default ViewSales;

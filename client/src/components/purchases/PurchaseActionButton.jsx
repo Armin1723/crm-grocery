@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { FaBell, FaEdit, FaEye, FaFileInvoice } from "react-icons/fa";
+import { FaEye, FaFileInvoice } from "react-icons/fa";
 import { HiDotsVertical } from "react-icons/hi";
 import { Link } from "react-router-dom";
 

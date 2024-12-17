@@ -52,3 +52,9 @@ body{
 .input-label{
     @apply absolute appearance-none text-neutral-500 transition-all duration-300 ease-in -translate-y-full -translate-x-3 scale-75 start-1;
 }
+
+input[type="number"] {
+    -moz-appearance: textfield; 
+    -webkit-appearance: none;  
+    appearance: none !important;        
+}

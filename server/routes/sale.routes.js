@@ -1,14 +1,24 @@
-const { getSales, getSale, addSale, getEmployeeSales } = require('../controllers/sale.controller');
+const {
+  getSales,
+  getSale,
+  addSale,
+  getEmployeeSales,
+  getRecentSale,
+} = require("../controllers/sale.controller");
+const { isLoggedIn } = require("../middleware");
 
-const router = require('express').Router();
+const router = require("express").Router();
 
-router.get('/', getSales);
+router.use(isLoggedIn);
 
-router.get('/:id', getSale);
+router.get("/", getSales);
 
-router.get('/employee/:employeeId', getEmployeeSales);
+router.get("/recent", getRecentSale);
 
-router.post('/', addSale);
+router.get("/:id", getSale);
+
+router.get("/employee/:employeeId", getEmployeeSales);
+
+router.post("/", addSale);
 
 module.exports = router;
-

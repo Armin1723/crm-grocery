@@ -8,6 +8,7 @@ import {
   ResponsiveContainer,
   Cell,
 } from "recharts";
+import { formatDate } from "../utils";
 
 const RecentPurchase = () => {
   const [recentPurchase, setRecentPurchase] = useState(null);
@@ -37,10 +38,10 @@ const RecentPurchase = () => {
   }, [refetch]);
 
   return (
-    <div className="bg-[var(--color-sidebar)] p-4 rounded-md border border-neutral-500/50 w-[30%] max-sm:w-full max-h-[70vh] min-h-[50vh] overflow-y-auto">
+    <div className="bg-[var(--color-sidebar)] flex flex-col sm:hidden lg:flex p-4 rounded-md border border-neutral-500/50 w-[30%] max-sm:w-full max-h-[70vh] min-h-[50vh] overflow-y-auto">
       <div className="title flex gap-2 items-center mb-2">
         <p className="text-xl max-lg:text-lg font-bold ">
-          Most Recent Purchase
+          Recent Purchase
         </p>
         <div
           className="w-4 rounded-full aspect-square border-t-2 border-b-2 border-accent cursor-pointer"
@@ -59,6 +60,7 @@ const RecentPurchase = () => {
             </span>
           </p>
           <p>Email: {recentPurchase?.supplier?.email || "N/A"}</p>
+          <p className="text-xs italic">{formatDate(recentPurchase?.date) || "N/A"}</p>
         </div>
 
         <div className="bg-[var(--color-card)]">

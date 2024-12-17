@@ -56,8 +56,8 @@ const generatePurchaseInvoice = async (purchaseId) => {
 
     // **Table Body**
     purchase.products.forEach((item, index) => {
-      const productName = item.product.name || "Unknown";
-      const quantity = item.quantity || 0;
+      const productName = item?.product?.name || "Unknown";
+      const quantity = item?.quantity || 0;
       const purchaseRate = item.purchaseRate || 0;
       const tax = (item.quantity * item.purchaseRate * item.tax) / 100 || 0;
       const total = quantity * purchaseRate + tax;

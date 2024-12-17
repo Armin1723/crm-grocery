@@ -63,10 +63,16 @@ const getProducts = async (req, res) => {
       category,
       sort = "createdAt",
       sortType = "desc",
+      name,
     } = req.query;
 
+    if(name){
+      const products = await Product.find({ name: { $regex: `^${name}`, $options: "i" } }).limit(5);
+      return res.json({ success: true, products });
+    }
+
     const categoryFilter = category
-      ? { category: { $regex: category, $options: "i" } } // Case-insensitive regex
+      ? { category: { $regex: category, $options: "i" } } 
       : {};
     const products = await Product.find(categoryFilter)
       .limit(limit)

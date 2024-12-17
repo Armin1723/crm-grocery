@@ -21,7 +21,7 @@ const AddProduct = () => {
           onClick={() => setRefetch((p) => !p)}
         ></div>
       </div>
-      <ProductForm />
+      <ProductForm closeModal={()=>setAddProductModalOpen(false)}/>
     </div>
   );
 };

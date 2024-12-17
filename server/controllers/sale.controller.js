@@ -8,6 +8,7 @@ const getSales = async (req, res) => {
   try {
     const { limit = 10, page = 1 } = req.query;
     const sales = await Sale.find()
+    .populate("signedBy")
       .limit(limit)
       .skip((page - 1) * limit);
 
@@ -138,9 +139,60 @@ const addSale = async (req, res) => {
   }
 };
 
+const getRecentSale = async (req, res) => {
+  try {
+    // Find the most recent sale by sorting by date descending
+    const recentSale = await Sale.findOne({})
+      .sort({ createdAt: -1 })
+      .populate("products.product")
+      .populate("customer")
+      .populate("signedBy");
+
+    if (!recentSale) {
+      return res.status(404).json({ error: "No recent sales found." });
+    }
+
+    // Format the recent sale data to include all the relevant details
+    const recentSaleDetails = {
+      saleId: recentSale._id,
+      date: recentSale.createdAt,
+      totalAmount: recentSale.totalAmount,
+      products: recentSale.products.map((item) => ({
+        productName: item.product.name,
+        quantity: item.quantity,
+        unit: item.product.unit,
+        rate: item.saleRate,
+        totalPrice: item.quantity * item.saleRate,
+      })),
+      customer: recentSale.customer
+        ? {
+            name: recentSale.customer.name,
+            phone: recentSale.customer.phone,
+            email: recentSale.customer.email,
+          }
+        : null,
+      signedBy: recentSale.signedBy
+        ? {
+            name: recentSale.signedBy.name,
+            email: recentSale.signedBy.email,
+            phone: recentSale.signedBy.phone,
+          }
+        : null,
+    };
+
+    res.json({ recentSale: recentSaleDetails });
+  } catch (error) {
+    console.error("Error fetching recent sale:", error.message);
+    res
+      .status(500)
+      .json({ error: "Failed to fetch the most recent sale." });
+  }
+};
+
 module.exports = {
   getSales,
   getEmployeeSales,
   getSale,
   addSale,
+  getRecentSale,
 };

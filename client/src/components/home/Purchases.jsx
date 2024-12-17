@@ -1,7 +1,7 @@
 import React from 'react'
 import { FaPlus, FaShoppingCart } from "react-icons/fa";
 import { Outlet } from "react-router-dom";
-import RecentPurchase from './purchases/RecentPurchase';
+import RecentPurchase from '../purchases/RecentPurchase';
 import ChipNav from '../utils/ChipNav';
 
 const Purchases = () => {
