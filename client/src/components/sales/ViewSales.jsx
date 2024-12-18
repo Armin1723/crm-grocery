@@ -3,6 +3,7 @@ import ExportButton from "../utils/ExportButton";
 import SortableLink from "../utils/SortableLink";
 import Pagination from "../utils/Pagination";
 import { formatDate } from "../utils";
+import SaleActionButton from "./SaleActionButton";
 
 const ViewSales = () => {
   const [loading, setLoading] = useState(false);
@@ -111,7 +112,7 @@ const ViewSales = () => {
                   className="tr flex w-full justify-between items-center py-2 px-4 max-sm:px-1 gap-2 hover:bg-accent/10"
                 >
                   <div className="w-1/5 min-w-[50px]">
-                    {sale?.customer?.name || 'No data'}
+                    {sale?.customer?.name || sale?.customer?.phone || 'No data'}
                   </div>
                   <div className="w-[15%] min-w-[80px] px-2">
                     {sale?.totalAmount || "N/A"}
@@ -123,7 +124,7 @@ const ViewSales = () => {
                     {formatDate(sale?.createdAt) || "N/A"}
                   </div>
                   <div className="actions w-[10%] min-w-[50px] flex items-center justify-center gap-2">
-                   View
+                   <SaleActionButton />
                   </div>
                 </div>
               );

@@ -13,7 +13,7 @@ const generatePurchaseInvoice = async (purchaseId) => {
       .populate("products.product")
       .populate("supplier")
       .populate("signedBy");
-    const doc = new PDFDocument({ margin: 50 }); // Added margins
+    const doc = new PDFDocument({ margin: 50 }); 
 
     const filePath = `./tmp/invoice_${purchase._id}.pdf`;
     const stream = fs.createWriteStream(filePath);
@@ -131,7 +131,7 @@ const generateSaleInvoice = async (saleId) => {
       .populate("products.product")
       .populate("customer")
       .populate("signedBy");
-    const doc = new PDFDocument({ margin: 50 }); // Added margins
+    const doc = new PDFDocument({ margin: 50 }); 
 
     const filePath = `./tmp/invoice_${sale._id}.pdf`;
     const stream = fs.createWriteStream(filePath);
@@ -148,7 +148,8 @@ const generateSaleInvoice = async (saleId) => {
       })
       .moveDown(1)
       .fontSize(18)
-      .text("Sales Invoice", { align: "center", underline: true });
+      .text("Sales Invoice", { align: "center", underline: true })
+      .text("Transaction ID: " + sale.transactionId, { align: "center" });
 
     // **Invoice Details**
     doc
@@ -156,8 +157,8 @@ const generateSaleInvoice = async (saleId) => {
       .fontSize(12)
       .text(`Invoice ID: ${sale._id}`)
       .text(`Date: ${new Date().toLocaleDateString()}`)
-      .text(`Supplier: ${sale.customer?.name || "Customer"}`)
-      .text(`Signed By: ${sale.signedBy?.name || "Unknown"}`);
+      .text(`Customer: ${sale?.customer?.name || "Customer"}`)
+      .text(`Signed By: ${sale?.signedBy?.name || "Unknown"}`);
 
     doc.moveDown();
 
@@ -174,10 +175,10 @@ const generateSaleInvoice = async (saleId) => {
 
     // **Table Body**
     sale.products.forEach((item, index) => {
-      const productName = item.product.name || "Unknown";
+      const productName = item?.product?.name || "Unknown";
       const quantity = item.quantity || 0;
       const sellingRate = item.sellingRate || 0;
-      const tax = (item.quantity * item.sellingRate * item.tax) / 100 || 0;
+      const tax = (item.quantity * item.sellingRate * item?.tax) / 100 || 0;
       const total = quantity * sellingRate + tax;
 
       doc
@@ -197,7 +198,7 @@ const generateSaleInvoice = async (saleId) => {
       .moveDown(2)
       .fontSize(12)
       .text(`Subtotal: ${sale.subTotal.toFixed(2)}`, { align: "right" })
-      .text(`Other Charges: ${sale.otherCharges?.toFixed(2) || "0.00"}`, {
+      .text(`Other Charges: ${sale.tax?.toFixed(2) || "0.00"}`, {
         align: "right",
       })
       .text(`Discount: ${sale.discount?.toFixed(2) || "0.00"}`, {

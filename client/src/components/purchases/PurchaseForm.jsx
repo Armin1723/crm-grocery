@@ -2,9 +2,11 @@ import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { IoCloseCircle } from "react-icons/io5";
 import { toast } from "react-toastify";
-import { FaRobot, FaSearch } from "react-icons/fa";
+import { FaRobot } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import AddProductModal from "./AddProductModal";
+import SaveReload from "../utils/SaveReload";
+import ProductSuggestionSearch from "../utils/ProductSuggestionSearch";
 
 const PurchaseForm = ({ setRefetch = () => {}, closeModal = () => {} }) => {
   const [products, setProducts] = useState([]);
@@ -36,6 +38,12 @@ const PurchaseForm = ({ setRefetch = () => {}, closeModal = () => {} }) => {
   const subTotal = watch("subTotal", 0);
   const otherCharges = watch("otherCharges", 0);
   const discount = watch("discount", 0);
+
+  const handleKeyDown = (event) => {
+    if (event.key === "Enter") {
+      event.preventDefault();
+    }
+  };
 
   useEffect(() => {
     const calculatedSubTotal = products.reduce(
@@ -73,28 +81,6 @@ const PurchaseForm = ({ setRefetch = () => {}, closeModal = () => {} }) => {
     }
   };
 
-  const fetchSuggestedProducts = async (e) => {
-    const value = e.target.value;
-    if (value.length > 1) {
-      try {
-        const response = await fetch(
-          `${import.meta.env.VITE_BACKEND_URL}/api/v1/products?name=${value}`,
-          { credentials: "include" }
-        );
-        if (response.ok) {
-          const data = await response.json();
-          setSuggestedProducts(data.products);
-        } else {
-          throw new Error("Failed to fetch suggested products");
-        }
-      } catch (error) {
-        console.error("Error fetching suggested products:", error.message);
-      }
-    } else {
-      setSuggestedProducts([]);
-    }
-  };
-
   const normaliseCharges = () => {
     const subTotal = watch("subTotal", 0);
     const otherCharges = watch("otherCharges", 0);
@@ -108,7 +94,9 @@ const PurchaseForm = ({ setRefetch = () => {}, closeModal = () => {} }) => {
       return {
         ...product,
         price: product.price + shareAmount,
-        purchaseRate: parseFloat(Number((product.price + shareAmount)/product.quantity).toFixed(1)),
+        purchaseRate: parseFloat(
+          Number((product.price + shareAmount) / product.quantity).toFixed(1)
+        ),
       };
     });
 
@@ -172,6 +160,7 @@ const PurchaseForm = ({ setRefetch = () => {}, closeModal = () => {} }) => {
     <div>
       <form
         onSubmit={handleSubmit(addPurchase)}
+        onKeyDown={handleKeyDown}
         className="flex flex-col max-sm:px-2 gap-2 w-full flex-1 min-h-[50vh] max-h-[58vh] "
       >
         {/* Supplier Input */}
@@ -213,51 +202,28 @@ const PurchaseForm = ({ setRefetch = () => {}, closeModal = () => {} }) => {
         </div>
 
         {/* Products Section */}
-        <p className="my-1 font-semibold text-lg max-sm:text-base">Products</p>
+        <div className="title flex justify-between flex-wrap">
+          <p className="my-1 font-semibold text-lg max-sm:text-base">
+            Products
+          </p>
+
+          <SaveReload
+            products={products}
+            setProducts={setProducts}
+            name="purchaseData"
+          />
+        </div>
+
         {/* Add Product */}
-        <div className="flex items-end w-fit justify-end relative">
-          <div className="top flex items-center gap-2">
-            <div className="searchBar max-w-[70%] max-sm:text-sm flex items-center border border-neutral-500 rounded-md">
-              <div className="rounded-s-md px-3 py-2 bg-[var(--color-card)]">
-                <FaSearch />
-              </div>
-              <input
-                type="text"
-                placeholder="Search for product"
-                className="bg-transparent outline-none rounded-md p-1"
-                onChange={fetchSuggestedProducts}
-              />
-            </div>
-            <AddProductModal />
-          </div>
-          {suggestedProducts.length > 0 && (
-            <div className="suggested-products w-full absolute top-full left-0 z-[99] bg-[var(--color-card)] rounded-md shadow-md border border-neutral-500/50">
-              {suggestedProducts.map((product) => (
-                <div
-                  key={product._id}
-                  className="supplier-option px-3 py-2 text-sm hover:bg-accentDark/20 transition-all duration-300 ease-in cursor-pointer"
-                  onClick={() => {
-                    setProducts((prev) => [
-                      ...prev,
-                      {
-                        _id: product._id,
-                        name: product.name,
-                        category: product.category,
-                        unit: product.unit,
-                        quantity: 1,
-                        purchaseRate: 0,
-                        sellingRate: product.rate,
-                        price: product.price || 0,
-                      },
-                    ]);
-                    setSuggestedProducts([]);
-                  }}
-                >
-                  {product.name}
-                </div>
-              ))}
-            </div>
-          )}
+        <div className=" add-product flex items-end w-fit justify-end relative">
+          <ProductSuggestionSearch
+            products={products}
+            setProducts={setProducts}
+            suggestedProducts={suggestedProducts}
+            setSuggestedProducts={setSuggestedProducts}
+            type="purchase"
+          />
+          <AddProductModal />
         </div>
         {products.length > 0 ? (
           <div className="products-container overflow-x-scroll w-fir table flex-col min-w-full max-sm:text-sm">
@@ -346,7 +312,7 @@ const PurchaseForm = ({ setRefetch = () => {}, closeModal = () => {} }) => {
                   <input
                     type="number"
                     min="0"
-                  step="0.1"
+                    step="0.1"
                     placeholder="Price"
                     value={product.price}
                     onChange={(e) =>
@@ -376,7 +342,7 @@ const PurchaseForm = ({ setRefetch = () => {}, closeModal = () => {} }) => {
             ))}
 
             <div className="table-footer flex-1 flex flex-col items-end w-fit min-w-full py-1 bg-[var(--color-card)] px-2 border border-neutral-500/50 rounded-b-md">
-              <p className="text-right">
+              <div className="text-right flex items-center">
                 Sub Total:{" "}
                 <input
                   type="number"
@@ -385,8 +351,8 @@ const PurchaseForm = ({ setRefetch = () => {}, closeModal = () => {} }) => {
                   {...register("subTotal")}
                 />
                 ₹
-              </p>
-              <p className="text-right flex">
+              </div>
+              <div className="text-right flex items-center">
                 <div className="title flex items-center gap-2">
                   <span
                     className="text-accent/80 hover:text-accentDark transition-all duration-300 ease-in cursor-pointer"
@@ -404,8 +370,8 @@ const PurchaseForm = ({ setRefetch = () => {}, closeModal = () => {} }) => {
                   {...register("otherCharges")}
                 />
                 ₹
-              </p>
-              <p className="text-right">
+              </div>
+              <div className="text-right flex items-center">
                 Discount:{" "}
                 <input
                   type="number"
@@ -415,8 +381,8 @@ const PurchaseForm = ({ setRefetch = () => {}, closeModal = () => {} }) => {
                   {...register("discount")}
                 />
                 ₹
-              </p>
-              <p className="text-right">
+              </div>
+              <div className="text-right flex items-center">
                 Total:{" "}
                 <input
                   type="number"
@@ -430,7 +396,7 @@ const PurchaseForm = ({ setRefetch = () => {}, closeModal = () => {} }) => {
                   }
                 />
                 ₹
-              </p>
+              </div>
             </div>
           </div>
         ) : (

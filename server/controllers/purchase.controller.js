@@ -97,7 +97,7 @@ const addPurchase = async (req, res) => {
       products: req.body.products.map(product => ({
         product: product._id,               
         sellingRate: product.sellingRate || 0, 
-        purchaseRate: product.purchaseRate || 100, 
+        purchaseRate: product.purchaseRate , 
         quantity: product.quantity || 1,
       })),
       signedBy : req.user.id,
@@ -114,7 +114,6 @@ const addPurchase = async (req, res) => {
     req.body.products.forEach(async (product) => {
       const inventory = await Inventory.findOne({
         product: product.product,
-        purchaseRate: product.purchaseRate,
         sellingRate: product.sellingRate,
       });
       const detailedProduct = await Product.findById(product._id);

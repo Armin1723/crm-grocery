@@ -2,15 +2,17 @@ const { generateSaleInvoice, sendMail } = require("../helpers");
 const Inventory = require("../models/inventory.model");
 const Product = require("../models/product.model");
 const Sale = require("../models/sale.model");
-const { roundToTwo } = require("../utils");
+const Customer = require("../models/customer.model");
 
 const getSales = async (req, res) => {
   try {
-    const { limit = 10, page = 1 } = req.query;
+    const { limit = 10, page = 1, sort = 'createdAt', sortType = 'desc' } = req.query;
     const sales = await Sale.find()
     .populate("signedBy")
+    .populate("customer")
       .limit(limit)
-      .skip((page - 1) * limit);
+      .skip((page - 1) * limit)
+      .sort({ [sort]: sortType });
 
     const totalSales = await Sale.countDocuments();
 
@@ -66,32 +68,42 @@ const addSale = async (req, res) => {
           tax: 0,
         },
       ],
-      signedBy,
-      customer,
+      customerMobile,
       otherCharges = 0,
       discount = 0,
+      tax = 0,
+      subTotal = 0,
+      totalAmount = 0,
       paymentMode = "cash",
     } = req.body;
 
+    if (!products.length) {
+      return res.status(400).json({ message: "Products are required." });
+    }
+
     const sale = await Sale.create({
       products,
-      signedBy,
-      customer,
+      signedBy : req.user.id,
+      subTotal,
+      tax,
       otherCharges,
-      paymentMode,
       discount,
-    });
-
-    sale.subTotal = roundToTwo(
-      req.body.products.reduce(
-        (acc, product) =>
-          acc +
-          product.sellingRate * product.quantity +
-          product.tax * product.sellingRate * product.quantity * 0.01,
-        0
-      )
-    );
-    sale.totalAmount = roundToTwo(sale.subTotal + otherCharges - discount);
+      totalAmount,
+      paymentMode,
+    });   
+    
+    if(customerMobile) {
+      const customer = await Customer.findOne({ phone: customerMobile });
+      if (!customer) {
+        const newCustomer = new Customer({ phone: customerMobile });
+        await newCustomer.save();
+        sale.customer = newCustomer._id;
+      }else
+      {
+        sale.customer = customer._id;
+      }
+    }
+    
     await sale.save();
 
     // Update Inventory
@@ -106,8 +118,8 @@ const addSale = async (req, res) => {
       await inventory.save();
 
       // Send Mail to Admin if stockPreference set
-      if (detailedProduct.stockPreference) {
-        if (inventory.quantity < detailedProduct.stockPreference) {
+      if (detailedProduct?.stockAlert?.preference) {
+        if (inventory.quantity < detailedProduct.stockAlert.quantity) {
           sendMail(
             (to = process.env.ADMIN_EMAIL),
             (subject = "Low Stock Alert"),
@@ -158,20 +170,20 @@ const getRecentSale = async (req, res) => {
       date: recentSale.createdAt,
       totalAmount: recentSale.totalAmount,
       products: recentSale.products.map((item) => ({
-        productName: item.product.name,
-        quantity: item.quantity,
-        unit: item.product.unit,
-        rate: item.saleRate,
-        totalPrice: item.quantity * item.saleRate,
+        productName: item?.product?.name,
+        quantity: item?.quantity,
+        unit: item?.product?.unit,
+        rate: item?.saleRate,
+        totalPrice: item?.quantity * item?.sellingRate,
       })),
       customer: recentSale.customer
         ? {
-            name: recentSale.customer.name,
-            phone: recentSale.customer.phone,
-            email: recentSale.customer.email,
+            name: recentSale?.customer?.name,
+            phone: recentSale?.customer?.phone,
+            email: recentSale?.customer?.email,
           }
         : null,
-      signedBy: recentSale.signedBy
+      signedBy: recentSale?.signedBy
         ? {
             name: recentSale.signedBy.name,
             email: recentSale.signedBy.email,
