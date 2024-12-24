@@ -14,7 +14,7 @@ const Home = () => {
   const pageRef = useRef(null);
 
   useEffect(() => {
-    if (!user) {
+    if (!user || !user.avatar) {
       toast.error("You are not logged in.");
       navigate("/auth/login");
     }

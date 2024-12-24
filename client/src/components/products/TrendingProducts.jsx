@@ -30,7 +30,7 @@ const TrendingProducts = () => {
   }, []);
 
   return (
-    <div className="bg-[var(--color-sidebar)] p-4 rounded-md border border-neutral-500/50 w-1/4 max-sm:w-full">
+    <div className="bg-[var(--color-sidebar)] p-4 rounded-md border border-neutral-500/50 w-1/4 max-lg:w-full">
       <p className="text-2xl max-lg:text-xl font-bold mb-4">Trending Products</p>
       <div className="bg-[var(--color-card)] flex-1 overflow-y-scroll">
         {trendingProducts.length > 0 ? (

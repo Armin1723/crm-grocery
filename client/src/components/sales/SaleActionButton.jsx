@@ -12,7 +12,7 @@ const SaleActionButton = ({ sale, setRefetch = () => {} }) => {
   // Close menu when clicking outside
   useEffect(() => {
     const handleOutsideClick = (event) => {
-      if (menuRef.current && !menuRef.current.contains(event.target)) {
+      if (menuRef.current && !ref.current.contains(event.target)) {
         setMenuOpen(false);
       }
     };
@@ -91,7 +91,7 @@ const SaleActionButton = ({ sale, setRefetch = () => {} }) => {
       {/* Edit Modal */}
       {invoiceModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-[1000]">
-          <div className="bg-[var(--color-sidebar)] rounded-md p-6 w-1/2 max-sm:w-[90%] overflow-y-auto max-h-[90vh] max-sm:px-6">
+          <div  className="bg-[var(--color-sidebar)] rounded-md p-6 w-1/2 max-sm:w-[90%] overflow-y-auto max-h-[90vh] max-sm:px-6">
             <div className="flex items-center gap-2 w-full justify-between my-4">
               <h2 className="text-lg font-bold ">View Invoice</h2>
               <button
@@ -101,7 +101,7 @@ const SaleActionButton = ({ sale, setRefetch = () => {} }) => {
                 Close
               </button>
             </div>
-            {/* Modal Content for Editing */}
+            {/* Modal Content */}
             <div>
                 <embed src={sale?.invoice} type="application/pdf" width="100%" height="500px" />
             </div>

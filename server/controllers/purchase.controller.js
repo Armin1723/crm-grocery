@@ -7,7 +7,6 @@ const Product = require("../models/product.model");
 const { sendMail, generatePurchaseInvoice } = require("../helpers");
 
 const getPurchases = async (req, res) => {
-  try {
     const {
       limit = 10,
       page = 1,
@@ -37,13 +36,9 @@ const getPurchases = async (req, res) => {
       page,
       totalPurchases,
     });
-  } catch (error) {
-    res.status(500).json({ message: error.message, success: false });
-  }
 };
 
 const getEmployeePurchases = async (req, res) => {
-  try {
     const { limit = 10, page = 1, employeeId = { $exists: true } } = req.query;
     const purchases = await Purchase.find({ signedBy: employeeId })
 
@@ -61,22 +56,14 @@ const getEmployeePurchases = async (req, res) => {
       page,
       totalPurchases,
     });
-  } catch (error) {
-    res.status(500).json({ message: error.message, success: false });
-  }
 };
 
 const getPurchase = async (req, res) => {
-  try {
     const purchase = await Purchase.findById(req.params.id);
     res.json({ success: true, purchase });
-  } catch (error) {
-    res.status(500).json({ message: error.message, success: false });
-  }
 };
 
 const addPurchase = async (req, res) => {
-  try {
     const {
       products = [
         {
@@ -113,8 +100,9 @@ const addPurchase = async (req, res) => {
     // Update Inventory
     req.body.products.forEach(async (product) => {
       const inventory = await Inventory.findOne({
-        product: product.product,
+        product: product._id,
         sellingRate: product.sellingRate,
+        purchaseRate: product.purchaseRate,
       });
       const detailedProduct = await Product.findById(product._id);
 
@@ -130,7 +118,7 @@ const addPurchase = async (req, res) => {
         updatedInventory = await inventory.save();
       } else {
         updatedInventory = await Inventory.create({
-          product: product.product,
+          product: product._id,
           quantity: product.quantity,
           purchaseRate: product.purchaseRate,
           sellingRate: product.sellingRate,
@@ -155,13 +143,10 @@ const addPurchase = async (req, res) => {
 
     await purchase.save();
     res.json({ success: true, purchase });
-  } catch (error) {
-    res.status(500).json({ message: error.message, success: false });
-  }
 };
 
 const getRecentPurchase = async (req, res) => {
-  try {
+
     // Find the most recent purchase by sorting by date descending
     const recentPurchase = await Purchase.findOne({})
       .sort({ createdAt: -1 })
@@ -209,12 +194,6 @@ const getRecentPurchase = async (req, res) => {
     };
 
     res.json({ recentPurchase: recentPurchaseDetails });
-  } catch (error) {
-    console.error("Error fetching recent purchase:", error.message);
-    res
-      .status(500)
-      .json({ error: "Failed to fetch the most recent purchase." });
-  }
 };
 
 module.exports = {

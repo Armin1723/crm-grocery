@@ -54,9 +54,9 @@ const RecentSale = () => {
         <div className="mb-3">
           <h3 className="font-semibold">Sale Details</h3>
           <p>
-            Customer:
-            <span className="font-semibold">
-              {recentSale?.customer?.name}
+            Customer: 
+            <span className="">{" "}
+              {recentSale?.customer?.name || recentSale?.customer?.phone || "N/A"}
             </span>
           </p>
           <p>Email: {recentSale?.customer?.email || "N/A"}</p>
@@ -101,7 +101,7 @@ const RecentSale = () => {
                         marginBottom: "5px",
                       }}
                     >
-                      <p>{props.payload.productName}</p>
+                      <p>{props?.payload?.productName}</p>
                     </div>,
                   ]}
                 />

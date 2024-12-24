@@ -6,19 +6,20 @@ const {
   getRecentPurchase,
 } = require("../controllers/purchase.controller");
 const { isLoggedIn } = require("../middleware");
+const { asyncHandler } = require("../middleware/errorHandler");
 
 const router = require("express").Router();
 
 router.use(isLoggedIn);
 
-router.get("/", getPurchases);
+router.get("/", asyncHandler(getPurchases));
 
-router.get("/recent", getRecentPurchase);
+router.get("/recent", asyncHandler(getRecentPurchase));
 
-router.get("/employee/:employeeId", getEmployeePurchases);
+router.get("/employee/:employeeId", asyncHandler(getEmployeePurchases));
 
-router.post("/", addPurchase);
+router.post("/", asyncHandler(addPurchase));
 
-router.get("/:id", getPurchase);
+router.get("/:id", asyncHandler(getPurchase));
 
 module.exports = router;

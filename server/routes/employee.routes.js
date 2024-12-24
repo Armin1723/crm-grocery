@@ -1,18 +1,19 @@
 const { getEmployees, addEmployee, getEmployee, editEmployee, deleteEmployee } = require("../controllers/employee.controller");
 const { isAdmin } = require("../middleware");
+const { asyncHandler } = require("../middleware/errorHandler");
 
 const router = require("express").Router();
 
-router.use(isAdmin);
+// router.use(isAdmin);
 
-router.get("/", getEmployees);
+router.get("/", asyncHandler(getEmployees));
 
-router.post("/", addEmployee);
+router.post("/", asyncHandler(addEmployee));
 
-router.get("/:id", getEmployee);
+router.get("/:id", asyncHandler(getEmployee));
 
-router.put("/:id", editEmployee);
+router.put("/:id", asyncHandler(editEmployee));
 
-router.delete("/:id", deleteEmployee);
+router.delete("/:id", asyncHandler(deleteEmployee));
 
 module.exports = router;

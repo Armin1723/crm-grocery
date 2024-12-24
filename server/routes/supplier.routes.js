@@ -5,17 +5,18 @@ const {
   editSupplier,
   deleteSupplier,
 } = require("../controllers/supplier.controller");
+const { asyncHandler } = require("../middleware/errorHandler");
 
 const router = require("express").Router();
 
-router.get("/", getSuppliers);
+router.get("/", asyncHandler(getSuppliers));
 
-router.post("/", addSupplier);
+router.post("/", asyncHandler(addSupplier));
 
-router.get("/:id", getSupplier);
+router.get("/:id", asyncHandler(getSupplier));
 
-router.put("/:id", editSupplier);
+router.put("/:id", asyncHandler(editSupplier));
 
-router.delete("/:id", deleteSupplier);
+router.delete("/:id", asyncHandler(deleteSupplier));
 
 module.exports = router;

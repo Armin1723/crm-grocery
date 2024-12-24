@@ -8,17 +8,16 @@ const getBasicStats = async (req, res) => {
 
   const currentMonth = new Date().getMonth() + 1;
 
-  try {
     // Fetch total sales grouped by date
     const salesData = await Sale.aggregate([
       {
         $group: {
-          _id: { $month: "$createdAt" }, // Group by month
+          _id: { $month: "$createdAt" }, 
           count: { $sum: "$totalAmount" },
         },
       },
       {
-        $sort: { _id: 1 }, // Sort by month
+        $sort: { _id: 1 }, 
       },
     ]);
 
@@ -45,12 +44,12 @@ const getBasicStats = async (req, res) => {
     const purchaseData = await Purchase.aggregate([
       {
         $group: {
-          _id: { $month: "$createdAt" }, // Group by month
+          _id: { $month: "$createdAt" }, 
           count: { $sum: "$totalAmount" },
         },
       },
       {
-        $sort: { _id: 1 }, // Sort by month
+        $sort: { _id: 1 }, 
       },
     ]);
 
@@ -78,7 +77,7 @@ const getBasicStats = async (req, res) => {
     const productsData = await Product.aggregate([
       {
         $group: {
-          _id: { $month: "$createdAt" }, // Group by month
+          _id: { $month: "$createdAt" }, 
           count: { $sum: 1 },
         },
       },
@@ -105,6 +104,7 @@ const getBasicStats = async (req, res) => {
         : currentMonthProductCount > 0
         ? 100
         : 0;
+    console.log(percentageProductChange);
 
     // Fetch total Inventory value grouped by date
     const inventoryData = await Inventory.aggregate([
@@ -175,14 +175,9 @@ const getBasicStats = async (req, res) => {
         },
       },
     });
-  } catch (error) {
-    console.error("Error fetching basic stats:", error.message);
-    res.status(500).json({ success: false, message: error.message });
-  }
 };
 
 const getProductsGroupedByCategory = async (req, res) => {
-  try {
     const productData = await Product.aggregate([
       {
         $group: {
@@ -193,14 +188,9 @@ const getProductsGroupedByCategory = async (req, res) => {
     ]);
 
     res.json({ success: true, data: productData });
-  } catch (error) {
-    console.error("Error fetching product stats:", error.message);
-    res.status(500).json({ success: false, message: error.message });
-  }
 };
 
 const getPurchaseStats = async (req, res) => {
-  try {
     const { date = new Date().toISOString() } = req.query;
 
     // Parse the provided date
@@ -324,14 +314,9 @@ const getPurchaseStats = async (req, res) => {
         categoryPurchaseStats, // Monthly category-wise purchase stats for pie charts
       },
     });
-  } catch (error) {
-    console.error("Error fetching purchase stats:", error.message);
-    res.status(500).json({ success: false, message: error.message });
-  }
 };
 
 const getProductStats = async (req, res) => {
-  try {
     const productData = await Product.aggregate([
       {
         $group: {
@@ -342,141 +327,12 @@ const getProductStats = async (req, res) => {
     ]);
 
     res.json({ success: true, data: productData });
-  } catch (error) {
-    console.error("Error fetching product stats:", error.message);
-    res.status(500).json({ success: false, message: error.message });
-  }
 };
 
 const getSaleStats = async (req, res) => {
-  // try {
-  //   const { date = new Date().toISOString() } = req.query;
-
-  //   // Parse the provided date
-  //   const targetDate = new Date(date);
-
-  //   // Daily Sales Stats
-  //   const dailySales = await Sale.aggregate([
-  //     {
-  //       $group: {
-  //         _id: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } }, // Group by day
-  //         totalAmount: { $sum: "$totalAmount" },
-  //         totalTax: { $sum: "$tax" },
-  //         totalDiscount: { $sum: "$discount" },
-  //         totalQuantity: { $sum: "$quantity" },
-  //       },
-  //     },
-  //     { $sort: { _id: 1 } }, // Sort by date
-  //   ]);
-
-  //   // Weekly Sales Stats
-  //   const weeklySales = await Sale.aggregate([
-  //     {
-  //       $group: {
-  //         _id: {
-  //           week: { $week: "$createdAt" }, // Group by week
-  //           year: { $year: "$createdAt" },
-  //         },
-  //         totalAmount: { $sum: "$totalAmount" },
-  //         totalTax: { $sum: "$tax" },
-  //         totalDiscount: { $sum: "$discount" },
-  //         totalQuantity: { $sum: "$quantity" },
-  //       },
-  //     },
-  //     { $sort: { "_id.year": 1, "_id.week": 1 } }, // Sort by year and week
-  //   ]);
-
-  //   // Monthly Sales Stats
-  //   const monthlySales = await Sale.aggregate([
-  //     {
-  //       $group: {
-  //         _id: { $dateToString: { format: "%Y-%m", date: "$createdAt" } }, // Group by month
-  //         totalAmount: { $sum: "$totalAmount" },
-  //         totalTax: { $sum: "$tax" },
-  //         totalDiscount: { $sum: "$discount" },
-  //         totalQuantity: { $sum: "$quantity" },
-  //       },
-  //     },
-  //     { $sort: { _id: 1 } }, // Sort by month
-  //   ]);
-
-  //   // Top Selling Products
-  //   const topProducts = await Sale.aggregate([
-  //     {
-  //       $unwind: "$products", // Deconstruct the products array
-  //     },
-  //     {
-  //       $group: {
-  //         _id: "$products.product", // Group by product ID
-  //         totalQuantity: { $sum: "$products.quantity" }, // Sum quantities sold
-  //         totalSales: {
-  //           $sum: { $multiply: ["$products.quantity", "$products.rate"] },
-  //         }, // Total sales per product
-  //       },
-  //     },
-  //     { $sort: { totalSales: -1 } }, // Sort by sales descending
-  //     { $limit: 10 }, // Limit to top 10 products
-  //   ]);
-
-  //   // Monthly Category-wise Sales
-  //   const categorySales = await Sale.aggregate([
-  //     {
-  //       $unwind: "$products", // Deconstruct the products array
-  //     },
-  //     {
-  //       $lookup: {
-  //         from: "products", // Join with the Product collection
-  //         localField: "products.product",
-  //         foreignField: "_id",
-  //         as: "productDetails",
-  //       },
-  //     },
-  //     {
-  //       $unwind: "$productDetails", // Deconstruct product details array
-  //     },
-  //     {
-  //       $group: {
-  //         _id: {
-  //           month: { $dateToString: { format: "%Y-%m", date: "$createdAt" } }, // Group by month
-  //           category: "$productDetails.category", // Group by product category
-  //         },
-  //         totalSales: {
-  //           $sum: { $multiply: ["$products.quantity", "$products.rate"] },
-  //         }, // Total sales for each category
-  //       },
-  //     },
-  //     {
-  //       $group: {
-  //         _id: "$_id.month", // Group by month
-  //         categories: {
-  //           $push: {
-  //             category: "$_id.category",
-  //             totalSales: "$totalSales",
-  //           },
-  //         },
-  //       },
-  //     },
-  //     { $sort: { _id: 1 } }, // Sort by month
-  //   ]);
-
-  //   res.json({
-  //     success: true,
-  //     stats: {
-  //       dailySales,
-  //       weeklySales,
-  //       monthlySales,
-  //       topProducts,
-  //       categorySales, // Added category-wise sales for pie charts
-  //     },
-  //   });
-  // } catch (error) {
-  //   console.error("Error fetching sales stats:", error.message);
-  //   res.status(500).json({ success: false, message: error.message });
-  // }
-
+ 
   const currentMonth = new Date().getMonth() + 1;
 
-  try {
     // Fetch total sales grouped by date
     const salesData = await Sale.aggregate([
       {
@@ -518,14 +374,9 @@ const getSaleStats = async (req, res) => {
         },
       },
     });
-  }catch (error) {
-    console.error("Error fetching sales stats:", error.message);
-    res.status(500).json({ success: false, message: error.message });
-  }
 };
 
 const getInventoryGroupedByCategory = async (req, res) => {
-  try {
     const inventoryData = await Inventory.aggregate([
       {
         $lookup: {
@@ -550,10 +401,6 @@ const getInventoryGroupedByCategory = async (req, res) => {
     ]);
 
     res.json({ success: true, data: inventoryData });
-  } catch (error) {
-    console.error("Error fetching inventory stats:", error.message);
-    res.status(500).json({ success: false, message: error.message });
-  }
 };
 
 const salesPurchaseChart = async (req, res) => {
@@ -580,7 +427,6 @@ const salesPurchaseChart = async (req, res) => {
       break;
   }
 
-  try {
     const salesData = await Sale.aggregate([
       {
         $group: {
@@ -631,10 +477,6 @@ const salesPurchaseChart = async (req, res) => {
   }
 
     res.json({ success: true, stats: formattedData });
-  } catch (error) {
-    console.error("Error fetching sales/purchase chart data:", error.message);
-    return res.status(500).json({ error: error.message });
-  }
 };
 
 module.exports = {

@@ -111,7 +111,7 @@ const ProductActionButton = ({ product, setRefetch = () => {} }) => {
             <div>
               <ProductForm
                 product={product}
-                title="Edit"
+                title="edit"
                 setRefetch={setRefetch}
                 closeModal={() => setEditModalOpen(false)}
               />

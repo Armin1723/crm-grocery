@@ -59,7 +59,7 @@ const ProductSuggestionSearch = ({
     setProducts((prev) => [
       ...prev,
       {
-        _id: product._id || product.details?._id,
+        _id: type === 'purchase' ? product._id : product.details?._id,
         name: product.name || product.details?.name,
         category: product.category || product.details?.category,
         unit: product.unit || product.details?.unit,
@@ -67,7 +67,7 @@ const ProductSuggestionSearch = ({
         maxQuantity: product.quantity,
         purchaseRate: product.purchaseRate || 0,
         sellingRate: product.rate || product.sellingRate,
-        price: product.price || 0,
+        price: type === 'purchase' ? product.price : 0,
       },
     ]);
 

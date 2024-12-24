@@ -6,19 +6,20 @@ const {
   getRecentSale,
 } = require("../controllers/sale.controller");
 const { isLoggedIn } = require("../middleware");
+const { asyncHandler } = require("../middleware/errorHandler");
 
 const router = require("express").Router();
 
 router.use(isLoggedIn);
 
-router.get("/", getSales);
+router.get("/", asyncHandler(getSales));
 
-router.get("/recent", getRecentSale);
+router.get("/recent", asyncHandler(getRecentSale));
 
-router.get("/:id", getSale);
+router.get("/:id", asyncHandler(getSale));
 
-router.get("/employee/:employeeId", getEmployeeSales);
+router.get("/employee/:employeeId", asyncHandler(getEmployeeSales));
 
-router.post("/", addSale);
+router.post("/", asyncHandler(addSale));
 
 module.exports = router;

@@ -1,20 +1,39 @@
 const mongoose = require("mongoose");
 
-const inventorySchema = new mongoose.Schema({
-            product: {
-                type: mongoose.Schema.Types.ObjectId,
-                ref: "Product",
-            },
-            quantity: {
-                type: Number,
-            },
-            purchaseRate: {
-                type: Number,
-            },
-            sellingRate: {  
-                type: Number,
-            },
-}, { timestamps: true });
+const inventorySchema = new mongoose.Schema(
+  {
+    product: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Product",
+    },
+    totalQuantity: {
+      type: Number,
+    },
+    batches: [
+      {
+        number: {
+          type: Number,
+        },
+        quantity: {
+          type: Number,
+        },
+        purchaseRate: {
+          type: Number,
+        },
+        sellingRate: {
+          type: Number,
+        },
+        mrp: {
+          type: Number,
+        },
+        expiry: {
+          type: Date,
+        },
+      },
+    ],
+  },
+  { timestamps: true }
+);
 
 const Inventory = mongoose.model("Inventory", inventorySchema);
 

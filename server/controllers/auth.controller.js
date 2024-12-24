@@ -7,8 +7,7 @@ const jwt = require("jsonwebtoken");
 const { sendMail } = require("../helpers");
 
 const loginUser = async (req, res) => {
-  try {
-    const { email, password, role = "employee" } = req.body;
+    const { email, password } = req.body;
 
     if (!email || !password) {
       return res.status(400).json({
@@ -20,20 +19,12 @@ const loginUser = async (req, res) => {
       });
     }
 
-    const user = await User.findOne({ email, role }).select("+password");
+    const user = await User.findOne({ email }).select("+password");
 
     if (!user) {
       return res.status(400).json({
         message: "User not found",
         errors: { email: "Email not found." },
-        success: false,
-      });
-    }
-
-    if (user.role !== role) {
-      return res.status(400).json({
-        message: "Not Authorized.",
-        errors: { role: "Mismatched Role." },
         success: false,
       });
     }
@@ -60,13 +51,9 @@ const loginUser = async (req, res) => {
     });
     user.password = undefined;
     res.status(200).json({ success: true, user });
-  } catch (error) {
-    console.error(error);
-  }
 };
 
 const forgotPassword = async (req, res) => {
-  try {
     const { email } = req.body;
     if (!email) {
       return res
@@ -98,13 +85,9 @@ const forgotPassword = async (req, res) => {
     res
       .status(200)
       .json({ success: true, message: "Password reset email sent" });
-  } catch (error) {
-    res.status(500).json({ message: error.message, success: false });
-  }
 };
 
 const resetPassword = async (req, res) => {
-  try {
     const { resetPasswordToken, newPassword } = req.body;
     const user = await User.findOne(
       {
@@ -133,14 +116,9 @@ const resetPassword = async (req, res) => {
     res
       .status(200)
       .json({ success: true, message: "Password reset successfully" });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ success: false, message: "Server error" });
-  }
-};
+  };
 
 const logoutUser = async (req, res) => {
-  try {
     res.cookie("token", "", {
       httpOnly: true,
       expires: new Date(0),
@@ -148,9 +126,6 @@ const logoutUser = async (req, res) => {
       secure: process.env.ENVIRONMENT === "prod",
     });
     res.status(200).json({ success: true, message: "Logged out successfully" });
-  } catch (error) {
-    console.error(error);
-  }
 };
 
 module.exports = {

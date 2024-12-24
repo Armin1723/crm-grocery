@@ -3,10 +3,11 @@ import { useForm } from "react-hook-form";
 import TagInput from "../utils/TagInput";
 import { categories, units } from "../utils";
 import { toast } from "react-toastify";
+import Avatar from "../utils/Avatar";
 
 const ProductForm = ({
   product = [],
-  title = "Add",
+  title = "add",
   setRefetch = () => {},
   closeModal = () => {},
 }) => {
@@ -23,25 +24,48 @@ const ProductForm = ({
     product?.stockAlert?.preference || false
   );
   const [tags, setTags] = React.useState(product.tags || []);
+  const [image, setImage] = React.useState(product.image || null);
 
   const {
     register,
     handleSubmit,
     formState: { errors },
     setValue,
+    watch,
     reset,
   } = useForm({
     mode: "onChange",
     defaultValues: {
+      image: product.image || undefined,
       name: product.name || "",
       description: product.description || "",
       rate: product.rate || "",
       category: product.category || "",
       subCategory: product.subCategory || "",
-      unit: product.unit || "",
+      shelfLife: product.shelfLife || "",
+      primaryUnit: product.primaryUnit || "",
+      secondaryUnit: product.secondaryUnit || "",
+      conversionFactor: product.conversionFactor || 0,
       stockAlert: product?.stockAlert?.quantity || 0,
     },
   });
+
+  // Handle image change
+  const handleImageChange = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      if (file.size > 500000) {
+        toast.error("Image size should be less than 500kb");
+        return;
+      }
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImage(reader.result);
+      };
+      reader.readAsDataURL(file);
+      setValue("image", file);
+    }
+  };
 
   // Handle category change
   const handleCategoryChange = (e) => {
@@ -56,37 +80,50 @@ const ProductForm = ({
   };
 
   const addProduct = async (values) => {
-    const id = toast.loading("Adding product...");
+    const id = toast.loading(
+      `${title === "edit" ? "Updating" : "Adding "} product...`
+    );
+    console.log(values);  
+    const formData = new FormData();
+    formData.append("name", values.name);
+    formData.append("category", values.category);
+    formData.append("subCategory", values.subCategory);
+    formData.append("primaryUnit", values.primaryUnit);
+    formData.append("secondaryUnit", values.secondaryUnit);
+    formData.append("conversionFactor", values.conversionFactor);
+    formData.append("rate", values.rate);
+    formData.append("shelfLife", values.shelfLife);
+    formData.append("description", values.description);
+    if (values.stockAlert) {
+      formData.append("stockAlert", {
+        preference: true,
+        quantity: values.stockAlert,
+      });
+    }
+    // Append each tag individually to formData
+    tags.forEach((tag) => {
+      formData.append("tags[]", tag);
+    });
+
+    // Append product photo to FormData object
+    if (values.image instanceof File) {
+      formData.append("image", values.image);
+    }
+
     try {
       const response = await fetch(
         `${import.meta.env.VITE_BACKEND_URL}/api/v1/products${
-          title == "Edit" && "/" + product._id
+          title == "edit" ? "/" + product._id : ""
         }`,
         {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            name: values.name,
-            rate: values.rate || undefined,
-            unit: values.unit,
-            category: values.category,
-            subCategory: values.subCategory,
-            description: values.description || undefined,
-            stockAlert: values.stockAlert && {
-              preference: true,
-              quantity: values.stockAlert,
-            },
-            tags: tags,
-          }),
+          body: formData,
           credentials: "include",
         }
       );
 
       if (!response.ok) {
         const data = await response.json();
-        console.log(data);
         toast.update(id, {
           render: data.message || `Failed to ${title} product`,
           type: "error",
@@ -97,14 +134,16 @@ const ProductForm = ({
         const data = await response.json();
         toast.update(id, {
           render: `Product ${
-            title == "Edit" ? "updated" : "added"
+            title == "edit" ? "updated" : "added"
           } successfully`,
           type: "success",
           isLoading: false,
           autoClose: 2000,
         });
-        if (title == "Add") {
+        if (title == "add") {
           reset();
+          setTags([]);
+          setImage(null);
         } else {
           closeModal();
           setRefetch((p) => !p);
@@ -126,94 +165,61 @@ const ProductForm = ({
         onSubmit={handleSubmit(addProduct)}
         className="flex flex-col gap-2 w-full flex-1 min-h-[50vh]"
       >
-        {/* Name Input */}
-        <div className="name-input w-full flex flex-col relative group my-2">
-          <input
-            type="text"
-            placeholder=" "
-            className={`outline-none border-b border-[var(--color-accent)] !z-[10] bg-transparent focus:border-[var(--color-accent-dark)] transition-all duration-300 peer ${
-              errors && errors.name && "border-red-500 focus:!border-red-500"
-            }`}
-            name="name"
-            {...register("name", {
-              required: "Name is required",
-            })}
-          />
-          <label
-            htmlFor="name"
-            className={`input-label peer-focus:-translate-y-full peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-x-0 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-x-3 peer-focus:text-[var(--color-accent-dark)] ${
-              errors && errors.name && "!text-red-500"
-            }`}
-          >
-            Name*
-          </label>
-          {errors && errors.name && (
-            <span className="text-red-500 text-sm">{errors.name.message}</span>
-          )}
-        </div>
-
-        <div className="rate-unit-group flex max-sm:flex-col max-sm:gap-2 w-full items-end gap-4">
-          {/* Rate Input */}
-          <div className="rate-input flex-1 max-sm:w-full flex flex-col relative group my-2">
-            <input
-              type="number"
-              inputMode="alphanumeric"
-              placeholder=" "
-              className={`outline-none border-b border-[var(--color-accent)] z-[5] bg-transparent focus:border-[var(--color-accent-dark)] transition-all duration-300 peer ${
-                errors && errors.rate && "border-red-500 focus:!border-red-500"
-              }`}
-              name="rate"
-              {...register("rate")}
-            />
-            <label
-              htmlFor="rate"
-              className={`input-label peer-focus:-translate-y-full peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-x-0 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-x-3 peer-focus:text-[var(--color-accent-dark)] ${
-                errors && errors.rate && "!text-red-500"
-              }`}
-            >
-              Rate
+        <div className="name-image-group flex max-sm:gap-2 w-full items-center gap-4">
+          <div className="image-input w-1/5 max-sm:w-[15%] my-2 flex flex-col items-center gap-2">
+            {/* Avatar for Image Preview */}
+            <label htmlFor="image-upload" className="cursor-pointer">
+              <Avatar
+                image={image || null}
+                width={100}
+                fallbackImage="/utils/product-placeholder.png"
+                alt="Product Preview"
+                className="border-2 border-black"
+              />
+              {!image && (
+                <div className="flex items-center justify-center h-full text-sm">
+                  Upload
+                </div>
+              )}
             </label>
-            {errors && errors.rate && (
-              <span className="text-red-500 text-sm">
-                {errors.rate.message}
-              </span>
-            )}
+
+            {/* Hidden File Input */}
+            <input
+              type="file"
+              id="image-upload"
+              accept="image/*"
+              style={{ display: "none" }}
+              {...register("image")}
+              onChange={handleImageChange}
+            />
           </div>
 
-          {/* Unit Dropdown */}
-          <div className="unit-input w-1/2 max-sm:w-full my-2">
-            <label
-              htmlFor="unit"
-              className="text-sm font-semibold text-neutral-500"
-            >
-              Unit*
-            </label>
-            <select
-              name="unit"
-              className={`w-full border-b border-accent bg-transparent outline-none p-2 ${
-                errors && errors.unit && "border-red-500"
+          {/* Name Input */}
+          <div className="name-input flex-1 flex flex-col relative group my-2">
+            <input
+              type="text"
+              placeholder=" "
+              className={`outline-none border-b border-[var(--color-accent)] !z-[10] bg-transparent focus:border-[var(--color-accent-dark)] transition-all duration-300 peer ${
+                errors && errors.name && "border-red-500 focus:!border-red-500"
               }`}
-              {...register("unit", { required: "unit is required" })}
+              name="name"
+              {...register("name", {
+                required: "Name is required",
+              })}
+            />
+            <label
+              htmlFor="name"
+              className={`input-label peer-focus:-translate-y-full peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-x-0 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-x-3 peer-focus:text-[var(--color-accent-dark)] ${
+                errors && errors.name && "!text-red-500"
+              }`}
             >
-              <option
-                value=""
-                disabled
-                className={`!bg-[var(--color-card)] ${
-                  errors && errors.unit && "!text-red-500"
-                }`}
-              >
-                Select a Unit
-              </option>
-              {units.map((sub) => (
-                <option
-                  key={sub}
-                  value={sub}
-                  className="!bg-[var(--color-card)]"
-                >
-                  {sub}
-                </option>
-              ))}
-            </select>
+              Name*
+            </label>
+            {errors && errors.name && (
+              <span className="text-red-500 text-sm">
+                {errors.name.message}
+              </span>
+            )}
           </div>
         </div>
 
@@ -292,6 +298,171 @@ const ProductForm = ({
             {errors && errors.subCategory && (
               <span className="text-red-500 text-sm">
                 {errors.subCategory.message}
+              </span>
+            )}
+          </div>
+        </div>
+
+        <div className="unit-group flex max-sm:flex-col max-sm:gap-2 w-full items-end gap-4">
+          {/* Unit Dropdown */}
+          <div className="unit-input w-1/3 max-sm:w-full my-2">
+            <label
+              htmlFor="primaryUnit"
+              className="text-sm font-semibold text-neutral-500"
+            >
+              Primary Unit*
+            </label>
+            <select
+              name="primaryUnit"
+              className={`w-full border-b border-accent bg-transparent outline-none p-2 ${
+                errors && errors.primaryUnit && "border-red-500"
+              }`}
+              {...register("primaryUnit", {
+                required: "Primary Unit is required",
+              })}
+            >
+              <option
+                value=""
+                disabled
+                className={`!bg-[var(--color-card)] ${
+                  errors && errors.primaryUnit && "!text-red-500"
+                }`}
+              >
+                Select Primary Unit
+              </option>
+              {units.map((sub) => (
+                <option
+                  key={sub}
+                  value={sub}
+                  className="!bg-[var(--color-card)]"
+                >
+                  {sub}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Secondary Unit Dropdown */}
+          <div className="unit-input w-1/3 max-sm:w-full my-2">
+            <label
+              htmlFor="secondaryUnit"
+              className="text-sm font-semibold text-neutral-500"
+            >
+              Secondary Unit*
+            </label>
+            <select
+              name="secondaryUnit"
+              className={`w-full border-b border-accent bg-transparent outline-none p-2 ${
+                errors && errors.secondaryUnit && "border-red-500"
+              }`}
+              {...register("secondaryUnit", {
+                required: "Secondary Unit is required",
+              })}
+            >
+              <option
+                value=""
+                disabled
+                className={`!bg-[var(--color-card)] ${
+                  errors && errors.secondaryUnit && "!text-red-500"
+                }`}
+              >
+                Select Secondary Unit
+              </option>
+              {units.map((sub) => (
+                <option
+                  key={sub}
+                  value={sub}
+                  className="!bg-[var(--color-card)]"
+                >
+                  {sub}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Conversion Factor Input */}
+          <div className="conversion-input w-1/3 max-sm:w-full my-2 flex items-center gap-2">
+            {!watch("primaryUnit") || !watch("secondaryUnit") ? (
+              <p className="text-center w-full text-red-600">Select Units</p>
+            ) : (
+              <>
+                <p>1{watch("primaryUnit")}=</p>
+                <input
+                  type="number"
+                  placeholder="Conversion Factor"
+                  className={`outline-none border-b border-accent z-[5] bg-transparent focus:border-[var(--color-accent-dark)] transition-all duration-300 peer w-full ${
+                    errors && errors.conversionFactor && "border-red-500"
+                  }`}
+                  name="conversionFactor"
+                  {...register("conversionFactor", {
+                    required: "Conversion Factor is required",
+                    valueAsNumber: true,
+                    min: {
+                      value: 1,
+                      message: "Conversion factor must be at least 1",
+                    },
+                  })}
+                />
+                {watch("secondaryUnit")}
+              </>
+            )}
+          </div>
+        </div>
+
+        <div className="rate-shelf-group flex max-sm:flex-col max-sm:gap-2 mt-2 w-full items-end gap-4">
+          {/* Rate Input */}
+          <div className="rate-input flex-1 max-sm:w-full flex flex-col relative group my-2">
+            <input
+              type="number"
+              inputMode="alphanumeric"
+              placeholder=" "
+              className={`outline-none border-b border-[var(--color-accent)] z-[5] bg-transparent focus:border-[var(--color-accent-dark)] transition-all duration-300 peer ${
+                errors && errors.rate && "border-red-500 focus:!border-red-500"
+              }`}
+              name="rate"
+              {...register("rate")}
+            />
+            <label
+              htmlFor="rate"
+              className={`input-label peer-focus:-translate-y-full peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-x-0 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-x-3 peer-focus:text-[var(--color-accent-dark)] ${
+                errors && errors.rate && "!text-red-500"
+              }`}
+            >
+              Rate
+            </label>
+            {errors && errors.rate && (
+              <span className="text-red-500 text-sm">
+                {errors.rate.message}
+              </span>
+            )}
+          </div>
+
+          {/* ShelfLife Input */}
+          <div className="shelf-input flex-1 max-sm:w-full flex flex-col relative group my-2">
+            <input
+              type="number"
+              inputMode="alphanumeric"
+              placeholder=" "
+              step={1}
+              className={`outline-none border-b border-[var(--color-accent)] z-[5] bg-transparent focus:border-[var(--color-accent-dark)] transition-all duration-300 peer ${
+                errors &&
+                errors.shelfLife &&
+                "border-red-500 focus:!border-red-500"
+              }`}
+              name="shelfLife"
+              {...register("shelfLife")}
+            />
+            <label
+              htmlFor="shelfLife"
+              className={`input-label peer-focus:-translate-y-full peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-x-0 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-x-3 peer-focus:text-[var(--color-accent-dark)] ${
+                errors && errors.shelfLife && "!text-red-500"
+              }`}
+            >
+              Shelf Life <span className="italic text-xs">(in days)</span>
+            </label>
+            {errors && errors.rate && (
+              <span className="text-red-500 text-sm">
+                {errors.rate.message}
               </span>
             )}
           </div>

@@ -17,9 +17,6 @@ const saleSchema = new mongoose.Schema({
             sellingRate: {
                 type: Number,
             },
-            tax:{
-                type: Number,
-            }
         },
     ],
     subTotal: {
@@ -47,6 +44,9 @@ const saleSchema = new mongoose.Schema({
         ref: "User",
     },
     transactionId: {
+        type: String,
+    },
+    notes: {
         type: String,
     },
 }, { timestamps: true });

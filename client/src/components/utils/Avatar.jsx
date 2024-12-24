@@ -1,10 +1,17 @@
-import React from 'react'
+import React from "react";
 
-const Avatar = ({image}) => {
+const Avatar = ({ image, width = 24, fallbackImage = "" , alt = 'avatar'}) => {
   return (
-    <img 
-      src={image || 'https://github.com/shadcn.png'} alt="avatar" loading='lazy' className="w-12 bg-[var(--bg-primary)] max-sm:w-8 aspect-square rounded-full border border-black shadow-md" />
-  )
-}
+    <img
+      src={image || fallbackImage || "https://github.com/shadcn.png"}
+      alt={alt}
+      loading="lazy"
+      style={{
+        width: `${width}px`,
+      }}
+      className=" bg-[var(--bg-primary)] max-sm:w-8 aspect-square rounded-full border border-neutral-500 shadow-md object-contain"
+    />
+  );
+};
 
-export default Avatar
+export default Avatar;

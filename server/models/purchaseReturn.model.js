@@ -1,7 +1,11 @@
 const mongoose = require("mongoose");
 
-const purchaseSchema = new mongoose.Schema(
+const purchaseReturnSchema = new mongoose.Schema(
   {
+    reason: {
+      type: String,
+      required: true,
+    },
     products: [
       {
         product: {
@@ -11,27 +15,21 @@ const purchaseSchema = new mongoose.Schema(
         quantity: {
           type: Number,
         },
-        purchaseRate: {
-          type: Number,
-        },
-        tax: {
+        rate: {
           type: Number,
         },
       },
     ],
+    transactionId: {
+      type: Number,
+    },
     subTotal: {
-      type: Number,
-    },
-    otherCharges: {
-      type: Number,
-    },
-    discount: {
       type: Number,
     },
     totalAmount: {
       type: Number,
     },
-    paidAmount:{
+    paidAmount: {
       type: Number,
     },
     signedBy: {
@@ -42,13 +40,10 @@ const purchaseSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "Supplier",
     },
-    invoice: {
-      type: String,
-    },
   },
   { timestamps: true }
 );
 
-const Purchase = mongoose.model("Purchase", purchaseSchema);
+const PurchaseReturn = mongoose.model("PurchaseReturn", purchaseReturnSchema);
 
-module.exports = Purchase;
+module.exports = PurchaseReturn;

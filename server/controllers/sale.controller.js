@@ -5,60 +5,52 @@ const Sale = require("../models/sale.model");
 const Customer = require("../models/customer.model");
 
 const getSales = async (req, res) => {
-  try {
-    const { limit = 10, page = 1, sort = 'createdAt', sortType = 'desc' } = req.query;
-    const sales = await Sale.find()
+  const {
+    limit = 10,
+    page = 1,
+    sort = "createdAt",
+    sortType = "asc",
+  } = req.query;
+  const sales = await Sale.find()
     .populate("signedBy")
     .populate("customer")
-      .limit(limit)
-      .skip((page - 1) * limit)
-      .sort({ [sort]: sortType });
+    .limit(limit)
+    .skip((page - 1) * limit)
+    .sort({ [sort]: sortType });
 
-    const totalSales = await Sale.countDocuments();
+  const totalSales = await Sale.countDocuments();
 
-    res.json({
-      success: true,
-      sales,
-      totalPages: Math.ceil(totalSales / limit) || 1,
-      page,
-      totalSales,
-    });
-  } catch (error) {
-    res.status(500).json({ message: error.message, success: false });
-  }
+  res.json({
+    success: true,
+    sales,
+    totalPages: Math.ceil(totalSales / limit) || 1,
+    page,
+    totalSales,
+  });
 };
 
 const getEmployeeSales = async (req, res) => {
-  try {
-    const { limit = 10, page = 1, employeeId = { $exists: true } } = req.query;
-    const sales = await Sale.find({ signedBy: employeeId })
-      .limit(limit)
-      .skip((page - 1) * limit);
+  const { limit = 10, page = 1, employeeId = { $exists: true } } = req.query;
+  const sales = await Sale.find({ signedBy: employeeId })
+    .limit(limit)
+    .skip((page - 1) * limit);
 
-    const totalSales = await Sale.countDocuments({ signedBy: employeeId });
-    res.json({
-      success: true,
-      sales,
-      totalPages: Math.ceil(totalSales / limit) || 1,
-      page,
-      totalSales,
-    });
-  } catch (error) {
-    res.status(500).json({ message: error.message, success: false });
-  }
+  const totalSales = await Sale.countDocuments({ signedBy: employeeId });
+  res.json({
+    success: true,
+    sales,
+    totalPages: Math.ceil(totalSales / limit) || 1,
+    page,
+    totalSales,
+  });
 };
 
 const getSale = async (req, res) => {
-  try {
-    const sale = await Sale.findById(req.params.id);
+    const sale = await Sale.findOne({ transactionId: req.params.id });
     res.json({ success: true, sale });
-  } catch (error) {
-    res.status(500).json({ message: error.message, success: false });
-  }
 };
 
 const addSale = async (req, res) => {
-  try {
     const {
       products = [
         {
@@ -81,36 +73,41 @@ const addSale = async (req, res) => {
       return res.status(400).json({ message: "Products are required." });
     }
 
+    const transformedProducts = products.map(({ _id, ...rest }) => ({
+      product: _id,
+      ...rest,
+    }));
+
     const sale = await Sale.create({
-      products,
-      signedBy : req.user.id,
+      products: transformedProducts,
+      signedBy: req.user.id,
       subTotal,
       tax,
       otherCharges,
       discount,
       totalAmount,
       paymentMode,
-    });   
-    
-    if(customerMobile) {
+    });
+
+    if (customerMobile) {
       const customer = await Customer.findOne({ phone: customerMobile });
       if (!customer) {
         const newCustomer = new Customer({ phone: customerMobile });
         await newCustomer.save();
         sale.customer = newCustomer._id;
-      }else
-      {
+      } else {
         sale.customer = customer._id;
       }
     }
-    
+
     await sale.save();
 
     // Update Inventory
-    req.body.products.forEach(async (product) => {
+    transformedProducts.forEach(async (product) => {
       const inventory = await Inventory.findOne({
         product: product.product,
         sellingRate: product.sellingRate,
+        purchaseRate: product.purchaseRate,
       });
       const detailedProduct = await Product.findById(product.product);
 
@@ -131,28 +128,25 @@ const addSale = async (req, res) => {
 
     // 10 digit transaction ID prefixed by TRN
     const generateTransactionId = async () => {
-        const ID = `TRN${Math.floor(1000000000 + Math.random() * 9000000000)}`;
-        const sale = await Sale.findOne({ transactionId: ID });
-        if (sale) {
-          return generateTransactionId();
-        } else {
-          return ID;
-        }
-      };
+      const ID = `TRN${Math.floor(1000000000 + Math.random() * 9000000000)}`;
+      const sale = await Sale.findOne({ transactionId: ID });
+      if (sale) {
+        return generateTransactionId();
+      } else {
+        return ID;
+      }
+    };
 
-    sale.transactionId = await generateTransactionId() 
+    sale.transactionId = await generateTransactionId();
+    await sale.save();
 
     sale.invoice = await generateSaleInvoice(sale._id);
 
     await sale.save();
     res.json({ success: true, sale });
-  } catch (error) {
-    res.status(500).json({ message: error.message, success: false });
-  }
 };
 
 const getRecentSale = async (req, res) => {
-  try {
     // Find the most recent sale by sorting by date descending
     const recentSale = await Sale.findOne({})
       .sort({ createdAt: -1 })
@@ -173,7 +167,7 @@ const getRecentSale = async (req, res) => {
         productName: item?.product?.name,
         quantity: item?.quantity,
         unit: item?.product?.unit,
-        rate: item?.saleRate,
+        rate: item?.sellingRate,
         totalPrice: item?.quantity * item?.sellingRate,
       })),
       customer: recentSale.customer
@@ -193,12 +187,6 @@ const getRecentSale = async (req, res) => {
     };
 
     res.json({ recentSale: recentSaleDetails });
-  } catch (error) {
-    console.error("Error fetching recent sale:", error.message);
-    res
-      .status(500)
-      .json({ error: "Failed to fetch the most recent sale." });
-  }
 };
 
 module.exports = {

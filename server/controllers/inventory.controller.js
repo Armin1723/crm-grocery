@@ -1,8 +1,7 @@
 const Inventory = require("../models/inventory.model");
 
 const getProductsFromInventory = async (req, res) => {
-  try {
-    const { name, upid, page = 1, limit = 10 } = req.query;
+    const { name, barcode, page = 1, limit = 10 } = req.query;
     const skip = (page - 1) * limit;
 
     // Build the aggregation pipeline
@@ -16,7 +15,7 @@ const getProductsFromInventory = async (req, res) => {
         },
       },
       { $unwind: "$details" },
-      {$match: {quantity: {$gt: 0}}},
+      { $match: { quantity: { $gt: 0 } } },
     ];
 
     // If a name query is provided, add a match stage to filter by name
@@ -26,10 +25,18 @@ const getProductsFromInventory = async (req, res) => {
           "details.name": { $regex: name, $options: "i" },
         },
       });
-    }else if (upid) {
+    } else if (barcode) {
+      if (barcode.startsWith("BPG")) {
+        pipeline.push({
+          $match: {
+            "details.upid": { $regex: barcode, $options: "i" },
+          },
+        });
+      }
+    } else {
       pipeline.push({
         $match: {
-          "details.upid": { $regex: upid, $options: "i" },
+          "details.upc": { $regex: barcode, $options: "i" },
         },
       });
     }
@@ -55,17 +62,9 @@ const getProductsFromInventory = async (req, res) => {
       totalPages: Math.ceil(totalItems / limit),
       currentPage: parseInt(page),
     });
-  } catch (error) {
-    console.error("Error fetching inventory:", error);
-    res
-      .status(500)
-      .json({ message: "Failed to fetch inventory.", error: error.message });
-  }
 };
 
 const getProductsGroupedByCategory = async (req, res) => {
-  try {
-    // Build the aggregation pipeline
     const pipeline = [
       {
         $lookup: {
@@ -108,15 +107,6 @@ const getProductsGroupedByCategory = async (req, res) => {
 
     // Respond with grouped inventory
     res.status(200).json(groupedInventory);
-  } catch (error) {
-    console.error("Error fetching grouped inventory:", error);
-    res
-      .status(500)
-      .json({
-        message: "Failed to fetch grouped inventory.",
-        error: error.message,
-      });
-  }
 };
 
 module.exports = { getProductsFromInventory, getProductsGroupedByCategory };

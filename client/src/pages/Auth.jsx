@@ -14,7 +14,7 @@ const Auth = () => {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    if(user) {
+    if(user && user.avatar) {
       toast.info("You are already logged in");
       navigate("/");
     }

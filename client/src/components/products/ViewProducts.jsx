@@ -4,6 +4,7 @@ import Pagination from "../utils/Pagination";
 import SortableLink from "../utils/SortableLink";
 import ProductActionButton from "./ProductActionButton";
 import CategorySelection from "./CategorySelection";
+import Avatar from "../utils/Avatar";
 
 const ViewProducts = () => {
   const [loading, setLoading] = useState(false);
@@ -60,13 +61,14 @@ const ViewProducts = () => {
         <ExportButton title="Products" />
       </div>
 
-      <div className="table-wrapper flex relative max-h-[55vh] flex-1 my-2 overflow-x-scroll">
+      <div className="table-wrapper flex relative max-h-[55vh] flex-1 my-2 overflow-x-scroll ">
         <div
-          className={`table-container w-full min-w-fit bg-[var(--bg-card)] h-full flex flex-col flex-nowrap overflow-x-auto shadow-md rounded-md max-sm:text-xs text-wrap relative ${
+          className={`table-container w-full min-w-fit bg-[var(--bg-card)] h-full flex flex-col flex-nowrap overflow-x-auto shadow-md rounded-md max-sm:text-xs text-wrap relative px-2 ${
             loading && "overflow-hidden"
           }`}
         >
           <div className="table-headers flex w-full justify-between py-3 px-4 border rounded-t-md border-neutral-500  max-sm:px-1 sticky top-0 bg-[var(--color-card)] z-[20] font-semibold gap-2">
+          <p className="w-[10%] min-w-[100px] py-1">Image</p>
             <div className="w-1/5 min-w-[50px] flex items-center gap-2 ">
               <SortableLink
                 title="name"
@@ -94,9 +96,9 @@ const ViewProducts = () => {
                 setSortType={setSortType}
               />
             </div>
-            <div className="w-[10%] min-w-[50px] flex items-center  ">
+            <div className="w-[15%] min-w-[50px] flex items-center  ">
               <SortableLink
-                title="unit"
+                title="units"
                 isActive={sort === "unit"}
                 sortType={sortType}
                 setSort={setSort}
@@ -107,7 +109,7 @@ const ViewProducts = () => {
             <p className="w-[10%] min-w-[50px] py-1">Actions</p>
           </div>
 
-          <div className="flex-1 border-l border-r border-neutral-500 flex flex-col justify-between">
+          <div className="table-row-goup flex-1 border-l border-r border-neutral-500 flex flex-col ">
             {results?.products?.length ? (
               results?.products?.map((product, index) => {
                 return (
@@ -115,6 +117,9 @@ const ViewProducts = () => {
                     key={index}
                     className="tr flex w-full justify-between items-center py-2 px-4 max-sm:px-1 gap-2 hover:bg-accent/10"
                   >
+                    <div className="w-[10%] min-w-[100px] py-1">
+                    <Avatar image={product.image} alt={product.name} width={50} fallbackImage="/utils/product-placeholder.png"/>
+                    </div>
                     <div className="w-1/5 min-w-[50px]">{product?.name}</div>
                     <div className="w-[10%] min-w-[50px] px-2">
                       {product?.rate || "N/A"}
@@ -122,8 +127,8 @@ const ViewProducts = () => {
                     <div className="w-[10%] min-w-[50px] px-2 capitalize">
                       {product?.category || "N/A"}
                     </div>
-                    <div className="w-[10%] min-w-[50px] px-2">
-                      {product?.unit || "N/A"}
+                    <div className="w-[15%] min-w-[50px] px-2 capitalize">
+                      {product?.primaryUnit || "N/A"},{product?.secondaryUnit || "N/A"}
                     </div>
                     <div className="flex items-center flex-wrap gap-2 w-1/5 min-w-[50px]">
                       {product?.tags?.length
@@ -149,7 +154,7 @@ const ViewProducts = () => {
                 );
               })
             ) : (
-              <div className="tr border-l border-r border-neutral-500 flex w-full flex-1 items-start py-2 px-4 max-sm:px-1 gap-2">
+              <div className="tr flex w-full flex-1 items-start py-2 px-4 max-sm:px-1 gap-2">
                 <p>No products found</p>
               </div>
             )}

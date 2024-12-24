@@ -17,11 +17,15 @@ const AddProduct = () => {
       <div className="title flex items-center gap-2 my-2">
         <p className="text-xl max-lg:text-lg font-bold ">Add Product</p>
         <div
-          className={`rounded-full w-4 aspect-square border-t border-b border-[var(--color-accent)] cursor-pointer ${isLoading && "animate-spin"}`}
+          className={`rounded-full w-4 aspect-square border-t border-b border-[var(--color-accent)] cursor-pointer ${
+            isLoading && "animate-spin"
+          }`}
           onClick={() => setRefetch((p) => !p)}
         ></div>
       </div>
-      <ProductForm closeModal={()=>setAddProductModalOpen(false)}/>
+      <div className="form-wrapper w-full px-1 flex-1 overflow-y-auto">
+        <ProductForm closeModal={() => setAddProductModalOpen(false)} />
+      </div>
     </div>
   );
 };

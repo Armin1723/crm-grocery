@@ -5,6 +5,7 @@ import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import SaveReload from "../utils/SaveReload";
 import ProductSuggestionSearch from "../utils/ProductSuggestionSearch";
+import AddByBarcode from "./AddByBarcode";
 
 const SaleForm = ({ setRefetch = () => {}, closeModal = () => {} }) => {
   const [products, setProducts] = useState([]);
@@ -104,8 +105,8 @@ const SaleForm = ({ setRefetch = () => {}, closeModal = () => {} }) => {
         }
       );
 
+      const data = await response.json();
       if (!response.ok) {
-        const data = await response.json();
         toast.update(id, {
           render: data.message || "Failed to add sale",
           type: "error",
@@ -122,7 +123,7 @@ const SaleForm = ({ setRefetch = () => {}, closeModal = () => {} }) => {
         reset();
         setProducts([]);
         setRefetch((prev) => !prev);
-        navigate("/sales");
+        navigate(`/sales/${data.sale.transactionId}/invoice`);
       }
     } catch (error) {
       toast.update(id, {
@@ -155,7 +156,7 @@ const SaleForm = ({ setRefetch = () => {}, closeModal = () => {} }) => {
         </div>
 
         {/* Add Product */}
-        <div className=" add-product flex items-center w-fit justify-end relative">
+        <div className="add-product flex items-center max-sm:space-y-1 w-full pr-2 flex-wrap relative justify-between">
           <ProductSuggestionSearch
             products={products}
             setProducts={setProducts}
@@ -163,8 +164,9 @@ const SaleForm = ({ setRefetch = () => {}, closeModal = () => {} }) => {
             setSuggestedProducts={setSuggestedProducts}
             type="sale"
           />
-          <p>Search by UPID</p>
+          <AddByBarcode products={products} setProducts={setProducts}/>
         </div>
+        <div className="table-wrapper flex relative max-h-[55vh] min-h-fit flex-1 my-2 overflow-x-scroll">
         {products.length > 0 ? (
           <div className="products-container overflow-x-scroll max-sm:px-2 table flex-col w-fit min-w-full max-sm:text-sm flex-1">
             <div className="th flex w-fit min-w-full flex-1 justify-between items-center gap-2 border border-neutral-500/50 bg-[var(--color-card)] rounded-t-md px-2 py-1 sticky top-0 ">
@@ -347,6 +349,7 @@ const SaleForm = ({ setRefetch = () => {}, closeModal = () => {} }) => {
             <p className="text-lg text-neutral-500">No products added</p>
           </div>
         )}
+        </div>
 
         {/* Customer Section */}
         <div className="flex flex-col w-full">

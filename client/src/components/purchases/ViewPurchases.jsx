@@ -104,7 +104,7 @@ const ViewPurchases = () => {
             <p className="w-[10%] min-w-[50px] py-1">Actions</p>
           </div>
 
-          <div className="flex-1 border-l border-r border-neutral-500 flex flex-col justify-between">
+          <div className="flex-1 border-l border-r border-neutral-500 flex flex-col ">
           {results?.purchases?.length ? (
             results?.purchases?.map((purchase, index) => {
               return (
@@ -134,7 +134,7 @@ const ViewPurchases = () => {
               );
             })
           ) : (
-            <div className="tr border-l border-r border-neutral-500 flex w-full flex-1 items-start py-2 px-4 max-sm:px-1 gap-2">
+            <div className="tr flex w-full flex-1 items-start py-2 px-4 max-sm:px-1 gap-2">
               <p>No purchases found</p>
             </div>
           )}

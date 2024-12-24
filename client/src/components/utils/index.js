@@ -277,6 +277,7 @@ export const units = [
   "dozen",
   "box",
   "packet",
+  "bag",
 ];
 
 export const formatDate = (date) => {
@@ -287,4 +288,17 @@ export const formatDate = (date) => {
     minute: "numeric",
     hour12: true,
   });
+};
+
+export const getColor = (height) => {
+  if (height <= 20) return '#FF0000ab'; 
+  if (height <= 40) return '#FF4500ab'; 
+  if (height <= 60) return '#FFA500ab'; 
+  if (height <= 80) return '#FFD700ab'; 
+  if (height <= 100) return '#FFFF00ab'; 
+  if (height <= 120) return '#ADFF2Fab'; 
+  if (height <= 140) return '#7FFF00ab'; 
+  if (height <= 160) return '#32CD32ab'; 
+  if (height <= 180) return '#008000ab'; 
+  return '#006400ab'; 
 };

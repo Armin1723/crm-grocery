@@ -20,6 +20,9 @@ import ViewPurchases from "./components/purchases/ViewPurchases";
 import AddPurchase from "./components/purchases/AddPurchase";
 import ViewSales from "./components/sales/ViewSales";
 import AddSale from "./components/sales/AddSale";
+import Sale from "./components/sales/Sale";
+import SaleInvoiceModal from "./components/sales/SaleInvoiceModal";
+import SalePage from "./components/sales/SalePage";
 
 const App = () => {
   const theme = useSelector((state) => state.theme.value);
@@ -37,6 +40,7 @@ const App = () => {
         theme={theme}
         toastStyle={{
           backgroundColor: "var(--color-sidebar)",
+          color: "var(--color-text)",
           border: "1px solid var(--color-card)",
         }}
       />
@@ -60,6 +64,10 @@ const App = () => {
           <Route path="sales" element={<Sales />}>
             <Route path="" element={<ViewSales />} />
             <Route path="add" element={<AddSale />} />
+          </Route>
+          <Route path="sales/:id" element={<SalePage />}>
+            <Route path='' element={<Sale />} />
+            <Route path="invoice" element={<SaleInvoiceModal />} />
           </Route>
 
           <Route path="inventory" element={<Inventory />} />

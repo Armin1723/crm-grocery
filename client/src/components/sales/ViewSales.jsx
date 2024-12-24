@@ -11,8 +11,8 @@ const ViewSales = () => {
 
   const [limit, setLimit] = useState(10);
   const [page, setPage] = useState(1);
-  const [sort, setSort] = useState("name");
-  const [sortType, setSortType] = useState("asc");
+  const [sort, setSort] = useState("createdAt");
+  const [sortType, setSortType] = useState("desc");
 
   const steps = [10, 20, 50, 100];
 
@@ -103,7 +103,7 @@ const ViewSales = () => {
             </div>
             <p className="w-[10%] min-w-[50px] py-1">Actions</p>
           </div>
-          <div className="table-row-goup flex-1 border-l border-r border-neutral-500 flex flex-col justify-between">
+          <div className="table-row-goup flex-1 border-l border-r border-neutral-500 flex flex-col ">
           {results?.sales?.length ? (
             results?.sales?.map((sale, index) => {
               return (
@@ -124,13 +124,13 @@ const ViewSales = () => {
                     {formatDate(sale?.createdAt) || "N/A"}
                   </div>
                   <div className="actions w-[10%] min-w-[50px] flex items-center justify-center gap-2">
-                   <SaleActionButton />
+                    <SaleActionButton sale={sale}/>
                   </div>
                 </div>
               );
             })
           ) : (
-            <div className="tr border-l border-r border-neutral-500 flex w-full flex-1 items-start py-2 px-4 max-sm:px-1 gap-2">
+            <div className="tr flex w-full flex-1 items-start py-2 px-4 max-sm:px-1 gap-2">
               <p>No sales found</p>
             </div>
           )}

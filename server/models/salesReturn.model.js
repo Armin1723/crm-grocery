@@ -1,25 +1,21 @@
 const mongoose = require("mongoose");
 
-const returnSchema = new mongoose.Schema(
+const salesReturnSchema = new mongoose.Schema(
   {
-    type: {
+    reason: {
       type: String,
       required: true,
-      enum: ["Purchase", "Sale"],
     },
     products: [
       {
         product: {
-          type: mongoosee.Schema.Types.ObjectId,
+          type: mongoose.Schema.Types.ObjectId,
           ref: "Product",
         },
         quantity: {
           type: Number,
         },
         rate: {
-          type: Number,
-        },
-        tax: {
           type: Number,
         },
       },
@@ -30,20 +26,17 @@ const returnSchema = new mongoose.Schema(
     subTotal: {
       type: Number,
     },
-    otherCharges: {
-      type: Number,
-    },
-    discount: {
-      type: Number,
-    },
     totalAmount: {
+      type: Number,
+    },
+    paidAmount: {
       type: Number,
     },
     signedBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
     },
-    participantId: {
+    supplier: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Customer",
     },
@@ -51,6 +44,6 @@ const returnSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-const Return = mongoose.model("Return", returnSchema);
+const SalesReturn = mongoose.model("SalesReturn", salesReturnSchema);
 
-module.exports = Return;
+module.exports = SalesReturn;

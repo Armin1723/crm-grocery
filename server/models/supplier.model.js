@@ -16,6 +16,19 @@ const supplierSchema = new mongoose.Schema({
         required: true,
         unique: true,
     },
+    gstin: {
+        type: String,
+    },
+    pan: {
+        type: String,
+    },
+    balance: {
+        type: Number,
+        default: 0,
+    },
+    notes: {
+        type: String,
+    },
     
 }, { timestamps: true });
 
