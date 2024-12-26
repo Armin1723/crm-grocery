@@ -4,12 +4,14 @@ const supplierSchema = new mongoose.Schema({
     name: {
         type: String,
         required: true,
+        unique: true,
     },
     address: {
         type: String,
     },
     email: {
         type: String,
+        lowercase: true,
     },
     phone: {
         type: String,

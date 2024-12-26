@@ -1,12 +1,10 @@
 import React, { useEffect, useState } from "react";
 import Pagination from "../utils/Pagination";
 import SortableLink from "../utils/SortableLink";
-import ProductActionButton from "./ProductActionButton";
-import CategorySelection from "./CategorySelection";
-import Avatar from "../utils/Avatar";
 import SearchBar from "../utils/SearchBar";
+import { Link } from "react-router-dom";
 
-const ViewProducts = () => {
+const ViewSuppliers = () => {
 
   const [loading, setLoading] = useState(false);
   const [refetch, setRefetch] = useState(false);
@@ -15,7 +13,6 @@ const ViewProducts = () => {
   const [page, setPage] = useState(1);
   const [sort, setSort] = useState("name");
   const [sortType, setSortType] = useState("asc");
-  const [category, setCategory] = useState(null);
   const [query, setQuery] = useState("");
 
   const steps = [10, 20, 50, 100];
@@ -23,15 +20,13 @@ const ViewProducts = () => {
   const [results, setResults] = useState();
 
   useEffect(() => {
-    const fetchProducts = async () => {
+    const fetchSuppliers = async () => {
       try {
         setLoading(true);
         const response = await fetch(
           `${
             import.meta.env.VITE_BACKEND_URL
-          }/api/v1/products?sort=${sort}&sortType=${sortType}&limit=${limit}&query=${query}&page=${page}${
-            category ? `&category=${category}` : ""
-          }`
+          }/api/v1/suppliers?sort=${sort}&sortType=${sortType}&limit=${limit}&query=${query}&page=${page}`
         );
         const data = await response.json();
         if (!response.ok) {
@@ -44,33 +39,31 @@ const ViewProducts = () => {
         setLoading(false);
       }
     };
-    fetchProducts();
-  }, [refetch, limit, page, sort, sortType, category, query]);
+    fetchSuppliers();
+  }, [refetch, limit, page, sort, sortType, query]);
 
   return (
     <div className="p-3 rounded-md flex h-full flex-col gap-2 border border-neutral-500/50 bg-[var(--color-sidebar)]">
       <div className="top flex w-full justify-between items-center flex-wrap my-2">
         <div className="title flex items-center gap-2 flex-wrap ">
-          <p className="text-xl max-lg:text-lg font-bold ">View Products</p>
+          <p className="text-xl max-lg:text-lg font-bold ">View Suppliers</p>
           <p
             className={`${
               loading && "animate-spin"
             } w-4 aspect-square rounded-full border-t border-b border-accent/90 cursor-pointer`}
             onClick={() => setRefetch((p) => !p)}
           ></p>
-          <CategorySelection category={category} setCategory={setCategory} />
         </div>
         <SearchBar query={query} setQuery={setQuery} />
       </div>
 
       <div className="table-wrapper flex relative max-h-[55vh] flex-1 my-2 overflow-x-scroll ">
         <div
-          className={`table-container w-full min-w-[700px] bg-[var(--bg-card)] h-full flex flex-col flex-nowrap overflow-x-auto shadow-md rounded-md max-sm:text-xs text-wrap relative px-2 ${
+          className={`table-container w-full min-w-fit bg-[var(--bg-card)] h-full flex flex-col flex-nowrap overflow-x-auto shadow-md rounded-md max-sm:text-xs text-wrap relative px-2 ${
             loading && "overflow-hidden"
           }`}
         >
           <div className="table-headers flex w-full justify-between py-3 px-4 border rounded-t-md border-neutral-500  max-sm:px-1 sticky top-0 bg-[var(--color-card)] z-[20] font-semibold gap-2">
-          <p className="w-[10%] min-w-[100px] py-1">Image</p>
             <div className="w-1/5 min-w-[50px] flex items-center gap-2 ">
               <SortableLink
                 title="name"
@@ -82,8 +75,8 @@ const ViewProducts = () => {
             </div>
             <div className="w-[10%] min-w-[50px] flex items-center  ">
               <SortableLink
-                title="rate"
-                isActive={sort === "rate"}
+                title="balance"
+                isActive={sort === "balance"}
                 sortType={sortType}
                 setSort={setSort}
                 setSortType={setSortType}
@@ -91,8 +84,8 @@ const ViewProducts = () => {
             </div>
             <div className="w-[15%] min-w-[50px] flex items-center  ">
               <SortableLink
-                title="category"
-                isActive={sort === "category"}
+                title="phone"
+                isActive={sort === "phone"}
                 sortType={sortType}
                 setSort={setSort}
                 setSortType={setSortType}
@@ -100,57 +93,37 @@ const ViewProducts = () => {
             </div>
             <div className="w-[15%] min-w-[50px] flex items-center  ">
               <SortableLink
-                title="units"
-                isActive={sort === "unit"}
+                title="email"
+                isActive={sort === "email"}
                 sortType={sortType}
                 setSort={setSort}
                 setSortType={setSortType}
               />
             </div>
-            <p className="w-1/5 min-w-[100px] py-1">Tags</p>
-            <p className="w-[10%] min-w-[50px] py-1">Actions</p>
+            <div className="w-[10%] min-w-[50px] py-1">Actions</div>
           </div>
 
           <div className="table-row-goup flex-1 border-l border-r border-neutral-500 flex flex-col ">
-            {results?.products?.length ? (
-              results?.products?.map((product, index) => {
+            {results?.suppliers?.length ? (
+              results?.suppliers?.map((supplier, index) => {
                 return (
                   <div
                     key={index}
                     className="tr flex w-full justify-between items-center py-2 px-4 max-sm:px-1 gap-2 hover:bg-accent/10"
                   >
-                    <div className="w-[10%] min-w-[100px] py-1">
-                    <Avatar image={product.image} alt={product.name} width={50} fallbackImage="/utils/product-placeholder.png"/>
-                    </div>
-                    <div className="w-1/5 min-w-[50px]">{product?.name}</div>
+                    <div className="w-1/5 min-w-[50px]">{supplier?.name}</div>
                     <div className="w-[10%] min-w-[50px] px-2">
-                      {product?.rate || "N/A"}
+                      {supplier?.balance || "N/A"}
                     </div>
                     <div className="w-[15%] min-w-[50px] px-2 capitalize">
-                      {product?.category || "N/A"}
+                      {supplier?.phone || "N/A"}
                     </div>
-                    <div className="w-[15%] min-w-[50px] px-2 capitalize flex-wrap">
-                      <p>{product?.primaryUnit || "N/A"},</p>
-                      <p>{product?.secondaryUnit || "N/A"}</p>
-                    </div>
-                    <div className="flex items-center flex-wrap gap-2 w-1/5 min-w-[50px]">
-                      {product?.tags?.length
-                        ? product?.tags?.map((tag, index) => {
-                            return (
-                              <span
-                                key={index}
-                                onClick={() => setQuery(tag)}
-                                className="cursor-pointer px-2 py-0.5 bg-accent/10 rounded-xl border border-neutral-500/50 gap-3 capitalize flex text-sm max-sm:text-xs"
-                              >
-                                {tag}
-                              </span>
-                            );
-                          })
-                        : "N/A"}
+                    <div className="w-[15%] min-w-[50px] px-2 capitalize">
+                      {supplier?.email || "N/A"}
                     </div>
                     <div className="actions w-[10%] min-w-[50px] flex items-center justify-center gap-2">
-                      <ProductActionButton
-                        product={product}
+                      <SupplierActionButton
+                        supplier={supplier}
                         setRefetch={setRefetch}
                       />
                     </div>
@@ -158,8 +131,9 @@ const ViewProducts = () => {
                 );
               })
             ) : (
-              <div className="tr flex w-full flex-1 items-start py-2 px-4 max-sm:px-1 gap-2">
-                <p>No products found</p>
+              <div className="tr flex flex-col w-full flex-1 items-start py-2 px-4 max-sm:px-1 gap-2">
+                <p>No suppliers added.</p>
+                <Link to='add' className="rounded-md px-3 py-1 bg-accent hover:bg-accentDark transition-all duration-300 ease-in text-white">Add Supplier?</Link>
               </div>
             )}
           </div>
@@ -225,4 +199,4 @@ const ViewProducts = () => {
   );
 };
 
-export default ViewProducts;
+export default ViewSuppliers;

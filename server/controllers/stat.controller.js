@@ -104,7 +104,6 @@ const getBasicStats = async (req, res) => {
         : currentMonthProductCount > 0
         ? 100
         : 0;
-    console.log(percentageProductChange);
 
     // Fetch total Inventory value grouped by date
     const inventoryData = await Inventory.aggregate([
@@ -155,22 +154,22 @@ const getBasicStats = async (req, res) => {
       stats: {
         sales: {
           total: totalSales,
-          increase: percentageChange.toFixed(1),
+          increase: parseFloat(percentageChange.toFixed(1)),
           data: salesData,
         },
         purchases: {
           total: totalPurchases,
-          increase: percentagePurchaseChange.toFixed(1),
+          increase: parseFloat(percentagePurchaseChange.toFixed(1)),
           data: purchaseData,
         },
         products: {
           total: totalProducts,
-          increase: percentageProductChange.toFixed(1),
+          increase: parseFloat(percentageProductChange.toFixed(1)),
           data: productsData,
         },
         inventory: {
           total: totalInventory,
-          increase: percentageInventoryChange.toFixed(1),
+          increase: parseFloat(percentageInventoryChange.toFixed(1)),
           data: inventoryData,
         },
       },

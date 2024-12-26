@@ -65,7 +65,7 @@ const AlertForm = ({product, closeModal}) => {
             Enter quantity
           </label>
         </div>
-        {product?.unit}
+        {product?.secondaryUnit}
       </div>
       <div className="buttons flex gap-2 max-sm:flex-col">
         <button onClick={setAlert} disabled={!quantity} className="w-1/2 max-sm:w-full px-3 py-1.5 text-white rounded-md bg-accent hover:bg-accentDark transiton-all duration-300 disabled:cursor-not-allowed">

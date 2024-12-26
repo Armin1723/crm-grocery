@@ -4,7 +4,7 @@ import InventoryCard from "./InventoryCard";
 const InventoryTable = ({ inventory }) => {
   return (
     <div className="flex flex-col flex-1 w-full">
-      {inventory?.map((categoryData) => {
+      {(inventory && inventory.length) ? inventory.map((categoryData) => {
         return (
           <div key={categoryData._id} className="flex flex-col gap-1">
             <p className="text-lg max-lg:text-base font-bold pl-2">
@@ -21,7 +21,11 @@ const InventoryTable = ({ inventory }) => {
             </div>
           </div>
         );
-      })}
+      }) : (
+        <p className="text-lg max-lg:text-base p-2">
+          No products found in inventory.
+        </p>
+      )}
     </div>
   );
 };

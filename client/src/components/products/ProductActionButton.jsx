@@ -1,19 +1,50 @@
 import React, { useState, useEffect, useRef } from "react";
-import { FaBell, FaEdit } from "react-icons/fa";
+import { FaBell, FaEdit, FaSync } from "react-icons/fa";
 import { HiDotsVertical } from "react-icons/hi";
 import { useNavigate } from "react-router-dom";
 import ProductForm from "./ProductForm";
 import AlertForm from "./AlertForm";
+import { toast } from "react-toastify";
 
 const ProductActionButton = ({ product, setRefetch = () => {} }) => {
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef(null);
   const navigate = useNavigate();
 
-  const [quantity, setQuantity] = useState("");
-
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [alertModalOpen, setAlertModalOpen] = useState(false);
+
+  const autoRateProduct = async () => {
+    const id = toast.loading("Setting Rate Automatically...");
+    try {
+      const response = await fetch(
+        `${import.meta.env.VITE_BACKEND_URL}/api/v1/products/${product._id}/auto-set-rate`,
+        {
+          method: "POST",
+          credentials: "include",
+        }
+      );
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.message || "Failed to set rate automatically");
+      }
+      toast.update(id, {
+        render: "Rate Set Successfully",
+        type: "success",
+        isLoading: false,
+        autoClose: 3000,
+      });
+      setRefetch((prev) => !prev);
+    } catch (error) {
+      toast.update(id, {
+        render: error.message,
+        type: "error",
+        isLoading: false,
+        autoClose: 3000,
+      });
+    }
+  };
+
 
   // Close menu when clicking outside
   useEffect(() => {
@@ -92,12 +123,25 @@ const ProductActionButton = ({ product, setRefetch = () => {} }) => {
           <FaBell />
           <p className="capitalize">Set Alert</p>
         </div>
+
+        {!product.rate && <div
+          className="menu-item px-4 py-1 text-sm text-center hover:bg-accentDark/10 cursor-pointer transition-all duration-200 ease-in flex items-center gap-2"
+          role="menuitem"
+          tabIndex={0}
+          onClick={() => {
+            setMenuOpen(false);
+            autoRateProduct();
+          }}
+        >
+          <FaSync />
+          <p className="capitalize">Auto Rate</p>
+        </div>}
       </div>
 
       {/* Edit Modal */}
       {editModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-[1000]">
-          <div className="bg-[var(--color-sidebar)] rounded-md p-6 w-1/2 max-sm:w-[90%] overflow-y-auto max-h-[90vh] max-sm:px-6">
+          <div className="bg-[var(--color-sidebar)] rounded-md p-6 w-2/3 max-sm:w-[90%] overflow-y-auto max-h-[90vh] max-sm:px-6">
             <div className="flex items-center gap-2 w-full justify-between my-4">
               <h2 className="text-lg font-bold ">Edit Product</h2>
               <button

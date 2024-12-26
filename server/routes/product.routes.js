@@ -7,6 +7,7 @@ const {
   searchProduct,
   setStockPreference,
   getTrendingProducts,
+  autoSetRate,
 } = require("../controllers/product.controller");
 const { asyncHandler } = require("../middleware/errorHandler");
 const multer = require("multer");
@@ -30,6 +31,8 @@ router.post(
   upload.fields([{ name: "image" }]),
   asyncHandler(editProduct)
 );
+
+router.post("/:id/auto-set-rate", asyncHandler(autoSetRate));
 
 router.delete("/:id", asyncHandler(deleteProduct));
 

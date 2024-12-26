@@ -1,6 +1,12 @@
 import React from "react";
 
-const Avatar = ({ image, width = 24, fallbackImage = "" , alt = 'avatar'}) => {
+const Avatar = ({
+  image,
+  width = 24,
+  fallbackImage = "",
+  alt = "avatar",
+  withBorder = true,
+}) => {
   return (
     <img
       src={image || fallbackImage || "https://github.com/shadcn.png"}
@@ -9,7 +15,9 @@ const Avatar = ({ image, width = 24, fallbackImage = "" , alt = 'avatar'}) => {
       style={{
         width: `${width}px`,
       }}
-      className=" bg-[var(--bg-primary)] max-sm:w-8 aspect-square rounded-full border border-neutral-500 shadow-md object-contain"
+      className={` bg-[var(--bg-primary)] max-sm:w-8 aspect-square rounded-full ${
+        withBorder && "border"
+      } border-neutral-500 shadow-md object-contain`}
     />
   );
 };

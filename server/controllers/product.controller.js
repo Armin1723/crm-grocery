@@ -3,6 +3,7 @@ const Product = require("../models/product.model");
 const Sale = require("../models/sale.model");
 const { sendMail } = require("../helpers");
 const cloudinary = require("../config/cloudinary");
+const Purchase = require("../models/purchase.model");
 
 const getProduct = async (req, res) => {
   const product = await Product.findById(req.params.id);
@@ -82,6 +83,7 @@ const getProducts = async (req, res) => {
     sort = "createdAt",
     sortType = "desc",
     name,
+    query,
   } = req.query;
 
   if (name) {
@@ -91,15 +93,24 @@ const getProducts = async (req, res) => {
     return res.json({ success: true, products });
   }
 
-  const categoryFilter = category
-    ? { category: { $regex: category, $options: "i" } }
-    : {};
-  const products = await Product.find(categoryFilter)
+  let filter = {};
+  if (category) {
+    filter.category = { $regex: category, $options: "i" };
+  }
+  if (query) {
+    filter.$or = [
+      { name: { $regex: query, $options: "i" } },
+      { description: { $regex: query, $options: "i" } },
+      { tags: { $elemMatch: { $regex: query, $options: "i" } } },
+    ];
+  }
+
+  const products = await Product.find(filter)
     .limit(limit)
     .skip((page - 1) * limit)
     .sort({ [sort]: sortType });
 
-  const totalProducts = await Product.countDocuments(categoryFilter);
+  const totalProducts = await Product.countDocuments(filter);
   const totalPages = Math.ceil(totalProducts / limit);
 
   res.json({ success: true, products, page, totalProducts, totalPages });
@@ -188,10 +199,10 @@ const setStockPreference = async (req, res) => {
 };
 
 const editProduct = async (req, res) => {
-   let updateData = {...req.body};
-   if(req.files){
+  let updateData = { ...req.body };
+  if (req.files) {
     const { image } = req.files;
-    if(image){
+    if (image) {
       try {
         const cloudinaryResponse = await cloudinary.uploader.upload(
           image[0].path,
@@ -213,17 +224,82 @@ const editProduct = async (req, res) => {
         });
       }
     }
-   }
+  }
 
   const product = await Product.findByIdAndUpdate(req.params.id, updateData, {
     new: true,
   });
   res.json({ success: true, product, message: "Product updated successfully" });
-} 
+};
 
 const deleteProduct = async (req, res) => {
   await Product.findByIdAndDelete(req.params.id);
   res.json({ success: true, message: "Product deleted successfully" });
+};
+
+const autoSetRate = async (req, res) => {
+  // Use aggregation to find the highest purchase rate for the product
+  const result = await Purchase.aggregate([
+    {
+      // Match purchases that have the product in their products array
+      $match: {
+        "products.product": req.params.id,
+      },
+    },
+    {
+      // Project the purchase rate for the specific product in the products array
+      $project: {
+        purchaseRate: {
+          $arrayElemAt: [
+            {
+              $filter: {
+                input: "$products",
+                as: "product",
+                cond: { $eq: ["$$product.product", req.params.id] },
+              },
+            },
+            0,
+          ],
+        },
+      },
+    },
+    {
+      // Unwind the products array to get individual purchase records
+      $unwind: "$purchaseRate",
+    },
+    {
+      // Sort by purchase rate in descending order to find the highest
+      $sort: { "purchaseRate.purchaseRate": -1 },
+    },
+    {
+      // Limit to the top 1 record to get the highest purchase rate
+      $limit: 1,
+    },
+  ]);
+
+  // If no purchase records are found for the product
+  if (result.length === 0) {
+    res.status(404).json({
+      success: false,
+      message: "No purchase records found for the product",
+    });
+  } else {
+    const highestPurchaseRate = result[0].purchaseRate.purchaseRate;
+
+    // Calculate the new rate (10% more)
+    const newPurchaseRate = highestPurchaseRate * 1.1;
+
+    await Product.findByIdAndUpdate(
+      req.params.id,
+      { rate: newPurchaseRate },
+      { new: true }
+    );
+    // You can update the product or perform any other action here
+    res.status(200).json({
+      success: true,
+      message: "Rate set successfully",
+    });
+  }
 };
 
 module.exports = {
@@ -235,4 +311,5 @@ module.exports = {
   searchProduct,
   editProduct,
   deleteProduct,
+  autoSetRate,
 };

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import ExportButton from "../utils/ExportButton";
 import SortableLink from "../utils/SortableLink";
 import Pagination from "../utils/Pagination";
@@ -6,6 +6,7 @@ import { formatDate } from "../utils";
 import PurchaseActionButton from "./PurchaseActionButton";
 
 const ViewPurchases = () => {
+
   const [loading, setLoading] = useState(false);
   const [refetch, setRefetch] = useState(false);
 

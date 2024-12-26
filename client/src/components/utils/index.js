@@ -1,6 +1,6 @@
 import { AiFillProduct } from "react-icons/ai";
 import { BsInboxesFill } from "react-icons/bs";
-import { FaChartLine, FaHome, FaShoppingCart } from "react-icons/fa";
+import { FaChartLine, FaHome, FaShoppingCart, FaStore } from "react-icons/fa";
 
 export const links = [
   {
@@ -28,6 +28,11 @@ export const links = [
     title: "Inventory",
     to: "/inventory",
   },
+  {
+    icon: FaStore,
+    title: "Suppliers",
+    to: "/suppliers",
+  }
 ];
 
 export const categories = [
@@ -280,6 +285,25 @@ export const units = [
   "bag",
 ];
 
+export const taxSlabs = [
+  {
+    name: "GST 5%",
+    rate: 5,
+  },
+  {
+    name: "GST 12%",
+    rate: 12,
+  },
+  {
+    name: "GST 18%",
+    rate: 18,
+  },
+  {
+    name: "GST 28%",
+    rate: 28,
+  }
+]
+
 export const formatDate = (date) => {
   return new Date(date).toLocaleString("en-IN", {
     day: "numeric",
@@ -302,3 +326,10 @@ export const getColor = (height) => {
   if (height <= 180) return '#008000ab'; 
   return '#006400ab'; 
 };
+
+export const autoSetConversionFactor = (primaryUnit, secondaryUnit) => {
+  if (primaryUnit === "kg" && secondaryUnit === "gram") return 1000;
+  if (primaryUnit === "litre" && secondaryUnit === "ml") return 1000;
+  if (primaryUnit === "dozen" && secondaryUnit === "piece") return 12;
+  return 1;
+}

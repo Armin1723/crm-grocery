@@ -13,6 +13,10 @@ const productSchema = new mongoose.Schema(
       type: String,
       trim: true,
     },
+    location:{
+      shelf: {type: String},
+      row: {type: String},
+    },
     image: {
       type: String,
     },

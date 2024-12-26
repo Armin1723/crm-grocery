@@ -76,16 +76,6 @@ const Cards = () => {
         })}
 
       </div>
-      {/* <div className="border-t border-neutral-500/50 relative">
-        <div
-          onClick={() => setExpanded((prev) => !prev)}
-          className={`absolute right-4 -translate-y-1/2 p-1 rounded-full bg-[var(--color-sidebar)] border-2 border-neutral-500/50 flex items-center justify-center transition-all duration-600 ease-in-out cursor-pointer ${
-            expanded ? "rotate-180" : ""
-          }`}
-        >
-          <GoChevronDown title="Show Cards"/>
-        </div>
-      </div> */}
     </div>
   );
 };

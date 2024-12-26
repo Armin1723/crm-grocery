@@ -23,6 +23,9 @@ import AddSale from "./components/sales/AddSale";
 import Sale from "./components/sales/Sale";
 import SaleInvoiceModal from "./components/sales/SaleInvoiceModal";
 import SalePage from "./components/sales/SalePage";
+import Suppliers from "./components/home/Suppliers";
+import ViewSuppliers from "./components/suppliers/ViewSuppliers";
+import AddSuppliers from "./components/suppliers/AddSuppliers";
 
 const App = () => {
   const theme = useSelector((state) => state.theme.value);
@@ -71,6 +74,11 @@ const App = () => {
           </Route>
 
           <Route path="inventory" element={<Inventory />} />
+
+          <Route path="/suppliers" element={<Suppliers />} >
+            <Route path="" element={<ViewSuppliers />} />
+            <Route path="add" element={<AddSuppliers />} />
+          </Route>
         </Route>
 
         <Route path="/auth" element={<Auth />}>

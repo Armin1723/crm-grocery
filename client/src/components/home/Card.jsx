@@ -115,17 +115,20 @@ const Card = ({ data, index, chartData = {} }) => {
             </ResponsiveContainer>
           </div>
           <div className="inc-dec w-full flex flex-col items-end justify-center ">
-            {parseInt(data.increase) > 0 ? (
-              <div className="flex flex-col items-end font-bold">
-                <p className="text-[limeGreen] text-xl">{chartData?.increase || 0}%</p>
-                <p className="text-sm">this month</p>
-              </div>
-            ) : (
-              <div className="flex flex-col items-end font-bold">
-                <p className="text-red-600 text-xl">{chartData?.increase || 0}%</p>
-                <p className="text-sm">this month</p>
-              </div>
-            )}
+            <div className="flex flex-col items-end font-bold">
+              <p
+                className={`${
+                  chartData.increase > 0
+                    ? "text-[limeGreen]"
+                    : chartData.increase == 0
+                    ? "text-accent"
+                    : "text-[tomato]"
+                } text-xl`}
+              >
+                {chartData?.increase || 0}%
+              </p>
+              <p className="text-sm">this month</p>
+            </div>
           </div>
         </div>
         {/* Background overlay */}
