@@ -35,6 +35,9 @@ const productSchema = new mongoose.Schema(
     mrp: {
       type: Number,
     },
+    rate:{
+      type: Number,
+    },
     tax: {
       type: Number,
     },

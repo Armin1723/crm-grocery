@@ -65,48 +65,59 @@ const getProductsFromInventory = async (req, res) => {
 };
 
 const getProductsGroupedByCategory = async (req, res) => {
-    const pipeline = [
-      {
-        $lookup: {
-          from: "products",
-          localField: "product",
-          foreignField: "_id",
-          as: "productDetails",
-        },
+  const pipeline = [
+    // Unwind batches to access individual batch details
+    { $unwind: "$batches" },
+  
+    // Lookup to populate product details
+    {
+      $lookup: {
+        from: "products",
+        localField: "product",
+        foreignField: "_id",
+        as: "productDetails",
       },
-      { $unwind: "$productDetails" },
-
-      {
-        $group: {
-          _id: "$productDetails.category",
-          products: {
-            $push: {
-              _id: "$_id",
-              details: "$productDetails",
-              quantity: "$quantity",
-              purchaseRate: "$purchaseRate",
-              sellingRate: "$sellingRate",
-              createdAt: "$createdAt",
-              updatedAt: "$updatedAt",
-            },
+    },
+  
+    // Unwind productDetails to access product fields
+    { $unwind: "$productDetails" },
+  
+    // Group by product category
+    {
+      $group: {
+        _id: "$productDetails.category",
+        products: {
+          $push: {
+            _id: "$_id",
+            productName: "$productDetails.name",
+            quantity: "$batches.quantity",
+            purchaseRate: "$batches.purchaseRate",
+            sellingRate: "$batches.sellingRate",
+            mrp: "$batches.mrp",
+            expiry: "$batches.expiry",
+            totalQuantity: "$totalQuantity",
+            createdAt: "$createdAt",
+            updatedAt: "$updatedAt",
           },
         },
       },
-
-      {
-        $project: {
-          category: "$_id",
-          _id: 0,
-          products: 1,
-        },
+    },
+  
+    // Project the desired output
+    {
+      $project: {
+        category: "$_id",
+        _id: 0,
+        products: 1,
       },
-    ];
-
-    // Execute the aggregation pipeline
-    const groupedInventory = await Inventory.aggregate(pipeline);
-
-    // Respond with grouped inventory
-    res.status(200).json(groupedInventory);
+    },
+  ];
+  
+  // Execute the aggregation pipeline
+  const groupedInventory = await Inventory.aggregate(pipeline);
+  
+  // Respond with grouped inventory
+  res.status(200).json(groupedInventory);  
 };
 
 module.exports = { getProductsFromInventory, getProductsGroupedByCategory };

@@ -112,7 +112,7 @@ const ViewSuppliers = () => {
                     key={index}
                     className="tr flex w-full justify-between items-center py-2 px-4 max-sm:px-1 gap-2 hover:bg-accent/10"
                   >
-                    <div className="w-1/5 min-w-[50px]">{supplier?.name}</div>
+                    <Link to={`/suppliers/${supplier?._id}`} className="w-1/5 min-w-[50px]">{supplier?.name}</Link>
                     <div
                       className={`w-[10%] min-w-[50px] px-2 font-semibold flex items-center gap-2 ${
                         supplier.balance > 0

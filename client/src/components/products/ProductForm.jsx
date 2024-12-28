@@ -49,7 +49,7 @@ const ProductForm = ({
       subCategory: product.subCategory || "",
       shelfLife: product.shelfLife || "",
       tax: product.tax || 0,
-      mrp: product.mrp || null,
+      mrp: product.mrp || undefined,
       primaryUnit: product.primaryUnit || "",
       secondaryUnit: product.secondaryUnit || "",
       conversionFactor: product.conversionFactor || 0,
@@ -110,7 +110,7 @@ const ProductForm = ({
     formData.append("secondaryUnit", values.secondaryUnit);
     formData.append("conversionFactor", values.conversionFactor);
     formData.append("rate", values.rate);
-    formData.append("mrp", values.mrp);
+    if (values.mrp) formData.append("mrp", values.mrp);
     formData.append("shelfLife", values.shelfLife);
     formData.append("description", values.description);
     formData.append("tax", values.tax);
@@ -129,7 +129,7 @@ const ProductForm = ({
     if (values.image instanceof File) {
       formData.append("image", values.image);
     }
-    
+
     try {
       const response = await fetch(
         `${import.meta.env.VITE_BACKEND_URL}/api/v1/products${
@@ -586,7 +586,9 @@ const ProductForm = ({
                 errors && errors.mrp && "border-red-500 focus:!border-red-500"
               }`}
               name="mrp"
-              {...register("mrp")}
+              {...register("mrp", {
+                valueAsNumber: true,
+              })}
             />
           </FormInput>
         </div>

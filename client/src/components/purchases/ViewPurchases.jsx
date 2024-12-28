@@ -4,6 +4,7 @@ import SortableLink from "../utils/SortableLink";
 import Pagination from "../utils/Pagination";
 import { formatDate } from "../utils";
 import PurchaseActionButton from "./PurchaseActionButton";
+import { Link } from "react-router-dom";
 
 const ViewPurchases = () => {
 

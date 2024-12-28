@@ -137,6 +137,9 @@ const getPurchase = async (req, res) => {
           name: "$supplier.name",
           phone: "$supplier.phone",
           email: "$supplier.email",
+          gstin: "$supplier.gstin", 
+          pan: "$supplier.pan",
+          notes: "$supplier.notes",
           balance: "$supplier.balance",
         },
         signedBy: {

@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import Divider from "../utils/Divider";
-import { FaStore } from "react-icons/fa";
 import { AiFillCheckCircle, AiFillWarning } from "react-icons/ai";
 import Avatar from "../utils/Avatar";
 import PurchaseDetailActions from "./PurchaseDetailActions";
+import SupplierCard from "../suppliers/SupplierCard";
 
 const PurchaseDetails = () => {
   const { id } = useParams();
@@ -150,36 +150,8 @@ const PurchaseDetails = () => {
 
         {/* Supplier Information */}
         <Divider title="Supplier Information" />
-        <div className="supplierInfo flex flex-col gap-2 w-full rounded-md p-3 bg-[var(--color-card)]">
-          <div className="flex max-sm:flex-col items-center gap-4 max-sm:gap-2 w-full ">
-            <FaStore className="text-6xl aspect-square text-accent/70 items-left" />
-            <div className="details flex max-sm:w-full flex-1 justify-between items-center">
-              <div className="details-left flex flex-col">
-                <Link
-                  to={`/suppliers/${purchase?.supplier?._id}`}
-                  className="text-xl font-bold"
-                >
-                  {purchase?.supplier?.name}
-                </Link>
-                <p>{purchase?.supplier?.email}</p>
-                <p>{purchase?.supplier?.phone}</p>
-              </div>
-              <div className="balance px-3 py-1 rounded-md bg-accent/70 text-white font-semibold flex items-center justify-center h-fit gap-2">
-                <p className="">Balance: </p>
-                <p
-                  className={`${
-                    purchase?.supplier?.balance < 0
-                      ? "text-green-500"
-                      : "text-red-500"
-                  }`}
-                >
-                  {purchase?.supplier?.balance}
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-        
+        <SupplierCard supplier={purchase?.supplier} />
+
       </div>
     </div>
   );

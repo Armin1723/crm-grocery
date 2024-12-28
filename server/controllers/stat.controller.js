@@ -107,10 +107,14 @@ const getBasicStats = async (req, res) => {
 
     // Fetch total Inventory value grouped by date
     const inventoryData = await Inventory.aggregate([
+      // Unwind the batches array to access individual batch details
+      { $unwind: "$batches" },
+    
+      // Group and calculate total value
       {
         $group: {
-          _id: { $month: "$createdAt" }, // Group by month
-          totalValue: { $sum: { $multiply: ["$quantity", "$sellingRate"] } }, // Calculate total value for each month
+          _id: null,
+          totalValue: { $sum: { $multiply: ["$batches.quantity", "$batches.purchaseRate"] } },
         },
       },
       {

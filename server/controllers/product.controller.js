@@ -4,6 +4,7 @@ const Sale = require("../models/sale.model");
 const { sendMail } = require("../helpers");
 const cloudinary = require("../config/cloudinary");
 const Purchase = require("../models/purchase.model");
+const mongoose = require("mongoose");
 
 const getProduct = async (req, res) => {
   const product = await Product.findById(req.params.id);
@@ -238,66 +239,65 @@ const deleteProduct = async (req, res) => {
 };
 
 const autoSetRate = async (req, res) => {
-  // Use aggregation to find the highest purchase rate for the product
-  const result = await Purchase.aggregate([
-    {
-      // Match purchases that have the product in their products array
-      $match: {
-        "products.product": req.params.id,
-      },
-    },
-    {
-      // Project the purchase rate for the specific product in the products array
-      $project: {
-        purchaseRate: {
-          $arrayElemAt: [
-            {
-              $filter: {
-                input: "$products",
-                as: "product",
-                cond: { $eq: ["$$product.product", req.params.id] },
-              },
-            },
-            0,
-          ],
+  try {
+    // Use aggregation to find the highest purchase rate for the product
+    const result = await Purchase.aggregate([
+      // Unwind the products array to access individual product entries
+      { $unwind: "$products" },
+
+      // Match the specific product ID in the products array
+      {
+        $match: {
+          "products.product": new mongoose.Types.ObjectId(req.params.id),
         },
       },
-    },
-    {
-      // Unwind the products array to get individual purchase records
-      $unwind: "$purchaseRate",
-    },
-    {
-      // Sort by purchase rate in descending order to find the highest
-      $sort: { "purchaseRate.purchaseRate": -1 },
-    },
-    {
-      // Limit to the top 1 record to get the highest purchase rate
-      $limit: 1,
-    },
-  ]);
 
-  // If no purchase records are found for the product
-  if (result.length === 0) {
-    res.status(404).json({
-      success: false,
-      message: "No purchase records found for the product",
-    });
-  } else {
-    const highestPurchaseRate = result[0].purchaseRate.purchaseRate;
+      // Project only the purchase rate for the matched product
+      {
+        $project: {
+          purchaseRate: "$products.purchaseRate",
+        },
+      },
+
+      // Sort by purchase rate in descending order to get the highest
+      { $sort: { purchaseRate: -1 } },
+
+      // Limit to the top 1 record
+      { $limit: 1 },
+    ]);
+
+    // If no purchase records are found for the product
+    if (result.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "No purchase records found for the product",
+      });
+    }
+
+    // Extract the highest purchase rate
+    const highestPurchaseRate = result[0].purchaseRate;
 
     // Calculate the new rate (10% more)
     const newPurchaseRate = highestPurchaseRate * 1.1;
 
+    // Update the product with the new rate
     await Product.findByIdAndUpdate(
       req.params.id,
-      { rate: newPurchaseRate },
+      { rate: Math.floor(newPurchaseRate) },
       { new: true }
     );
-    // You can update the product or perform any other action here
+
+    // Respond with success
     res.status(200).json({
       success: true,
       message: "Rate set successfully",
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      success: false,
+      message: "An error occurred while setting the rate",
+      error: error.message,
     });
   }
 };

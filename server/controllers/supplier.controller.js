@@ -1,7 +1,15 @@
+const Product = require("../models/product.model");
+const Purchase = require("../models/purchase.model");
 const Supplier = require("../models/supplier.model");
 
 const getSuppliers = async (req, res) => {
-  const { limit = 10, page = 1, name, sort = 'name', sortType = 'asc' } = req.query;
+  const {
+    limit = 10,
+    page = 1,
+    name,
+    sort = "name",
+    sortType = "asc",
+  } = req.query;
 
   const nameQuery = name ? { name: { $regex: name, $options: "i" } } : {};
   const suppliers = await Supplier.find(nameQuery)
@@ -23,6 +31,46 @@ const getSupplier = async (req, res) => {
   res.json({ success: true, supplier });
 };
 
+const getSupplierPurchases = async (req, res) => {
+  const {
+    limit = 10,
+    page = 1,
+    sort = "createdAt",
+    sortType = "desc",
+  } = req.query;
+  const supplier = await Supplier.findById(req.params.id).select("_id").lean();
+  if (!supplier) {
+    return res.json({ success: false, message: "Supplier not found" });
+  }
+  const purchases = await Purchase.find({ supplier: req.params.id })
+    .limit(limit)
+    .skip((page - 1) * limit)
+    .sort({ [sort]: sortType });
+  const totalPurchases = await Purchase.countDocuments({
+    supplier: req.params.id,
+  });
+  const totalPages = Math.ceil(totalPurchases / limit) || 1;
+
+  res.json({ success: true, purchases, page, totalPurchases, totalPages });
+};
+
+const getSupplierProducts = async (req, res) => {
+  const { limit = 10, page = 1 } = req.query;
+  const supplier = await Supplier.findById(req.params.id).select("_id").lean();
+  if (!supplier) {
+    return res.json({ success: false, message: "Supplier not found" });
+  }
+  const products = await Product.find({ supplier: req.params.id })
+    .limit(limit)
+    .skip((page - 1) * limit);
+  const totalProducts = await Product.find({
+    supplier: req.params.id,
+  }).countDocuments();
+  const hasMore = totalProducts > page * limit;
+
+  res.json({ success: true, products, hasMore });
+};
+
 const addSupplier = async (req, res) => {
   const { name, phone } = req.body;
   if (!name || !phone) {
@@ -35,16 +83,10 @@ const addSupplier = async (req, res) => {
 };
 
 const editSupplier = async (req, res) => {
-  const { name, email, phone, address } = req.body;
-  const supplier = await Supplier.findById(req.params.id);
+  const supplier = await Supplier.findByIdAndUpdate(req.params.id, req.body);
   if (!supplier) {
     return res.json({ success: false, message: "Supplier not found" });
   }
-  supplier.name = name;
-  supplier.email = email;
-  supplier.phone = phone;
-  supplier.address = address;
-  await supplier.save();
   res.json({ success: true, supplier });
 };
 
@@ -60,6 +102,8 @@ const deleteSupplier = async (req, res) => {
 module.exports = {
   getSuppliers,
   getSupplier,
+  getSupplierPurchases,
+  getSupplierProducts,
   addSupplier,
   editSupplier,
   deleteSupplier,

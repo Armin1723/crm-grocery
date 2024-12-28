@@ -27,6 +27,7 @@ import Suppliers from "./components/home/Suppliers";
 import ViewSuppliers from "./components/suppliers/ViewSuppliers";
 import AddSuppliers from "./components/suppliers/AddSuppliers";
 import PurchaseDetails from "./components/purchases/PurchaseDetails";
+import SupplierDetails from "./components/suppliers/SupplierDetails";
 
 const App = () => {
   const theme = useSelector((state) => state.theme.value);
@@ -80,6 +81,7 @@ const App = () => {
           <Route path="/suppliers" element={<Suppliers />} >
             <Route path="" element={<ViewSuppliers />} />
             <Route path="add" element={<AddSuppliers />} />
+            <Route path=":id" element={<SupplierDetails />} />
           </Route>
         </Route>
 

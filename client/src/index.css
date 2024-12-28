@@ -10,6 +10,7 @@
   --color-card: #ffffff;
   --color-card-overlay: #ffffffe0;
   --color-text: #000000;
+  --color-text-light: #6b7280;
   --color-accent: #5d3fd3;
   --color-accent-dark: #4c1d95;
 
@@ -19,6 +20,7 @@
     --color-card: #1f2939;
     --color-card-overlay: #1f2937e0;
     --color-text: #ffffffe0;
+    --color-text-light: #d1d5dbd0; 
   }
 }
 

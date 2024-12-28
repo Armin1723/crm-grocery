@@ -22,19 +22,19 @@ const InventoryCard = ({ product }) => {
     return Math.min(Math.max(height, 0), 100);
   };
 
-  const height = formatHeight(product?.details?.unit);
+  const height = formatHeight(product?.details?.secondaryUnit);
 
   return (
     <div className="inventory-card relative flex flex-col items-center justify-center w-full aspect-video rounded-md border border-neutral-500/50 shadow-[0_0_20px_gray] !shadow-neutral-500/20 bg-[var(--color-card)] pr-2">
       <div className="title w-full flex flex-col py-3 max-sm:py-2 px-4">
         <div className="line-1 flex w-full justify-between items-center">
           <p className="text-lg max-sm:text-base font-bold">
-            {product?.details?.name}
+            {product?.productName}
           </p>
           <InventoryActionButton product={product} />
         </div>
         <p className="">
-          Stock: {product?.quantity} {product?.details?.unit}
+          Stock: {product?.totalQuantity} {product?.details?.unit}
         </p>
         <div className="flex gap-3 w-full ">
           
@@ -56,7 +56,7 @@ const InventoryCard = ({ product }) => {
         >
           {/* Wave animation masked to the container */}
           <Wave
-            fill={getColor(formatHeight(product?.details?.unit))}
+            fill={getColor(formatHeight(product?.details?.secondaryUnit))}
             paused={false}
             style={{
               position: "absolute",
