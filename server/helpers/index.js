@@ -13,7 +13,7 @@ const generatePurchaseInvoice = async (purchaseId) => {
       .populate("products.product")
       .populate("supplier")
       .populate("signedBy");
-    const doc = new PDFDocument({ margin: 50 }); 
+    const doc = new PDFDocument({ margin: 50 });
 
     const filePath = `./tmp/invoice_${purchase._id}.pdf`;
     const stream = fs.createWriteStream(filePath);
@@ -49,7 +49,7 @@ const generatePurchaseInvoice = async (purchaseId) => {
     doc
       .fontSize(12)
       .text(
-        "S.No    Product Name                        Qty       Rate       Tax         Total",
+        "S.No    Product Name                        Qty       Rate         Total",
         { underline: true }
       )
       .moveDown(0.5);
@@ -59,16 +59,13 @@ const generatePurchaseInvoice = async (purchaseId) => {
       const productName = item?.product?.name || "Unknown";
       const quantity = item?.quantity || 0;
       const purchaseRate = item.purchaseRate || 0;
-      const tax = (item.quantity * item.purchaseRate * item.tax) / 100 || 0;
-      const total = quantity * purchaseRate + tax;
+      const total = quantity * purchaseRate;
 
       doc
         .text(
           `${index + 1}        ${productName.padEnd(
             30
-          )}       ${quantity}        ${purchaseRate.toFixed(
-            2
-          )}        ${tax.toFixed(2)}        ${total.toFixed(2)}`,
+          )}       ${quantity}        ${purchaseRate.toFixed(2)}       ${total.toFixed(2)}`,
           { align: "left" }
         )
         .moveDown(0.5);
@@ -88,6 +85,12 @@ const generatePurchaseInvoice = async (purchaseId) => {
       .text(`Total Amount: ${purchase.totalAmount.toFixed(2)}`, {
         align: "right",
         underline: true,
+      })
+      .text(`Paid Amount: ${purchase.paidAmount.toFixed(2)}`, {
+        align: "right",
+      })
+      .text(`Deficit Amount: ${purchase.deficitAmount.toFixed(2)}`, {
+        align: "right",
       });
 
     // **Footer Section**
@@ -131,7 +134,7 @@ const generateSaleInvoice = async (saleId) => {
       .populate("products.product")
       .populate("customer")
       .populate("signedBy");
-    const doc = new PDFDocument({ margin: 50 }); 
+    const doc = new PDFDocument({ margin: 50 });
 
     const filePath = `./tmp/invoice_${sale._id}.pdf`;
     const stream = fs.createWriteStream(filePath);

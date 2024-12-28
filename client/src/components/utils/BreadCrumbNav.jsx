@@ -21,12 +21,12 @@ const BreadCrumbNav = () => {
             const routeTo = `/${pathnames.slice(0, index + 1).join("/")}`;
             const isLast = index === pathnames.length - 1;
             return isLast ? (
-              <span key={name} className="hover:text-accent cursor-pointer transition-all duration-300 ease-in capitalize">{name}</span>
+              <span key={name} className="hover:text-accent cursor-pointer transition-all duration-300 ease-in capitalize text-nowrap">{name}</span>
             ) : (
               <span key={name}>
                 <Link
                   to={routeTo}
-                  className="hover:text-accent transition-all duration-300 ease-in capitalize"
+                  className="hover:text-accent transition-all duration-300 ease-in capitalize text-nowrap"
                 >
                   {name}
                 </Link>

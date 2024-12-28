@@ -32,7 +32,7 @@ const productSchema = new mongoose.Schema(
         type: String,
       },
     ],
-    rate: {
+    mrp: {
       type: Number,
     },
     tax: {

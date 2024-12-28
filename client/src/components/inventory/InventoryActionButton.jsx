@@ -77,7 +77,7 @@ const InventoryActionButton = ({product}) => {
             </div>
     
             <Link
-              to={`/purchases/${purchase?._id}`}
+              to={`/purchases/${product?._id}`}
               className="menu-item px-4 py-1 text-sm text-center hover:bg-accentDark/10 cursor-pointer transition-all duration-200 ease-in flex items-center gap-2"
               role="menuitem"
               tabIndex={0}
@@ -105,7 +105,7 @@ const InventoryActionButton = ({product}) => {
                 </div>
                 {/* Modal Content for Editing */}
                 <div>
-                    <embed src={purchase?.invoice} type="application/pdf" width="100%" height="500px" />
+                    <embed src={product?.invoice} type="application/pdf" width="100%" height="500px" />
                 </div>
               </div>
             </div>

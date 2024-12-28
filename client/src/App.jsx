@@ -26,6 +26,7 @@ import SalePage from "./components/sales/SalePage";
 import Suppliers from "./components/home/Suppliers";
 import ViewSuppliers from "./components/suppliers/ViewSuppliers";
 import AddSuppliers from "./components/suppliers/AddSuppliers";
+import PurchaseDetails from "./components/purchases/PurchaseDetails";
 
 const App = () => {
   const theme = useSelector((state) => state.theme.value);
@@ -61,6 +62,7 @@ const App = () => {
           <Route path="purchases" element={<Purchases />}>
             <Route path="" element={<ViewPurchases />} />
             <Route path="add" element={<AddPurchase />} />
+            <Route path=":id" element={<PurchaseDetails />} />
           </Route>
 
           {/* Sales Routes */}

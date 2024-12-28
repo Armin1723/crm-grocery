@@ -88,7 +88,7 @@ const getProducts = async (req, res) => {
 
   if (name) {
     const products = await Product.find({
-      name: { $regex: `^${name}`, $options: "i" },
+      name: { $regex: `${name}`, $options: "i" },
     }).limit(5);
     return res.json({ success: true, products });
   }

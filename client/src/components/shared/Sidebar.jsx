@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Avatar from "../utils/Avatar";
 import { MdChevronRight } from "react-icons/md";
 import { Link, useLocation } from "react-router-dom";
@@ -10,6 +10,18 @@ const Sidebar = () => {
   const user = useSelector((state) => state.user);
   const [expanded, setExpanded] = useState(true);
   const pathname = useLocation().pathname;
+  
+  useEffect(() => {
+  const handleResize = () => {
+    if (window.innerWidth <= 768) setExpanded(false);
+    else setExpanded(true);
+  };
+
+  window.addEventListener("resize", handleResize);
+  handleResize();
+
+  return () => window.removeEventListener("resize", handleResize);
+}, []);
 
   return (
     <div
@@ -22,7 +34,7 @@ const Sidebar = () => {
       <div className="top flex w-full justify-between px-4 relative py-2 border-b border-neutral-500/50">
         <div className="logo flex items-center justify-start ">
           <p className="text-2xl font-bold">
-            CRM <span className={`${!expanded && "hidden"}`}>- Grocery </span>
+            CRM <span className={`${!expanded && "hidden"} max-md:hidden`}>- Grocery </span>
           </p>
         </div>
 

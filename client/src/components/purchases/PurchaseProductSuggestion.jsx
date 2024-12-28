@@ -2,12 +2,11 @@ import React, { useRef, useState } from "react";
 import { FaSearch } from "react-icons/fa";
 import { toast } from "react-toastify";
 
-const ProductSuggestionSearch = ({
+const PurchaseProductSuggestion = ({
   products = [],
   setProducts = () => {},
   suggestedProducts = [],
   setSuggestedProducts = () => {},
-  type = "purchase",
 }) => {
   const [selectedIndex, setSelectedIndex] = useState(-1);
   const inputRef = useRef(null);
@@ -17,9 +16,7 @@ const ProductSuggestionSearch = ({
     if (value.length > 1) {
       try {
         const response = await fetch(
-          `${import.meta.env.VITE_BACKEND_URL}/api/v1/${
-            type === "sale" ? "inventory/" : ""
-          }products?name=${value}`,
+          `${import.meta.env.VITE_BACKEND_URL}/api/v1/products?name=${value}`,
           { credentials: "include" }
         );
         const data = await response.json();
@@ -38,15 +35,8 @@ const ProductSuggestionSearch = ({
   };
 
   const handleAddProduct = (product) => {
-    const isMatch =
-      type === "purchase"
-        ? products.some((p) => p.name === product.name)
-        : products.some(
-            (p) =>
-              p.name === product?.details?.name &&
-              p.purchaseRate === product.purchaseRate &&
-              p.sellingRate === product.sellingRate
-          );
+    const isMatch = products.some((p) => p.name === product.name)
+        
 
     if (isMatch) {
       toast.error("Product already added", { autoClose: 2000 });
@@ -57,18 +47,10 @@ const ProductSuggestionSearch = ({
     }
 
     setProducts((prev) => [
-      ...prev,
-      {
-        _id: type === 'purchase' ? product._id : product.details?._id,
-        name: product.name || product.details?.name,
-        category: product.category || product.details?.category,
-        unit: product.unit || product.details?.unit,
+      ...prev, {
+        ...product,
         quantity: 1,
-        maxQuantity: product.quantity,
-        purchaseRate: product.purchaseRate || 0,
-        sellingRate: product.rate || product.sellingRate,
-        price: type === 'purchase' ? product.price : 0,
-      },
+      }
     ]);
 
     setSuggestedProducts([]);
@@ -110,8 +92,8 @@ const ProductSuggestionSearch = ({
         ref={inputRef}
       />
 
-<div className="suggested-products w-full absolute top-full left-0 z-[99] bg-[var(--color-card)] rounded-b-md shadow-md border border-neutral-500/50">
-      {suggestedProducts.length > 0 && 
+      <div className="suggested-products w-full absolute top-full left-0 z-[99] bg-[var(--color-card)] rounded-b-md shadow-md border border-neutral-500/50">
+        {suggestedProducts.length > 0 &&
           suggestedProducts.map((product, index) => (
             <div
               key={product._id}
@@ -121,14 +103,12 @@ const ProductSuggestionSearch = ({
               onMouseEnter={() => setSelectedIndex(index)}
               onClick={() => handleAddProduct(product)}
             >
-              <p>{product.name || product.details?.name}</p>
-              {type === "sale" && <span>{product.details?.rate}</span>}
+              <p>{product.name}</p>
             </div>
-          )
-        ) }
-        </div>
+          ))}
+      </div>
     </div>
   );
 };
 
-export default ProductSuggestionSearch;
+export default PurchaseProductSuggestion;

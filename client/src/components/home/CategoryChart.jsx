@@ -65,13 +65,13 @@ const CategoryChart = () => {
 
   return (
     <div className="w-full h-2/3 relative flex flex-col justify-center py-3 px-4 bg-[var(--color-sidebar)] border border-neutral-500/50 rounded-md">
-      <div className="flex flex-1">
+      <div className="flex flex-1 w-full">
         <div className="title px-3 py-2">
           <p className="text-xl font-bold">Stocks</p>
           <p className="text-xs text-neutral-500">by category</p>
         </div>
 
-        <div className="chart flex-1 relative cursor-pointer min-h-[18vh]">
+        <div className="chart w-full relative cursor-pointer min-h-[18vh] flex">
           <ResponsiveContainer width="99%" height="99%">
             <PieChart>
               <Pie

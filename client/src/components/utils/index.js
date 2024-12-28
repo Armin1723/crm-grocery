@@ -331,5 +331,6 @@ export const autoSetConversionFactor = (primaryUnit, secondaryUnit) => {
   if (primaryUnit === "kg" && secondaryUnit === "gram") return 1000;
   if (primaryUnit === "litre" && secondaryUnit === "ml") return 1000;
   if (primaryUnit === "dozen" && secondaryUnit === "piece") return 12;
+  if( primaryUnit == secondaryUnit) return 1;
   return 1;
 }

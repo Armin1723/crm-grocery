@@ -84,6 +84,15 @@ const ViewPurchases = () => {
                 setSortType={setSortType}
               />
             </div>
+            <div className="w-[15%] min-w-[80px] flex items-center  ">
+              <SortableLink
+                title="Balance"
+                isActive={sort === "deficitAmount"}
+                sortType={sortType}
+                setSort={setSort}
+                setSortType={setSortType}
+              />
+            </div>
             <div className="w-[15%] min-w-[50px] flex items-center  ">
               <SortableLink
                 title="signedBy"
@@ -118,6 +127,9 @@ const ViewPurchases = () => {
                   </div>
                   <div className="w-[15%] min-w-[80px] px-2">
                     {purchase?.totalAmount || "N/A"}
+                  </div>
+                  <div className="w-[15%] min-w-[80px] px-2">
+                    {purchase?.deficitAmount || 0}
                   </div>
                   <div className="w-[15%] min-w-[50px] px-2 capitalize">
                     {purchase?.signedBy?.name || "N/A"}

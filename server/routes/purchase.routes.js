@@ -4,6 +4,7 @@ const {
   getPurchase,
   getEmployeePurchases,
   getRecentPurchase,
+  addPayment,
 } = require("../controllers/purchase.controller");
 const { isLoggedIn } = require("../middleware");
 const { asyncHandler } = require("../middleware/errorHandler");
@@ -21,5 +22,7 @@ router.get("/employee/:employeeId", asyncHandler(getEmployeePurchases));
 router.post("/", asyncHandler(addPurchase));
 
 router.get("/:id", asyncHandler(getPurchase));
+
+router.post("/:id/payments", asyncHandler(addPayment));
 
 module.exports = router;

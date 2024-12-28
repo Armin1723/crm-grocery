@@ -7,7 +7,6 @@ import Avatar from "../utils/Avatar";
 import SearchBar from "../utils/SearchBar";
 
 const ViewProducts = () => {
-
   const [loading, setLoading] = useState(false);
   const [refetch, setRefetch] = useState(false);
 
@@ -70,7 +69,7 @@ const ViewProducts = () => {
           }`}
         >
           <div className="table-headers flex w-full justify-between py-3 px-4 border rounded-t-md border-neutral-500  max-sm:px-1 sticky top-0 bg-[var(--color-card)] z-[20] font-semibold gap-2">
-          <p className="w-[10%] min-w-[100px] py-1">Image</p>
+            <p className="w-[10%] min-w-[100px] py-1">Image</p>
             <div className="w-1/5 min-w-[50px] flex items-center gap-2 ">
               <SortableLink
                 title="name"
@@ -120,7 +119,13 @@ const ViewProducts = () => {
                     className="tr flex w-full justify-between items-center py-2 px-4 max-sm:px-1 gap-2 hover:bg-accent/10"
                   >
                     <div className="w-[10%] min-w-[100px] py-1">
-                    <Avatar image={product.image} alt={product.name} width={50} fallbackImage="/utils/product-placeholder.png"/>
+                      <Avatar
+                        image={product.image}
+                        alt={product.name}
+                        width={50}
+                        withBorder={false}
+                        fallbackImage="/utils/product-placeholder.png"
+                      />
                     </div>
                     <div className="w-1/5 min-w-[50px]">{product?.name}</div>
                     <div className="w-[10%] min-w-[50px] px-2">

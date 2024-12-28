@@ -1,13 +1,11 @@
 import React, { useState, useEffect, useRef } from "react";
 import { FaEdit } from "react-icons/fa";
 import { HiDotsVertical } from "react-icons/hi";
-import { useNavigate } from "react-router-dom";
 import SupplierForm from "./SupplierForm";
 
-const SupplierActionButton = ({ supplier, setRefetch = () => {} }) => {
+const SupplierActionButton = ({ supplier = {}, setRefetch = () => {} }) => {
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef(null);
-  const navigate = useNavigate();
 
   const [editModalOpen, setEditModalOpen] = useState(false);
 
@@ -61,13 +59,13 @@ const SupplierActionButton = ({ supplier, setRefetch = () => {} }) => {
           menuOpen ? "max-h-screen opacity-100" : "max-h-0 opacity-0"
         } absolute menu overflow-hidden top-full -left-1/2 !z-[999] bg-[var(--color-card)] transition-all duration-300 ease-in min-w-[120px] rounded-md py-1 flex flex-col gap-2 border-neutral-500/50 border shadow-md`}
         role="menu"
-        aria-hidden={!menuOpen}
       >
         <div
           className="menu-item px-4 py-1 text-sm text-center hover:bg-accentDark/10 cursor-pointer transition-all duration-200 ease-in flex items-center gap-2"
           role="menuitem"
           tabIndex={0}
-          onClick={() => {
+          onClick={(e) => {
+            e.stopPropagation();
             setMenuOpen(false);
             setEditModalOpen(true);
           }}
@@ -75,33 +73,33 @@ const SupplierActionButton = ({ supplier, setRefetch = () => {} }) => {
           <FaEdit />
           <p className="capitalize">Edit</p>
         </div>
+      </div>
 
-        {/* Edit Modal */}
-        {editModalOpen && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-[1000]">
-            <div className="bg-[var(--color-sidebar)] rounded-md p-6 w-2/3 max-sm:w-[90%] overflow-y-auto max-h-[90vh] max-sm:px-6">
-              <div className="flex items-center gap-2 w-full justify-between my-4">
-                <h2 className="text-lg font-bold ">Edit Product</h2>
-                <button
-                  className="bg-red-500 text-white px-3 py-1 rounded-md"
-                  onClick={() => setEditModalOpen(false)}
-                >
-                  Close
-                </button>
-              </div>
-              {/* Modal Content for Editing */}
-              <div>
-                <SupplierForm
-                  supplier={supplier}
-                  title="edit"
-                  setRefetch={setRefetch}
-                  closeModal={() => setEditModalOpen(false)}
-                />
-              </div>
+      {/* Edit Modal */}
+      {editModalOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-[1000]">
+          <div className="bg-[var(--color-sidebar)] rounded-md p-6 w-2/3 max-sm:w-[90%] overflow-y-auto max-h-[90vh] max-sm:px-6">
+            <div className="flex items-center gap-2 w-full justify-between my-4">
+              <h2 className="text-lg font-bold ">Edit Product</h2>
+              <button
+                className="bg-red-500 text-white px-3 py-1 rounded-md"
+                onClick={() => setEditModalOpen(false)}
+              >
+                Close
+              </button>
+            </div>
+            {/* Modal Content for Editing */}
+            <div>
+              <SupplierForm
+                supplier={supplier}
+                title="edit"
+                setRefetch={setRefetch}
+                closeModal={() => setEditModalOpen(false)}
+              />
             </div>
           </div>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   );
 };

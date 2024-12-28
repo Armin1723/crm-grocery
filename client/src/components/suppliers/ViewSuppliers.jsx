@@ -3,9 +3,10 @@ import Pagination from "../utils/Pagination";
 import SortableLink from "../utils/SortableLink";
 import SearchBar from "../utils/SearchBar";
 import { Link } from "react-router-dom";
+import SupplierActionButton from "./SupplierActionButton";
+import { FaArrowDown, FaArrowUp } from "react-icons/fa";
 
 const ViewSuppliers = () => {
-
   const [loading, setLoading] = useState(false);
   const [refetch, setRefetch] = useState(false);
 
@@ -91,7 +92,7 @@ const ViewSuppliers = () => {
                 setSortType={setSortType}
               />
             </div>
-            <div className="w-[15%] min-w-[50px] flex items-center  ">
+            <div className="w-[15%] min-w-[80px] flex items-center  ">
               <SortableLink
                 title="email"
                 isActive={sort === "email"}
@@ -112,13 +113,23 @@ const ViewSuppliers = () => {
                     className="tr flex w-full justify-between items-center py-2 px-4 max-sm:px-1 gap-2 hover:bg-accent/10"
                   >
                     <div className="w-1/5 min-w-[50px]">{supplier?.name}</div>
-                    <div className="w-[10%] min-w-[50px] px-2">
-                      {supplier?.balance || "N/A"}
+                    <div
+                      className={`w-[10%] min-w-[50px] px-2 font-semibold flex items-center gap-2 ${
+                        supplier.balance > 0
+                          ? "text-red-500"
+                          : supplier.balance < 0
+                          ? "text-green-500"
+                          : "text-blue-900"
+                      }`}
+                    >
+                      {supplier.balance > 0 && <FaArrowDown />}
+                      {supplier.balance < 0 && <FaArrowUp />}
+                      <p>{supplier.balance}</p>
                     </div>
                     <div className="w-[15%] min-w-[50px] px-2 capitalize">
                       {supplier?.phone || "N/A"}
                     </div>
-                    <div className="w-[15%] min-w-[50px] px-2 capitalize">
+                    <div className="w-[15%] min-w-[80px] px-2 ">
                       {supplier?.email || "N/A"}
                     </div>
                     <div className="actions w-[10%] min-w-[50px] flex items-center justify-center gap-2">
@@ -133,7 +144,12 @@ const ViewSuppliers = () => {
             ) : (
               <div className="tr flex flex-col w-full flex-1 items-start py-2 px-4 max-sm:px-1 gap-2">
                 <p>No suppliers added.</p>
-                <Link to='add' className="rounded-md px-3 py-1 bg-accent hover:bg-accentDark transition-all duration-300 ease-in text-white">Add Supplier?</Link>
+                <Link
+                  to="add"
+                  className="rounded-md px-3 py-1 bg-accent hover:bg-accentDark transition-all duration-300 ease-in text-white"
+                >
+                  Add Supplier?
+                </Link>
               </div>
             )}
           </div>
@@ -142,8 +158,8 @@ const ViewSuppliers = () => {
             <div className="flex items-center">
               <span>
                 Showing {(page - 1) * limit + 1} -{" "}
-                {Math.min(page * limit, results?.totalProducts)} of{" "}
-                {results?.totalProducts} results.
+                {Math.min(page * limit, results?.totalResults)} of{" "}
+                {results?.totalResults} results.
               </span>
               <div className="flex items-center gap-2 mx-2">
                 <button

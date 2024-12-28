@@ -6,6 +6,10 @@ const SearchBar = ({ query = "", setQuery = () => {} }) => {
   const [debouncedQuery, setDebouncedQuery] = useState(query);
 
   useEffect(() => {
+    setDebouncedQuery(query);
+  }, [query]);
+
+  useEffect(() => {
     const timer = setTimeout(() => {
       setQuery(debouncedQuery);
     }, 300);

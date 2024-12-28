@@ -6,7 +6,7 @@ import { FaRobot } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import AddProductModal from "./AddProductModal";
 import SaveReload from "../utils/SaveReload";
-import ProductSuggestionSearch from "../utils/ProductSuggestionSearch";
+import PurchaseProductSuggestion from "./PurchaseProductSuggestion";
 
 const PurchaseForm = ({ setRefetch = () => {}, closeModal = () => {} }) => {
   const [products, setProducts] = useState([]);
@@ -21,6 +21,7 @@ const PurchaseForm = ({ setRefetch = () => {}, closeModal = () => {} }) => {
     handleSubmit,
     formState: { errors },
     setValue,
+    getValues,
     reset,
     watch,
   } = useForm({
@@ -32,6 +33,7 @@ const PurchaseForm = ({ setRefetch = () => {}, closeModal = () => {} }) => {
       otherCharges: 0,
       discount: 0,
       totalAmount: 0,
+      paidAmount: 0,
     },
   });
 
@@ -57,7 +59,8 @@ const PurchaseForm = ({ setRefetch = () => {}, closeModal = () => {} }) => {
     const calculatedTotal =
       Number(subTotal) - Number(discount) + Number(otherCharges);
     setValue("totalAmount", calculatedTotal);
-  }, [subTotal, discount, otherCharges, setValue]);
+    setValue("paidAmount", calculatedTotal);
+  }, [subTotal, discount, otherCharges, setValue, products]);
 
   const fetchSuggestedSuppliers = async (e) => {
     const value = e.target.value;
@@ -115,12 +118,16 @@ const PurchaseForm = ({ setRefetch = () => {}, closeModal = () => {} }) => {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            supplier: supplierId,
-            products: products,
+            supplierId: supplierId,
+            products: products.map((product) => ({
+              ...product,
+              quantity: product.quantity * product.conversionFactor,
+            })),
             subTotal: values.subTotal,
             otherCharges: values.otherCharges,
             discount: values.discount,
             totalAmount: values.totalAmount,
+            paidAmount: values.paidAmount,
           }),
           credentials: "include",
         }
@@ -169,6 +176,7 @@ const PurchaseForm = ({ setRefetch = () => {}, closeModal = () => {} }) => {
           <input
             type="text"
             placeholder="Enter Supplier Name"
+            autoComplete="off"
             className={`outline-none border-b border-[var(--color-accent)] !z-[10] bg-transparent focus:border-[var(--color-accent-dark)] transition-all duration-300 peer ${
               errors.supplier && "border-red-500 focus:!border-red-500"
             }`}
@@ -216,133 +224,207 @@ const PurchaseForm = ({ setRefetch = () => {}, closeModal = () => {} }) => {
 
         {/* Add Product */}
         <div className="add-product flex items-end w-fit relative">
-          <ProductSuggestionSearch
+          <PurchaseProductSuggestion
             products={products}
             setProducts={setProducts}
             suggestedProducts={suggestedProducts}
             setSuggestedProducts={setSuggestedProducts}
-            type="purchase"
           />
           <AddProductModal />
         </div>
 
         <div className="table-wrapper flex relative max-h-[55vh] min-h-fit flex-1 my-2 overflow-x-scroll">
           {products.length > 0 ? (
-            <div className="products-container overflow-x-scroll w-fir table flex-col min-w-full max-sm:text-sm">
-              <div className="th flex w-fit min-w-full flex-1 justify-between items-center gap-2 border border-neutral-500/50 bg-[var(--color-card)] rounded-t-md px-2 py-1 sticky top-0 ">
+            <div className="products-container overflow-x-scroll w-fir table flex-col min-w-[1000px] max-sm:text-sm">
+              <div className="th flex w-fit min-w-full flex-1 justify-between items-center gap-4 border border-neutral-500/50 bg-[var(--color-card)] font-semibold rounded-t-md px-2 py-1 sticky top-0 ">
                 <p className="w-[5%] min-w-[30px]">*</p>
                 <p className="w-1/5 min-w-[100px]">Name</p>
-                <p className="w-1/5 min-w-[100px]">Category</p>
+                <p className="w-1/5 min-w-[120px]">Expiry</p>
+                <p className="w-1/5 min-w-[120px]">Purchase Rate</p>
+                <p className="w-1/5 min-w-[120px]">Selling Rate</p>
                 <p className="w-1/5 min-w-[50px]">MRP</p>
-                <p className="w-1/5 min-w-[150px]">Purchase Rate</p>
                 <p className="w-1/5 min-w-[80px]">Quantity</p>
-                <p className="w-1/5 min-w-[80px] flex justify-center">Price</p>
+                <p className="w-1/5 min-w-[80px] flex justify-end">Price</p>
               </div>
-              {products.map((product, index) => (
-                <div
-                  key={index}
-                  className="tr min-w-full w-fit flex-1 px-2 py-3 gap-2 border-l border-r border-neutral-500/50 product-item flex justify-between items-center"
-                >
-                  <button
-                    type="button"
-                    onClick={() =>
-                      setProducts((prev) => prev.filter((_, i) => i !== index))
-                    }
-                    className="w-[5%] min-w-[30px] text-red-500 hover:text-red-600 transition-all duration-300 ease-in"
+              {products.map((product, index) => {
+                const defaultExpiry = () => {
+                  if (product.shelfLife) {
+                    const date = new Date();
+                    date.setDate(date.getDate() + product.shelfLife);
+                    return date.toISOString().split("T")[0];
+                  }
+                };
+                return (
+                  <div
+                    key={index}
+                    className={` ${
+                      index % 2 !== 0
+                        ? "bg-[var(--color-card)]"
+                        : "bg-[var(--color-primary)]"
+                    } tr min-w-full w-fit flex-1 px-2 py-3 gap-4 border-l border-r border-neutral-500/50 product-item flex justify-between items-center`}
                   >
-                    <IoCloseCircle />
-                  </button>
-                  <p className="w-1/5 min-w-[100px] flex-wrap flex-grow">
-                    {product.name}
-                  </p>
-                  <p className="w-1/5 min-w-[100px]">{product.category}</p>
-                  <input
-                    type="number"
-                    min="0"
-                    step="0.1"
-                    value={product.sellingRate}
-                    onChange={(e) =>
-                      setProducts((prev) =>
-                        prev.map((p, i) =>
-                          i === index
-                            ? { ...p, sellingRate: Number(e.target.value) }
-                            : p
-                        )
-                      )
-                    }
-                    className={`w-1/5 min-w-[50px] ${
-                      product.sellingRate &&
-                      product.sellingRate <= product.purchaseRate &&
-                      "text-red-600"
-                    } outline-none border-b placeholder:text-sm bg-transparent border-[var(--color-accent)] p-1`}
-                  />
-                  <p className="w-1/5 min-w-[150px]">
-                    ₹{product.purchaseRate}
-                    <span className="text-sm max-sm:text-xs">
-                      /{product.unit}
-                    </span>
-                  </p>
-                  <div className="w-1/5 min-w-[80px]">
-                    <input
-                      type="number"
-                      min="1"
-                      placeholder="Quantity"
-                      value={product.quantity}
-                      className="border-b placeholder:text-sm bg-transparent border-[var(--color-accent)] outline-none p-1 w-20 "
-                      onChange={(e) =>
+                    <button
+                      type="button"
+                      onClick={() =>
                         setProducts((prev) =>
-                          prev.map((p, i) =>
-                            i === index
-                              ? {
-                                  ...p,
-                                  quantity: Number(e.target.value),
-                                  purchaseRate: e.target.value
-                                    ? parseFloat(
-                                        Number(
-                                          Number(p.price) /
-                                            Number(e.target.value)
-                                        ).toFixed(2)
-                                      )
-                                    : 0,
-                                }
-                              : p
-                          )
+                          prev.filter((_, i) => i !== index)
                         )
                       }
-                    />
-                  </div>
-                  <div className="w-1/5 min-w-[80px] flex justify-end">
-                    <input
-                      type="number"
-                      min="0"
-                      step="0.1"
-                      placeholder="Price"
-                      value={product.price}
-                      onChange={(e) =>
-                        setProducts((prev) =>
-                          prev.map((p, i) =>
-                            i === index
-                              ? {
-                                  ...p,
-                                  price: Number(e.target.value),
-                                  purchaseRate: e.target.value
-                                    ? parseFloat(
-                                        Number(
-                                          Number(e.target.value) /
-                                            Number(p.quantity)
-                                        ).toFixed(2)
-                                      )
-                                    : 0,
-                                }
-                              : p
+                      className="w-[5%] min-w-[30px] text-red-500 hover:text-red-600 transition-all duration-300 ease-in"
+                    >
+                      <IoCloseCircle />
+                    </button>
+                    <p className="w-1/5 min-w-[100px] flex-wrap flex-grow">
+                      {product.name}
+                    </p>
+                    <div className="w-1/5 min-w-[120px]">
+                      <input
+                        type="date"
+                        min={new Date().toISOString().split("T")[0]}
+                        defaultValue={defaultExpiry()}
+                        className="border-b placeholder:text-sm bg-transparent border-[var(--color-accent)] outline-none p-1 w-full"
+                        onChange={(e) =>
+                          setProducts((prev) =>
+                            prev.map((p, i) =>
+                              i === index
+                                ? {
+                                    ...p,
+                                    expiry: e.target.value,
+                                  }
+                                : p
+                            )
                           )
-                        )
-                      }
-                      className="border-b placeholder:text-sm bg-transparent border-[var(--color-accent)] outline-none p-1 w-20"
-                    />
+                        }
+                      />
+                    </div>
+                    <div className="w-1/5 min-w-[120px] relative">
+                      <input
+                        type="number"
+                        value={product.purchaseRate}
+                        readOnly
+                        className="w-full border-b border-accent bg-transparent outline-none p-1"
+                      />
+                      <span className="text-xs absolute top-1/2 -translate-y-1/2 right-2 rounded-lg bg-accent text-white px-2">
+                        ₹/{product.secondaryUnit}
+                      </span>
+                    </div>
+                    <div className="w-1/5 min-w-[120px] relative">
+                      <input
+                        type="number"
+                        min={Math.ceil(product.purchaseRate)}
+                        className={` ${
+                          product.purchaseRate > product.sellingRate ||
+                          (product.sellingRate > product.mrp && "text-red-700")
+                        } border-b w-full placeholder:text-sm bg-transparent border-[var(--color-accent)] outline-none p-1 `}
+                        onChange={(e) => {
+                          const value = parseFloat(e.target.value);
+                          if (value < product.purchaseRate) {
+                            e.target.value = product.purchaseRate;
+                          }
+                          setProducts((prev) =>
+                            prev.map((p, i) =>
+                              i === index
+                                ? {
+                                    ...p,
+                                    sellingRate: Number(e.target.value),
+                                  }
+                                : p
+                            )
+                          );
+                        }}
+                      />
+                      <span className="text-xs absolute top-1/2 -translate-y-1/2 right-2 rounded-lg bg-accent text-white px-2">
+                        ₹/{product.secondaryUnit}
+                      </span>
+                    </div>
+                    <div className="w-1/5 min-w-[80px]">
+                      <input
+                        type="number"
+                        min={Math.ceil(product.purchaseRate)}
+                        placeholder="MRP"
+                        defaultValue={product.mrp}
+                        className="border-b placeholder:text-sm bg-transparent border-[var(--color-accent)] outline-none p-1 w-20 "
+                        onChange={(e) =>
+                          setProducts((prev) =>
+                            prev.map((p, i) =>
+                              i === index
+                                ? {
+                                    ...p,
+                                    mrp: Number(e.target.value),
+                                  }
+                                : p
+                            )
+                          )
+                        }
+                      />
+                    </div>
+                    <div className="w-1/5 min-w-[80px] relative">
+                      <input
+                        type="number"
+                        min="1"
+                        value={product.quantity}
+                        defaultValue={1}
+                        className="border-b placeholder:text-sm  bg-transparent border-[var(--color-accent)] outline-none p-1 w-full "
+                        onChange={(e) =>
+                          setProducts((prev) =>
+                            prev.map((p, i) =>
+                              i === index
+                                ? {
+                                    ...p,
+                                    quantity: Number(e.target.value),
+                                    purchaseRate: e.target.value
+                                      ? parseFloat(
+                                          Number(
+                                            Number(p.price) /
+                                              (Number(e.target.value) *
+                                                Number(p.conversionFactor))
+                                          ).toFixed(2)
+                                        )
+                                      : 0,
+                                  }
+                                : p
+                            )
+                          )
+                        }
+                      />
+                      <div className="absolute text-xs px-1 rounded-lg bg-accent text-white right-2 top-1/2 -translate-y-1/2 capitalize">
+                        {product.primaryUnit}
+                      </div>
+                    </div>
+                    <div className="w-1/5 min-w-[80px] flex justify-end">
+                      <input
+                        type="number"
+                        min="0"
+                        step="0.1"
+                        placeholder="Price"
+                        value={product.price}
+                        onChange={(e) =>
+                          setProducts((prev) =>
+                            prev.map((p, i) =>
+                              i === index
+                                ? {
+                                    ...p,
+                                    price: Number(e.target.value),
+                                    purchaseRate: e.target.value
+                                      ? parseFloat(
+                                          Number(
+                                            Number(e.target.value) /
+                                              (Number(p.quantity) *
+                                                Number(p.conversionFactor))
+                                          ).toFixed(2)
+                                        )
+                                      : 0,
+                                  }
+                                : p
+                            )
+                          )
+                        }
+                        className="border-b placeholder:text-sm bg-transparent text-right border-[var(--color-accent)] outline-none p-1 w-20"
+                      />
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
 
               <div className="table-footer flex-1 flex flex-col items-end w-fit min-w-full py-1 bg-[var(--color-card)] px-2 border border-neutral-500/50 rounded-b-md">
                 <div className="text-right flex items-center">
@@ -400,6 +482,18 @@ const PurchaseForm = ({ setRefetch = () => {}, closeModal = () => {} }) => {
                   />
                   ₹
                 </div>
+                <div className="text-right flex items-center">
+                  Paid Amount:{" "}
+                  <input
+                    type="number"
+                    min="0"
+                    defaultValue={watch("totalAmount", 0)}
+                    max={watch("totalAmount", 0)}
+                    className="border-b placeholder:text-sm bg-transparent text-right border-[var(--color-accent)] outline-none p-1 w-20"
+                    {...register("paidAmount")}
+                  />
+                  ₹
+                </div>
               </div>
             </div>
           ) : (
@@ -412,8 +506,8 @@ const PurchaseForm = ({ setRefetch = () => {}, closeModal = () => {} }) => {
         {/* Submit Button */}
         <button
           type="submit"
-          disabled={products.length === 0}
-          className="px-3 py-1.5 my-2 capitalize rounded-md disabled:cursor-not-allowed disabled:hover-none bg-accent hover:bg-accentDark text-white"
+          disabled={products.length === 0 || Object.keys(errors).length > 0}
+          className="px-3 py-1.5 my-2 capitalize rounded-md disabled:bg-gray-600 disabled:opacity-35 disabled:cursor-not-allowed disabled:hover-none bg-accent hover:bg-accentDark text-white"
         >
           Add Purchase
         </button>

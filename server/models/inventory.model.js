@@ -11,9 +11,6 @@ const inventorySchema = new mongoose.Schema(
     },
     batches: [
       {
-        number: {
-          type: Number,
-        },
         quantity: {
           type: Number,
         },

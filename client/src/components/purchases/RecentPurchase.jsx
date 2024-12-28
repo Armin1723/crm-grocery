@@ -9,6 +9,7 @@ import {
   Cell,
 } from "recharts";
 import { formatDate } from "../utils";
+import { Link } from "react-router-dom";
 
 const RecentPurchase = () => {
   const [recentPurchase, setRecentPurchase] = useState(null);
@@ -38,7 +39,7 @@ const RecentPurchase = () => {
   }, [refetch]);
 
   return (
-    <div className="bg-[var(--color-sidebar)] flex flex-col sm:hidden lg:flex p-4 rounded-md border border-neutral-500/50 w-[30%] max-sm:w-full max-h-[70vh] min-h-[50vh] overflow-y-auto">
+    <div className="bg-[var(--color-sidebar)] flex flex-col sm:hidden lg:flex p-4 rounded-md border border-neutral-500/50 w-1/4 max-sm:w-full max-h-[70vh] min-h-[50vh] overflow-y-auto">
       <div className="title flex gap-2 items-center mb-2">
         <p className="text-xl max-lg:text-lg font-bold ">
           Recent Purchase
@@ -52,7 +53,7 @@ const RecentPurchase = () => {
       <div className="bg-[var(--color-card)] flex-1 overflow-y-scroll p-2 rounded-md">
         {/* Display purchase details */}
         <div className="mb-3">
-          <h3 className="font-semibold">Purchase Details</h3>
+          <Link to={`/purchases/${recentPurchase?._id}`} className="font-semibold">Purchase Details</Link>
           <p>
             Supplier:
             <span className="font-semibold">
@@ -93,7 +94,7 @@ const RecentPurchase = () => {
                   }}
                   itemStyle={{ fontSize: "14px", lineHeight: "1" }}
                   formatter={(value, name, props) => [
-                    `${value} ${props.payload.unit || "units"} (${props.payload.rate}₹)`,
+                    `${value} ${props.payload.secondaryUnit || "units"} (${props.payload.rate}₹)`,
                     <div
                       style={{
                         fontWeight: "bold",
@@ -114,7 +115,7 @@ const RecentPurchase = () => {
                     fill: "var(--color-text)",
                     fontSize: 12,
                     formatter: (value, name, props) =>
-                      `${value} ${props?.payload?.unit || "units"}`,
+                      `${value} ${props?.payload?.secondaryUnit || "units"}`,
                   }}
                 >
                   {recentPurchase?.products.map((entry, index) => (

@@ -1,9 +1,11 @@
 import React from "react";
-import { useForm } from "react-hook-form";
+import { set, useForm } from "react-hook-form";
 import TagInput from "../utils/TagInput";
 import { autoSetConversionFactor, categories, taxSlabs, units } from "../utils";
 import { toast } from "react-toastify";
-import Avatar from "../utils/Avatar";
+import FormInput from "../utils/FormInput";
+import { MdClose } from "react-icons/md";
+import Divider from "../utils/Divider";
 
 const ProductForm = ({
   product = [],
@@ -24,7 +26,9 @@ const ProductForm = ({
     product?.stockAlert?.preference || false
   );
   const [tags, setTags] = React.useState(product.tags || []);
-  const [image, setImage] = React.useState(product.image || null);
+  const [imagePreview, setImagePreview] = React.useState(product.image || null);
+
+  const [conversionModalOpen, setConversionModalOpen] = React.useState(false);
 
   const {
     register,
@@ -45,7 +49,7 @@ const ProductForm = ({
       subCategory: product.subCategory || "",
       shelfLife: product.shelfLife || "",
       tax: product.tax || 0,
-      upc: product.upc || "",
+      mrp: product.mrp || null,
       primaryUnit: product.primaryUnit || "",
       secondaryUnit: product.secondaryUnit || "",
       conversionFactor: product.conversionFactor || 0,
@@ -56,7 +60,10 @@ const ProductForm = ({
   //Use effect for auto conversion-factor calculation
   React.useEffect(() => {
     if (watch("primaryUnit") && watch("secondaryUnit")) {
-      const factor = autoSetConversionFactor(watch("primaryUnit"), watch("secondaryUnit"));
+      const factor = autoSetConversionFactor(
+        watch("primaryUnit"),
+        watch("secondaryUnit")
+      );
       setValue("conversionFactor", factor);
     }
   }, [watch("primaryUnit"), watch("secondaryUnit")]);
@@ -66,12 +73,13 @@ const ProductForm = ({
     const file = event.target.files[0];
     if (file) {
       if (file.size > 500000) {
+        event.target.value = null;
         toast.error("Image size should be less than 500kb");
         return;
       }
       const reader = new FileReader();
       reader.onloadend = () => {
-        setImage(reader.result);
+        setImagePreview(reader.result);
       };
       reader.readAsDataURL(file);
       setValue("image", file);
@@ -102,7 +110,7 @@ const ProductForm = ({
     formData.append("secondaryUnit", values.secondaryUnit);
     formData.append("conversionFactor", values.conversionFactor);
     formData.append("rate", values.rate);
-    formData.append("upc", values.upc);
+    formData.append("mrp", values.mrp);
     formData.append("shelfLife", values.shelfLife);
     formData.append("description", values.description);
     formData.append("tax", values.tax);
@@ -121,7 +129,7 @@ const ProductForm = ({
     if (values.image instanceof File) {
       formData.append("image", values.image);
     }
-
+    
     try {
       const response = await fetch(
         `${import.meta.env.VITE_BACKEND_URL}/api/v1/products${
@@ -155,7 +163,7 @@ const ProductForm = ({
         if (title == "add") {
           reset();
           setTags([]);
-          setImage(null);
+          setImagePreview(null);
         } else {
           closeModal();
           setRefetch((p) => !p);
@@ -163,7 +171,7 @@ const ProductForm = ({
       }
     } catch (error) {
       toast.update(id, {
-        render: `Failed to ${title} product`,
+        render: error.message || `Failed to ${title} product`,
         type: "error",
         isLoading: false,
         autoClose: 2000,
@@ -172,409 +180,391 @@ const ProductForm = ({
   };
 
   return (
-    <div>
-      <form
-        onSubmit={handleSubmit(addProduct)}
-        className="flex flex-col justify-end gap-2 w-full flex-1 min-h-[60vh]"
-      >
-        <div className="basic-details-group flex max-sm:flex-col w-full items-center gap-4">
-          <div className="image-input w-1/5 max-sm:w-1/2 my-2 flex flex-col items-center gap-2">
-            {/* Avatar for Image Preview */}
-            <label htmlFor="image-upload" className="cursor-pointer">
-              <Avatar
-                image={image || null}
-                width={100}
-                withBorder={false}
-                fallbackImage="/utils/product-placeholder.png"
-                alt="Product Preview"
-                className="border-2 border-black"
+    <form
+      onSubmit={handleSubmit(addProduct)}
+      className="flex flex-col justify-end gap-2 w-full flex-1 min-h-[60vh] px-3 max-sm:px-1 space-y-2"
+    >
+      {/* Image Upload */}
+      <div className="space-y-2">
+        <label htmlFor="image my-2 font-semibold">Product Image</label>
+        <div className="border-2 border-dashed border-neutral-500/50 rounded-lg p-4 text-center relative">
+          {imagePreview ? (
+            <div className="relative">
+              <img
+                src={imagePreview}
+                alt="Preview"
+                className="mx-auto max-h-48 object-contain"
               />
-              {!image && (
-                <div className="flex items-center justify-center h-full text-sm">
-                  Upload
-                </div>
-              )}
-            </label>
-
-            {/* Hidden File Input */}
-            <input
-              type="file"
-              id="image-upload"
-              accept="image/*"
-              style={{ display: "none" }}
-              {...register("image")}
-              onChange={handleImageChange}
-            />
-          </div>
-
-          <div className="name-unit flex-1 max-sm:w-full flex flex-col gap-2 justify-center">
-            <div className="name-tax-group flex max-sm:flex-col gap-4 max-sm:gap-2 w-full items-end">
-              {/* Name Input */}
-              <div className="name-input w-full flex flex-col relative group my-2">
-                <input
-                  type="text"
-                  placeholder=" "
-                  className={`outline-none border-b border-[var(--color-accent)] !z-[10] bg-transparent focus:border-[var(--color-accent-dark)] transition-all duration-300 peer ${
-                    errors &&
-                    errors.name &&
-                    "border-red-500 focus:!border-red-500"
-                  }`}
-                  name="name"
-                  {...register("name", {
-                    required: "Name is required",
-                  })}
-                />
-                <label
-                  htmlFor="name"
-                  className={`input-label peer-focus:-translate-y-full peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-x-0 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-x-3 peer-focus:text-[var(--color-accent-dark)] ${
-                    errors && errors.name && "!text-red-500"
-                  }`}
-                >
-                  Name*
-                </label>
-                {errors && errors.name && (
-                  <span className="text-red-500 text-sm">
-                    {errors.name.message}
-                  </span>
-                )}
-              </div>
-
-              {/* Tax Input */}
-              <div className="name-input w-full flex flex-col relative group my-2">
-                <select
-                  name="tax"
-                  className={`w-full border-b border-accent bg-transparent outline-none p-2 ${
-                    errors && errors.tax && "border-red-500"
-                  }`}
-                  {...register("tax")}
-                >
-                  <option
-                    value={0}
-                    className={`!bg-[var(--color-card)] ${
-                      errors && errors.tax && "!text-red-500"
-                    }`}
-                  >
-                    Select Tax Rate
-                  </option>
-                  {taxSlabs.map((sub) => (
-                    <option
-                      key={sub.rate}
-                      value={sub.rate}
-                      className="!bg-[var(--color-card)]"
-                    >
-                      {sub.name}
-                    </option>
-                  ))}
-                </select>
+              <div
+                className="absolute top-2 right-2 cursor-pointer hover:opacity-75"
+                onClick={() => {
+                  setImagePreview(null);
+                  setValue("image", null);
+                }}
+              >
+                <MdClose />
               </div>
             </div>
+          ) : (
+            <div className="h-48 flex items-center justify-center bg-[var(--color-card)] rounded-lg">
+              <span className="text-gray-500">Click to upload image</span>
+            </div>
+          )}
+          <input
+            type="file"
+            id="image-upload"
+            accept="image/*"
+            className="w-full py-2 "
+            onChange={handleImageChange}
+          />
+        </div>
+      </div>
 
-            {/* Unit group */}
-            <div className="unit-group flex max-sm:flex-col max-sm:gap-2 w-full items-end gap-4">
-              {/* Unit Dropdown */}
-              <div className="unit-input w-1/3 max-sm:w-full my-2">
-                <label
-                  htmlFor="primaryUnit"
-                  className={`text-sm font-semibold text-neutral-500 ${
-                    errors &&
-                    errors.primaryUnit &&
-                    "border-red-500 text-red-500"
-                  }`}
-                >
-                  Primary Unit*
-                </label>
-                <select
-                  name="primaryUnit"
-                  className={`w-full border-b border-accent bg-transparent outline-none p-2 ${
-                    errors &&
-                    errors.primaryUnit &&
-                    "border-red-500 text-red-500"
-                  }`}
-                  {...register("primaryUnit", {
-                    required: "Primary Unit is required",
-                  })}
-                >
-                  <option
-                    value=""
-                    disabled
-                    className={`!bg-[var(--color-card)] ${
-                      errors && errors.primaryUnit && "!text-red-500"
-                    }`}
-                  >
-                    Select Primary Unit
-                  </option>
-                  {units.map((sub) => (
-                    <option
-                      key={sub}
-                      value={sub}
-                      className="!bg-[var(--color-card)]"
-                    >
-                      {sub}
-                    </option>
-                  ))}
-                </select>
+      <Divider title="Product Details" />
+
+      <div className="name-tax-group flex max-sm:flex-col gap-4 max-sm:gap-2 w-full ">
+        {/* Name Input */}
+        <FormInput
+          label="Name"
+          error={errors && errors.name}
+          otherClasses="w-1/2"
+          withAsterisk
+        >
+          <input
+            type="text"
+            placeholder="Product Name"
+            className={`input peer ${
+              errors && errors.name && "border-red-500 focus:!border-red-500"
+            }`}
+            name="name"
+            {...register("name", {
+              required: "Name is required",
+            })}
+          />
+        </FormInput>
+
+        {/* Tax Input */}
+        <div className="tax-input w-1/2 max-sm:w-full flex flex-col relative group my-2">
+          <label
+            htmlFor="tax"
+            className={`input-label peer-focus:text-[var(--color-accent-dark)] ${
+              errors && errors.tax && "!text-red-500"
+            }`}
+          >
+            Tax Rate
+          </label>
+          <select
+            name="tax"
+            className={`w-full border border-neutral-500/50 hover:border-accentDark rounded-md bg-transparent outline-none p-2 ${
+              errors && errors.tax && "border-red-500"
+            }`}
+            {...register("tax")}
+          >
+            <option
+              value={0}
+              className={`!bg-[var(--color-card)] ${
+                errors && errors.tax && "!text-red-500"
+              }`}
+            >
+              Select Tax Rate
+            </option>
+            {taxSlabs.map((sub) => (
+              <option
+                key={sub.rate}
+                value={sub.rate}
+                className="!bg-[var(--color-card)]"
+              >
+                {sub.name}
+              </option>
+            ))}
+          </select>
+        </div>
+      </div>
+
+      {/* Unit group */}
+      <div className="unit-group flex max-sm:flex-col max-sm:gap-2 w-full items-end gap-4">
+        {/* Unit Dropdown */}
+        <div className="unit-input w-1/2 max-sm:w-full my-2 relative">
+          <label
+            htmlFor="primaryUnit"
+            className={`input-label peer-focus:text-[var(--color-accent-dark)] ${
+              errors && errors.primaryUnit && "border-red-500 text-red-500 "
+            }`}
+          >
+            Primary Unit*
+          </label>
+          <select
+            name="primaryUnit"
+            className={`w-full peer border border-neutral-500/50 focus:border-accentDark rounded-md bg-transparent outline-none p-2 ${
+              errors && errors.primaryUnit && "border-red-500 text-red-500"
+            }`}
+            {...register("primaryUnit", {
+              required: "Primary Unit is required",
+            })}
+          >
+            <option
+              value=""
+              disabled
+              className={`!bg-[var(--color-card)] ${
+                errors && errors.primaryUnit && "!text-red-500"
+              }`}
+            >
+              Select Primary Unit
+            </option>
+            {units.map((sub) => (
+              <option key={sub} value={sub} className="!bg-[var(--color-card)]">
+                {sub}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        {/* Secondary Unit Dropdown */}
+        <div className="unit-input w-1/2 max-sm:w-full my-2 relative">
+          <label
+            htmlFor="secondaryUnit"
+            className={`input-label peer-focus:text-[var(--color-accent-dark)] ${
+              errors && errors.secondaryUnit && "border-red-500 text-red-500"
+            }`}
+          >
+            Secondary Unit*
+          </label>
+          <select
+            name="secondaryUnit"
+            className={`w-full border border-neutral-500/50 focus:border-accentDark rounded-md bg-transparent outline-none p-2 ${
+              errors && errors.secondaryUnit && "border-red-500 text-red-500"
+            }`}
+            {...register("secondaryUnit", {
+              required: "Secondary Unit is required",
+            })}
+          >
+            <option
+              value=""
+              disabled
+              className={`!bg-[var(--color-card)] ${
+                errors && errors.secondaryUnit && "!text-red-500"
+              }`}
+            >
+              Select Secondary Unit
+            </option>
+            {units.map((sub) => (
+              <option key={sub} value={sub} className="!bg-[var(--color-card)]">
+                {sub}
+              </option>
+            ))}
+          </select>
+
+          {/* Display conversion factor */}
+          {watch("primaryUnit") && watch("secondaryUnit") && (
+            <div className="text-center text-xs absolute px-3 py-0.5 rounded-lg bg-accent text-white right-6 top-1/2 -translate-y-1/2 !z-[999]">
+              <div
+                className="cursor-pointer"
+                onClick={() => setConversionModalOpen(true)}
+              >
+                1 {watch("primaryUnit")} ={" "}
+                {watch("conversionFactor") + " " + watch("secondaryUnit")}
               </div>
+            </div>
+          )}
 
-              {/* Secondary Unit Dropdown */}
-              <div className="unit-input w-1/3 max-sm:w-full my-2">
-                <label
-                  htmlFor="secondaryUnit"
-                  className={`text-sm font-semibold text-neutral-500 ${
-                    errors &&
-                    errors.secondaryUnit &&
-                    "border-red-500 text-red-500"
-                  }`}
-                >
-                  Secondary Unit*
-                </label>
-                <select
-                  name="secondaryUnit"
-                  className={`w-full border-b border-accent bg-transparent outline-none p-2 ${
-                    errors &&
-                    errors.secondaryUnit &&
-                    "border-red-500 text-red-500"
-                  }`}
-                  {...register("secondaryUnit", {
-                    required: "Secondary Unit is required",
-                  })}
-                >
-                  <option
-                    value=""
-                    disabled
-                    className={`!bg-[var(--color-card)] ${
-                      errors && errors.secondaryUnit && "!text-red-500"
-                    }`}
+          {/* Conversion Modal */}
+          {conversionModalOpen && (
+            <div className="fixed inset-0 !z-[999] bg-black bg-opacity-50 flex justify-center items-center">
+              <div className="flex flex-col gap-2 actualModal h-[40vh] min-h-fit min-w-fit w-[25vw] max-sm:min-w-[80vw] overflow-y-auto max-w-[90%] bg-[var(--color-card)] rounded-md p-4">
+                <div className="flex justify-between items-center">
+                  <h2 className="text-lg font-bold">Conversion Factor</h2>
+                  <button
+                    className="bg-red-500 text-white px-3 py-1 rounded-md"
+                    onClick={() => setConversionModalOpen(false)}
                   >
-                    Select Secondary Unit
-                  </option>
-                  {units.map((sub) => (
-                    <option
-                      key={sub}
-                      value={sub}
-                      className="!bg-[var(--color-card)]"
-                    >
-                      {sub}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              {/* Conversion Factor Input */}
-              <div className="conversion-input w-1/3 max-sm:w-full my-2 flex items-center gap-2">
-                {!watch("primaryUnit") || !watch("secondaryUnit") ? (
-                  <p className="text-center w-full italic text-neutral-500">
-                    Units not selected
-                  </p>
-                ) : (
-                  <>
-                    <p className="whitespace-nowrap">
-                      1 {watch("primaryUnit")} =
-                    </p>
+                    Close
+                  </button>
+                </div>
+                <div className="flex flex-col gap-4 flex-1 items-center justify-center">
+                  <div className="flex flex-grow-0 w-full items-center gap-2 relative">
+                    <p className="flex items-center gap-2">1</p>
+                    <p>{watch("primaryUnit")} </p>
+                    <p>=</p>
                     <input
                       type="number"
-                      placeholder="Conversion Factor"
-                      className={`outline-none border-b border-accent z-[5] bg-transparent focus:border-[var(--color-accent-dark)] transition-all duration-300 peer w-full ${
-                        errors && errors.conversionFactor && "border-red-500"
-                      }`}
-                      name="conversionFactor"
-                      {...register("conversionFactor", {
-                        required: "Conversion Factor is required",
-                        valueAsNumber: true,
-                        min: {
-                          value: 1,
-                          message: "Conversion factor must be at least 1",
-                        },
-                      })}
+                      {...register("conversionFactor")}
+                      min={1}
+                      className="bg-transparent focus:outline-none rounded-md border border-neutral-500/50 focus:border-accentDark p-2 flex-1 w-2/3"
                     />
-                    {watch("secondaryUnit")}
-                  </>
-                )}
+                    <p className="absolute top-1/2 -translate-y-1/2 right-8 bg-accent px-3 text-xs rounded-lg text-white">
+                      {watch("secondaryUnit")}
+                    </p>
+                  </div>
+                </div>
               </div>
             </div>
-          </div>
+          )}
         </div>
+      </div>
 
-        <div className="category-group flex max-sm:flex-col max-sm:gap-2 w-full items-start gap-4">
-          {/* Category Dropdown */}
-          <div className="flex-1 max-sm:w-full my-2">
-            <label
-              htmlFor="category"
-              className={`${
-                errors && errors.category && "text-red-500"
-              } text-sm font-semibold text-neutral-500`}
-            >
-              Category*
-            </label>
-            <select
-              name="category"
-              className={`w-full border-b border-[var(--color-accent)] bg-transparent p-2 outline-none ${
-                errors && errors.category && "border-red-500 text-red-500"
-              }`}
-              {...register("category", {
-                required: "Category is required",
-                onChange: handleCategoryChange,
-              })}
-            >
-              <option value="" disabled className=" !bg-[var(--color-card)]">
-                Select a category
-              </option>
-              {categories.map((cat) => (
-                <option
-                  key={cat.category}
-                  value={cat.category}
-                  className="!bg-[var(--color-card)] hover:!bg-accentDark"
-                >
-                  {cat.category}
-                </option>
-              ))}
-            </select>
-            {errors && errors.category && (
-              <span className="text-red-500 text-sm">
-                {errors.category.message}
-              </span>
-            )}
-          </div>
+      <Divider title="Category Information" />
 
-          {/* Subcategory Dropdown */}
-          <div className="flex-1 max-sm:w-full my-2">
-            <label
-              htmlFor="subCategory"
-              className={` ${
-                errors && errors.subCategory && "text-red-500"
-              } text-sm font-semibold text-neutral-500`}
-            >
-              SubCategory*
-            </label>
-            <select
-              name="subCategory"
-              className={`w-full border-b border-accent bg-transparent outline-none p-2 ${
-                errors && errors.subCategory && "border-red-500 text-red-500"
-              }`}
-              {...register("subCategory", {
-                required: "subCategory is required",
-              })}
-              disabled={!selectedCategory}
-            >
-              <option value="" disabled className=" !bg-[var(--color-card)]">
-                Select a subCategory
-              </option>
-              {subCategories.map((sub) => (
-                <option
-                  key={sub}
-                  value={sub}
-                  className="!bg-[var(--color-card)]"
-                >
-                  {sub}
-                </option>
-              ))}
-            </select>
-            {errors && errors.subCategory && (
-              <span className="text-red-500 text-sm">
-                {errors.subCategory.message}
-              </span>
-            )}
-          </div>
-        </div>
-
-        <div className="rate-shelf-group flex max-sm:flex-col max-sm:gap-2 mt-2 w-full items-end gap-4">
-          {/* Rate Input */}
-          <div className="rate-input flex-1 max-sm:w-full flex flex-col relative group my-2">
-            <input
-              type="number"
-              inputMode="alphanumeric"
-              placeholder=" "
-              className={`outline-none border-b border-[var(--color-accent)] z-[5] bg-transparent focus:border-[var(--color-accent-dark)] transition-all duration-300 peer ${
-                errors && errors.rate && "border-red-500 focus:!border-red-500"
-              }`}
-              name="rate"
-              {...register("rate")}
-            />
-            <label
-              htmlFor="rate"
-              className={`input-label peer-focus:-translate-y-full peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-x-0 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-x-3 peer-focus:text-[var(--color-accent-dark)] ${
-                errors && errors.rate && "!text-red-500"
-              }`}
-            >
-              Rate
-            </label>
-            {errors && errors.rate && (
-              <span className="text-red-500 text-sm">
-                {errors.rate.message}
-              </span>
-            )}
-          </div>
-
-          {/* ShelfLife Input */}
-          <div className="shelf-input flex-1 max-sm:w-full flex flex-col relative group my-2">
-            <input
-              type="number"
-              inputMode="alphanumeric"
-              placeholder=" "
-              step={1}
-              className={`outline-none border-b border-[var(--color-accent)] z-[5] bg-transparent focus:border-[var(--color-accent-dark)] transition-all duration-300 peer ${
-                errors &&
-                errors.shelfLife &&
-                "border-red-500 focus:!border-red-500"
-              }`}
-              name="shelfLife"
-              {...register("shelfLife")}
-            />
-            <label
-              htmlFor="shelfLife"
-              className={`input-label peer-focus:-translate-y-full peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-x-0 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-x-3 peer-focus:text-[var(--color-accent-dark)] ${
-                errors && errors.shelfLife && "!text-red-500"
-              }`}
-            >
-              Shelf Life <span className="italic text-xs">(in days)</span>
-            </label>
-            {errors && errors.rate && (
-              <span className="text-red-500 text-sm">
-                {errors.rate.message}
-              </span>
-            )}
-          </div>
-        </div>
-
-        <div className="upc-alert-group flex max-sm:flex-col max-sm:gap-2 mt-2 w-full items-end gap-4">
-          {/* Stock Alert Input */}
-          <div className="stock-alert-input flex relative group my-2 flex-1 max-sm:w-full items-center gap-2">
-            <div className="flex items-center gap-2 ">
-              <input
-                type="checkbox"
-                id="stockAlert"
-                checked={isStockAlertEnabled}
-                className="w-4 h-4 !bg-accentDark"
-                onChange={(e) => setIsStockAlertEnabled(e.target.checked)}
-              />
-              <label
-                htmlFor="stockAlert"
-                className="text-sm font-semibold text-neutral-500"
+      <div className="category-group flex max-sm:flex-col max-sm:gap-2 w-full items-start gap-4">
+        {/* Category Dropdown */}
+        <div className="flex-1 max-sm:w-full my-2 relative">
+          <label
+            htmlFor="category"
+            className={`${
+              errors && errors.category && "text-red-500"
+            } input-label peer-focus:text-[var(--color-accent-dark)]`}
+          >
+            Category*
+          </label>
+          <select
+            name="category"
+            className={`w-full border border-neutral-500/50 focus:border-[var(--color-accent)] rounded-md bg-transparent p-2 outline-none ${
+              errors && errors.category && "border-red-500 text-red-500"
+            }`}
+            {...register("category", {
+              required: "Category is required",
+              onChange: handleCategoryChange,
+            })}
+          >
+            <option value="" disabled className=" !bg-[var(--color-card)]">
+              Select a category
+            </option>
+            {categories.map((cat) => (
+              <option
+                key={cat.category}
+                value={cat.category}
+                className="!bg-[var(--color-card)] hover:!bg-accentDark"
               >
-                Stock Alert
-              </label>
-            </div>
+                {cat.category}
+              </option>
+            ))}
+          </select>
+          {errors && errors.category && (
+            <span className="text-red-500 text-sm">
+              {errors.category.message}
+            </span>
+          )}
+        </div>
 
-            {/* Input for Stock Alert Quantity */}
-            <div
-              className={` ${
-                isStockAlertEnabled ? "opacity-100" : "opacity-50"
-              } mt-2 flex-1 flex items-center gap-2`}
-            >
-              <input
-                type="number"
-                disabled={!isStockAlertEnabled}
-                placeholder="Stock Alert"
-                className={`outline-none border-b border-[var(--color-accent)] z-[5] bg-transparent focus:border-[var(--color-accent-dark)] transition-all duration-300 peer w-full ${
-                  errors?.stockAlert && "border-red-500 focus:!border-red-500"
-                }`}
-                name="stockAlert"
-                {...register("stockAlert", {
-                  required:
-                    isStockAlertEnabled && "Stock Alert value is required",
-                })}
-              />
-              <span className="inline">{getValues("secondaryUnit")}</span>
-            </div>
+        {/* Subcategory Dropdown */}
+        <div className="flex-1 max-sm:w-full my-2 relative">
+          <label
+            htmlFor="subCategory"
+            className={` ${
+              errors && errors.subCategory && "text-red-500"
+            } input-label peer-focus:text-[var(--color-accent-dark)]`}
+          >
+            SubCategory*
+          </label>
+          <select
+            name="subCategory"
+            className={`w-full peer border border-neutral-500/50  focus:border-accentDark rounded-md bg-transparent outline-none p-2 ${
+              errors && errors.subCategory && "border-red-500 text-red-500"
+            }`}
+            {...register("subCategory", {
+              required: "subCategory is required",
+            })}
+            disabled={!selectedCategory}
+          >
+            <option value="" disabled className=" !bg-[var(--color-card)]">
+              Select a subCategory
+            </option>
+            {subCategories.map((sub) => (
+              <option key={sub} value={sub} className="!bg-[var(--color-card)]">
+                {sub}
+              </option>
+            ))}
+          </select>
+          {errors && errors.subCategory && (
+            <span className="text-red-500 text-sm">
+              {errors.subCategory.message}
+            </span>
+          )}
+        </div>
+      </div>
+
+      <div className="rate-shelf-group flex max-sm:flex-col max-sm:gap-2 mt-2 w-full gap-4">
+        {/* Rate Input */}
+        <FormInput
+          label="Rate"
+          error={errors && errors.rate}
+          otherClasses="w-1/2"
+        >
+          <input
+            type="number"
+            inputMode="alphanumeric"
+            placeholder=" "
+            className={`input peer ${
+              errors && errors.rate && "border-red-500 focus:!border-red-500"
+            }`}
+            name="rate"
+            {...register("rate")}
+          />
+        </FormInput>
+
+        {/* ShelfLife Input */}
+        <FormInput
+          label="Shelf Life"
+          otherClasses="w-1/2"
+          error={errors && errors.shelfLife}
+        >
+          <input
+            type="number"
+            inputMode="alphanumeric"
+            placeholder="In days"
+            step={1}
+            className={`input peer ${
+              errors &&
+              errors.shelfLife &&
+              "border-red-500 focus:!border-red-500"
+            }`}
+            name="shelfLife"
+            {...register("shelfLife")}
+          />
+        </FormInput>
+      </div>
+
+      <div className="upc-alert-group flex-col gap-2 mt-2 w-full items-end">
+        {/* Stock Alert Checkbox */}
+        <div className="flex items-center gap-2 ">
+          <input
+            type="checkbox"
+            id="stockAlert"
+            checked={isStockAlertEnabled}
+            className="w-4 h-4"
+            onChange={(e) => setIsStockAlertEnabled(e.target.checked)}
+          />
+          <label
+            htmlFor="stockAlert"
+            className="text-sm font-semibold text-neutral-500"
+          >
+            Stock Alert
+          </label>
+        </div>
+        <div className="alert-upc-input flex max-sm:flex-col max-sm:gap-2 mt-2 w-full gap-4">
+          {/* Input for Stock Alert Quantity */}
+          <div
+            className={` ${
+              isStockAlertEnabled ? "opacity-100" : "opacity-50"
+            } my-2 w-1/2 max-sm:w-full flex-1 flex items-center gap-2 relative`}
+          >
+            <input
+              type="number"
+              disabled={!isStockAlertEnabled}
+              placeholder="Stock Alert"
+              min={0}
+              className={`input peer w-full ${
+                errors?.stockAlert && "border-red-500 focus:!border-red-500"
+              }`}
+              name="stockAlert"
+              {...register("stockAlert", {
+                required:
+                  isStockAlertEnabled && "Stock Alert value is required",
+              })}
+            />
+
+            <span className="inline text-xs absolute right-6 z-[999] px-3 rounded-xl bg-accent text-white">
+              {getValues("secondaryUnit")}
+            </span>
             {errors?.stockAlert && (
               <span className="text-red-500 text-sm">
                 {errors.stockAlert.message}
@@ -582,59 +572,60 @@ const ProductForm = ({
             )}
           </div>
 
-          {/* UPC Input */}
-          <div className="upc-input flex-1 max-sm:w-full flex flex-col relative group my-2">
+          {/* MRP Input */}
+          <FormInput
+            label="MRP"
+            error={errors && errors.upc}
+            otherClasses="w-1/2"
+          >
             <input
               type="number"
               inputMode="alphanumeric"
               placeholder=" "
-              className={`outline-none border-b border-[var(--color-accent)] z-[5] bg-transparent focus:border-[var(--color-accent-dark)] transition-all duration-300 peer ${
-                errors && errors.upc && "border-red-500 focus:!border-red-500"
+              className={`input peer ${
+                errors && errors.mrp && "border-red-500 focus:!border-red-500"
               }`}
-              name="upc"
-              {...register("upc")}
+              name="mrp"
+              {...register("mrp")}
             />
-            <label
-              htmlFor="upc"
-              className={`input-label peer-focus:-translate-y-full peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-x-0 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-x-3 peer-focus:text-[var(--color-accent-dark)] ${
-                errors && errors.upc && "!text-red-500"
-              }`}
-            >
-              UPC
-            </label>
-            {errors && errors.upc && (
-              <span className="text-red-500 text-sm">{errors.upc.message}</span>
-            )}
-          </div>
+          </FormInput>
         </div>
+      </div>
 
-        {/* Tag Input */}
-        <TagInput tags={tags} setTags={setTags} />
+      <Divider title="Additional Information" />
 
-        {/* Description Input */}
-        <div className="description-input w-full flex flex-col relative group my-2">
-          <textarea
-            rows={3}
-            placeholder="Enter product description (optional)"
-            className={`outline-none placeholder:text-neutral-500 placeholder:text-xs placeholder:italic p-2 rounded-md border border-[var(--color-accent)] z-[5] bg-transparent transition-all duration-300 peer ${
-              errors &&
-              errors.description &&
-              "border-red-500 focus:!border-red-500"
-            }`}
-            name="description"
-            {...register("description")}
-          />
-        </div>
+      {/* Tag Input */}
+      <TagInput tags={tags} setTags={setTags} />
 
-        {/* Submit Button */}
-        <button
-          type="submit"
-          className="px-3 py-1.5 my-2 capitalize rounded-md bg-accent hover:bg-accentDark text-white"
+      {/* Description Input */}
+      <div className="description-input w-full flex flex-col relative group my-2 py-2">
+        <label
+          htmlFor="description"
+          className="input-label peer-focus:text-accentDark"
         >
-          {title} Product
-        </button>
-      </form>
-    </div>
+          Description
+        </label>
+        <textarea
+          name="description"
+          rows={3}
+          placeholder="Enter product description (optional)"
+          className={`input placeholder:text-neutral-500 placeholder:text-xs peer ${
+            errors &&
+            errors.description &&
+            "border-red-500 focus:!border-red-500"
+          }`}
+          {...register("description")}
+        />
+      </div>
+
+      {/* Submit Button */}
+      <button
+        type="submit"
+        className="px-3 py-1.5 my-2 capitalize rounded-md bg-accent hover:bg-accentDark text-white"
+      >
+        {title} Product
+      </button>
+    </form>
   );
 };
 

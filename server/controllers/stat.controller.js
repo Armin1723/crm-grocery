@@ -118,12 +118,15 @@ const getBasicStats = async (req, res) => {
       },
     ]);
     
-    // Total Inventory value (sum of all quantities * selling rates)
     const totalInventoryValue = await Inventory.aggregate([
+      // Unwind the batches array to access individual batch details
+      { $unwind: "$batches" },
+    
+      // Group and calculate total value
       {
         $group: {
           _id: null,
-          totalValue: { $sum: { $multiply: ["$quantity", "$sellingRate"] } }, // Sum total value across all documents
+          totalValue: { $sum: { $multiply: ["$batches.quantity", "$batches.purchaseRate"] } },
         },
       },
     ]);

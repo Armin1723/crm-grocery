@@ -93,7 +93,7 @@ const RecentSale = () => {
                   }}
                   itemStyle={{ fontSize: "14px", lineHeight: "1" }}
                   formatter={(value, name, props) => [
-                    `${value} ${props.payload.unit || "units"} (${props.payload.rate}₹)`,
+                    `${value} ${props.payload.secondaryUnit || "units"} (${props.payload.rate}₹)`,
                     <div
                       style={{
                         fontWeight: "bold",
@@ -114,7 +114,7 @@ const RecentSale = () => {
                     fill: "var(--color-text)",
                     fontSize: 12,
                     formatter: (value, name, props) =>
-                      `${value} ${props?.payload?.unit || "units"}`,
+                      `${value} ${props?.payload?.secondaryUnit || "units"}`,
                   }}
                 >
                   {recentSale?.products.map((entry, index) => (

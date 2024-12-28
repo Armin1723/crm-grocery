@@ -14,11 +14,19 @@ const purchaseSchema = new mongoose.Schema(
         purchaseRate: {
           type: Number,
         },
-        tax: {
-          type: Number,
-        },
       },
     ],
+    followUpPayments: [{
+      paidAmount: {
+        type: Number,
+      },
+      createdAt: {
+        type: Date,
+      },
+      notes: {
+        type: String,
+      },
+    }],
     subTotal: {
       type: Number,
     },
@@ -32,6 +40,9 @@ const purchaseSchema = new mongoose.Schema(
       type: Number,
     },
     paidAmount:{
+      type: Number,
+    },
+    deficitAmount:{
       type: Number,
     },
     signedBy: {
