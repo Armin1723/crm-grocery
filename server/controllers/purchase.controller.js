@@ -68,8 +68,8 @@ const getPurchase = async (req, res) => {
     {
       $lookup: {
         from: "products",
-        localField: "products.product", 
-        foreignField: "_id", 
+        localField: "products.product",
+        foreignField: "_id",
         as: "productDetails",
       },
     },
@@ -137,7 +137,7 @@ const getPurchase = async (req, res) => {
           name: "$supplier.name",
           phone: "$supplier.phone",
           email: "$supplier.email",
-          gstin: "$supplier.gstin", 
+          gstin: "$supplier.gstin",
           pan: "$supplier.pan",
           notes: "$supplier.notes",
           balance: "$supplier.balance",
@@ -220,7 +220,9 @@ const addPurchase = async (req, res) => {
       });
     } else {
       const existingBatch = inventory.batches.find(
-        (batch) => batch.sellingRate === product.sellingRate
+        (batch) =>
+          batch.sellingRate === product.sellingRate &&
+          (!product.expiry || !batch.expiry || batch.expiry === product.expiry)
       );
 
       if (existingBatch) {

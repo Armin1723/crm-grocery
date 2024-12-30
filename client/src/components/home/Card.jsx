@@ -87,7 +87,7 @@ const Card = ({ data, index, chartData = {} }) => {
               <p className="text-lg font-bold">{data?.title}</p>
             </div>
             <p className="text-2xl max-lg:text-xl max-sm:text-lg font-bold ">
-              <CountUp end={chartData?.total} duration={2} />
+              <CountUp end={chartData?.currentValue} duration={2} />
             </p>
           </div>
           <Link

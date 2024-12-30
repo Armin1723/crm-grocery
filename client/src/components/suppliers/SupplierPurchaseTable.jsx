@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { formatDate } from "../utils";
 import SortableLink from "../utils/SortableLink";
+import Pagination from "../utils/Pagination";
 
 const SupplierPurchaseTable = () => {
   const { id } = useParams();
@@ -36,15 +37,15 @@ const SupplierPurchaseTable = () => {
   }, [id, sort, sortType]);
 
   return (
-    <div className="overflow-x-auto">
-      <table className="w-full">
+    <div className="overflow-x-auto w-full">
+      <table className="min-w-full">
         <thead className="bg-[var(--color-card)] border-b border-neutral-500/50">
           <tr>
             <th className="p-3 text-left max-w-[100px]">ID</th>
             <th className="p-3 pl-0 text-left min-w-[80px]">
               <SortableLink
-                title="createdAt"
-                setSort={setSort}
+                title="Date"
+                setSort={() => setSort("createdAt")}
                 sortType={sortType}
                 setSortType={setSortType}
                 isActive={sort == "createdAt"}
@@ -52,17 +53,26 @@ const SupplierPurchaseTable = () => {
             </th>
             <th className="p-3 pl-0 text-left">
               <SortableLink
-                title="totalAmount"
-                setSort={setSort}
+                title="Total"
+                setSort={() => setSort("totalAmount")}
                 sortType={sortType}
                 setSortType={setSortType}
                 isActive={sort == "totalAmount"}
               />
             </th>
             <th className="p-3 text-left">Paid</th>
-            <th className="p-3 text-left">Status</th>
+            <th className="p-3 text-left">
+              <SortableLink
+                title="Status"
+                setSort={() => setSort("deficitAmount")}
+                sortType={sortType}
+                setSortType={setSortType}
+                isActive={sort == "deficitAmount"}
+              />
+            </th>
           </tr>
         </thead>
+
         <tbody>
           {results.purchases?.length &&
             results?.purchases?.map((purchase, index) => {
@@ -94,6 +104,38 @@ const SupplierPurchaseTable = () => {
                 </tr>
               );
             })}
+
+          {!results.purchases?.length && (
+            <tr>
+              <td colSpan="5" className="p-3 text-center">
+                No purchases found
+              </td>
+            </tr>
+          )}
+        {/* </tbody> */}
+
+        {/* <tfoot className="bg-[var(--color-card)] border-t border-neutral-500/50"> */}
+          <tr className="bg-[var(--color-card)]" > 
+            <td
+              className="p-3 text-sm text-[var(--color-text-light)]"
+              colSpan={3}
+            >
+              <span>
+                Showing {results?.purchases?.length} of {results?.totalResults}{" "}
+                purchases
+              </span>
+            </td>
+            <td
+              className="p-3 text-sm text-[var(--color-text-light)] "
+              colSpan={2}
+            >
+              <Pagination
+                page={page}
+                setPage={setPage}
+                totalPages={results?.totalPages}
+              />
+            </td>
+          </tr>
         </tbody>
       </table>
     </div>

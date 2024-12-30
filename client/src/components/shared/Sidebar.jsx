@@ -92,7 +92,7 @@ const Sidebar = () => {
 
       <div className="bottom flex flex-col gap-1 cursor-pointer items-center border-t border-neutral-500/50 pt-4 px-4">
         <div className="pofile flex items-center gap-2">
-          <Avatar image={user?.avatar} />
+          <Avatar image={user?.avatar} width={40} withBorder={false} />
           <p
             className={` ${
               expanded ? "max-w-full opacity-100" : "max-w-0 opacity-0"

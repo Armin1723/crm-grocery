@@ -314,6 +314,15 @@ export const formatDate = (date) => {
   });
 };
 
+export const formatDateIntl = (date) => {
+  if(!date) return '';
+  return new Date(date).toLocaleDateString("en-IN", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  });
+}
+
 export const getColor = (height) => {
   if (height <= 20) return '#FF0000ab'; 
   if (height <= 40) return '#FF4500ab'; 

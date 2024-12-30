@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
+import { set, useForm } from "react-hook-form";
 import { IoCloseCircle } from "react-icons/io5";
 import { toast } from "react-toastify";
 import { FaRobot } from "react-icons/fa";
@@ -109,6 +109,22 @@ const PurchaseForm = ({ setRefetch = () => {}, closeModal = () => {} }) => {
 
   const addPurchase = async (values) => {
     const id = toast.loading("Adding purchase...");
+    const emptyFields = products.some(
+      (product) =>
+        !product.expiry ||
+        !product.sellingRate ||
+        !product.price ||
+        product.quantity <= 0
+    );
+    if (emptyFields) {
+      toast.update(id, {
+        render: "Please fill all the fields",
+        type: "error",
+        isLoading: false,
+        autoClose: 2000,
+      });
+      return;
+    }
     try {
       const response = await fetch(
         `${import.meta.env.VITE_BACKEND_URL}/api/v1/purchases`,
@@ -229,6 +245,7 @@ const PurchaseForm = ({ setRefetch = () => {}, closeModal = () => {} }) => {
             setProducts={setProducts}
             suggestedProducts={suggestedProducts}
             setSuggestedProducts={setSuggestedProducts}
+            disabled={getValues("supplier") === ""}
           />
           <AddProductModal />
         </div>
@@ -247,13 +264,6 @@ const PurchaseForm = ({ setRefetch = () => {}, closeModal = () => {} }) => {
                 <p className="w-1/5 min-w-[80px] flex justify-end">Price</p>
               </div>
               {products.map((product, index) => {
-                const defaultExpiry = () => {
-                  if (product.shelfLife) {
-                    const date = new Date();
-                    date.setDate(date.getDate() + product.shelfLife);
-                    return date.toISOString().split("T")[0];
-                  }
-                };
                 return (
                   <div
                     key={index}
@@ -281,7 +291,7 @@ const PurchaseForm = ({ setRefetch = () => {}, closeModal = () => {} }) => {
                       <input
                         type="date"
                         min={new Date().toISOString().split("T")[0]}
-                        defaultValue={defaultExpiry()}
+                        value={product.expiry}
                         className="border-b placeholder:text-sm bg-transparent border-[var(--color-accent)] outline-none p-1 w-full"
                         onChange={(e) =>
                           setProducts((prev) =>

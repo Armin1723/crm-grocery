@@ -152,7 +152,7 @@ const generateSaleInvoice = async (saleId) => {
       .moveDown(1)
       .fontSize(18)
       .text("Sales Invoice", { align: "center", underline: true })
-      .text("Transaction ID: " + sale.transactionId, { align: "center" });
+      .text("Transaction ID: " + sale._id, { align: "center" });
 
     // **Invoice Details**
     doc
@@ -160,7 +160,7 @@ const generateSaleInvoice = async (saleId) => {
       .fontSize(12)
       .text(`Invoice ID: ${sale._id}`)
       .text(`Date: ${new Date().toLocaleDateString()}`)
-      .text(`Customer: ${sale?.customer?.name || "Customer"}`)
+      .text(`Customer: ${sale?.customer?.name || sale?.customer?.phone || "Customer"}`)
       .text(`Signed By: ${sale?.signedBy?.name || "Unknown"}`);
 
     doc.moveDown();
@@ -179,9 +179,9 @@ const generateSaleInvoice = async (saleId) => {
     // **Table Body**
     sale.products.forEach((item, index) => {
       const productName = item?.product?.name || "Unknown";
-      const quantity = item.quantity || 0;
+      const quantity = `${item.quantity}${item?.product?.secondaryUnit}` || 0;
       const sellingRate = item.sellingRate || 0;
-      const tax = (item.quantity * item.sellingRate * item?.tax) / 100 || 0;
+      const tax = (item.quantity * item.sellingRate * (item?.product?.tax || 0)) / 100 || 0;
       const total = quantity * sellingRate + tax;
 
       doc

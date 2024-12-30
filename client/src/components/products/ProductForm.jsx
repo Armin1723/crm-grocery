@@ -8,7 +8,7 @@ import { MdClose } from "react-icons/md";
 import Divider from "../utils/Divider";
 
 const ProductForm = ({
-  product = [],
+  product = {},
   title = "add",
   setRefetch = () => {},
   closeModal = () => {},
@@ -29,6 +29,8 @@ const ProductForm = ({
   const [imagePreview, setImagePreview] = React.useState(product.image || null);
 
   const [conversionModalOpen, setConversionModalOpen] = React.useState(false);
+
+  console.log(product);
 
   const {
     register,
@@ -362,7 +364,7 @@ const ProductForm = ({
                 onClick={() => setConversionModalOpen(true)}
               >
                 1 {watch("primaryUnit")} ={" "}
-                {watch("conversionFactor") + " " + watch("secondaryUnit")}
+                {getValues("conversionFactor") + " " + watch("secondaryUnit")}
               </div>
             </div>
           )}

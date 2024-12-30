@@ -20,14 +20,12 @@ import ViewPurchases from "./components/purchases/ViewPurchases";
 import AddPurchase from "./components/purchases/AddPurchase";
 import ViewSales from "./components/sales/ViewSales";
 import AddSale from "./components/sales/AddSale";
-import Sale from "./components/sales/Sale";
-import SaleInvoiceModal from "./components/sales/SaleInvoiceModal";
-import SalePage from "./components/sales/SalePage";
 import Suppliers from "./components/home/Suppliers";
 import ViewSuppliers from "./components/suppliers/ViewSuppliers";
 import AddSuppliers from "./components/suppliers/AddSuppliers";
 import PurchaseDetails from "./components/purchases/PurchaseDetails";
 import SupplierDetails from "./components/suppliers/SupplierDetails";
+import SaleDetails from "./components/sales/SaleDetails";
 
 const App = () => {
   const theme = useSelector((state) => state.theme.value);
@@ -70,10 +68,7 @@ const App = () => {
           <Route path="sales" element={<Sales />}>
             <Route path="" element={<ViewSales />} />
             <Route path="add" element={<AddSale />} />
-          </Route>
-          <Route path="sales/:id" element={<SalePage />}>
-            <Route path='' element={<Sale />} />
-            <Route path="invoice" element={<SaleInvoiceModal />} />
+            <Route path=":id" element={<SaleDetails />} />
           </Route>
 
           <Route path="inventory" element={<Inventory />} />

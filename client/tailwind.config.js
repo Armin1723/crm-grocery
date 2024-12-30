@@ -15,8 +15,11 @@ export default {
         sidebar: '#f4f2f8',
         accent: '#5d3fd3',
         accentDark: '#4c1d95',
+      },
+      screens:{
+        tab: '500px'
       }
     },
   },
-  plugins: [],
+  plugins: ["@tailwindcss/a"],
 }

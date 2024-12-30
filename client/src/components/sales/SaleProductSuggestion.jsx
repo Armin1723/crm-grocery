@@ -1,14 +1,9 @@
 import React, { useRef, useState } from "react";
 import { FaSearch } from "react-icons/fa";
 import { toast } from "react-toastify";
+import { formatDateIntl } from "../utils/index";
 
-const defaultExpiry = (shelfLife) => {
-    const date = new Date();
-    date.setDate(date.getDate() + shelfLife);
-    return date.toISOString().split("T")[0];
-  }
-
-const PurchaseProductSuggestion = ({
+const SaleProductSuggestion = ({
   products = [],
   setProducts = () => {},
   suggestedProducts = [],
@@ -23,7 +18,9 @@ const PurchaseProductSuggestion = ({
     if (value.length > 1) {
       try {
         const response = await fetch(
-          `${import.meta.env.VITE_BACKEND_URL}/api/v1/products?name=${value}`,
+          `${
+            import.meta.env.VITE_BACKEND_URL
+          }/api/v1/inventory/products?name=${value}`,
           { credentials: "include" }
         );
         const data = await response.json();
@@ -42,8 +39,12 @@ const PurchaseProductSuggestion = ({
   };
 
   const handleAddProduct = (product) => {
-    const isMatch = products.some((p) => p.name === product.name)
-        
+    const isMatch = products.some(
+      (p) =>
+        p.name === product.name &&
+        p.sellingRate === product.sellingRate &&
+        p?.expiry === product?.expiry
+    );
 
     if (isMatch) {
       toast.error("Product already added", { autoClose: 2000 });
@@ -54,11 +55,11 @@ const PurchaseProductSuggestion = ({
     }
 
     setProducts((prev) => [
-      ...prev, {
+      ...prev,
+      {
         ...product,
         quantity: 1,
-        expiry: product.shelfLife && defaultExpiry(product.shelfLife)
-      }
+      },
     ]);
 
     setSuggestedProducts([]);
@@ -85,7 +86,7 @@ const PurchaseProductSuggestion = ({
 
   return (
     <div
-      className="searchBar relative max-w-[70%] max-sm:text-sm flex items-center border border-neutral-500 rounded-md mr-3"
+      className="searchBar relative max-sm:text-sm flex max-sm:flex-1 items-center border border-neutral-500 rounded-md "
       onKeyDown={handleKeyDown}
       tabIndex={0}
     >
@@ -107,13 +108,21 @@ const PurchaseProductSuggestion = ({
           suggestedProducts.map((product, index) => (
             <div
               key={product._id}
-              className={`supplier-option px-3 py-2 w-full flex items-center justify-between text-sm hover:bg-accentDark/20 transition-all duration-300 ease-in cursor-pointer ${
+              className={`supplier-option px-3 py-2 w-full flex items-center justify-between gap-4 text-sm hover:bg-accentDark/20 transition-all duration-300 ease-in cursor-pointer ${
                 index === selectedIndex ? "bg-accentDark/20" : ""
               }`}
               onMouseEnter={() => setSelectedIndex(index)}
               onClick={() => handleAddProduct(product)}
             >
               <p>{product.name}</p>
+              <p
+                className=""
+                title={
+                  product.expiry && `Expiry: ${formatDateIntl(product?.expiry)}`
+                }
+              >
+                {product.sellingRate}₹
+              </p>
             </div>
           ))}
       </div>
@@ -121,4 +130,4 @@ const PurchaseProductSuggestion = ({
   );
 };
 
-export default PurchaseProductSuggestion;
+export default SaleProductSuggestion;

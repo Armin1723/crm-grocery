@@ -123,9 +123,9 @@ const ViewPurchases = () => {
                   key={index}
                   className="tr flex w-full justify-between items-center py-2 px-4 max-sm:px-1 gap-2 hover:bg-accent/10"
                 >
-                  <div className="w-1/5 min-w-[50px]">
+                  <Link to={`/suppliers/${purchase?.supplier?._id}`} className="w-1/5 min-w-[50px]">
                     {purchase?.supplier?.name}
-                  </div>
+                  </Link>
                   <div className="w-[15%] min-w-[80px] px-2">
                     {purchase?.totalAmount || "N/A"}
                   </div>

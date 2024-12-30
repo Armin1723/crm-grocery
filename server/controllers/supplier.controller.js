@@ -1,4 +1,5 @@
-const Product = require("../models/product.model");
+const { mongoose } = require("mongoose");
+
 const Purchase = require("../models/purchase.model");
 const Supplier = require("../models/supplier.model");
 
@@ -46,29 +47,77 @@ const getSupplierPurchases = async (req, res) => {
     .limit(limit)
     .skip((page - 1) * limit)
     .sort({ [sort]: sortType });
-  const totalPurchases = await Purchase.countDocuments({
+  const totalResults = await Purchase.countDocuments({
     supplier: req.params.id,
   });
-  const totalPages = Math.ceil(totalPurchases / limit) || 1;
+  const totalPages = Math.ceil(totalResults / limit) || 1;
 
-  res.json({ success: true, purchases, page, totalPurchases, totalPages });
+  res.json({ success: true, purchases, page, totalResults, totalPages });
 };
 
 const getSupplierProducts = async (req, res) => {
-  const { limit = 10, page = 1 } = req.query;
-  const supplier = await Supplier.findById(req.params.id).select("_id").lean();
+  const { limit = 2, page = 1 } = req.query;
+  const supplierId = req.params.id;
+
+  // Validate if the supplier exists
+  const supplier = await Supplier.findById(supplierId).select("_id").lean();
   if (!supplier) {
     return res.json({ success: false, message: "Supplier not found" });
   }
-  const products = await Product.find({ supplier: req.params.id })
-    .limit(limit)
-    .skip((page - 1) * limit);
-  const totalProducts = await Product.find({
-    supplier: req.params.id,
-  }).countDocuments();
-  const hasMore = totalProducts > page * limit;
 
-  res.json({ success: true, products, hasMore });
+  const products = await Purchase.aggregate([
+    { $match: { supplier: new mongoose.Types.ObjectId(supplierId) } }, // Match supplier purchases
+    { $unwind: "$products" }, // Decompose products array
+    {
+      $lookup: {
+        from: "products", // Reference products collection
+        localField: "products.product",
+        foreignField: "_id",
+        as: "product",
+      },
+    },
+    { $unwind: "$product" }, // Unwind the product array
+    {
+      $group: {
+        _id: "$product._id", // Group by product ID to ensure distinct products
+        product: { $first: "$product" }, // Select the first instance of the product
+      },
+    },
+    { $replaceRoot: { newRoot: "$product" } },
+    { $sort: { createdAt: -1 } },
+    { $skip: (page - 1) * limit },
+    { $limit: parseInt(limit) },
+  ]);
+
+  const totalProducts = await Purchase.aggregate([
+    { $match: { supplier: new mongoose.Types.ObjectId(supplierId) } },
+    { $unwind: "$products" },
+    {
+      $lookup: {
+        from: "products",
+        localField: "products.product",
+        foreignField: "_id",
+        as: "product",
+      },
+    },
+    { $unwind: "$product" },
+    {
+      $group: {
+        _id: "$product._id",
+      },
+    },
+  ]);
+
+  const totalPages = Math.ceil(totalProducts.length / limit);
+
+  res.json({
+    success: true,
+    products,
+    currentPage: parseInt(page),
+    totalPages,
+    totalProducts: totalProducts.length,
+    hasMore: page < totalPages,
+  });
 };
 
 const addSupplier = async (req, res) => {

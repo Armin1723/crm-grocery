@@ -5,6 +5,8 @@ import ProductActionButton from "./ProductActionButton";
 import CategorySelection from "./CategorySelection";
 import Avatar from "../utils/Avatar";
 import SearchBar from "../utils/SearchBar";
+import ProductCardSmall from "./ProductCardSmall";
+import HoverCard from "../shared/HoverCard";
 
 const ViewProducts = () => {
   const [loading, setLoading] = useState(false);
@@ -127,7 +129,11 @@ const ViewProducts = () => {
                         fallbackImage="/utils/product-placeholder.png"
                       />
                     </div>
-                    <div className="w-1/5 min-w-[50px]">{product?.name}</div>
+                    <div className="w-1/5 min-w-[50px]">
+                      <HoverCard title={product?.name}>
+                        <ProductCardSmall product={product} editable={false}/>
+                      </HoverCard>
+                    </div>
                     <div className="w-[10%] min-w-[50px] px-2">
                       {product?.rate || "N/A"}
                     </div>

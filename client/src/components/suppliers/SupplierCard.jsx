@@ -5,7 +5,7 @@ import { Link } from "react-router-dom";
 import Modal from "../utils/Modal";
 import SupplierForm from "./SupplierForm";
 
-const SupplierCard = ({ supplier = {} }) => {
+const SupplierCard = ({ supplier = {}, setRefetch = () => {} }) => {
   const user = useSelector((state) => state.user);
   const [editOpen, setEditOpen] = React.useState(false);
 
@@ -66,7 +66,9 @@ const SupplierCard = ({ supplier = {} }) => {
           </div>
           <div className="info-item col-span-2 max-sm:col-span-1">
             <span className="font-semibold">Notes:</span>
-            <span className="ml-1">{supplier?.notes || "No additional notes"}</span>
+            <span className="ml-1">
+              {supplier?.notes || "No additional notes"}
+            </span>
           </div>
         </div>
       </div>
@@ -83,6 +85,7 @@ const SupplierCard = ({ supplier = {} }) => {
             title="edit"
             supplier={supplier}
             closeModal={() => setEditOpen(false)}
+            setRefetch={setRefetch}
           />
         </Modal>
       )}

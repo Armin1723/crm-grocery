@@ -17,6 +17,9 @@ const inventorySchema = new mongoose.Schema(
         purchaseRate: {
           type: Number,
         },
+        createdAt: {
+          type: Date,
+        },
         sellingRate: {
           type: Number,
         },

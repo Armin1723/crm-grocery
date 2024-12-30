@@ -17,6 +17,12 @@ const saleSchema = new mongoose.Schema({
             sellingRate: {
                 type: Number,
             },
+            mrp: {
+                type: Number,
+            },
+            expiry: {
+                type: Date,
+            },
         },
     ],
     subTotal: {
