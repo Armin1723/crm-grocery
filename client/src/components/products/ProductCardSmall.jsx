@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { MdEdit } from "react-icons/md";
 import Modal from "../utils/Modal";
 import ProductForm from "../products/ProductForm";
+import { Link } from "react-router-dom";
 
 const ProductCardSmall = ({
   product = {},
@@ -16,8 +17,9 @@ const ProductCardSmall = ({
         {/* Product Image */}
         <div className="w-full h-48 bg-[var(--color-sidebar)] rounded-md overflow-hidden">
           <img
-            src={product?.image || '/utils/product-placeholder.png'}
+            src={product?.image || "/utils/product-placeholder.png"}
             alt={product?.name}
+            loading="lazy"
             className="w-full h-full object-contain"
           />
         </div>
@@ -25,7 +27,10 @@ const ProductCardSmall = ({
         {/* Product Details */}
         <div className="flex flex-col mt-4 flex-grow">
           {/* Product Name */}
-          <h3 className="text-[var(--color-text)] text-lg text-wrap font-semibold truncate flex items-center gap-2">
+          <Link
+            to={`/products/${product?.upid}`}
+            className="text-[var(--color-text)] text-lg text-wrap font-semibold truncate flex items-center gap-2 hover:underline"
+          >
             {product?.name}
             {editable && (
               <MdEdit
@@ -33,7 +38,7 @@ const ProductCardSmall = ({
                 onClick={() => setEditProductModalOpen(true)}
               />
             )}
-          </h3>
+          </Link>
           <p className="text-[var(--color-text)] font-semibold">
             {product.rate ? `₹${product.rate}` : "Price: Not Set"}
           </p>
@@ -77,7 +82,7 @@ const ProductCardSmall = ({
 
         {/* Product Pricing & Footer */}
         <p className="text-[var(--color-text-light)] text-sm">
-          <strong>Tax:</strong> {product.tax}%
+          <strong>Tax:</strong> {product.tax ? product.tax : 'Not Set'}%
         </p>
         {product.upid && (
           <p className="text-[var(--color-text-light)] text-sm mt-1 truncate">

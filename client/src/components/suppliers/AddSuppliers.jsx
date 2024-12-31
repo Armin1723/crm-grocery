@@ -14,7 +14,7 @@ const AddSuppliers = () => {
   }, [refetch]);
 
   return (
-    <div className="p-3 flex-1 !min-h-[50vh] w-full rounded-md flex flex-col gap-2 border border-neutral-500/50 bg-[var(--color-sidebar)]">
+    <div className="p-3 flex-1 h-full w-full rounded-md flex flex-col gap-2 border border-neutral-500/50 bg-[var(--color-sidebar)]">
       <div className="title flex items-center gap-2 my-2">
         <p className="text-xl max-lg:text-lg font-bold ">Add Supplier</p>
         <div

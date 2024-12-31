@@ -19,12 +19,10 @@ const Products = () => {
     },
   ];
   return (
-    <div className="flex-1 overflow-y-scroll flex flex-col p-3 w-full">
+    <div className="flex-1 overflow-y-scroll md:overflow-y-hidden flex flex-col p-3 w-full">
       <ChipNav chips={navData} baseUrl="/products" />
-      <div className="flex-1 flex w-full flex-col md:flex-row gap-3 min-h-full overflow-y-auto">
-        <div className="flex-1 max-sm:min-h-fit overflow-y-scroll w-full">
-          <Outlet />
-        </div>
+      <div className="flex-1 flex w-full flex-col md:flex-row gap-3 overflow-y-auto ">
+        <Outlet />
         <TrendingProducts />
       </div>
     </div>

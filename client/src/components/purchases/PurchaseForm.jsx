@@ -180,11 +180,10 @@ const PurchaseForm = ({ setRefetch = () => {}, closeModal = () => {} }) => {
   };
 
   return (
-    <div>
       <form
         onSubmit={handleSubmit(addPurchase)}
         onKeyDown={handleKeyDown}
-        className="flex flex-col max-sm:px-2 gap-2 w-full flex-1 min-h-[50vh] max-h-[58vh] "
+        className="flex flex-col max-sm:px-2 gap-2 w-full flex-1 h-full min-h-[50vh] justify-between "
       >
         {/* Supplier Input */}
         <p className="my-1 font-semibold text-lg max-sm:text-base">Supplier</p>
@@ -522,7 +521,6 @@ const PurchaseForm = ({ setRefetch = () => {}, closeModal = () => {} }) => {
           Add Purchase
         </button>
       </form>
-    </div>
   );
 };
 

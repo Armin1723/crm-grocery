@@ -1,5 +1,13 @@
 import React, { useState, useEffect } from "react";
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from "recharts";
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  Tooltip,
+  ResponsiveContainer,
+  Cell,
+} from "recharts";
 
 const TrendingProducts = () => {
   const [trendingProducts, setTrendingProducts] = useState([]);
@@ -7,16 +15,20 @@ const TrendingProducts = () => {
   useEffect(() => {
     const fetchTrendingProducts = async () => {
       try {
-        const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/v1/products/trending`);
+        const response = await fetch(
+          `${import.meta.env.VITE_BACKEND_URL}/api/v1/products/trending`
+        );
         if (response.ok) {
           const data = await response.json();
 
-          // Format data to include product name and category for the chart
+          // Format data to include product name, category, and other details for the chart
           const formattedData = data.trendingProducts.map((item) => ({
             name: item.product.name,
             category: item.product.category,
             totalSales: item.totalSales,
+            secondaryUnit: item.secondaryUnit,
           }));
+
           setTrendingProducts(formattedData);
         } else {
           throw new Error("Failed to fetch trending products.");
@@ -29,10 +41,18 @@ const TrendingProducts = () => {
     fetchTrendingProducts();
   }, []);
 
+  // Extract unique categories from the trending products
+  const categories = [
+    ...new Set(trendingProducts.map((product) => product.category)),
+  ];
+
   return (
-    <div className="bg-[var(--color-sidebar)] p-4 rounded-md border border-neutral-500/50 w-full md:w-1/3 h-full flex flex-col">
-      <p className="text-2xl max-lg:text-xl font-bold mb-4">Trending Products</p>
-      <div className="bg-[var(--color-card)] flex-1 overflow-y-scroll rounded-md">
+    <div className="bg-[var(--color-sidebar)] p-4 rounded-md border border-neutral-500/50 w-full md:w-[30%] h-full flex flex-col">
+      <p className="text-2xl max-lg:text-xl font-bold mb-4">
+        Trending Products
+      </p>
+
+      <div className="bg-[var(--color-card)] flex-1 overflow-y-scroll rounded-md p-4">
         {trendingProducts.length > 0 ? (
           <ResponsiveContainer width="100%" height={300}>
             <BarChart
@@ -44,7 +64,11 @@ const TrendingProducts = () => {
               <YAxis
                 dataKey="name"
                 type="category"
-                tick={{ fill: "var(--color-text)", fontSize: 10, fontWeight: "bold" }}
+                tick={{
+                  fill: "var(--color-text)",
+                  fontSize: 10,
+                  fontWeight: "bold",
+                }}
               />
               <Tooltip
                 contentStyle={{
@@ -56,8 +80,14 @@ const TrendingProducts = () => {
                 }}
                 itemStyle={{ fontSize: "14px", lineHeight: "1" }}
                 formatter={(value, name, props) => [
-                  `${value} sold`,
-                  <div style={{ fontWeight: "bold", fontSize: "12px", marginBottom: "5px" }}>
+                  `${value} ${props?.payload?.secondaryUnit || "units"} sold`,
+                  <div
+                    style={{
+                      fontWeight: "bold",
+                      fontSize: "12px",
+                      marginBottom: "5px",
+                    }}
+                  >
                     {props.payload.name}
                   </div>,
                 ]}
@@ -70,17 +100,31 @@ const TrendingProducts = () => {
                   position: "bottom",
                   fill: "var(--color-text)",
                   fontSize: 12,
-                  formatter: (value) => `${value} sold`,
+                  formatter: (value, name, props) =>
+                    `${value} ${props?.payload?.secondaryUnit || "units"} sold`,
                 }}
               >
-                {trendingProducts.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={`hsl(${index * 1340}, 70%, 50%)`} />
-                ))}
               </Bar>
             </BarChart>
           </ResponsiveContainer>
         ) : (
-          <p className="text-neutral-500 flex-1 p-2">No trending products available.</p>
+          <p className="text-neutral-500 text-center">
+            No trending products available.
+          </p>
+        )}
+
+        {/* Display unique categories */}
+        {categories.length > 0 && (
+          <div className="my-2">
+            <p className="font-semibold text-lg py-1">Categories:</p>
+            <ul className="list-disc pl-5 grid grid-cols-2 gap-2">
+              {categories.map((category, index) => (
+                <li key={index} className="text-sm text-[var(--color-text-light)]">
+                  {category}
+                </li>
+              ))}
+            </ul>
+          </div>
         )}
       </div>
     </div>

@@ -19,7 +19,7 @@ const Suppliers = () => {
   return (
     <div className="flex-1 overflow-y-scroll flex flex-col p-3 w-full">
       <ChipNav chips={navData} baseUrl="/suppliers" />
-      <div className="flex-1 flex w-full max-lg:flex-col gap-3 max-h-full">
+      <div className="flex-1 flex w-full max-lg:flex-col gap-3 ">
         <div className="flex-1 max-sm:min-h-fit overflow-y-scroll">
           <Outlet />
         </div>

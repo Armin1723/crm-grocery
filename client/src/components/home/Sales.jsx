@@ -1,8 +1,8 @@
-import React from 'react'
+import React from "react";
 import { FaChartLine, FaPlus } from "react-icons/fa";
 import { Outlet } from "react-router-dom";
-import ChipNav from '../utils/ChipNav';
-import RecentSale from '../sales/RecentSale';
+import ChipNav from "../utils/ChipNav";
+import RecentSale from "../sales/RecentSale";
 
 const Purchases = () => {
   const chipData = [
@@ -18,16 +18,16 @@ const Purchases = () => {
     },
   ];
   return (
-    <div className="flex-1 overflow-y-scroll flex flex-col p-3 w-full">
+    <div className="flex-1 overflow-y-scroll md:overflow-y-hidden flex flex-col p-3 w-full">
       <ChipNav chips={chipData} baseUrl="/sales" />
-      <div className="flex-1 flex w-full max-sm:flex-col gap-3 max-h-full">
+      <div className="flex-1 flex w-full flex-col md:flex-row gap-3 overflow-y-auto">
         <div className="flex-1 max-sm:min-h-fit overflow-y-scroll">
-          <Outlet />
-        </div>
+                  <Outlet />
+                </div>
         <RecentSale />
       </div>
     </div>
   );
 };
 
-export default Purchases
+export default Purchases;

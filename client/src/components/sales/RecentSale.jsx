@@ -38,7 +38,7 @@ const RecentSale = () => {
   }, [refetch]);
 
   return (
-    <div className="bg-[var(--color-sidebar)] flex flex-col sm:hidden lg:flex p-4 rounded-md border border-neutral-500/50 w-[30%] max-sm:w-full max-h-[70vh] min-h-[50vh] overflow-y-auto">
+    <div className="bg-[var(--color-sidebar)] flex flex-col sm:hidden lg:flex p-4 rounded-md border border-neutral-500/50 w-[30%] max-sm:w-full min-h-[50vh] overflow-y-auto">
       <div className="title flex gap-2 items-center mb-2">
         <p className="text-xl max-lg:text-lg font-bold ">
           Recent Sale
@@ -117,19 +117,6 @@ const RecentSale = () => {
                       `${value} ${props?.payload?.secondaryUnit || "units"}`,
                   }}
                 >
-                  {recentSale?.products.map((entry, index) => (
-                    <Cell
-                      key={`cell-${index}`}
-                      fill={`hsl(${index * 1340}, 70%, 50%)`}
-                    />
-                  ))}
-
-                  {recentSale?.products.map((entry, index) => (
-                    <Cell
-                      key={`cell-${index}`}
-                      fill={`hsl(${index * 1340}, 70%, 50%)`}
-                    />
-                  ))}
                 </Bar>
               </BarChart>
             </ResponsiveContainer>

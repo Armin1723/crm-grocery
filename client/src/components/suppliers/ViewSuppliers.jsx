@@ -58,13 +58,13 @@ const ViewSuppliers = () => {
         <SearchBar query={query} setQuery={setQuery} />
       </div>
 
-      <div className="table-wrapper flex relative max-h-[55vh] flex-1 my-2 overflow-x-scroll ">
+      <div className="table-wrapper flex relative flex-1 my-2 overflow-x-scroll ">
         <div
           className={`table-container w-full min-w-fit bg-[var(--bg-card)] h-full flex flex-col flex-nowrap overflow-x-auto shadow-md rounded-md max-sm:text-xs text-wrap relative px-2 ${
             loading && "overflow-hidden"
           }`}
         >
-          <div className="table-headers flex w-full justify-between py-3 px-4 border rounded-t-md border-neutral-500  max-sm:px-1 sticky top-0 bg-[var(--color-card)] z-[20] font-semibold gap-2">
+          <div className="table-headers flex w-full justify-between py-3 px-4 border rounded-t-md border-neutral-500/50  max-sm:px-1 sticky top-0 bg-[var(--color-card)] z-[20] font-semibold gap-2">
             <div className="w-1/5 min-w-[50px] flex items-center gap-2 ">
               <SortableLink
                 title="name"
@@ -104,7 +104,7 @@ const ViewSuppliers = () => {
             <div className="w-[10%] min-w-[50px] py-1">Actions</div>
           </div>
 
-          <div className="table-row-goup flex-1 border-l border-r border-neutral-500 flex flex-col ">
+          <div className="table-row-goup flex-1 border-l border-r border-neutral-500/50 flex flex-col ">
             {results?.suppliers?.length ? (
               results?.suppliers?.map((supplier, index) => {
                 return (
@@ -154,7 +154,7 @@ const ViewSuppliers = () => {
             )}
           </div>
 
-          <div className="table-footer border border-neutral-500 rounded-b-md select-none flex w-full justify-between items-center max-lg:items-start p-3 px-4 max-sm:px-1 sticky bottom-0 bg-[var(--color-card)] font-semibold gap-2">
+          <div className="table-footer border border-neutral-500/50 rounded-b-md select-none flex w-full justify-between items-center max-lg:items-start p-3 px-4 max-sm:px-1 sticky bottom-0 bg-[var(--color-card)] font-semibold gap-2">
             <div className="flex items-center">
               <span>
                 Showing {(page - 1) * limit + 1} -{" "}

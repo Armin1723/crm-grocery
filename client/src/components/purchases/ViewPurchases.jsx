@@ -60,7 +60,7 @@ const ViewPurchases = () => {
         <ExportButton title="Purchases" />
       </div>
 
-      <div className="table-wrapper flex relative max-h-[55vh] flex-1 my-2 overflow-x-scroll">
+      <div className="table-wrapper flex relative flex-1 my-2 overflow-y-auto">
         <div
           className={`table-container w-full min-w-fit bg-[var(--bg-card)] h-full flex flex-col flex-nowrap overflow-x-auto shadow-md rounded-md max-sm:text-xs text-wrap relative ${
             loading && "overflow-hidden"
@@ -209,7 +209,7 @@ const ViewPurchases = () => {
         </div>
         {loading && (
           <div className="absolute overlay inset-0 hide-scrollbar z-[99] overflow-hidden bg-[var(--color-card)] flex items-center justify-center transition-all duration-300">
-            {/* <Loader /> */}
+            <div className="spinner"></div>
           </div>
         )}
       </div>
