@@ -5,6 +5,7 @@ import PurchaseCardSmall from "../purchases/PurchaseCardSmall";
 const ProductPurchases = () => {
   const [results, setResults] = useState({});
   const [refetch, setRefetch] = useState(false);
+  const [page, setPage] = useState(1);
 
   const { id } = useParams();
 
@@ -12,31 +13,59 @@ const ProductPurchases = () => {
     const fetchProductPurchases = async () => {
       try {
         const res = await fetch(
-          `${import.meta.env.VITE_BACKEND_URL}/api/v1/products/${id}/purchases`
+          `${
+            import.meta.env.VITE_BACKEND_URL
+          }/api/v1/products/${id}/purchases?page=${page}`,
+          {
+            credentials: "include",
+          }
         );
         const data = await res.json();
-        if (res.ok) {
-          setResults(data);
-        } else {
+        if (!res.ok) {
           throw new Error(data.message || "Something went wrong");
+        } else {
+          setResults({
+            ...data,
+            purchases: [...(results?.purchases || []), ...(data?.purchases || [])],
+          });
         }
       } catch (error) {
         console.error(error.message);
       }
     };
     fetchProductPurchases();
-  }, [id, refetch]);
+  }, [id, refetch, page]);
 
   return (
     <div className="flex w-full min-h-fit overflow-x-auto scroll-snap snap-x snap-mandatory">
-      {results?.purchases?.map((purchase, index) => (
-        <div
-          key={purchase._id}
-          className="flex flex-col min-w-full w-full tab:w-1/2 tab:min-w-[50%] md:w-1/3 md:min-w-[33%] rounded-md p-4 snap-start h-fit"
-        >
-          <PurchaseCardSmall purchase={purchase} />
+      {!results?.purchases?.length && (
+        <div className="flex flex-col min-w-full w-full md:w-1/2 md:min-w-[50%] lg:w-1/3 lg:min-w-[33%] rounded-md px-4 py-2 snap-start h-fit">
+          <p className="text-lg max-sm:text-base text-[var(--color-text-light)]">
+            No purchases found
+          </p>
         </div>
-      ))}
+      )}
+      {results?.purchases &&
+        results?.purchases?.map((purchase, index) => (
+          <div
+            key={purchase._id}
+            className="flex flex-col min-w-full w-full md:w-1/2 md:min-w-[50%] lg:w-1/3 lg:min-w-[33%] rounded-md px-4 py-2 snap-start h-fit"
+          >
+            <PurchaseCardSmall purchase={purchase} />
+          </div>
+        ))}
+      {results.hasMore && (
+        <div className="flex flex-col min-w-full w-full md:w-1/2 md:min-w-[50%] lg:w-1/3 lg:min-w-[33%] rounded-md px-4 py-2 snap-start h-full ">
+          <div className="flex justify-center items-center h-full w-full bg-[var(--color-card)] p-4 mb-4 rounded-md border border-neutral-500/50">
+            <button
+              onClick={() => setPage((p) => p + 1)}
+              className="text-accent hover:text-accentDark"
+            >
+              Load More
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

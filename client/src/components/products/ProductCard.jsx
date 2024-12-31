@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import { MdEdit } from "react-icons/md";
 import Modal from "../utils/Modal";
 import ProductForm from "../products/ProductForm";
-import Divider from "../utils/Divider";
 
 const ProductCardLarge = ({
   product = {},
@@ -12,26 +11,26 @@ const ProductCardLarge = ({
   const [editProductModalOpen, setEditProductModalOpen] = useState(false);
 
   return (
-    <>
+    <div className="min-h-fit">
       <div className="bg-[var(--color-card)] w-full rounded-lg border border-neutral-500/50 overflow-hidden shadow-lg">
         <div className="flex flex-col lg:flex-row">
           {/* Image Section */}
-          <div className="image w-full md:w-1/3 lg:w-1/4 aspect-[3/2] flex items-center justify-center rounded-l-md overflow-hidden bg-[var(--color-primary)]">
+          <div className="image w-full lg:w-1/4 aspect-[3/2] flex items-center justify-center rounded-l-md overflow-hidden bg-[var(--color-primary)]">
             <img
               src={product?.image || "/utils/product-placeholder.png"}
               alt="Placeholder"
-              className="object-cover w-full max-sm:w-1/3 h-full"
+              className="object-cover w-2/3 lg:w-full h-full"
               loading="lazy"
             />
           </div>
 
           {/* Details Section */}
-          <div className="flex-1 px-6 ">
+          <div className="flex-1 px-3 md:px-4 lg:px-6">
             <div className="flex flex-col h-full ">
               {/* Header */}
               <div className="flex flex-col items-start my-2 w-full ">
                 <div className="w-full flex items-center justify-between">
-                  <h2 className="text-2xl font-bold text-[var(--color-accent)] flex items-center gap-2">
+                  <h2 className="text-2xl max-sm:text-lg font-bold text-[var(--color-accent)] flex items-center gap-2">
                     {product?.name}
                   </h2>
                   <div className="text-right">
@@ -43,11 +42,11 @@ const ProductCardLarge = ({
                     )}
                   </div>
                 </div>
-                <p className="text-lg font-semibold text-[var(--color-text)] mt-1">
+                <p className="text-lg max-sm:text-sm font-semibold text-[var(--color-text)] mt-1">
                   {product.rate ? `₹${product.rate}` : "Price: Not Set"}
                 </p>
                 {product.upid && (
-                  <p className="text-[var(--color-text-light)] text-sm">
+                  <p className="text-[var(--color-text-light)] max-sm:text-xs">
                     Product ID: {product.upid}
                   </p>
                 )}
@@ -58,7 +57,7 @@ const ProductCardLarge = ({
                 {/* Left Column */}
                 <div className="space-y-2">
                   <div>
-                    <h3 className="text-lg font-semibold text-[var(--color-text)]">
+                    <h3 className="text-lg max-sm:text-base font-semibold text-[var(--color-text)]">
                       Category Details
                     </h3>
                     <p className="text-[var(--color-text-light)]">
@@ -68,17 +67,17 @@ const ProductCardLarge = ({
                   </div>
 
                   <div className="">
-                    <h3 className="text-lg font-semibold text-[var(--color-text)]">
+                    <h3 className="text-lg max-sm:text-base font-semibold text-[var(--color-text)]">
                       Product Specifications
                     </h3>
-                    <div className="max-sm:space-y-2 my-1 flex items-center justify-between">
+                    <div className="my-1 flex items-center justify-between">
                       <p className="text-[var(--color-text-light)]">
-                        <span className="font-medium">Tax Rate:</span>{" "}
+                        <span className="">Tax Rate:</span>{" "}
                         {product.tax ? `${product.tax}%` : "Not Set"}
                       </p>
                       {product?.shelfLife && (
                         <p className="text-[var(--color-text-light)]">
-                          <span className="font-medium">Shelf Life:</span>{" "}
+                          <span className="">Shelf Life:</span>{" "}
                           {product.shelfLife} days
                         </p>
                       )}
@@ -90,7 +89,7 @@ const ProductCardLarge = ({
                 <div className="space-y-2">
                   {product.stockAlert?.preference && (
                     <div className="bg-[var(--color-accent)]/10 p-4 rounded-lg">
-                      <h3 className="text-lg font-semibold text-[var(--color-accent)]">
+                      <h3 className="text-lg max-sm:text-base font-semibold text-[var(--color-accent)]">
                         Stock Alert Settings
                       </h3>
                       <p className="text-[var(--color-text-light)]">
@@ -101,14 +100,14 @@ const ProductCardLarge = ({
 
                   {product.tags && product.tags.length > 0 && (
                     <div>
-                      <h3 className="text-lg font-semibold text-[var(--color-text)] mb-2">
+                      <h3 className="text-lg max-sm:text-base font-semibold text-[var(--color-text)] mb-2">
                         Product Tags
                       </h3>
                       <div className="flex flex-wrap gap-2">
                         {product.tags.map((tag, index) => (
                           <span
                             key={index}
-                            className="bg-accent/80 text-white px-3 py-1 rounded-full text-sm"
+                            className="bg-accent/80 text-white px-3 py-1 rounded-full text-sm max-sm:text-xs"
                           >
                             {tag}
                           </span>
@@ -138,7 +137,7 @@ const ProductCardLarge = ({
           />
         </Modal>
       )}
-    </>
+    </div>
   );
 };
 
