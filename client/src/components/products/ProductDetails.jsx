@@ -4,6 +4,7 @@ import ProductCard from "./ProductCard";
 import Divider from "../utils/Divider";
 import ProductPurchases from "./ProductPurchases";
 import ProductBarcode from "./ProductBarcode";
+import InventoryCard from "../inventory/InventoryCard";
 
 const ProductDetails = () => {
   const { id } = useParams();
@@ -36,13 +37,13 @@ const ProductDetails = () => {
         <ProductCard product={product} setRefetch={setRefetch} />
 
         <Divider title="Barcode Details" />
-        <ProductBarcode product={product} />
+        <ProductBarcode product={product} setRefetch={setRefetch}/>
 
         <Divider title="Past Purchases" />
         <ProductPurchases />
 
         <Divider title="Inventory Details" />
-        <div className="">Product Inventory</div>
+        <InventoryCard upid={product?.upid} />
       </div>
     </div>
   );

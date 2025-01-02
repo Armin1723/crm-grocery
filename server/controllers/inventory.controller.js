@@ -46,19 +46,19 @@ const getProductsFromInventory = async (req, res) => {
     {
       $project: {
         product: 1,
-        name: "$details.name", 
-        upc: "$details.upc", 
-        upid: "$details.upid", 
+        name: "$details.name",
+        upc: "$details.upc",
+        upid: "$details.upid",
         tax: "$details.tax",
         category: "$details.category",
         primaryUnit: "$details.primaryUnit",
         secondaryUnit: "$details.secondaryUnit",
         conversionFactor: "$details.conversionFactor",
-        purchaseRate: "$batches.purchaseRate", 
+        purchaseRate: "$batches.purchaseRate",
         sellingRate: "$batches.sellingRate",
-        mrp: "$batches.mrp", 
+        mrp: "$batches.mrp",
         expiry: "$batches.expiry",
-        maxQuantity: "$batches.quantity", 
+        maxQuantity: "$batches.quantity",
       },
     },
     { $skip: skip },
@@ -84,6 +84,51 @@ const getProductsFromInventory = async (req, res) => {
     totalPages: Math.ceil(total / limit) || 1,
     page,
     totalProducts: total,
+  });
+};
+
+const getProductFromInventory = async (req, res) => {
+  const { upid } = req.params;
+
+  const pipeline = [
+    {
+      $lookup: {
+        from: "products",
+        localField: "product",
+        foreignField: "_id",
+        as: "details",
+      },
+    },
+    { $unwind: "$details" },
+    {
+      $match: {
+        "details.upid": upid,
+      },
+    },
+    {
+      $project: {
+        product: 1,
+        name: "$details.name",
+        upc: "$details.upc",
+        upid: "$details.upid",
+        tax: "$details.tax",
+        image: "$details.image",
+        category: "$details.category",
+        subCategory: "$details.subCategory",
+        primaryUnit: "$details.primaryUnit",
+        secondaryUnit: "$details.secondaryUnit",
+        conversionFactor: "$details.conversionFactor",
+        batches: 1,
+        totalQuantity: 1,
+      },
+    },
+  ];
+
+  const product = await Inventory.aggregate(pipeline);
+
+  res.json({
+    success: true,
+    product: product[0],
   });
 };
 
@@ -143,4 +188,8 @@ const getProductsGroupedByCategory = async (req, res) => {
   res.status(200).json(groupedInventory);
 };
 
-module.exports = { getProductsFromInventory, getProductsGroupedByCategory };
+module.exports = {
+  getProductsFromInventory,
+  getProductFromInventory,
+  getProductsGroupedByCategory,
+};

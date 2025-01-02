@@ -1,11 +1,54 @@
 require("dotenv").config();
-const nodemailer = require("nodemailer");
-
 const PDFDocument = require("pdfkit");
 const fs = require("fs");
 const cloudinary = require("../config/cloudinary");
 const Purchase = require("../models/purchase.model");
 const Sale = require("../models/sale.model");
+
+// Common utility functions for invoice generation
+const createHeaderSection = (doc, title) => {
+  doc
+    // .image('./assets/logo.png', 50, 45, { width: 100 })  
+    .fontSize(24)
+    .text("FRESH MART GROCERY", { align: "center" })
+    .fontSize(12)
+    .text("Your One-Stop Grocery Solution", { align: "center" })
+    .text("123 Retail Avenue, Shopping District", { align: "center" })
+    .text("Tel: (555) 123-4567 | Email: sales@freshmart.com", { align: "center" })
+    .text("GST No: XXXXXXXXXXXX", { align: "center" })
+    .moveDown(1)
+    .fontSize(20)
+    .text(title, { align: "center" })
+    .moveTo(50, doc.y + 10)
+    .lineTo(550, doc.y + 10)
+    .stroke();
+};
+
+const formatCurrency = (amount) => {
+  return new Intl.NumberFormat('en-IN', {
+    style: 'currency',
+    currency: 'INR'
+  }).format(amount);
+};
+
+const createTableHeader = (doc, headers) => {
+  doc.fontSize(10);
+  const startY = doc.y + 20;
+  
+  // Draw table header background
+  doc
+    .fillColor('#f0f0f0')
+    .rect(50, startY - 5, 500, 20)
+    .fill()
+    .fillColor('#000');
+
+  // Add headers
+  headers.forEach((header, i) => {
+    doc.text(header.label, header.x, startY, { width: header.width });
+  });
+
+  doc.moveDown();
+};
 
 const generatePurchaseInvoice = async (purchaseId) => {
   try {
@@ -13,120 +56,99 @@ const generatePurchaseInvoice = async (purchaseId) => {
       .populate("products.product")
       .populate("supplier")
       .populate("signedBy");
-    const doc = new PDFDocument({ margin: 50 });
 
-    const filePath = `./tmp/invoice_${purchase._id}.pdf`;
+    const doc = new PDFDocument({
+      size: [216, 400], // 72mm width, dynamic height
+      margin: 10, 
+    });
+
+    const filePath = `./tmp/purchase_receipt_${purchase._id}.pdf`;
     const stream = fs.createWriteStream(filePath);
     doc.pipe(stream);
 
-    // **Header Section**
-    doc
-      .fontSize(20)
-      .text("ABC Company", { align: "center" })
-      .fontSize(12)
-      .text("Address: 1234 Business St, City, Country", { align: "center" })
-      .text("Phone: +1234567890 | Email: support@yourcompany.com", {
-        align: "center",
-      })
-      .moveDown(1)
-      .fontSize(18)
-      .text("Purchase Invoice", { align: "center", underline: true });
-
-    // **Invoice Details**
-    doc
-      .moveDown(2)
-      .fontSize(12)
-      .text(`Invoice ID: ${purchase._id}`)
-      .text(`Date: ${new Date().toLocaleDateString()}`)
-      .text(`Supplier: ${purchase.supplier?.name || "Unknown"}`)
-      .text(`Signed By: ${purchase.signedBy?.name || "Unknown"}`);
-
-    doc.moveDown();
-
-    // **Table Header**
-    doc.fontSize(14).text("Products", { underline: true }).moveDown(0.5);
-
+    // Header
     doc
       .fontSize(12)
-      .text(
-        "S.No    Product Name                        Qty       Rate         Total",
-        { underline: true }
-      )
+      .text("PURCHASE RECEIPT", { align: "center", underline: true })
       .moveDown(0.5);
 
-    // **Table Body**
+    doc
+      .fontSize(8)
+      .text(`Receipt No: ${purchase._id}`, { align: "center" })
+      .text(`Date: ${new Date().toLocaleDateString("en-IN")}`, { align: "center" })
+      .moveDown();
+
+    // Supplier Details
+    doc
+      .fontSize(8)
+      .text("Supplier Details:")
+      .text(`Name: ${purchase.supplier?.name || "N/A"}`)
+      .text(`Contact: ${purchase.supplier?.phone || "N/A"}`)
+      .moveDown();
+
+    // Products Table
+    doc.fontSize(8).text("Items:", { underline: true });
+    doc
+      .text("S.No  Product          Qty   Rate    Total", { align: "left" })
+      .moveDown(0.5);
+
+    let totalItems = 0;
     purchase.products.forEach((item, index) => {
-      const productName = item?.product?.name || "Unknown";
-      const quantity = item?.quantity || 0;
-      const purchaseRate = item.purchaseRate || 0;
-      const total = quantity * purchaseRate;
+      const productName = item.product?.name || "Unknown";
+      const quantity = item.quantity || 0;
+      const price = item.purchaseRate || 0;
+      const total = quantity * price;
 
       doc
         .text(
-          `${index + 1}        ${productName.padEnd(
-            30
-          )}       ${quantity}        ${purchaseRate.toFixed(2)}       ${total.toFixed(2)}`,
+          `${index + 1}. ${productName.substring(0, 10)}   ${quantity}    ${formatCurrency(price)}   ${formatCurrency(
+            total
+          )}`,
           { align: "left" }
-        )
-        .moveDown(0.5);
+        );
+
+      totalItems += quantity;
     });
 
-    // **Footer Totals**
-    doc
-      .moveDown(2)
-      .fontSize(12)
-      .text(`Subtotal: ${purchase.subTotal.toFixed(2)}`, { align: "right" })
-      .text(`Other Charges: ${purchase.otherCharges?.toFixed(2) || "0.00"}`, {
-        align: "right",
-      })
-      .text(`Discount: ${purchase.discount?.toFixed(2) || "0.00"}`, {
-        align: "right",
-      })
-      .text(`Total Amount: ${purchase.totalAmount.toFixed(2)}`, {
-        align: "right",
-        underline: true,
-      })
-      .text(`Paid Amount: ${purchase.paidAmount.toFixed(2)}`, {
-        align: "right",
-      })
-      .text(`Deficit Amount: ${purchase.deficitAmount.toFixed(2)}`, {
-        align: "right",
-      });
+    doc.moveDown(1);
 
-    // **Footer Section**
-    doc
-      .moveDown(2)
-      .fontSize(10)
-      .text(
-        "Thank you for your business! Please contact us if you have any questions.",
-        { align: "center" }
-      );
+    // Invoice Summary
+    doc.fontSize(8).text("Summary:", { underline: true });
+    doc.text(`Total Items: ${totalItems}`);
+    doc.text(`Sub Total: ${formatCurrency(purchase.products.reduce((sum, item) => sum + item.quantity * item.purchaseRate, 0))}`);
+    doc.text(`Other Charges: ${formatCurrency(purchase.otherCharges || 0)}`);
+    doc.text(`Total Amount: ${formatCurrency(purchase.products.reduce((sum, item) => sum + item.quantity * item.purchaseRate, 0) + (purchase.otherCharges || 0))}`, { bold: true });
+    doc.moveDown(1);
 
-    // End and save the document
+    // Footer
+    doc
+      .fontSize(8)
+      .text("Thank you for your business!", { align: "center" })
+      .moveDown(0.5)
+      .text("This is a computer-generated receipt.", { align: "center" })
+      .text(`Generated on ${new Date().toLocaleString("en-IN")}`, { align: "center" });
+
     doc.end();
 
+    // Upload to Cloudinary
     await new Promise((resolve, reject) => {
       stream.on("finish", resolve);
       stream.on("error", reject);
     });
 
-    // Upload the file to Cloudinary
     const uploadResult = await cloudinary.uploader.upload(filePath, {
-      folder: "crm-grocery/invoices",
+      folder: "grocery-crm/invoices",
       resource_type: "raw",
     });
 
-    const invoiceUrl = uploadResult.secure_url;
-
-    // Delete the file locally
     fs.unlinkSync(filePath);
-
-    return invoiceUrl;
+    return uploadResult.secure_url;
   } catch (error) {
-    console.error("Error generating invoice:", error);
+    console.error("Error generating purchase receipt:", error);
     throw error;
   }
 };
+
 
 const generateSaleInvoice = async (saleId) => {
   try {
@@ -134,118 +156,101 @@ const generateSaleInvoice = async (saleId) => {
       .populate("products.product")
       .populate("customer")
       .populate("signedBy");
-    const doc = new PDFDocument({ margin: 50 });
 
-    const filePath = `./tmp/invoice_${sale._id}.pdf`;
+    const doc = new PDFDocument({
+      size: [216, 400], // 72mm width, dynamic height
+      margin: 10, 
+    });
+
+    const filePath = `./tmp/sale_receipt_${sale._id}.pdf`;
     const stream = fs.createWriteStream(filePath);
     doc.pipe(stream);
 
-    // **Header Section**
-    doc
-      .fontSize(20)
-      .text("ABC Company", { align: "center" })
-      .fontSize(12)
-      .text("Address: 1234 Business St, City, Country", { align: "center" })
-      .text("Phone: +1234567890 | Email: support@yourcompany.com", {
-        align: "center",
-      })
-      .moveDown(1)
-      .fontSize(18)
-      .text("Sales Invoice", { align: "center", underline: true })
-      .text("Transaction ID: " + sale._id, { align: "center" });
-
-    // **Invoice Details**
-    doc
-      .moveDown(2)
-      .fontSize(12)
-      .text(`Invoice ID: ${sale._id}`)
-      .text(`Date: ${new Date().toLocaleDateString()}`)
-      .text(`Customer: ${sale?.customer?.name || sale?.customer?.phone || "Customer"}`)
-      .text(`Signed By: ${sale?.signedBy?.name || "Unknown"}`);
-
-    doc.moveDown();
-
-    // **Table Header**
-    doc.fontSize(14).text("Products", { underline: true }).moveDown(0.5);
-
+    // Header
     doc
       .fontSize(12)
-      .text(
-        "S.No    Product Name                        Qty       Rate       Tax         Total",
-        { underline: true }
-      )
+      .text("SALE RECEIPT", { align: "center", underline: true })
       .moveDown(0.5);
 
-    // **Table Body**
+    doc
+      .fontSize(8)
+      .text(`Receipt No: ${sale._id}`, { align: "center" })
+      .text(`Date: ${new Date().toLocaleDateString("en-IN")}`, { align: "center" })
+      .moveDown();
+
+    // Customer Details
+    doc
+      .fontSize(8)
+      .text("Customer Details:")
+      .text(`Name: ${sale.customer?.name || "N/A"}`)
+      .text(`Contact: ${sale.customer?.phone || "N/A"}`)
+      .moveDown();
+
+    // Products Table
+    doc.fontSize(8).text("Items:", { underline: true });
+    doc
+      .text("S.No  Product          Qty   Rate    Total", { align: "left" })
+      .moveDown(0.5);
+
+    let totalItems = 0;
     sale.products.forEach((item, index) => {
-      const productName = item?.product?.name || "Unknown";
-      const quantity = `${item.quantity}${item?.product?.secondaryUnit}` || 0;
-      const sellingRate = item.sellingRate || 0;
-      const tax = (item.quantity * item.sellingRate * (item?.product?.tax || 0)) / 100 || 0;
-      const total = quantity * sellingRate + tax;
+      const productName = item.product?.name || "Unknown";
+      const quantity = item.quantity || 0;
+      const price = item.sellingRate || 0;
+      const total = quantity * price;
 
       doc
         .text(
-          `${index + 1}        ${productName.padEnd(
-            30
-          )}       ${quantity}        ${sellingRate.toFixed(
-            2
-          )}        ${tax.toFixed(2)}        ${total.toFixed(2)}`,
+          `${index + 1}. ${productName.substring(0, 10)}   ${quantity}    ${formatCurrency(price)}   ${formatCurrency(
+            total
+          )}`,
           { align: "left" }
-        )
-        .moveDown(0.5);
+        );
+
+      totalItems += quantity;
     });
 
-    // **Footer Totals**
-    doc
-      .moveDown(2)
-      .fontSize(12)
-      .text(`Subtotal: ${sale.subTotal.toFixed(2)}`, { align: "right" })
-      .text(`Other Charges: ${sale.tax?.toFixed(2) || "0.00"}`, {
-        align: "right",
-      })
-      .text(`Discount: ${sale.discount?.toFixed(2) || "0.00"}`, {
-        align: "right",
-      })
-      .text(`Total Amount: ${sale.totalAmount.toFixed(2)}`, {
-        align: "right",
-        underline: true,
-      });
+    doc.moveDown(1);
 
-    // **Footer Section**
-    doc
-      .moveDown(2)
-      .fontSize(10)
-      .text(
-        "Thank you for your business! Please contact us if you have any questions.",
-        { align: "center" }
-      );
+    // Invoice Summary
+    doc.fontSize(8).text("Summary:", { underline: true });
+    doc.text(`Total Items: ${totalItems}`);
+    doc.text(`Sub Total: ${formatCurrency(sale.subTotal)}`);
+    doc.text(`Other Charges: ${formatCurrency(sale.otherCharges || 0)}`);
+    doc.text(`Discount: ${formatCurrency(sale.discount || 0)}`);
+    doc.text(`Total Amount: ${formatCurrency(sale.totalAmount)}`, { bold: true });
+    doc.moveDown(1);
 
-    // End and save the document
+    // Footer
+    doc
+      .fontSize(8)
+      .text("Thank you for shopping with us!", { align: "center" })
+      .moveDown(0.5)
+      .text("This is a computer-generated receipt.", { align: "center" })
+      .text(`Generated on ${new Date().toLocaleString("en-IN")}`, { align: "center" });
+
     doc.end();
 
+    // Upload to Cloudinary
     await new Promise((resolve, reject) => {
       stream.on("finish", resolve);
       stream.on("error", reject);
     });
 
-    // Upload the file to Cloudinary
     const uploadResult = await cloudinary.uploader.upload(filePath, {
-      folder: "crm-grocery/invoices",
+      folder: "grocery-crm/invoices",
       resource_type: "raw",
     });
 
-    const invoiceUrl = uploadResult.secure_url;
-
-    // Delete the file locally
     fs.unlinkSync(filePath);
-
-    return invoiceUrl;
+    return uploadResult.secure_url;
   } catch (error) {
-    console.error("Error generating invoice:", error);
+    console.error("Error generating sale receipt:", error);
     throw error;
   }
 };
+
+
 
 const sendMail = async (to, subject, message) => {
   try {

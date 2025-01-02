@@ -1,6 +1,6 @@
 import React from "react";
-import InventoryCard from "./InventoryCard";
 import Divider from "../utils/Divider";
+import InventoryCardSmall from "./InventoryCardSmall";
 
 const InventoryTable = ({ inventory }) => {
   return (
@@ -15,7 +15,7 @@ const InventoryTable = ({ inventory }) => {
               {categoryData.products.map((product) => {
                 return (
                   <div key={product._id} className="flex gap-1 min-w-full w-full md:min-w-[50%] md:max-w-[50%] lg:min-w-[25%] lg:max-w-[25%] snap-start p-4">
-                    <InventoryCard product={product} />
+                    <InventoryCardSmall product={product} />
                   </div>
                 );
               })}

@@ -9,7 +9,7 @@ const getSales = async (req, res) => {
     limit = 10,
     page = 1,
     sort = "createdAt",
-    sortType = "asc",
+    sortType = "desc",
   } = req.query;
   const sales = await Sale.find()
     .populate("signedBy")
@@ -46,7 +46,9 @@ const getEmployeeSales = async (req, res) => {
 };
 
 const getSale = async (req, res) => {
-  const sale = await Sale.findById(req.params.id).populate("products.product customer signedBy");
+  const sale = await Sale.findById(req.params.id).populate(
+    "products.product customer signedBy"
+  );
   res.json({ success: true, sale });
 };
 
@@ -100,15 +102,16 @@ const addSale = async (req, res) => {
     const inventory = await Inventory.findOne({
       product: product.product,
     }).populate("product");
-    inventory.batches.forEach((batch) => {
+    inventory?.batches.forEach((batch) => {
       const sameBatch =
-        batch?.expiry === product?.expiry &&
+        (!batch.expiry || !product.expiry || batch.expiry === product.expiry) &&
         batch.purchaseRate === product.purchaseRate;
       if (sameBatch) {
         batch.quantity -= product.quantity;
-      }
-      if (batch.quantity === 0) {
-        inventory.batches.pull(batch._id);
+        if (batch.quantity === 0) {
+          inventory.batches.pull(batch._id);
+        }
+        return;
       }
     });
     inventory.totalQuantity -= product.quantity;
@@ -155,7 +158,8 @@ const getRecentSale = async (req, res) => {
     products: recentSale.products.map((item) => ({
       productName: item?.product?.name,
       quantity: item?.quantity,
-      unit: item?.product?.unit,
+      primaryUnit: item?.product?.primaryUnit,
+      secondaryUnit: item?.product?.secondaryUnit,
       rate: item?.sellingRate,
       totalPrice: item?.quantity * item?.sellingRate,
     })),

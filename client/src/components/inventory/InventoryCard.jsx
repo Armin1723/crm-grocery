@@ -1,88 +1,77 @@
-import React from "react";
-import Wave from "react-wavify";
-import { getColor } from "../utils";
-import InventoryActionButton from "./InventoryActionButton";
+import React, { useEffect, useState } from "react";
+import Avatar from "../utils/Avatar";
+import { formatDate } from "../utils";
+import Divider from "../utils/Divider";
+import { Link } from "react-router-dom";
 
-const InventoryCard = ({ product }) => {
-  const formatHeight = (unit) => {
-    let height;
-    if (unit === "kg") {
-      height = product?.quantity;
-    } else if (unit === "gm") {
-      height = product?.quantity / 1000;
-    } else if (unit === "l") {
-      height = product?.quantity;
-    } else if (unit === "packet") {
-      height = product?.quantity;
-    } else if (unit === "ml") {
-      height = product?.quantity / 1000;
-    } else {
-      height = product?.quantity;
-    }
-    return Math.min(Math.max(height, 0), 100);
-  };
+const InventoryCard = ({ upid = "" }) => {
+  const [inventory, setInventory] = useState({});
+  const [refetch, setRefetch] = useState(false);
 
-  const height = formatHeight(product?.details?.secondaryUnit);
-
+  useEffect(() => {
+    const fetchInventory = async () => {
+      try {
+        const res = await fetch(
+          `${import.meta.env.VITE_BACKEND_URL}/api/v1/inventory/${upid}`
+        );
+        const data = await res.json();
+        if (res.ok) {
+          setInventory(data.product);
+        } else {
+          throw new Error(data.message || "Something went wrong");
+        }
+      } catch (error) {
+        console.error(error.message);
+      }
+    };
+    fetchInventory();
+  }, [upid, refetch]);
   return (
-    <div className="inventory-card relative flex flex-col items-center justify-center w-full aspect-video rounded-md border border-neutral-500/50 shadow-[0_0_20px_gray] !shadow-neutral-500/20 bg-[var(--color-card)] pr-2">
-      <div className="title w-full flex flex-col py-3 max-sm:py-2 px-4">
-        <div className="line-1 flex w-full justify-between items-center">
-          <p className="text-lg max-sm:text-base font-bold">
-            {product?.productName}
+    <div className="flex flex-col gap-2 w-full bg-[var(--color-card)] p-4 rounded-md">
+      <div className="product-details bg-[var(--color-primary)] flex w-full justify-between items-center gap-4 p-4 rounded-md">
+        <Avatar image={inventory?.image} width={80} />
+        <div className="details flex flex-col flex-1 ">
+          <Link to={`/products/${inventory?.upid}`} className="text-lg font-bold hover:underline">{inventory?.name}</Link>
+          <p className="flex items-center gap-2 text-[var(--color-text-light)]">
+            Category: {inventory?.category} {`>`} {inventory?.subCategory}
           </p>
-          <InventoryActionButton product={product} />
-        </div>
-        <p className="">
-          Stock: {product?.totalQuantity} {product?.details?.unit}
-        </p>
-        <div className="flex gap-3 w-full ">
-          
-          <p>PR: {product?.purchaseRate}</p>
-          <p>SR: {product?.sellingRate}</p>
+          <p className="text-[var(--color-text-light)]">
+            Total Stock: {inventory?.totalQuantity}
+          </p>
         </div>
       </div>
-      {/* Container image */}
-        <div
-          className="container-image relative flex-1 w-full aspect-square"
-          style={{
-            width: "100%",
-            backgroundImage: "url('/inventory/clip-mask-2.webp')",
-            backgroundSize: "contain",
-            backgroundRepeat: "no-repeat",
-            backgroundPosition: "center",
-            zIndex: 1,
-          }}
-        >
-          {/* Wave animation masked to the container */}
-          <Wave
-            fill={getColor(formatHeight(product?.details?.secondaryUnit))}
-            paused={false}
-            style={{
-              position: "absolute",
-              inset: 0,
-              zIndex: 2,
-              display: "flex",
-              maskImage: "url('/inventory/clip-mask-2.webp')",
-              maskSize: "contain",
-              maskRepeat: "no-repeat",
-              maskPosition: "center",
-              WebkitMaskImage: "url('/inventory/clip-mask-2.webp')",
-              WebkitMaskSize: "contain",
-              WebkitMaskRepeat: "no-repeat",
-              WebkitMaskPosition: "center",
-              mixBlendMode: "color-burn",
-            }}
-            options={{
-              height: height,
-              amplitude: 20,
-              speed: 0.15,
-              points: 6,
-            }}
-          />
-        </div>
 
-        
+        <Divider title={`Batches: ${inventory?.batches?.length || 0}`} />
+
+      <div className="batches flex max-w-full overflow-x-auto gap-4 snap-x snap-mandatory">
+        {inventory?.batches?.map((batch, index) => {
+          return (
+            <div
+              key={index}
+              className="batch bg-[var(--color-primary)] p-4 rounded-md flex flex-col gap-2 snap-start w-full min-w-full md:w-1/2 md:min-w-[50%] lg:min-w-[33%] lg:w-1/3 "
+            >
+              <div className="batchCard">
+                <p className="text-lg font-bold">Batch: {index + 1}</p>
+                <p className="text-[var(--color-text-light)]">
+                  Quantity: {batch?.quantity}
+                </p>
+                <p className="text-[var(--color-text-light)]">
+                  Expiry: {formatDate(batch?.expiry) || "Not Set"}
+                </p>
+                <p className="text-[var(--color-text-light)]">
+                  MRP: ₹{batch?.mrp}
+                </p>
+                <p className="text-[var(--color-text-light)]">
+                  Purchase Rate: ₹{batch?.purchaseRate}
+                </p>
+                <p className="text-[var(--color-text-light)]">
+                  Selling Rate: ₹{batch?.sellingRate}
+                </p>
+              </div>
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 };

@@ -7,7 +7,7 @@ const Purchase = require("../models/purchase.model");
 const mongoose = require("mongoose");
 
 const getProduct = async (req, res) => {
-  const product = await Product.findById(req.params.id);
+  const product = await Product.findOne({ upid: req.params.id });
   res.json({ success: true, product });
 };
 
@@ -133,13 +133,14 @@ const getTrendingProducts = async (req, res) => {
   // Populate product details
   const populatedTrendingProducts = await Product.populate(trendingProducts, {
     path: "_id",
-    select: "name category",
+    select: "name category secondaryUnit",
   });
 
   // Flatten the response structure
   const formattedProducts = populatedTrendingProducts.map((item) => ({
     product: item._id, // Rename '_id' to 'product'
     totalSales: item.totalSales,
+    secondaryUnit: item._id.secondaryUnit,
   }));
 
   res.status(200).json({ success: true, trendingProducts: formattedProducts });
@@ -171,6 +172,85 @@ const searchProduct = async (req, res) => {
   const totalPages = Math.ceil(totalProducts / limit);
 
   res.json({ success: true, products, page, totalProducts, totalPages });
+};
+
+const productPurchases = async (req, res) => {
+  const { limit = 5, page = 1 } = req.query;
+  const { id } = req.params;
+
+  const product = await Product.findOne({ upid: id }).select("_id secondaryUnit").lean();
+  if (!product) {
+    return res.json({ success: false, message: "Product not found" });
+  }
+
+  const purchases = await Purchase.aggregate([
+    { $unwind: "$products" },
+    {
+      $match: {
+        "products.product": product._id,
+      },
+    },
+    {
+      $lookup: {
+        from: "suppliers",
+        localField: "supplier",
+        foreignField: "_id",
+        as: "supplier",
+      },
+    },
+    {
+      $lookup: {
+        from: "users",
+        localField: "signedBy",
+        foreignField: "_id",
+        as: "signedBy",
+      },
+    },
+    {
+      $project: {
+        _id: 0,
+        purchaseRate: "$products.purchaseRate",
+        quantity: "$products.quantity",
+        secondaryUnit: product.secondaryUnit,
+        totalAmount: "$products.totalAmount",
+        createdAt: 1,
+        supplier: { $arrayElemAt: ["$supplier", 0] },
+        signedBy: { $arrayElemAt: ["$signedBy", 0] },
+      },
+    },
+    { $sort: { createdAt: -1 } },
+    { $skip: (page - 1) * parseInt(limit) },
+    { $limit: parseInt(limit) },
+  ]);
+
+  const totalPurchases = await Purchase.aggregate([
+    { $unwind: "$products" },
+    {
+      $match: {
+        "products.product": product._id,
+      },
+    },
+    {
+      $count: "total",
+    },
+  ]);
+
+  const totalPages = Math.ceil(totalPurchases[0]?.total / parseInt(limit)) || 1;
+  const totalResults = totalPurchases[0].total;
+  const hasMore = totalResults > page * parseInt(limit);
+  res.json({
+    success: true,
+    purchases,
+    page,
+    totalResults,
+    totalPages,
+    hasMore,
+  });
+};
+
+const productSales = async (req, res) => {
+  const sales = await Sale.find({ "products.product": req.params.id });
+  res.json({ success: true, sales });
 };
 
 const setStockPreference = async (req, res) => {
@@ -312,4 +392,6 @@ module.exports = {
   editProduct,
   deleteProduct,
   autoSetRate,
+  productPurchases,
+  productSales,
 };

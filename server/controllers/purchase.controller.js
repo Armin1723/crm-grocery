@@ -14,7 +14,7 @@ const getPurchases = async (req, res) => {
     page = 1,
     supplierId,
     sort = "createdAt",
-    sortType = "asc",
+    sortType = "desc",
   } = req.query;
 
   const query = {};
