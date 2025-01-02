@@ -30,6 +30,7 @@ const Card = ({ data, index, chartData = {} }) => {
   ];
 
   const [stats, setStats] = useState(chartData.data || chartDataCopy);
+  console.log(chartData.data);
 
   const CustomTooltip = ({ active, payload }) => {
     if (active && payload && payload.length) {
@@ -87,7 +88,14 @@ const Card = ({ data, index, chartData = {} }) => {
               <p className="text-lg font-bold">{data?.title}</p>
             </div>
             <p className="text-2xl max-lg:text-xl max-sm:text-lg font-bold ">
-              <CountUp end={chartData?.currentValue} duration={2} />
+              <CountUp
+                end={
+                  data.title === "Inventory"
+                    ? chartData.total
+                    : chartData?.currentValue
+                }
+                duration={2}
+              />
             </p>
           </div>
           <Link
