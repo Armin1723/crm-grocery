@@ -231,12 +231,21 @@ const productPurchases = async (req, res) => {
       },
     },
     {
-      $count: "total",
+      $group: {
+        _id: null,
+        total: { $sum: 1 },
+      },
+    },
+    {
+      $project: {
+        _id: 0,
+        total: 1,
+      },
     },
   ]);
 
-  const totalPages = Math.ceil(totalPurchases[0]?.total / parseInt(limit)) || 1;
-  const totalResults = totalPurchases[0].total;
+  const totalResults = totalPurchases[0]?.total || 0;
+  const totalPages = Math.ceil(totalResults / parseInt(limit)) || 1;
   const hasMore = totalResults > page * parseInt(limit);
   res.json({
     success: true,

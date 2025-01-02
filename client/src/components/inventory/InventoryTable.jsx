@@ -1,6 +1,6 @@
 import React from "react";
 import Divider from "../utils/Divider";
-import InventoryCardSmall from "./InventoryCardSmall";
+import InventoryCard from "./InventoryCard";
 
 const InventoryTable = ({ inventory }) => {
   return (
@@ -9,13 +9,13 @@ const InventoryTable = ({ inventory }) => {
         return (
           <div key={categoryData._id} className="flex flex-col gap-1">
             <p className="text-lg max-lg:text-base font-bold pl-2">
-              <Divider title={categoryData.category} />
+              <Divider title={`${categoryData.category} (${categoryData?.products?.length || 0} item)`} />
             </p>
             <div className="flex gap-1 scroll-snap snap-x snap-mandatory min-w-full overflow-x-auto pb-4">
               {categoryData.products.map((product) => {
                 return (
-                  <div key={product._id} className="flex gap-1 min-w-full w-full md:min-w-[50%] md:max-w-[50%] lg:min-w-[25%] lg:max-w-[25%] snap-start p-4">
-                    <InventoryCardSmall product={product} />
+                  <div key={product._id} className="flex gap-1 min-w-full w-full md:min-w-[50%] md:max-w-[50%] lg:min-w-[100%] lg:w-full snap-start p-4">
+                    <InventoryCard inventoryData={product} editable />
                   </div>
                 );
               })}

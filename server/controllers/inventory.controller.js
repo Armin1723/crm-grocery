@@ -1,4 +1,5 @@
 const Inventory = require("../models/inventory.model");
+const Product = require("../models/product.model");
 
 const getProductsFromInventory = async (req, res) => {
   const { name, barcode, page = 1, limit = 10 } = req.query;
@@ -113,6 +114,7 @@ const getProductFromInventory = async (req, res) => {
         upid: "$details.upid",
         tax: "$details.tax",
         image: "$details.image",
+        barcodeInfo: "$details.barcodeInfo",
         category: "$details.category",
         subCategory: "$details.subCategory",
         primaryUnit: "$details.primaryUnit",
@@ -134,8 +136,7 @@ const getProductFromInventory = async (req, res) => {
 
 const getProductsGroupedByCategory = async (req, res) => {
   const pipeline = [
-    // Unwind batches to access individual batch details
-    { $unwind: "$batches" },
+    { $match: { totalQuantity: { $gt: 0 } } },
 
     // Lookup to populate product details
     {
@@ -157,15 +158,20 @@ const getProductsGroupedByCategory = async (req, res) => {
         products: {
           $push: {
             _id: "$_id",
-            productName: "$productDetails.name",
-            quantity: "$batches.quantity",
-            purchaseRate: "$batches.purchaseRate",
-            sellingRate: "$batches.sellingRate",
-            mrp: "$batches.mrp",
-            expiry: "$batches.expiry",
+            name: "$productDetails.name",
+            image: "$productDetails.image",
+            tax: "$productDetails.tax",
+            primaryUnit: "$productDetails.primaryUnit",
+            secondaryUnit: "$productDetails.secondaryUnit",
+            category: "$productDetails.category",
+            subCategory: "$productDetails.subCategory",
+            upid: "$productDetails.upid",
+            upc: "$productDetails.upc",
+            mrp: "$productDetails.mrp",
             totalQuantity: "$totalQuantity",
-            createdAt: "$createdAt",
-            updatedAt: "$updatedAt",
+            batches: "$batches",
+            createdAt: 1,
+            updatedAt: 1,
           },
         },
       },
@@ -188,8 +194,82 @@ const getProductsGroupedByCategory = async (req, res) => {
   res.status(200).json(groupedInventory);
 };
 
+const getRates = async (req, res) => {
+  const { upid } = req.params;
+
+  const product = await Product.findOne({ upid })
+    .select("_id secondaryUnit")
+    .lean();
+  if (!product) {
+    return res.status(404).json({
+      success: false,
+      message: "Product not found",
+    });
+  }
+
+  const inventory = await Inventory.findOne({ product: product._id })
+    .select("batches")
+    .lean();
+  if (!inventory) {
+    return res.status(404).json({
+      success: false,
+      message: "Product not found in inventory",
+    });
+  }
+  inventory.batches.sort((a, b) => b.sellingRate - a.sellingRate);
+  const highestSellingRate = inventory.batches[0].sellingRate;
+  const MRP = inventory.batches[0].mrp;
+
+  res.json({
+    success: true,
+    highestSellingRate,
+    MRP,
+  });
+};
+
+const editBatch = async (req, res) => {
+  const { upid } = req.params;
+  const { oldBatch, newBatch } = req.body;
+
+  const product = await Product.findOne({ upid }).select("_id").lean();
+  if (!product) {
+    return res.status(404).json({
+      success: false,
+      message: "Product not found",
+    });
+  }
+
+  const inventory = await Inventory.findOne({ product: product._id })
+    .select("batches")
+
+  const batchIndex = inventory.batches.findIndex(
+    (batch) =>
+      batch.sellingRate === oldBatch.sellingRate &&
+      ((batch.expiry && oldBatch.expiry)
+      ? new Date(batch.expiry).getTime() === new Date(oldBatch.expiry).getTime()
+        : true)
+  );
+
+  if (batchIndex === -1) {
+    return res.status(404).json({
+      success: false,
+      message: "Batch not found",
+    });
+  } else {
+    inventory.batches[batchIndex].sellingRate = newBatch.sellingRate;
+    inventory.batches[batchIndex].expiry = newBatch.expiry;
+    await inventory.save();
+    res.json({
+      success: true,
+      message: "Batch updated successfully",
+    });
+  }
+};
+
 module.exports = {
   getProductsFromInventory,
   getProductFromInventory,
   getProductsGroupedByCategory,
+  getRates,
+  editBatch,  
 };

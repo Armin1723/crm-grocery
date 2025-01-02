@@ -5,21 +5,11 @@ import InventoryActionButton from "./InventoryActionButton";
 
 const InventoryCardSmall = ({ product }) => {
   const formatHeight = (unit) => {
-    let height;
-    if (unit === "kg") {
-      height = product?.quantity;
-    } else if (unit === "gm") {
-      height = product?.quantity / 1000;
-    } else if (unit === "l") {
-      height = product?.quantity;
-    } else if (unit === "packet") {
-      height = product?.quantity;
-    } else if (unit === "ml") {
-      height = product?.quantity / 1000;
+    if (unit === "gm" || unit === 'ml') {
+      return Math.min(Math.max(product?.quantity / 1000, 0), 100);
     } else {
-      height = product?.quantity;
+      return Math.min(Math.max(product?.quantity, 0), 100);
     }
-    return Math.min(Math.max(height, 0), 100);
   };
 
   const height = formatHeight(product?.details?.secondaryUnit);
@@ -43,7 +33,7 @@ const InventoryCardSmall = ({ product }) => {
         </div>
       </div>
       {/* Container image */}
-        <div
+      <div
           className="container-image relative flex-1 w-full aspect-square"
           style={{
             width: "100%",

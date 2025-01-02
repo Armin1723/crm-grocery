@@ -125,7 +125,7 @@ const Card = ({ data, index, chartData = {} }) => {
                     : "text-[tomato]"
                 } text-xl`}
               >
-                {chartData?.increase || 0}%
+                {chartData?.increase?.toFixed(1) || 0}%
               </p>
               <p className="text-sm">this month</p>
             </div>

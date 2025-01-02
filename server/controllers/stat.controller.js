@@ -61,19 +61,24 @@ const getBasicStats = async (req, res) => {
   const totalInventory = inventoryData[0]?.totalValue || 0;
 
   // Calculate percentage changes
-  const calculatePercentageChange = (data, current, last) =>
+  const calculatePercentageChange = (current, last) =>
     last > 0 ? ((current - last) / last) * 100 : current > 0 ? 100 : 0;
 
   const lastMonth = currentMonth === 1 ? 12 : currentMonth - 1;
+
+  // Handle year change for January (previous December's data)
+  const lastMonthYear = currentMonth === 1 ? new Date().getFullYear() - 1 : new Date().getFullYear();
 
   const stats = {
     sales: {
       total: totalSales,
       currentValue : salesData.find((d) => d._id === currentMonth)?.count || 0,
       increase: calculatePercentageChange(
-        salesData,
         salesData.find((d) => d._id === currentMonth)?.count || 0,
-        salesData.find((d) => d._id === lastMonth)?.count || 0
+        (salesData.find(
+          (d) =>
+            d._id === lastMonth && new Date(sixMonthsAgo).getFullYear() === lastMonthYear
+        )?.count || 0)
       ),
       data: salesData,
     },
@@ -81,9 +86,11 @@ const getBasicStats = async (req, res) => {
       total: totalPurchases,
       currentValue : purchaseData.find((d) => d._id === currentMonth)?.count || 0,
       increase: calculatePercentageChange(
-        purchaseData,
         purchaseData.find((d) => d._id === currentMonth)?.count || 0,
-        purchaseData.find((d) => d._id === lastMonth)?.count || 0
+        (purchaseData.find(
+          (d) =>
+            d._id === lastMonth && new Date(sixMonthsAgo).getFullYear() === lastMonthYear
+        )?.count || 0)
       ),
       data: purchaseData,
     },
@@ -91,9 +98,11 @@ const getBasicStats = async (req, res) => {
       total: totalProducts,
       currentValue : productsData.find((d) => d._id === currentMonth)?.count || 0,
       increase: calculatePercentageChange(
-        productsData,
         productsData.find((d) => d._id === currentMonth)?.count || 0,
-        productsData.find((d) => d._id === lastMonth)?.count || 0
+        (productsData.find(
+          (d) =>
+            d._id === lastMonth && new Date(sixMonthsAgo).getFullYear() === lastMonthYear
+        )?.count || 0)
       ),
       data: productsData,
     },
@@ -101,9 +110,11 @@ const getBasicStats = async (req, res) => {
       total: totalInventory,
       currentValue : inventoryData.find((d) => d._id === currentMonth)?.totalValue || 0,
       increase: calculatePercentageChange(
-        inventoryData,
         inventoryData.find((d) => d._id === currentMonth)?.totalValue || 0,
-        inventoryData.find((d) => d._id === lastMonth)?.totalValue || 0
+        (inventoryData.find(
+          (d) =>
+            d._id === lastMonth && new Date(sixMonthsAgo).getFullYear() === lastMonthYear
+        )?.totalValue || 0)
       ),
       data: inventoryData,
     },

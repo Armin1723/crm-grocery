@@ -45,14 +45,14 @@ const PurchaseCardSmall = ({ purchase }) => {
         <Divider title="Supplier" />
         <div className="flex items-center gap-3">
           <FaStore className="text-3xl text-accent/70" />
-          <div className="flex flex-col">
+          <div className="flex flex-col flex-1">
             <Link
               to={`/suppliers/${supplier?._id}`}
               className="hover:underline"
             >
               {supplier?.name}
             </Link>
-            <p className="text-[var(--color-text-light)]">{supplier?.email}</p>
+            <p className="text-[var(--color-text-light)] truncate text-ellipsis">{supplier?.email}</p>
           </div>
         </div>
       </div>

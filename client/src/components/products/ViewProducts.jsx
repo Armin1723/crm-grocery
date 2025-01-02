@@ -130,7 +130,7 @@ const ViewProducts = () => {
                       />
                     </div>
                     <div className="w-1/5 min-w-[50px]">
-                      <HoverCard title={product?.name}>
+                      <HoverCard title={product?.name} to={product?.upid}>
                         <ProductCardSmall product={product} editable={false}/>
                       </HoverCard>
                     </div>

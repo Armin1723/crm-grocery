@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
+import { Link } from "react-router-dom";
 
-const HoverCard = ({ title, children }) => {
+const HoverCard = ({ title, children, to= "" }) => {
   const [isHovered, setIsHovered] = useState(false);
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const titleRef = useRef(null);
@@ -40,7 +41,7 @@ const HoverCard = ({ title, children }) => {
   }, [isHovered]);
 
   if (isMobile) {
-    return <div>{title}</div>;
+    return <Link to={to}>{title}</Link>;
   }
 
   return (

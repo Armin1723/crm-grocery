@@ -48,7 +48,7 @@ const ProductPurchases = () => {
       {results?.purchases &&
         results?.purchases?.map((purchase, index) => (
           <div
-            key={purchase._id}
+            key={index}
             className="flex flex-col min-w-full w-full md:w-1/2 md:min-w-[50%] lg:w-1/3 lg:min-w-[33%] rounded-md px-4 py-2 snap-start h-fit"
           >
             <PurchaseCardSmall purchase={purchase} />

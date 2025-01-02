@@ -1,75 +1,18 @@
-import React, { useState } from "react";
-import Modal from "../utils/Modal";
+import React from "react";
 import Barcode from "react-barcode";
-import { MdEdit } from "react-icons/md";
-import { FaPrint } from "react-icons/fa";
 
-const ProductBarcode = ({ product, setRefetch = () => {} }) => {
+const BatchLabel = ({
+  inventory = {},
+  batch = {},
+  closeModal = () => {},
+  setRefetch = () => {},
+}) => {
+  console.log(inventory);
+
   const [isModalOpen, setModalOpen] = useState(false);
   const [barcodeInfo, setBarcodeInfo] = useState(product?.barcodeInfo);
 
   const labelRef = React.useRef(null);
-
-  const handleSave = async () => {
-    try {
-      const res = await fetch(
-        `${import.meta.env.VITE_BACKEND_URL}/api/v1/products/${product._id}`,
-        {
-          method: "POST",
-          credentials: "include",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ barcodeInfo }),
-        }
-      );
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.message || "Something went wrong");
-      setModalOpen(false);
-      setRefetch((prev) => !prev);
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
-  const handlePrint = () => {
-    if (labelRef.current) {
-      const printContents = labelRef.current.innerHTML;
-      const printWindow = window.open("", "_blank");
-      printWindow.document.open();
-      printWindow.document.write(`
-        <html>
-          <head>
-            <title>Barcode - ${product?.upid}</title>
-            <style>
-                body {
-                  margin: 0;
-                  padding: 0;
-                  display: flex;
-                  flex-direction: column;
-                  align-items: center;
-                  justify-content: center;
-                  font-family: 'Outfit', sans-serif;
-                  height: 100vh;
-                }
-                h2{
-                  font-size: 2rem;
-                  padding: 0;
-                  margin: 0;
-                }
-                .no-print, body button {
-                  display: none !important;
-                }
-            </style>
-          </head>
-          <body onload="window.print(); window.close();">
-            ${printContents}
-          </body>
-        </html>
-      `);
-      printWindow.document.close();
-    }
-  };
 
   return (
     <div className="bg-[var(--color-card)] p-4 rounded-lg shadow-md text-[var(--color-text)] flex items-center justify-center relative">
@@ -86,13 +29,13 @@ const ProductBarcode = ({ product, setRefetch = () => {} }) => {
           Store Name
         </h2>
         <p className="flex items-center gap-1">
-          <span className="">{product?.name}</span>
-          <span className="text-xs italic"> ({product.category})</span>
+          <span className="">{inventory?.name}</span>
+          <span className="text-xs italic"> ({inventory.category})</span>
         </p>
         {/* Barcode Preview */}
         <div className="px-4">
-          {product.upc || product.upid ? (
-            <Barcode value={product.upc || product.upid} />
+          {inventory.upc || inventory.upid ? (
+            <Barcode value={inventory.upc || inventory.upid} />
           ) : (
             <span className="text-sm text-red-500">No barcode available</span>
           )}
@@ -107,8 +50,8 @@ const ProductBarcode = ({ product, setRefetch = () => {} }) => {
             alignItems: "center",
           }}
         >
-          {product?.barcodeInfo ? (
-            <p>{product.barcodeInfo}</p>
+          {inventory?.barcodeInfo ? (
+            <p>{inventory.barcodeInfo}</p>
           ) : (
             <button>No additional barcode info</button>
           )}
@@ -162,4 +105,4 @@ const ProductBarcode = ({ product, setRefetch = () => {} }) => {
   );
 };
 
-export default ProductBarcode;
+export default BatchLabel;

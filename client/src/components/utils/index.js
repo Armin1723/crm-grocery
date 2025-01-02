@@ -32,7 +32,7 @@ export const links = [
     icon: FaStore,
     title: "Suppliers",
     to: "/suppliers",
-  }
+  },
 ];
 
 export const categories = [
@@ -301,8 +301,8 @@ export const taxSlabs = [
   {
     name: "GST 28%",
     rate: 28,
-  }
-]
+  },
+];
 
 export const formatDate = (date) => {
   return new Date(date).toLocaleString("en-IN", {
@@ -315,31 +315,39 @@ export const formatDate = (date) => {
 };
 
 export const formatDateIntl = (date) => {
-  if(!date) return '';
+  if (!date) return "";
   return new Date(date).toLocaleDateString("en-IN", {
     day: "numeric",
     month: "short",
     year: "numeric",
   });
-}
+};
+
+export const formatHeight = (unit, value) => {
+  if (unit === "gm" || unit === "ml") {
+    return Math.min(Math.max((value / 1000) * 10, 0), 100);
+  } else {
+    return Math.min(Math.max(value * 10, 0), 100);
+  }
+};
 
 export const getColor = (height) => {
-  if (height <= 20) return '#FF0000ab'; 
-  if (height <= 40) return '#FF4500ab'; 
-  if (height <= 60) return '#FFA500ab'; 
-  if (height <= 80) return '#FFD700ab'; 
-  if (height <= 100) return '#FFFF00ab'; 
-  if (height <= 120) return '#ADFF2Fab'; 
-  if (height <= 140) return '#7FFF00ab'; 
-  if (height <= 160) return '#32CD32ab'; 
-  if (height <= 180) return '#008000ab'; 
-  return '#006400ab'; 
+  if (height <= 20) return "#FF0000ab";
+  if (height <= 40) return "#FF4500ab";
+  if (height <= 60) return "#FFA500ab";
+  if (height <= 80) return "#FFD700ab";
+  if (height <= 100) return "#FFFF00ab";
+  if (height <= 120) return "#ADFF2Fab";
+  if (height <= 140) return "#7FFF00ab";
+  if (height <= 160) return "#32CD32ab";
+  if (height <= 180) return "#008000ab";
+  return "#006400ab";
 };
 
 export const autoSetConversionFactor = (primaryUnit, secondaryUnit) => {
   if (primaryUnit === "kg" && secondaryUnit === "gram") return 1000;
   if (primaryUnit === "litre" && secondaryUnit === "ml") return 1000;
   if (primaryUnit === "dozen" && secondaryUnit === "piece") return 12;
-  if( primaryUnit == secondaryUnit) return 1;
+  if (primaryUnit == secondaryUnit) return 1;
   return 1;
-}
+};
