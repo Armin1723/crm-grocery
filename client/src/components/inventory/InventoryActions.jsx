@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import { MdDelete, MdEdit, MdOutlineVideoLabel } from "react-icons/md";
 import Modal from "../utils/Modal";
 import EditBatchForm from "./EditBatchForm";
-import BatchLabel from "./batchLabel";
 
 const InventoryActions = ({ batch = {},  inventory = {}, upid = "", setRefetch = () => {} }) => {
   const [editModalOpen, setEditModalOpen] = useState(false);
@@ -87,12 +86,12 @@ const InventoryActions = ({ batch = {},  inventory = {}, upid = "", setRefetch =
           onClose={() => setLabelModalOpen(false)}
           isOpen={labelModalOpen}
         >
-          <BatchLabel
+          {/* <BatchLabel
             inventory={inventory}
             batch={batch}
             closeModal={() => setLabelModalOpen(false)}
             setRefetch={setRefetch}
-          />
+          /> */}
         </Modal>
       )}
     </div>
