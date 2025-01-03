@@ -499,7 +499,10 @@ const ProductForm = ({
               errors && errors.rate && "border-red-500 focus:!border-red-500"
             }`}
             name="rate"
-            {...register("rate")}
+            {...register("rate",{
+              valueAsNumber: true,
+              min: 0
+            })}
           />
         </FormInput>
 
@@ -517,10 +520,13 @@ const ProductForm = ({
             className={`input peer ${
               errors &&
               errors.shelfLife &&
-              "border-red-500 focus:!border-red-500"
+              "border-red-500 focus:!border-red-500 text-red-500"
             }`}
             name="shelfLife"
-            {...register("shelfLife")}
+            {...register("shelfLife",{
+              valueAsNumber: true,
+              min: 1
+            })}
           />
         </FormInput>
       </div>
@@ -577,7 +583,7 @@ const ProductForm = ({
           {/* MRP Input */}
           <FormInput
             label="MRP"
-            error={errors && errors.upc}
+            error={errors && errors.mrp}
             otherClasses="w-1/2"
           >
             <input
@@ -585,11 +591,12 @@ const ProductForm = ({
               inputMode="alphanumeric"
               placeholder=" "
               className={`input peer ${
-                errors && errors.mrp && "border-red-500 focus:!border-red-500"
+                errors && errors.mrp && "border-red-500 focus:!border-red-500 text-red-500"
               }`}
               name="mrp"
               {...register("mrp", {
                 valueAsNumber: true,
+                min: 0,
               })}
             />
           </FormInput>
@@ -625,7 +632,8 @@ const ProductForm = ({
       {/* Submit Button */}
       <button
         type="submit"
-        className="px-3 py-1.5 my-2 capitalize rounded-md bg-accent hover:bg-accentDark text-white"
+        disabled={Object.keys(errors).length > 0}
+        className="px-3 py-1.5 my-2 capitalize rounded-md bg-accent disabled:cursor-not-allowed disabled:opacity-30 hover:bg-accentDark text-white"
       >
         {title} Product
       </button>

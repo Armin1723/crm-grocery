@@ -6,6 +6,7 @@ import { Link } from "react-router-dom";
 import Wave from "react-wavify";
 import InventoryActions from "./InventoryActions";
 import { FaObjectGroup } from "react-icons/fa";
+import { toast } from "react-toastify";
 
 const InventoryCard = ({ upid = "", inventoryData = {}, editable = false }) => {
   const [inventory, setInventory] = useState({});
@@ -16,7 +17,9 @@ const InventoryCard = ({ upid = "", inventoryData = {}, editable = false }) => {
     const fetchInventory = async () => {
       try {
         const res = await fetch(
-          `${import.meta.env.VITE_BACKEND_URL}/api/v1/inventory/${upid}`
+          `${import.meta.env.VITE_BACKEND_URL}/api/v1/inventory/${upid}`,{
+            credentials: "include",
+          }
         );
         const data = await res.json();
         if (res.ok) {
@@ -32,6 +35,28 @@ const InventoryCard = ({ upid = "", inventoryData = {}, editable = false }) => {
     };
     fetchInventory();
   }, [upid, refetch]);
+
+  const handleMerge = async () => {
+    try{
+      const res = await fetch(
+        `${import.meta.env.VITE_BACKEND_URL}/api/v1/inventory/${upid}/batches/merge`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+        }
+      );
+      if (!res.ok) {
+        throw new Error("Failed to merge batches");
+      }
+      setRefetch((prev) => !prev);
+      toast.success("Batches merged successfully");
+    }catch(error){
+      console.error(error.message);
+    }
+  }
 
   if (!inventory && !loading)
     return (
@@ -60,7 +85,7 @@ const InventoryCard = ({ upid = "", inventoryData = {}, editable = false }) => {
               {inventory?.name}
             </Link>
             {isMergable(inventory) && (
-              <FaObjectGroup title="Merge Batches" className="text-accent hover:text-accentDark cursor-pointer" />
+              <FaObjectGroup title="Merge Batches" onClick={handleMerge} className="text-accent hover:text-accentDark cursor-pointer" />
             )}
           </div>
           <p className="flex items-center gap-2 text-[var(--color-text-light)]">

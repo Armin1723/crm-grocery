@@ -1,12 +1,13 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import Divider from "../utils/Divider";
 import InventoryCard from "./InventoryCard";
 
-const InventoryTable = () => {
-  const [results, setResults] = useState({});
-  const [refetch, setRefetch] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [page, setPage] = useState(1);
+const InventoryTable = ({
+  results = {},
+  setPage = () => {},
+  setRefetch = () => {},
+  loading = false,
+}) => {
 
   const scrollContainerRef = React.useRef(null);
 
@@ -40,35 +41,6 @@ const InventoryTable = () => {
     };
   }, [results?.hasMore, loading]);
 
-  useEffect(() => {
-    setLoading(true);
-    const fetchInventory = async () => {
-      try {
-        const response = await fetch(
-          `${import.meta.env.VITE_BACKEND_URL}/api/v1/inventory?page=${page}`,
-          {
-            credentials: "include",
-          }
-        );
-        const data = await response.json();
-        if (!response.ok) {
-          throw new Error(data.message || "Something went wrong");
-        }
-        setResults({
-          hasMore: data?.hasMore,
-          page: data?.page,
-          data: (data.page === 1) ? data?.data : [...results?.data, ...data?.data] ,
-        });
-      } catch (error) {
-        console.error("Error fetching inventory:", error.message);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchInventory();
-  }, [refetch, page]);
-
   const inventory = results?.data;
   return (
     <div
@@ -93,10 +65,7 @@ const InventoryTable = () => {
                       key={product._id}
                       className="flex gap-1 min-w-full w-full snap-start p-4"
                     >
-                      <InventoryCard
-                        upid={product.upid}
-                        editable
-                      />
+                      <InventoryCard upid={product.upid} editable />
                     </div>
                   );
                 })}
@@ -104,13 +73,15 @@ const InventoryTable = () => {
             </div>
           );
         })
-      ) : 
-        (loading ? (<div className="flex flex-col items-center justify-center w-full h-full">
+      ) : loading ? (
+        <div className="flex flex-col items-center justify-center w-full h-full">
           <div className="spinner"></div>
-        </div>) : (<p className="text-lg max-lg:text-base p-2">
+        </div>
+      ) : (
+        <p className="text-lg max-lg:text-base p-2">
           No products found in inventory.
-        </p>))
-      }
+        </p>
+      )}
     </div>
   );
 };

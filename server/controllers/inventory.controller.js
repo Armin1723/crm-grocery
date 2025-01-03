@@ -14,7 +14,7 @@ const getProductsFromInventory = async (req, res) => {
         as: "details",
       },
     },
-    { $unwind: "$details" },
+    { $unwind: { path : "$details", preserveNullAndEmptyArrays: true } },
   ];
 
   // Initialize the query for matching name and barcode
@@ -43,7 +43,7 @@ const getProductsFromInventory = async (req, res) => {
   }
 
   pipeline.push(
-    { $unwind: "$batches" },
+    { $unwind: { path : "$batches", preserveNullAndEmptyArrays: true  }},
     {
       $project: {
         product: 1,
@@ -135,7 +135,7 @@ const getProductFromInventory = async (req, res) => {
 };
 
 const getProductsGroupedByCategory = async (req, res) => {
-  const { page = 1, limit = 5 } = req.query;
+  const { page = 1, limit = 5, query = '' } = req.query;
   const skip = (page - 1) * limit;
   const actualLimit = parseInt(limit);
   const extendedLimit = actualLimit + 1;
@@ -160,14 +160,31 @@ const getProductsGroupedByCategory = async (req, res) => {
         productDetails: {
           category: 1,
           upid: 1,
-          // Include only necessary fields
+          name: 1,
+          tags: 1,
+          description: 1,
         },
         totalQuantity: 1,
       },
     },
 
-    // Unwind the productDetails array (if you need to access the product fields individually)
+    // Unwind the productDetails array 
     { $unwind: "$productDetails" },
+
+    // Filter products based on search query
+    ...(query
+      ? [
+          {
+            $match: {
+              $or: [
+                { "productDetails.name": { $regex: query, $options: "i" } },
+                { "productDetails.description": { $regex: query, $options: "i" } },
+                { "productDetails.tags": { $regex: query, $options: "i" } },
+              ],
+            },
+          },
+        ]
+      : []),
 
     // Group by product category and aggregate products
     {
@@ -176,7 +193,6 @@ const getProductsGroupedByCategory = async (req, res) => {
         products: {
           $push: {
             upid: "$productDetails.upid",
-            // Include only fields needed from productDetails
           },
         },
       },
@@ -287,10 +303,78 @@ const editBatch = async (req, res) => {
   }
 };
 
+const mergeBatches = async (req, res) => {
+  const { upid } = req.params;
+
+  // Find the product by UPID
+  const product = await Product.findOne({ upid }).select("_id").lean();
+  if (!product) {
+    return res.status(404).json({
+      success: false,
+      message: "Product not found",
+    });
+  }
+
+  // Fetch inventory and batches
+  const inventory = await Inventory.findOne({ product: product._id }).select("batches").lean();
+  if (!inventory || !inventory.batches || inventory.batches.length === 0) {
+    return res.status(404).json({
+      success: false,
+      message: "No batches found for this product",
+    });
+  }
+
+  let { batches } = inventory;
+
+  // Merge batches with same MRP, sellingRate, and compatible expiry
+  const mergedBatches = [];
+  const visited = new Set();
+
+  for (let i = 0; i < batches.length; i++) {
+    if (visited.has(i)) continue;
+
+    const batch1 = batches[i];
+    let mergedBatch = { ...batch1 };
+    visited.add(i);
+
+    for (let j = i + 1; j < batches.length; j++) {
+      if (visited.has(j)) continue;
+
+      const batch2 = batches[j];
+
+      // Check if MRP, sellingRate match, and expiry is compatible
+      const canMerge =
+        batch1.mrp == batch2.mrp &&
+        batch1.sellingRate == batch2.sellingRate &&
+        (!batch1.expiry || !batch2.expiry || batch1.expiry.getTime() == batch2.expiry.getTime());
+
+      if (canMerge) {
+        // Merge quantities and mark batch as visited
+        mergedBatch.quantity = (mergedBatch.quantity || 0) + (batch2.quantity || 0);
+        mergedBatch.purchaseRate = Math.max(mergedBatch.purchaseRate, batch2.purchaseRate);
+        visited.add(j);
+      }
+    }
+
+    mergedBatches.push(mergedBatch);
+  }
+
+  // Update the inventory with merged batches
+  inventory.batches = mergedBatches;
+  await Inventory.updateOne({ product: product._id }, { $set: { batches: mergedBatches } });
+
+  return res.status(200).json({
+    success: true,
+    message: "Batches merged successfully",
+    batches: mergedBatches,
+  });
+};
+
 module.exports = {
   getProductsFromInventory,
   getProductFromInventory,
   getProductsGroupedByCategory,
   getRates,
-  editBatch,  
+  editBatch,
+  mergeBatches,  
 };

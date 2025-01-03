@@ -98,7 +98,7 @@ const PurchaseForm = ({ setRefetch = () => {}, closeModal = () => {} }) => {
         ...product,
         price: product.price + shareAmount,
         purchaseRate: parseFloat(
-          Number((product.price + shareAmount) / product.quantity).toFixed(1)
+          Number((product.price + shareAmount) / (product.quantity * product.conversionFactor)).toFixed(1)
         ),
       };
     });

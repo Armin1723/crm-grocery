@@ -1,0 +1,10 @@
+  # Specify the directory for the frontend build output
+  publish = "client/dist"
+  # Command to build the frontend
+  command = "npm run build --prefix client"
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+  force = true
