@@ -91,7 +91,7 @@ const InventoryTable = () => {
                   return (
                     <div
                       key={product._id}
-                      className="flex gap-1 min-w-full w-full md:min-w-[50%] md:max-w-[50%] lg:min-w-[100%] lg:w-full snap-start p-4"
+                      className="flex gap-1 min-w-full w-full snap-start p-4"
                     >
                       <InventoryCard
                         upid={product.upid}
@@ -104,17 +104,13 @@ const InventoryTable = () => {
             </div>
           );
         })
-      ) : (
-        <p className="text-lg max-lg:text-base p-2">
-          No products found in inventory.
-        </p>
-      )}
-
-      {loading && (
-        <div className="flex flex-col items-center justify-center w-full h-full">
+      ) : 
+        (loading ? (<div className="flex flex-col items-center justify-center w-full h-full">
           <div className="spinner"></div>
-        </div>
-      )}
+        </div>) : (<p className="text-lg max-lg:text-base p-2">
+          No products found in inventory.
+        </p>))
+      }
     </div>
   );
 };

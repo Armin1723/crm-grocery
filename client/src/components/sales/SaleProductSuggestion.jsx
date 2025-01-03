@@ -20,7 +20,7 @@ const SaleProductSuggestion = ({
         const response = await fetch(
           `${
             import.meta.env.VITE_BACKEND_URL
-          }/api/v1/inventory/products?name=${value}`,
+          }/api/v1/inventory/products${value &&  '?name='+value}`,
           { credentials: "include" }
         );
         const data = await response.json();

@@ -126,10 +126,10 @@ const SaleForm = ({ setRefetch = () => {}, closeModal = () => {} }) => {
       <form
         onSubmit={handleSubmit(addSale)}
         onKeyDown={handleKeyDown}
-        className="flex flex-col gap-2 w-full flex-1 h-full overflow-y-auto px-2"
+        className="flex flex-col w-full flex-1 h-full overflow-y-auto px-2"
       >
         {/* Products Section */}
-        <div className="title flex justify-between">
+        <div className="title flex justify-between py-1">
           <p className="my-1 font-semibold text-lg max-sm:text-base">
             Products
           </p>
@@ -142,7 +142,7 @@ const SaleForm = ({ setRefetch = () => {}, closeModal = () => {} }) => {
         </div>
 
         {/* Add Product */}
-        <div className="add-product flex items-center max-sm:space-y-2 w-full pr-2 flex-wrap relative justify-between">
+        <div className="add-product flex items-center max-sm:space-y-2 py-2 w-full pr-2 flex-wrap relative justify-between">
           <SaleProductSuggestion
             products={products}
             setProducts={setProducts}
@@ -153,7 +153,7 @@ const SaleForm = ({ setRefetch = () => {}, closeModal = () => {} }) => {
         </div>
         {products.length > 0 ? (
           <>
-            <div className="table-wrapper flex relative flex-1 mt-2">
+            <div className="table-wrapper flex relative flex-1 mt-2 border border-b-0 border-neutral-500/50 rounded-md rounded-b-none">
               <div className="products-container overflow-x-scroll max-sm:px-2 table flex-col w-fit min-w-full max-sm:text-sm flex-1">
                 <div className="th flex w-fit min-w-full flex-1 z-[99] justify-between items-center gap-2 border border-neutral-500/50 bg-[var(--color-card)] rounded-t-md px-2 py-1 sticky top-0 ">
                   <p className="w-[5%] min-w-[30px]">*</p>
@@ -284,7 +284,7 @@ const SaleForm = ({ setRefetch = () => {}, closeModal = () => {} }) => {
               </div>
             </div>
 
-            <div className="table-footer flex flex-col items-end w-fit p-2 min-w-full bg-[var(--color-card)] border border-neutral-500/50 rounded-b-md">
+            <div className="table-footer flex flex-col items-end w-fit p-2 pt-0 min-w-full bg-[var(--color-card)] border border-neutral-500/50 rounded-b-md">
               <div className="text-right flex items-center">
                 Sub Total:{" "}
                 <input
@@ -339,7 +339,7 @@ const SaleForm = ({ setRefetch = () => {}, closeModal = () => {} }) => {
         )}
 
         {/* Customer Section */}
-        <div className="flex flex-col w-full">
+        <div className="flex flex-col w-full py-2">
           <p className="my-1 font-semibold text-lg max-sm:text-base">
             Customer
           </p>
@@ -352,7 +352,7 @@ const SaleForm = ({ setRefetch = () => {}, closeModal = () => {} }) => {
         </div>
 
         {/* Payment Details */}
-        <div className="flex flex-col w-full">
+        <div className="flex flex-col w-full py-2">
           <p className="my-1 font-semibold text-lg max-sm:text-base">
             Payment details
           </p>
@@ -376,7 +376,7 @@ const SaleForm = ({ setRefetch = () => {}, closeModal = () => {} }) => {
         <button
           type="submit"
           disabled={products.length === 0 || Object.keys(errors).length > 0}
-          className="px-3 py-1.5 my-2 capitalize rounded-md disabled:cursor-not-allowed disabled:hover-none bg-accent hover:bg-accentDark text-white"
+          className="px-3 py-1.5 my-2 capitalize rounded-md disabled:cursor-not-allowed disabled:hover-none disabled:opacity-30 bg-accent hover:bg-accentDark text-white"
         >
           Add Sale
         </button>

@@ -287,20 +287,51 @@ export const units = [
 
 export const taxSlabs = [
   {
-    name: "GST 5%",
+    id: 5,
+    name: "GST 0%",
+    rate: 0,
+    description:
+      "Exempt from tax, generally applies to export goods and essential items.",
+  },
+  {
+    id: 6,
+    name: "GST 3%",
+    rate: 3,
+    description:
+      "Special rate for certain items such as job work or agriculture products.",
+  },
+  {
+    id: 14,
+    name: "GST 5% ",
     rate: 5,
+    description: "Special rate for mobile phone products.",
   },
   {
-    name: "GST 12%",
+    id: 7,
+    name: "GST 10%",
+    rate: 10,
+    description:
+      "Special rate for specific services, including low-cost services.",
+  },
+  {
+    id: 12,
+    name: "GST 12% ",
     rate: 12,
+    description: "Special rate for hotel accommodation with a higher tariff.",
   },
   {
-    name: "GST 18%",
-    rate: 18,
+    id: 8,
+    name: "GST 20%",
+    rate: 20,
+    description:
+      "Applies on select goods and services like high-end electronics and luxury services.",
   },
+
   {
+    id: 13,
     name: "GST 28%",
     rate: 28,
+    description: "Applicable on tobacco products and similar items.",
   },
 ];
 
@@ -365,13 +396,11 @@ export const isMergable = (inventory) => {
       // Check if selling rates are equal
       const isSellingRateEqual = batchA.sellingRate === batchB.sellingRate;
 
-      const isMRPEqual = !batchA.mrp || !batchB.mrp || batchA.mrp == batchB.mrp; 
+      const isMRPEqual = !batchA.mrp || !batchB.mrp || batchA.mrp == batchB.mrp;
 
       // Check if expiries are compatible
       const isExpiryCompatible =
-        !batchA.expiry ||
-        !batchB.expiry ||
-        batchA.expiry === batchB.expiry;
+        !batchA.expiry || !batchB.expiry || batchA.expiry === batchB.expiry;
 
       // If both conditions are met, batches are mergable
       if (isSellingRateEqual && isExpiryCompatible && isMRPEqual) {
@@ -382,4 +411,3 @@ export const isMergable = (inventory) => {
 
   return false;
 };
-
