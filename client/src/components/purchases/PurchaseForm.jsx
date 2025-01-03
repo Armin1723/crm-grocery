@@ -41,6 +41,8 @@ const PurchaseForm = ({ setRefetch = () => {}, closeModal = () => {} }) => {
   const otherCharges = watch("otherCharges", 0);
   const discount = watch("discount", 0);
 
+  const [globalErrors, setGlobalErrors] = useState({});
+
   const handleKeyDown = (event) => {
     if (event.key === "Enter") {
       event.preventDefault();
@@ -124,6 +126,18 @@ const PurchaseForm = ({ setRefetch = () => {}, closeModal = () => {} }) => {
         autoClose: 2000,
       });
       return;
+    }
+
+    if(globalErrors){
+      for (const [key, value] of Object.entries(globalErrors)) {
+        toast.update(id, {
+          render: value,
+          type: "error",
+          isLoading: false,
+          autoClose: 2000,
+        });
+        return;
+      }
     }
     try {
       const response = await fetch(
@@ -306,29 +320,29 @@ const PurchaseForm = ({ setRefetch = () => {}, closeModal = () => {} }) => {
                         }
                       />
                     </div>
-                    <div className="w-1/5 min-w-[120px] relative">
+                    <div className="purchaseRate w-1/5 min-w-[120px] relative">
                       <input
                         type="number"
                         value={product.purchaseRate}
                         readOnly
-                        className="w-full border-b border-accent bg-transparent outline-none p-1"
+                        className={`${product?.purchaseRate > product?.mrp && 'text-red-500'} w-full border-b border-accent bg-transparent outline-none p-1`}
                       />
                       <span className="text-xs absolute top-1/2 -translate-y-1/2 right-2 rounded-lg bg-accent text-white px-2">
                         ₹/{product.secondaryUnit}
                       </span>
                     </div>
-                    <div className="w-1/5 min-w-[120px] relative">
+                    <div className="selling-rate w-1/5 min-w-[120px] relative">
                       <input
                         type="number"
                         min={Math.ceil(product.purchaseRate)}
+                        value={product.sellingRate}
                         className={` ${
-                          product.purchaseRate > product.sellingRate ||
+                          (product.purchaseRate > product.sellingRate) ||
                           (product.sellingRate > product.mrp && "text-red-700")
                         } border-b w-full placeholder:text-sm bg-transparent border-[var(--color-accent)] outline-none p-1 `}
                         onChange={(e) => {
-                          const value = parseFloat(e.target.value);
-                          if (value < product.purchaseRate) {
-                            e.target.value = product.purchaseRate;
+                          if (e.target.value < product.purchaseRate) {
+                            return;
                           }
                           setProducts((prev) =>
                             prev.map((p, i) =>
@@ -346,7 +360,7 @@ const PurchaseForm = ({ setRefetch = () => {}, closeModal = () => {} }) => {
                         ₹/{product.secondaryUnit}
                       </span>
                     </div>
-                    <div className="w-1/5 min-w-[80px]">
+                    <div className="mrp w-1/5 min-w-[80px]">
                       <input
                         type="number"
                         min={Math.ceil(product.purchaseRate)}
@@ -367,7 +381,7 @@ const PurchaseForm = ({ setRefetch = () => {}, closeModal = () => {} }) => {
                         }
                       />
                     </div>
-                    <div className="w-1/5 min-w-[80px] relative">
+                    <div className="quantity w-1/5 min-w-[80px] relative">
                       <input
                         type="number"
                         min="1"
@@ -390,6 +404,15 @@ const PurchaseForm = ({ setRefetch = () => {}, closeModal = () => {} }) => {
                                           ).toFixed(2)
                                         )
                                       : 0,
+                                    sellingRate: e.target.value
+                                    ? parseFloat(
+                                        Number(
+                                          Number(p.price) /
+                                            (Number(e.target.value) *
+                                              Number(p.conversionFactor))
+                                        ).toFixed(2)
+                                      )
+                                    : 0,
                                   }
                                 : p
                             )
@@ -400,7 +423,7 @@ const PurchaseForm = ({ setRefetch = () => {}, closeModal = () => {} }) => {
                         {product.primaryUnit}
                       </div>
                     </div>
-                    <div className="w-1/5 min-w-[80px] flex justify-end">
+                    <div className="price w-1/5 min-w-[80px] flex justify-end">
                       <input
                         type="number"
                         min="0"

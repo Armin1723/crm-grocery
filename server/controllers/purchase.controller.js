@@ -237,10 +237,7 @@ const addPurchase = async (req, res) => {
           mrp: product.mrp,
         });
       }
-      inventory.totalQuantity = inventory.batches.reduce(
-        (total, batch) => total + batch.quantity,
-        0
-      );
+      inventory.totalQuantity = inventory.totalQuantity + product.quantity;
       await inventory.save();
     }
   });
