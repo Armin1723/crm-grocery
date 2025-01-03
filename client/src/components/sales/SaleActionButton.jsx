@@ -57,7 +57,7 @@ const SaleActionButton = ({ sale, setRefetch = () => {} }) => {
       <div
         className={`${
           menuOpen ? "max-h-screen opacity-100" : "max-h-0 opacity-0"
-        } absolute menu overflow-hidden top-full -left-1/2 !z-[999] bg-[var(--color-card)] transition-all duration-300 ease-in min-w-[120px] rounded-md py-1 flex flex-col gap-2 border-neutral-500/50 border shadow-md`}
+        } absolute menu overflow-hidden top-full -left-1/2 !z-[999] bg-[var(--color-card)] transition-all duration-300 ease-in min-w-[120px] rounded-md py-1 flex flex-col gap-1 border-neutral-500/50 border shadow-md`}
         role="menu"
         aria-hidden={!menuOpen}
       >

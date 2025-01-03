@@ -325,23 +325,23 @@ export const formatDateIntl = (date) => {
 
 export const formatHeight = (unit, value) => {
   if (unit === "gm" || unit === "ml") {
-    return Math.min(Math.max((value / 1000) * 10, 0), 100);
+    return value / 1000;
   } else {
-    return Math.min(Math.max(value * 10, 0), 100);
+    return value * 3;
   }
 };
 
 export const getColor = (height) => {
-  if (height <= 20) return "#FF0000ab";
-  if (height <= 40) return "#FF4500ab";
-  if (height <= 60) return "#FFA500ab";
-  if (height <= 80) return "#FFD700ab";
-  if (height <= 100) return "#FFFF00ab";
-  if (height <= 120) return "#ADFF2Fab";
-  if (height <= 140) return "#7FFF00ab";
-  if (height <= 160) return "#32CD32ab";
-  if (height <= 180) return "#008000ab";
-  return "#006400ab";
+  if (height <= 20) return "#FF0000f1";
+  if (height <= 40) return "#FF4500f1";
+  if (height <= 60) return "#FFA500f1";
+  if (height <= 80) return "#FFD700f1";
+  if (height <= 100) return "#FFFF00f1";
+  if (height <= 120) return "#ADFF2Ff1";
+  if (height <= 140) return "#7FFF00f1";
+  if (height <= 160) return "#32CD32f1";
+  if (height <= 180) return "#008000f1";
+  return "#006400f1";
 };
 
 export const autoSetConversionFactor = (primaryUnit, secondaryUnit) => {
@@ -351,3 +351,35 @@ export const autoSetConversionFactor = (primaryUnit, secondaryUnit) => {
   if (primaryUnit == secondaryUnit) return 1;
   return 1;
 };
+
+export const isMergable = (inventory) => {
+  const { batches } = inventory;
+  if (batches && batches?.length < 2) return false;
+
+  // Compare all batches with each other
+  for (let i = 0; i < batches?.length; i++) {
+    for (let j = i + 1; j < batches?.length; j++) {
+      const batchA = batches[i];
+      const batchB = batches[j];
+
+      // Check if selling rates are equal
+      const isSellingRateEqual = batchA.sellingRate === batchB.sellingRate;
+
+      const isMRPEqual = !batchA.mrp || !batchB.mrp || batchA.mrp == batchB.mrp; 
+
+      // Check if expiries are compatible
+      const isExpiryCompatible =
+        !batchA.expiry ||
+        !batchB.expiry ||
+        batchA.expiry === batchB.expiry;
+
+      // If both conditions are met, batches are mergable
+      if (isSellingRateEqual && isExpiryCompatible && isMRPEqual) {
+        return true;
+      }
+    }
+  }
+
+  return false;
+};
+

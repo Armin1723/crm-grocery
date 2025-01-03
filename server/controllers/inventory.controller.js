@@ -135,10 +135,16 @@ const getProductFromInventory = async (req, res) => {
 };
 
 const getProductsGroupedByCategory = async (req, res) => {
+  const { page = 1, limit = 5 } = req.query;
+  const skip = (page - 1) * limit;
+  const actualLimit = parseInt(limit);
+  const extendedLimit = actualLimit + 1;
+
   const pipeline = [
+    // Match products with positive quantity
     { $match: { totalQuantity: { $gt: 0 } } },
 
-    // Lookup to populate product details
+    // Lookup to populate product details (only fetch required fields)
     {
       $lookup: {
         from: "products",
@@ -148,50 +154,65 @@ const getProductsGroupedByCategory = async (req, res) => {
       },
     },
 
-    // Unwind productDetails to access product fields
+    // Project only required fields to reduce document size
+    {
+      $project: {
+        productDetails: {
+          category: 1,
+          upid: 1,
+          // Include only necessary fields
+        },
+        totalQuantity: 1,
+      },
+    },
+
+    // Unwind the productDetails array (if you need to access the product fields individually)
     { $unwind: "$productDetails" },
 
-    // Group by product category
+    // Group by product category and aggregate products
     {
       $group: {
         _id: "$productDetails.category",
         products: {
           $push: {
-            _id: "$_id",
-            name: "$productDetails.name",
-            image: "$productDetails.image",
-            tax: "$productDetails.tax",
-            primaryUnit: "$productDetails.primaryUnit",
-            secondaryUnit: "$productDetails.secondaryUnit",
-            category: "$productDetails.category",
-            subCategory: "$productDetails.subCategory",
             upid: "$productDetails.upid",
-            upc: "$productDetails.upc",
-            mrp: "$productDetails.mrp",
-            totalQuantity: "$totalQuantity",
-            batches: "$batches",
-            createdAt: 1,
-            updatedAt: 1,
+            // Include only fields needed from productDetails
           },
         },
       },
     },
 
-    // Project the desired output
-    {
-      $project: {
-        category: "$_id",
-        _id: 0,
-        products: 1,
-      },
-    },
+    // Sort categories alphabetically
+    { $sort: { _id: 1 } },
+
+    // Pagination: Skip and limit results
+    { $skip: skip },
+    { $limit: extendedLimit },
   ];
 
-  // Execute the aggregation pipeline
-  const groupedInventory = await Inventory.aggregate(pipeline);
+  try {
+    // Execute the aggregation pipeline
+    const groupedInventory = await Inventory.aggregate(pipeline);
 
-  // Respond with grouped inventory
-  res.status(200).json(groupedInventory);
+    // Check if there are more results
+    const hasMore = groupedInventory.length > actualLimit;
+
+    // Remove the extra document if present
+    if (hasMore) {
+      groupedInventory.pop();
+    }
+
+    // Send the response with grouped inventory and pagination info
+    res.status(200).json({
+      success: true,
+      page: parseInt(page, 10),
+      limit: actualLimit,
+      hasMore,
+      data: groupedInventory,
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
 };
 
 const getRates = async (req, res) => {

@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from "react";
 import Avatar from "../utils/Avatar";
-import { formatDateIntl, formatHeight, getColor } from "../utils";
+import { formatDateIntl, formatHeight, getColor, isMergable } from "../utils";
 import Divider from "../utils/Divider";
 import { Link } from "react-router-dom";
 import Wave from "react-wavify";
 import InventoryActions from "./InventoryActions";
+import { FaObjectGroup } from "react-icons/fa";
 
 const InventoryCard = ({ upid = "", inventoryData = {}, editable = false }) => {
   const [inventory, setInventory] = useState({});
@@ -29,11 +30,7 @@ const InventoryCard = ({ upid = "", inventoryData = {}, editable = false }) => {
         setLoading(false);
       }
     };
-    if (inventoryData && inventoryData?.upid) {
-      setInventory(inventoryData);
-      setLoading(false);
-      return;
-    } else fetchInventory();
+    fetchInventory();
   }, [upid, refetch]);
 
   if (!inventory && !loading)
@@ -55,12 +52,17 @@ const InventoryCard = ({ upid = "", inventoryData = {}, editable = false }) => {
           width={80}
         />
         <div className="details flex flex-col flex-1 ">
-          <Link
-            to={`/products/${inventory?.upid}`}
-            className="text-lg font-bold hover:underline"
-          >
-            {inventory?.name}
-          </Link>
+          <div className="w-full flex items-center justify-between">
+            <Link
+              to={`/products/${inventory?.upid}`}
+              className="text-lg font-bold hover:underline"
+            >
+              {inventory?.name}
+            </Link>
+            {isMergable(inventory) && (
+              <FaObjectGroup title="Merge Batches" className="text-accent hover:text-accentDark cursor-pointer" />
+            )}
+          </div>
           <p className="flex items-center gap-2 text-[var(--color-text-light)]">
             Category: {inventory?.category} {`>`} {inventory?.subCategory}
           </p>
@@ -140,10 +142,10 @@ const InventoryCard = ({ upid = "", inventoryData = {}, editable = false }) => {
                           WebkitMaskSize: "contain",
                           WebkitMaskRepeat: "no-repeat",
                           WebkitMaskPosition: "center",
-                          mixBlendMode: "difference",
+                          mixBlendMode: "multiply",
                         }}
                         options={{
-                          height: formatHeight(
+                          height: 130 - formatHeight(
                             inventory.secondaryUnit,
                             batch.quantity
                           ),
