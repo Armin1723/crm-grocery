@@ -97,22 +97,22 @@ const Login = () => {
 
       <div className="email-input flex flex-col relative group my-2">
         <input
-          type="email"
+          type="text"
           name="email"
           placeholder=" "
           aria-invalid={errors.email ? "true" : "false"}
-          className={`outline-none peer border-b border-[var(--color-accent)] z-[5] bg-transparent focus:border-[var(--color-accent-dark)] ${
+          className={`outline-none peer border-b border-[var(--color-accent)] z-[10] bg-transparent focus:border-[var(--color-accent-dark)] ${
             errors.email && "!border-red-500 focus:!border-red-500"
           } transition-all duration-300`}
           {...register("email", {
-            required: "Email is required",
+            required: "Email / Emp ID is required",
           })}
         />
         <label
           htmlFor="email"
-          className="absolute appearance-none z-[10] text-neutral-500 transition-all duration-300 ease-in -translate-y-full -translate-x-3 scale-75 peer-focus:-translate-y-full peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-x-0 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-x-3 peer-focus:text-[var(--color-accent-dark)] start-1"
+          className="absolute appearance-none z-[5] text-neutral-500 transition-all duration-300 ease-in -translate-y-full -translate-x-3 scale-75 peer-focus:-translate-y-full peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-x-0 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-x-3 peer-focus:text-[var(--color-accent-dark)] start-1"
         >
-          Email
+          Email / Emp ID
         </label>
         {errors && errors.email && (
           <span className="text-red-500 text-sm">{errors.email.message}</span>
@@ -134,7 +134,7 @@ const Login = () => {
         />
         <label
           htmlFor="password"
-          className="absolute appearance-none z-[10] text-neutral-500 transition-all duration-300 ease-in -translate-y-full -translate-x-3 scale-75 peer-focus:-translate-y-full peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-x-0 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-x-3 peer-focus:text-[var(--color-accent-dark)] start-1"
+          className="absolute appearance-none text-neutral-500 transition-all duration-300 ease-in -translate-y-full -translate-x-3 scale-75 peer-focus:-translate-y-full peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-x-0 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-x-3 peer-focus:text-[var(--color-accent-dark)] start-1"
         >
           Password
         </label>

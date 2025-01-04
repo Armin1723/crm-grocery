@@ -13,13 +13,19 @@ const loginUser = async (req, res) => {
       return res.status(400).json({
         success: false,
         errors: {
-          email: "Email is required",
+          email: "Email / Employee ID is required",
           password: "Password is required",
         },
       });
     }
 
-    const user = await User.findOne({ email }).select("+password");
+    const user = await User.findOne({
+      $or: [
+        { email: email }, 
+        { uuid: email }
+      ]
+    }).select("+password");
+    
 
     if (!user) {
       return res.status(400).json({
