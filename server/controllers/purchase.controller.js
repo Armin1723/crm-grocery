@@ -222,7 +222,7 @@ const addPurchase = async (req, res) => {
       const existingBatch = inventory.batches.find(
         (batch) =>
           batch.sellingRate === product.sellingRate &&
-          (!product.expiry || !batch.expiry || batch.expiry === product.expiry)
+          (!product.expiry || !batch.expiry || new Date(batch.expiry).getTime() == new Date(product.expiry).getTime())
       );
 
       if (existingBatch) {

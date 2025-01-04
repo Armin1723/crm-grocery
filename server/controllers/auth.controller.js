@@ -129,9 +129,22 @@ const logoutUser = async (req, res) => {
     res.status(200).json({ success: true, message: "Logged out successfully" });
 };
 
+const validateUser = async ( req, res ) => {
+  if(req.user){
+    res.status(200).json({
+      message: "Validation Successfull"
+    })
+  }else{
+    res.status(400).json({
+      message: "Validation Unsuccessfull, Kindly login again."
+    })
+  }
+}
+
 module.exports = {
   loginUser,
   forgotPassword,
   resetPassword,
   logoutUser,
+  validateUser
 };

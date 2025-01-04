@@ -81,7 +81,7 @@ const SaleDetails = () => {
                 <tr key={product._id} className="border-b border-neutral-500">
                   <td className="py-2 pl-4">
                     <Avatar
-                      image={product.product.image}
+                      image={product?.product?.image}
                       withBorder={false}
                       fallbackImage="/utils/product-placeholder.png"
                     />
@@ -92,7 +92,7 @@ const SaleDetails = () => {
                   </td>
                   <td className="py-2 pl-4">₹{product.sellingRate}</td>
                   <td className="py-2 pl-4">
-                    ₹{product.sellingRate * product.quantity}
+                    ₹{Math.ceil(product.sellingRate * product.quantity)}
                   </td>
                 </tr>
               ))}

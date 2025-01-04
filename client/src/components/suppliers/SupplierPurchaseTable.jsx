@@ -93,12 +93,12 @@ const SupplierPurchaseTable = () => {
                   <td className="p-3">
                     <span
                       className={`px-2 py-1 rounded-full text-sm ${
-                        purchase?.deficitAmount < 0
+                        purchase?.deficitAmount > 0
                           ? "bg-orange-500/20 text-orange-500"
                           : "bg-green-500/20 text-green-500"
                       }`}
                     >
-                      {purchase?.deficitAmount < 0 ? "Pending" : "Paid"}
+                      {purchase?.deficitAmount > 0 ? "Pending" : "Paid"}
                     </span>
                   </td>
                 </tr>

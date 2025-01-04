@@ -58,7 +58,7 @@ const InventoryTable = ({
                   } item)`}
                 />
               </p>
-              <div className="flex gap-1 scroll-snap snap-x snap-mandatory min-w-full overflow-x-auto pb-4">
+              <div className="flex gap-1 horizontal-scrollbar scroll-snap snap-x snap-mandatory min-w-full overflow-x-auto pb-4">
                 {categoryData.products.map((product) => {
                   return (
                     <div

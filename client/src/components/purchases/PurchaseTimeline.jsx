@@ -13,10 +13,6 @@ const PurchaseTimeline = ({
   const [newPayment, setNewPayment] = useState({ amount: "", notes: "" });
   const [error, setError] = useState("");
 
-  if(purchase.followUpPayments.length == 0) {
-    return null
-  }
-
   // Calculate total amount paid
   const totalPaid =
     purchase.paidAmount +

@@ -41,9 +41,9 @@ const Inventory = () => {
 
   return (
     <div className="flex flex-col m-2 rounded-md bg-[var(--color-sidebar)] select-none p-2 border border-neutral-500/50 flex-1 w-full overflow-y-auto">
-      <div className="title flex items-center justify-between w-full gap-2">
+      <div className="title flex items-center justify-between w-full space-x-2 flex-wrap">
         <div className="title-left flex items-center gap-2">
-          <p className="my-2 text-xl max-lg:text-lg font-bold pl-2">
+          <p className="md:my-2 text-xl max-lg:text-lg font-bold pl-2">
             Inventory Details
           </p>
           <div

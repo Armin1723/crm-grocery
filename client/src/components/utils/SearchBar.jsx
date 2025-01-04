@@ -17,7 +17,7 @@ const SearchBar = ({ query = "", setQuery = () => {} }) => {
   }, [debouncedQuery, setQuery]);
 
   return (
-    <div className="flex items-center gap-1 border-b h-fit py-1 border-neutral-500/50 relative">
+    <div className="flex items-center gap-1 border-b h-fit py-1 my-1 border-neutral-500/50 relative">
       <FaSearch className="text-neutral-500 flex " />
       <input
         type="text"

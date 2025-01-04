@@ -3,6 +3,7 @@ import { FaCreditCard, FaEye, FaFileInvoice } from "react-icons/fa";
 import { HiDotsVertical } from "react-icons/hi";
 import PurchaseTimeline from "./PurchaseTimeline";
 import { Link } from "react-router-dom";
+import Modal from "../utils/Modal";
 
 const PurchaseActionButton = ({ purchase, setRefetch = () => {} }) => {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -107,53 +108,37 @@ const PurchaseActionButton = ({ purchase, setRefetch = () => {} }) => {
 
       {/* Edit Modal */}
       {invoiceModalOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-[1000]">
-          <div className="bg-[var(--color-sidebar)] rounded-md p-6 w-1/2 max-sm:w-[90%] overflow-y-auto max-h-[90vh] max-sm:px-6">
-            <div className="flex items-center gap-2 w-full justify-between my-4">
-              <h2 className="text-lg font-bold ">View Invoice</h2>
-              <button
-                className="bg-red-500 text-white px-3 py-1 rounded-md"
-                onClick={() => setInvoiceModalOpen(false)}
-              >
-                Close
-              </button>
-            </div>
-            {/* Modal Content for Editing */}
-            <div>
-              <embed
-                src={purchase?.invoice}
-                type="application/pdf"
-                width="100%"
-                height="500px"
-              />
-            </div>
+        <Modal
+          isOpen={invoiceModalOpen}
+          onClose={() => setInvoiceModalOpen(false)}
+          title="Invoice"
+        >
+          {/* Modal Content for Editing */}
+          <div>
+            <embed
+              src={purchase?.invoice}
+              type="application/pdf"
+              width="100%"
+              height="500px"
+            />
           </div>
-        </div>
+        </Modal>
       )}
 
       {/* Follow Up Payment Modal */}
       {followUpModalOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-[1000]">
-          <div className="bg-[var(--color-sidebar)] rounded-md p-6 w-1/2 max-sm:w-[90%] overflow-hidden max-h-[90vh] max-sm:px-6">
-            <div className="flex items-center gap-2 w-full justify-between my-4">
-              <h2 className="text-lg font-bold ">Add Follow Up Payment</h2>
-              <button
-                className="bg-red-500 text-white px-3 py-1 rounded-md"
-                onClick={() => setFollowUpModalOpen(false)}
-              >
-                Close
-              </button>
-            </div>
-            {/* Modal Content for Editing */}
-            <div className="modal overflow-y-auto max-h-[70vh]">
-              <PurchaseTimeline
-                purchase={purchase}
-                closeModal={() => setFollowUpModalOpen(false)}
-                setRefetch={setRefetch}
-              />
-            </div>
-          </div>
-        </div>
+        <Modal
+          isOpen={followUpModalOpen}
+          onClose={() => setFollowUpModalOpen(false)}
+          title="Follow Up Payment"
+        >
+          {/* Modal Content for Editing */}
+            <PurchaseTimeline
+              purchase={purchase}
+              closeModal={() => setFollowUpModalOpen(false)}
+              setRefetch={setRefetch}
+            />
+        </Modal>
       )}
     </div>
   );

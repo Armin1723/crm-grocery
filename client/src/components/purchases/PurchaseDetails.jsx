@@ -136,7 +136,7 @@ const PurchaseDetails = () => {
                   </td>
                   <td className="py-2 pl-4">₹{product.purchaseRate}</td>
                   <td className="py-2 pl-4">
-                    ₹{product.purchaseRate * product.quantity}
+                    ₹{Math.ceil(product.purchaseRate * product.quantity)}
                   </td>
                 </tr>
               ))}
@@ -144,7 +144,7 @@ const PurchaseDetails = () => {
           </table>
           <div className="totalAmount flex justify-end items-center gap-2">
             <p className="">Total Amount:</p>
-            <p className="">₹{purchase?.totalAmount}</p>
+            <p className="">₹{Math.ceil(purchase?.totalAmount)}</p>
           </div>
         </div>
 

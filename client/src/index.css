@@ -49,6 +49,10 @@ body {
   background: var(--color-primary);
 }
 
+.horizontal-scrollbar::-webkit-scrollbar{
+  height: 3px;
+}
+
 /* Input Field */
 .input {
   @apply outline-none border border-neutral-500/50 rounded-md p-2 !z-[10] bg-transparent focus:border-[var(--color-accent-dark)] transition-all duration-300;

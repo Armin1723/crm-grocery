@@ -404,15 +404,6 @@ const PurchaseForm = ({ setRefetch = () => {}, closeModal = () => {} }) => {
                                           ).toFixed(2)
                                         )
                                       : 0,
-                                    sellingRate: e.target.value
-                                    ? parseFloat(
-                                        Number(
-                                          Number(p.price) /
-                                            (Number(e.target.value) *
-                                              Number(p.conversionFactor))
-                                        ).toFixed(2)
-                                      )
-                                    : 0,
                                   }
                                 : p
                             )

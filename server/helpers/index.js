@@ -91,6 +91,8 @@ function generateSupplierInformation(doc, purchase) {
     .font("Helvetica")
     .text("Contact:", 50, supplierInformationTop + 15)
     .text(purchase.supplier?.phone || "N/A", 150, supplierInformationTop + 15)
+    .text("Email:", 50, supplierInformationTop + 30)
+    .text(purchase.supplier?.email || "N/A", 150, supplierInformationTop + 30)
     .moveDown();
 
   generateHr(doc, 252);
@@ -144,10 +146,10 @@ function generateSummary(doc, purchase) {
     "",
     "Subtotal",
     "",
-    formatCurrency(purchase.subtotal)
+    formatCurrency(purchase.subTotal)
   );
 
-  const otherChargesPosition = subtotalPosition + 25;
+  const otherChargesPosition = subtotalPosition + 20;
   generateTableRow(
     doc,
     otherChargesPosition,
@@ -158,7 +160,8 @@ function generateSummary(doc, purchase) {
     formatCurrency(purchase?.otherCharges || 0)
   );
 
-  const totalAmountPosition = otherChargesPosition + 25;
+  const totalAmountPosition = otherChargesPosition + 20;
+  doc.font("Helvetica-Bold");
   generateTableRow(
     doc,
     totalAmountPosition,
@@ -169,7 +172,7 @@ function generateSummary(doc, purchase) {
     formatCurrency(purchase?.totalAmount || 0)
   );
 
-  const paidToDatePosition = totalAmountPosition + 25;
+  const paidToDatePosition = totalAmountPosition + 20;
   generateTableRow(
     doc,
     paidToDatePosition,
@@ -180,8 +183,7 @@ function generateSummary(doc, purchase) {
     formatCurrency(purchase?.paidAmount)
   );
 
-  const duePosition = paidToDatePosition + 25;
-  doc.font("Helvetica-Bold");
+  const duePosition = paidToDatePosition + 20;
   generateTableRow(
     doc,
     duePosition,

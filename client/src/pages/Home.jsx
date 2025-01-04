@@ -6,19 +6,13 @@ import Sidebar from "../components/shared/Sidebar";
 import BreadCrumbNav from "../components/utils/BreadCrumbNav";
 import TopRibbon from "../components/shared/TopRibbon";
 import Footer from "../components/shared/Footer";
+import useAuthStatus from "../hooks/useAuthStatus";
 
 const Home = () => {
-  const user = useSelector((state) => state.user);
-  const navigate = useNavigate();
 
   const pageRef = useRef(null);
 
-  useEffect(() => {
-    if (!user || !user.avatar) {
-      toast.error("You are not logged in.");
-      navigate("/auth/login");
-    }
-  }, []);
+  useAuthStatus();
 
   return (
     <div ref={pageRef} className="flex h-screen w-full bg-[var(--color-primary)] text-[var(--color-text)] ">

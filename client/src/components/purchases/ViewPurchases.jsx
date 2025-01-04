@@ -7,14 +7,13 @@ import PurchaseActionButton from "./PurchaseActionButton";
 import { Link } from "react-router-dom";
 
 const ViewPurchases = () => {
-
   const [loading, setLoading] = useState(false);
   const [refetch, setRefetch] = useState(false);
 
   const [limit, setLimit] = useState(10);
   const [page, setPage] = useState(1);
-  const [sort, setSort] = useState("name");
-  const [sortType, setSortType] = useState("asc");
+  const [sort, setSort] = useState("createdAt");
+  const [sortType, setSortType] = useState("desc");
 
   const steps = [10, 20, 50, 100];
 
@@ -116,42 +115,50 @@ const ViewPurchases = () => {
           </div>
 
           <div className="flex-1 border-l border-r border-neutral-500 flex flex-col ">
-          {results?.purchases?.length ? (
-            results?.purchases?.map((purchase, index) => {
-              return (
-                <div
-                  key={index}
-                  className="tr flex w-full justify-between items-center py-2 px-4 max-sm:px-1 gap-2 hover:bg-accent/10"
-                >
-                  <Link to={`/suppliers/${purchase?.supplier?._id}`} className="w-1/5 min-w-[50px]">
-                    {purchase?.supplier?.name}
-                  </Link>
-                  <div className="w-[15%] min-w-[80px] px-2">
-                    {purchase?.totalAmount || "N/A"}
+            {results?.purchases?.length ? (
+              results?.purchases?.map((purchase, index) => {
+                return (
+                  <div
+                    key={index}
+                    className="tr flex w-full justify-between items-center py-2 px-4 max-sm:px-1 gap-2 hover:bg-accent/10"
+                  >
+                    <Link
+                      to={`/suppliers/${purchase?.supplier?._id}`}
+                      className="w-1/5 min-w-[50px]"
+                    >
+                      {purchase?.supplier?.name}
+                    </Link>
+                    <div className="w-[15%] min-w-[80px] px-2">
+                      {purchase?.totalAmount || "N/A"}
+                    </div>
+                    <div
+                      className={`w-[15%] min-w-[80px] px-2 ${
+                        purchase?.deficitAmount > 0 &&
+                        "text-red-500 font-semibold"
+                      } `}
+                    >
+                      {purchase?.deficitAmount || 0}
+                    </div>
+                    <div className="w-[15%] min-w-[50px] px-2 capitalize">
+                      {purchase?.signedBy?.name || "N/A"}
+                    </div>
+                    <div className="w-1/5 min-w-[50px] px-2 text-sm max-sm:text-xs">
+                      {formatDate(purchase?.createdAt) || "N/A"}
+                    </div>
+                    <div className="actions w-[10%] min-w-[50px] flex items-center justify-center gap-2">
+                      <PurchaseActionButton
+                        purchase={purchase}
+                        setRefetch={setRefetch}
+                      />
+                    </div>
                   </div>
-                  <div className="w-[15%] min-w-[80px] px-2">
-                    {purchase?.deficitAmount || 0}
-                  </div>
-                  <div className="w-[15%] min-w-[50px] px-2 capitalize">
-                    {purchase?.signedBy?.name || "N/A"}
-                  </div>
-                  <div className="w-1/5 min-w-[50px] px-2 text-sm max-sm:text-xs">
-                    {formatDate(purchase?.createdAt) || "N/A"}
-                  </div>
-                  <div className="actions w-[10%] min-w-[50px] flex items-center justify-center gap-2">
-                    <PurchaseActionButton
-                      purchase={purchase}
-                      setRefetch={setRefetch}
-                    />
-                  </div>
-                </div>
-              );
-            })
-          ) : (
-            <div className="tr flex w-full flex-1 items-start py-2 px-4 max-sm:px-1 gap-2">
-              <p>No purchases found</p>
-            </div>
-          )}
+                );
+              })
+            ) : (
+              <div className="tr flex w-full flex-1 items-start py-2 px-4 max-sm:px-1 gap-2">
+                <p>No purchases found</p>
+              </div>
+            )}
           </div>
 
           <div className="table-footer border border-neutral-500 rounded-b-md select-none flex w-full justify-between items-center max-lg:items-start p-3 px-4 max-sm:px-1 sticky bottom-0 bg-[var(--color-card)] font-semibold gap-2">
