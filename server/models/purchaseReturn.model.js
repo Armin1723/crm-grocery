@@ -6,8 +6,18 @@ const purchaseReturnSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    purchaseId:{
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Purchase",
+    },
     products: [
-      {
+      { 
+        expiry:{
+          type: Date,
+        },
+        mrp:{
+          type: Number,
+        },
         product: {
           type: mongoose.Schema.Types.ObjectId,
           ref: "Product",
@@ -15,14 +25,11 @@ const purchaseReturnSchema = new mongoose.Schema(
         quantity: {
           type: Number,
         },
-        rate: {
+        purchaseRate: {
           type: Number,
         },
       },
     ],
-    transactionId: {
-      type: Number,
-    },
     subTotal: {
       type: Number,
     },

@@ -27,6 +27,8 @@ import PurchaseDetails from "./components/purchases/PurchaseDetails";
 import SupplierDetails from "./components/suppliers/SupplierDetails";
 import SaleDetails from "./components/sales/SaleDetails";
 import ProductDetails from "./components/products/ProductDetails";
+import SaleReturn from "./components/sales/SaleReturn";
+import ViewSaleReturns from "./components/sales/ViewSaleReturns";
 
 const App = () => {
   const theme = useSelector((state) => state.theme.value);
@@ -71,6 +73,8 @@ const App = () => {
             <Route path="" element={<ViewSales />} />
             <Route path="add" element={<AddSale />} />
             <Route path=":id" element={<SaleDetails />} />
+            <Route path="returns" element={<ViewSaleReturns />} />
+            <Route path="add-return" element={<SaleReturn />} />
           </Route>
 
           <Route path="inventory" element={<Inventory />} />

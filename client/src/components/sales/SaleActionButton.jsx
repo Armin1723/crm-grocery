@@ -12,7 +12,7 @@ const SaleActionButton = ({ sale, setRefetch = () => {} }) => {
   // Close menu when clicking outside
   useEffect(() => {
     const handleOutsideClick = (event) => {
-      if (menuRef.current && !ref.current.contains(event.target)) {
+      if (menuRef.current && !menuRef.current.contains(event.target)) {
         setMenuOpen(false);
       }
     };

@@ -6,8 +6,18 @@ const salesReturnSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    saleId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Sale",
+    },
     products: [
-      {
+      { 
+        expiry:{
+          type: Date,
+        },
+        mrp:{
+          type: Number,
+        },
         product: {
           type: mongoose.Schema.Types.ObjectId,
           ref: "Product",
@@ -15,13 +25,14 @@ const salesReturnSchema = new mongoose.Schema(
         quantity: {
           type: Number,
         },
-        rate: {
+        sellingRate: {
           type: Number,
         },
       },
     ],
-    transactionId: {
-      type: Number,
+    customer: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Customer",
     },
     subTotal: {
       type: Number,
@@ -29,16 +40,18 @@ const salesReturnSchema = new mongoose.Schema(
     totalAmount: {
       type: Number,
     },
-    paidAmount: {
+    otherCharges: {
       type: Number,
+    },
+    discount: {
+      type: Number,
+    },
+    invoice: {
+      type: String,
     },
     signedBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
-    },
-    supplier: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Customer",
     },
   },
   { timestamps: true }

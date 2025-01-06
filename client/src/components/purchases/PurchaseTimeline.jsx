@@ -211,7 +211,6 @@ const PurchaseTimeline = ({
                       </label>
                       <input
                         type="number"
-                        step="0.01"
                         max={remainingBalance}
                         value={newPayment.amount}
                         onChange={(e) =>

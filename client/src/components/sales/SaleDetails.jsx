@@ -81,14 +81,14 @@ const SaleDetails = () => {
                 <tr key={product._id} className="border-b border-neutral-500">
                   <td className="py-2 pl-4">
                     <Avatar
-                      image={product?.product?.image}
+                      image={product?.image}
                       withBorder={false}
                       fallbackImage="/utils/product-placeholder.png"
                     />
                   </td>
-                  <td className="py-2 pl-4">{product.product.name}</td>
+                  <td className="py-2 pl-4">{product.name}</td>
                   <td className="py-2 pl-4">
-                    {product.quantity} {product.product.secondaryUnit}
+                    {product.quantity} {product.secondaryUnit}
                   </td>
                   <td className="py-2 pl-4">₹{product.sellingRate}</td>
                   <td className="py-2 pl-4">

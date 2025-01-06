@@ -5,6 +5,7 @@ const cloudinary = require("../config/cloudinary");
 const Purchase = require("../models/purchase.model");
 const Sale = require("../models/sale.model");
 const path = require("path");
+const nodemailer = require("nodemailer");
 
 const formatCurrency = (amount) => {
   return new Intl.NumberFormat('en-IN', {
@@ -332,8 +333,6 @@ const generateSaleInvoice = async (saleId) => {
     throw error;
   }
 };
-
-
 
 const sendMail = async (to, subject, message) => {
   try {
