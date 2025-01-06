@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import CountUp from "react-countup";
 import { Link } from "react-router-dom";
 import { Line, LineChart, ResponsiveContainer, Tooltip } from "recharts";
@@ -30,7 +30,6 @@ const Card = ({ data, index, chartData = {} }) => {
   ];
 
   const [stats, setStats] = useState(chartData.data || chartDataCopy);
-  console.log(chartData.data);
 
   const CustomTooltip = ({ active, payload }) => {
     if (active && payload && payload.length) {

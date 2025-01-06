@@ -1,6 +1,12 @@
 import React, { useEffect, useState } from "react";
 import Avatar from "../utils/Avatar";
-import { formatDateIntl, formatHeight, getColor, isMergable } from "../utils";
+import {
+  formatDateIntl,
+  formatExpiryColor,
+  formatHeight,
+  getColor,
+  isMergable,
+} from "../utils";
 import Divider from "../utils/Divider";
 import { Link } from "react-router-dom";
 import Wave from "react-wavify";
@@ -17,7 +23,8 @@ const InventoryCard = ({ upid = "", inventoryData = {}, editable = false }) => {
     const fetchInventory = async () => {
       try {
         const res = await fetch(
-          `${import.meta.env.VITE_BACKEND_URL}/api/v1/inventory/${upid}`,{
+          `${import.meta.env.VITE_BACKEND_URL}/api/v1/inventory/${upid}`,
+          {
             credentials: "include",
           }
         );
@@ -37,9 +44,11 @@ const InventoryCard = ({ upid = "", inventoryData = {}, editable = false }) => {
   }, [upid, refetch]);
 
   const handleMerge = async () => {
-    try{
+    try {
       const res = await fetch(
-        `${import.meta.env.VITE_BACKEND_URL}/api/v1/inventory/${upid}/batches/merge`,
+        `${
+          import.meta.env.VITE_BACKEND_URL
+        }/api/v1/inventory/${upid}/batches/merge`,
         {
           method: "PUT",
           headers: {
@@ -53,10 +62,10 @@ const InventoryCard = ({ upid = "", inventoryData = {}, editable = false }) => {
       }
       setRefetch((prev) => !prev);
       toast.success("Batches merged successfully");
-    }catch(error){
+    } catch (error) {
       console.error(error.message);
     }
-  }
+  };
 
   if (!inventory && !loading)
     return (
@@ -85,7 +94,11 @@ const InventoryCard = ({ upid = "", inventoryData = {}, editable = false }) => {
               {inventory?.name}
             </Link>
             {isMergable(inventory) && (
-              <FaObjectGroup title="Merge Batches" onClick={handleMerge} className="text-accent hover:text-accentDark cursor-pointer" />
+              <FaObjectGroup
+                title="Merge Batches"
+                onClick={handleMerge}
+                className="text-accent hover:text-accentDark cursor-pointer"
+              />
             )}
           </div>
           <p className="flex items-center gap-2 text-[var(--color-text-light)]">
@@ -123,13 +136,19 @@ const InventoryCard = ({ upid = "", inventoryData = {}, editable = false }) => {
                       Quantity: {batch?.quantity} {inventory?.secondaryUnit}
                     </p>
                     <p className="text-[var(--color-text-light)]">
-                      Expiry: {formatDateIntl(batch?.expiry) || "Not Set"}
+                      Expiry:{" "}
+                      <span style={{ color: formatExpiryColor(batch?.expiry) }}>
+                        {formatDateIntl(batch?.expiry) || "Not Set"}
+                      </span>
                     </p>
                     <p className="text-[var(--color-text-light)]">
                       MRP: ₹{batch?.mrp}
                     </p>
                     <p className="text-[var(--color-text-light)]">
-                      Purchase Rate: ₹{batch?.purchaseRate}
+                      Purchase Rate:{" "}
+                      {batch.purchaseRate
+                        ? `₹${batch?.purchaseRate}`
+                        : "Returned"}
                     </p>
                     <p className="text-[var(--color-text-light)]">
                       Selling Rate: ₹{batch?.sellingRate}
@@ -170,10 +189,12 @@ const InventoryCard = ({ upid = "", inventoryData = {}, editable = false }) => {
                           mixBlendMode: "multiply",
                         }}
                         options={{
-                          height: 130 - formatHeight(
-                            inventory.secondaryUnit,
-                            batch.quantity
-                          ),
+                          height:
+                            130 -
+                            formatHeight(
+                              inventory.secondaryUnit,
+                              batch.quantity
+                            ),
                           amplitude: 20,
                           speed: 0.05,
                           points: 4,

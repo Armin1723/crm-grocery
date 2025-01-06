@@ -375,6 +375,21 @@ export const getColor = (height) => {
   return "#006400f1";
 };
 
+export const formatExpiryColor = (expiry) => {
+  const diff = new Date(expiry) - new Date();
+
+  // If expiry is more than 7 days away, return "inherit"
+  if (diff > 604800000) return "inherit";
+
+  // Apply progressive red color based on how close the expiry is
+  if (diff <= 604800000 && diff > 345600000) return "#FFD700f1";
+  if (diff <= 345600000 && diff > 86400000) return "#FFA500f1";
+  if (diff <= 86400000 && diff > 0) return "#FF4500f1";
+  if (diff < 0) return "#FF0000f1";
+
+  return "inherit";
+};
+
 export const autoSetConversionFactor = (primaryUnit, secondaryUnit) => {
   if (primaryUnit === "kg" && secondaryUnit === "gram") return 1000;
   if (primaryUnit === "litre" && secondaryUnit === "ml") return 1000;

@@ -52,6 +52,10 @@ const getSale = async (req, res) => {
     "products.product customer signedBy"
   );
 
+  const saleReturn = await SalesReturn.findOne({ saleId: sale._id })
+    .populate("customer products.product")
+    .lean();
+
   const formattedSale = {
     _id: sale._id,
     subTotal: sale.subTotal,
@@ -81,20 +85,29 @@ const getSale = async (req, res) => {
           email: sale?.customer?.email,
         }
       : null,
-    signedBy: sale?.signedBy
+    signedBy: sale?.signedBy,
   };
+
+  if (saleReturn) {
+    formattedSale.saleReturn = saleReturn;
+  }
   res.json({ success: true, sale: formattedSale });
 };
 
 const getSaleReturns = async (req, res) => {
-  const { limit = 10, page = 1, sort = "createdAt", sortType = "desc" } = req.query;
+  const {
+    limit = 10,
+    page = 1,
+    sort = "createdAt",
+    sortType = "desc",
+  } = req.query;
   const salesReturns = await SalesReturn.find()
     .populate("signedBy")
     .populate("customer")
     .limit(limit)
     .skip((page - 1) * limit)
     .sort({ [sort]: sortType });
-  
+
   const totalSalesReturns = await SalesReturn.countDocuments();
   res.json({
     success: true,
@@ -103,7 +116,7 @@ const getSaleReturns = async (req, res) => {
     page,
     totalSalesReturns,
   });
-}
+};
 
 const addSale = async (req, res) => {
   const {
@@ -193,20 +206,26 @@ const addSale = async (req, res) => {
 
 const addSaleReturn = async (req, res) => {
   // console.log(req.body);
-  const {invoiceId, products = []} = req.body;
+  const { invoiceId, products = [] } = req.body;
   const sale = await Sale.findById(invoiceId).populate("customer").lean();
   if (!sale) {
     return res.status(404).json({ error: "Sale not found." });
   }
   // Check if valid products are returned (less than sold quantity)
   for (const product of products) {
-    if(sale.products.find(item => item.product.toString() === product.product.toString()).quantity < product.quantity) {
+    if (
+      sale.products.find(
+        (item) => item.product.toString() === product.product.toString()
+      ).quantity < product.quantity
+    ) {
       return res.status(400).json({ error: "Invalid quantity returned." });
     }
   }
 
   // Check already Existing Sales Return
-  const existingReturn = await SalesReturn.findOne({ saleId: invoiceId }).select(" saleId ").lean();
+  const existingReturn = await SalesReturn.findOne({ saleId: invoiceId })
+    .select(" saleId ")
+    .lean();
   if (existingReturn) {
     return res.status(400).json({ error: "Sales Return already exists." });
   }
@@ -216,29 +235,31 @@ const addSaleReturn = async (req, res) => {
     reason: req.body.reason,
     saleId: invoiceId,
     customer: sale?.customer,
-    products : req.body.products,
+    products: req.body.products,
     signedBy: req.user.id,
-    subTotal : req.body.subTotal,
-    otherCharges : req.body.otherCharges,
-    discount : req.body.discount,
-    totalAmount : req.body.totalAmount,
-  }); 
-  
+    subTotal: req.body.subTotal,
+    otherCharges: req.body.otherCharges,
+    discount: req.body.discount,
+    totalAmount: req.body.totalAmount,
+  });
+
   // Update Inventory
   products.forEach(async (product) => {
     const inventory = await Inventory.findOne({
       product: product.product,
     }).populate("product");
-    if(!inventory) {
+    if (!inventory) {
       await Inventory.create({
         product: product.product,
         totalQuantity: product.quantity,
-        batches: [{
-          quantity: product.quantity,
-          mrp: product.mrp,
-          sellingRate: product.sellingRate,
-          expiry: product.expiry,
-        }]
+        batches: [
+          {
+            quantity: product.quantity,
+            mrp: product.mrp,
+            sellingRate: product.sellingRate,
+            expiry: product.expiry,
+          },
+        ],
       });
     }
     inventory?.batches.forEach((batch) => {
@@ -278,7 +299,7 @@ const addSaleReturn = async (req, res) => {
   await saleReturn.save();
 
   // Send the invoice to the customer
-  if(sale?.customer?.email) {
+  if (sale?.customer?.email) {
     await sendMail(
       sale.customer.email,
       "Sales Return Invoice",

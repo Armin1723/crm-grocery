@@ -5,43 +5,45 @@ import { toast } from 'react-toastify';
 import { setUser } from '../redux/features/user/userSlice';
 
 const useAuthStatus = () => {
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const user = useSelector((state) => state.user);
 
   useEffect(() => {
     const checkAuthStatus = async () => {
-      const user = useSelector(state=> state.user);
-
-      const dispatch = useDispatch();
-      const navigate = useNavigate();
-
-      if (user) {
+      if (user && user?.avatar) {
+        console.log('User is logged in');
         try {
-          const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/v1/auth/validate`, {
-            credentials: 'include', 
-          });
+          const response = await fetch(
+            `${import.meta.env.VITE_BACKEND_URL}/api/v1/auth/validate`,
+            {
+              credentials: 'include',
+            }
+          );
 
           if (response.status === 200) {
-            return
+            return; 
           } else {
-            localStorage.removeItem('user'); 
-            dispatch(setUser(null))
-            navigate('/auth')
+            localStorage.removeItem('user');
+            dispatch(setUser(null));
+            navigate('/auth');
           }
         } catch (error) {
           console.error('Error validating user:', error);
           localStorage.removeItem('user');
+          dispatch(setUser(null));
+          navigate('/auth');
         }
       } else {
-        navigate('/auth')
-        localStorage.removeItem('user')
-        toast.error({
-          render: "Login Expired",
-          message: "Kindly login again.",
-        })
+        localStorage.removeItem('user');
+        dispatch(setUser(null));
+        navigate('/auth');
+        toast.error("Login Expired. Kindly login again.");
       }
     };
 
     checkAuthStatus();
-  }, []); 
+  }, [user, dispatch, navigate]); 
 };
 
 export default useAuthStatus;

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { formatDate } from "../utils";
 import SortableLink from "../utils/SortableLink";
 import Pagination from "../utils/Pagination";
@@ -34,13 +34,13 @@ const SupplierPurchaseTable = () => {
       }
     };
     fetchSupplierPurchases();
-  }, [id, sort, sortType]);
+  }, [id, sort, sortType, page]);
 
   return (
-    <div className="overflow-x-auto w-full">
-      <table className="min-w-full">
-        <thead className="bg-[var(--color-card)] border-b border-neutral-500/50">
-          <tr>
+    <div className="overflow-y-auto max-h-[50vh] w-full">
+      <table className="min-w-full text-sm">
+        <thead className="bg-[var(--color-card)] border-b border-neutral-500/50 sticky top-0">
+          <tr className="">
             <th className="p-3 text-left max-w-[100px]">ID</th>
             <th className="p-3 pl-0 text-left min-w-[80px]">
               <SortableLink
@@ -112,17 +112,18 @@ const SupplierPurchaseTable = () => {
               </td>
             </tr>
           )}
-        {/* </tbody> */}
+          {/* </tbody> */}
 
-        {/* <tfoot className="bg-[var(--color-card)] border-t border-neutral-500/50"> */}
-          <tr className="bg-[var(--color-card)]" > 
+          {/* <tfoot className="bg-[var(--color-card)] border-t border-neutral-500/50"> */}
+          <tr className="bg-[var(--color-card)] sticky bottom-0">
             <td
               className="p-3 text-sm text-[var(--color-text-light)]"
               colSpan={3}
             >
               <span>
-                Showing {results?.purchases?.length} of {results?.totalResults}{" "}
-                purchases
+                Showing {(results.page - 1) * 10 + 1} -{" "}
+                {results?.purchases?.length + (results?.page - 1) * 10} of{" "}
+                {results?.totalResults} purchases
               </span>
             </td>
             <td

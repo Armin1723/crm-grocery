@@ -45,8 +45,9 @@ const generateSalesReturnInvoice = async (salesReturn) => {
     doc
       .fontSize(8)
       .text("Customer Details:", { underline: true })
-      .text(`Name: ${salesReturn.customer?.name}`)
-      .text(`Contact: ${salesReturn.customer?.phone}`)
+      .text(`Name: ${salesReturn.customer?.name || 'N/A'}`)
+      .text(`Contact: ${salesReturn.customer?.phone || 'N/A'}`)
+      .text(`Email: ${salesReturn.customer?.email || 'N/A'}`)
       .moveDown(0.5);
 
     // Products Table Header

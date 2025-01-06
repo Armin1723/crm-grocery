@@ -4,6 +4,7 @@ import Pagination from "../utils/Pagination";
 import SortableLink from "../utils/SortableLink";
 import { FaFileInvoice } from "react-icons/fa";
 import Modal from "../utils/Modal";
+import { Link } from "react-router-dom";
 
 const ViewSaleReturns = () => {
   const [loading, setLoading] = useState(false);
@@ -73,6 +74,15 @@ const ViewSaleReturns = () => {
             </div>
             <div className="w-[15%] min-w-[80px] flex items-center  ">
               <SortableLink
+                title="Sale"
+                isActive={sort === "saleId"}
+                sortType={sortType}
+                setSort={() => setSort("saleId")}
+                setSortType={setSortType}
+              />
+            </div>
+            <div className="w-[15%] min-w-[80px] flex items-center  ">
+              <SortableLink
                 title="totalAmount"
                 isActive={sort === "totalAmount"}
                 sortType={sortType}
@@ -112,6 +122,9 @@ const ViewSaleReturns = () => {
                       {saleReturn?.customer?.name ||
                         saleReturn?.customer?.phone ||
                         "No data"}
+                    </div>
+                    <div className="w-[15%] min-w-[80px] px-2 truncate text-ellipsis">
+                      <Link to={`/sales/${saleReturn?.saleId}`}> {saleReturn?.saleId || "N/A"} </Link>
                     </div>
                     <div className="w-[15%] min-w-[80px] px-2">
                       {saleReturn?.totalAmount || "N/A"}

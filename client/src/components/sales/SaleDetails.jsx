@@ -6,6 +6,7 @@ import Avatar from "../utils/Avatar";
 import SaleDetailActions from "./SaleDetailActions";
 import SaleCard from "./SaleCard";
 import EmployeeCard from "../employee/EmployeeCard";
+import SaleReturnCard from "./SaleReturnCard";
 
 const SaleDetails = () => {
   const { id } = useParams();
@@ -107,6 +108,14 @@ const SaleDetails = () => {
         {/* Supplier Information */}
         <Divider title="Biller Information" />
         <EmployeeCard employee={sale?.signedBy} />
+
+        {/* Return Information */}
+        {sale?.saleReturn && (
+          <>
+          <Divider title="Return Information" />
+          <SaleReturnCard saleReturn={sale?.saleReturn} />
+          </>
+        )}
 
       </div>
     </div>
