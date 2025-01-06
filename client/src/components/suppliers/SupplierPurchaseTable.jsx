@@ -115,7 +115,7 @@ const SupplierPurchaseTable = () => {
           {/* </tbody> */}
 
           {/* <tfoot className="bg-[var(--color-card)] border-t border-neutral-500/50"> */}
-          <tr className="bg-[var(--color-card)] sticky bottom-0">
+          <tr className="bg-[var(--color-card)] sticky -bottom-1">
             <td
               className="p-3 text-sm text-[var(--color-text-light)]"
               colSpan={3}

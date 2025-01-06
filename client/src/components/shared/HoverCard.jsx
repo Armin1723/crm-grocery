@@ -76,7 +76,7 @@ const HoverCard = ({ title, children, to= "" }) => {
 
           {/* Content container */}
           <div
-            className="rounded-lg bg-[var(--color-card)] shadow-lg shadow-black/5 backdrop-blur-sm transition-all duration-200 ease-out opacity-100 translate-x-0 min-w-[30vw]"
+            className="rounded-lg bg-[var(--color-card)] shadow-[0_0_20px_gray] !shadow-neutral-500/10 backdrop-blur-sm transition-all duration-200 ease-out opacity-100 translate-x-0 min-w-[30vw]"
           >
             {children}
           </div>

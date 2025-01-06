@@ -160,6 +160,32 @@ const addSale = async (req, res) => {
       sale.customer = customer._id;
     }
   }
+  products.map(async (product) => {
+    const inventory = await Inventory.findOne({
+      product: product.product,
+    }).populate("product");
+    if (!inventory) {
+      console.log("Inventory not found");
+      return;
+    }
+    if (!inventory.batches) {
+      console.log("No Batches found");
+      return;
+    }
+
+    inventory?.batches.forEach((batch) => {
+      const sameBatch =
+        (!batch.expiry ||
+          !product.expiry ||
+          new Date(batch?.expiry).getTime() ===
+            new Date(product?.expiry).getTime()) &&
+        batch.sellingRate === product.sellingRate &&
+        (!!product.mrp || batch?.mrp === product?.mrp);
+      if (sameBatch) {
+        console.log("Same Batch");
+      }
+    });
+  });
 
   await sale.save();
 
@@ -170,8 +196,12 @@ const addSale = async (req, res) => {
     }).populate("product");
     inventory?.batches.forEach((batch) => {
       const sameBatch =
-        (!batch.expiry || !product.expiry || batch.expiry === product.expiry) &&
-        batch.purchaseRate === product.purchaseRate;
+        (!batch.expiry ||
+          !product.expiry ||
+          new Date(batch?.expiry).getTime() ===
+            new Date(product?.expiry).getTime()) &&
+        batch.sellingRate === product.sellingRate &&
+        (!!product.mrp || batch?.mrp === product?.mrp);
       if (sameBatch) {
         batch.quantity -= product.quantity;
         if (batch.quantity === 0) {

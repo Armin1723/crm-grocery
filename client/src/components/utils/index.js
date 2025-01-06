@@ -378,14 +378,13 @@ export const getColor = (height) => {
 export const formatExpiryColor = (expiry) => {
   const diff = new Date(expiry) - new Date();
 
-  // If expiry is more than 7 days away, return "inherit"
-  if (diff > 604800000) return "inherit";
+  // If expiry is more than a month away, return "inherit"
+  if (diff > 2592000000) return "inherit";
 
-  // Apply progressive red color based on how close the expiry is
-  if (diff <= 604800000 && diff > 345600000) return "#FFD700f1";
-  if (diff <= 345600000 && diff > 86400000) return "#FFA500f1";
-  if (diff <= 86400000 && diff > 0) return "#FF4500f1";
-  if (diff < 0) return "#FF0000f1";
+  if (diff <= 2592000000 && diff > 1209600000) return "#FFD700f1"; // This month
+  if (diff <= 1209600000 && diff > 604800000) return "#FFA500f1"; // Less than two weeks
+  if (diff <= 604800000 && diff > 0) return "#FF0000ff"; // This week
+  if (diff < 0) return "#FF4500f1"; // Expired
 
   return "inherit";
 };

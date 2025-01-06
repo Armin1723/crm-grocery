@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { IoCloseCircle, IoTrashBin } from "react-icons/io5";
+import { IoCloseCircle } from "react-icons/io5";
 import { useForm, useWatch } from "react-hook-form";
 import { formatDateIntl } from "../utils";
 import Divider from "../utils/Divider";
@@ -53,6 +53,9 @@ const SaleReturnForm = ({ sale = {}, setSale = () => {}, loading = false }) => {
       } else {
         clearErrors(`products.${index}.expiry`);
       }
+      return(() => {
+        clearErrors(`products.${index}.expiry`);
+      })
     });
   }, [getValues("products"), setError]);
 
@@ -116,7 +119,7 @@ const SaleReturnForm = ({ sale = {}, setSale = () => {}, loading = false }) => {
 
   const TableHeader = () => (
     <div className="th flex w-fit min-w-full flex-1 z-[99] justify-between items-center gap-2 border border-neutral-500/50 bg-[var(--color-card)] rounded-t-md px-2 py-1 sticky top-0">
-      <div className="w-[8%] min-w-[40px] text-center">*</div>
+      <div className="w-[8%] min-w-[40px]">*</div>
       <div className="w-1/5 min-w-[150px]">Name</div>
       <div className="w-1/5 min-w-[100px]">Expiry</div>
       <div className="w-1/5 min-w-[100px]">MRP</div>
@@ -133,10 +136,6 @@ const SaleReturnForm = ({ sale = {}, setSale = () => {}, loading = false }) => {
           onClick={() => removeProduct(index)}
           title="Remove Product"
           className="text-red-500 hover:text-red-600 transition-all duration-300 ease-in cursor-pointer"
-        />
-        <IoTrashBin
-          title="Mark Dead Stock"
-          className="text-violet-500 hover:text-violet-600 transition-all duration-300 ease-in cursor-pointer"
         />
       </div>
       <div className="w-1/5 min-w-[150px] flex-wrap flex-grow">

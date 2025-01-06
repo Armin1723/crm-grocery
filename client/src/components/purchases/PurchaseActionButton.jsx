@@ -90,7 +90,7 @@ const PurchaseActionButton = ({ purchase, setRefetch = () => {} }) => {
           <p className="capitalize">View</p>
         </Link>
 
-        {purchase?.deficitAmount > 0 && (
+        {(purchase?.deficitAmount > 0  || purchase?.followUpPayments.length > 0) && (
           <div
             className="menu-item px-4 py-1 text-sm text-center hover:bg-accentDark/10 cursor-pointer transition-all duration-200 ease-in flex items-center gap-2"
             role="menuitem"
