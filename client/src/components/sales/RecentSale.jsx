@@ -126,7 +126,7 @@ const RecentSale = () => {
             </p>
           )}
 
-          <p className="font-semibold">Total Amount: {recentSale?.totalAmount} Rs</p>
+          <p className="font-semibold">Total Amount: {recentSale?.totalAmount} ₹</p>
           <p>Signed By: {recentSale?.signedBy?.name}</p>
         </div>
       </div>

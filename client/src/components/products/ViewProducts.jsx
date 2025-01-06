@@ -7,6 +7,7 @@ import Avatar from "../utils/Avatar";
 import SearchBar from "../utils/SearchBar";
 import ProductCardSmall from "./ProductCardSmall";
 import HoverCard from "../shared/HoverCard";
+import { Link } from "react-router-dom";
 
 const ViewProducts = () => {
   const [loading, setLoading] = useState(false);
@@ -121,17 +122,19 @@ const ViewProducts = () => {
                     className="tr flex w-full justify-between items-center py-2 px-4 max-sm:px-1 gap-2 hover:bg-accent/10"
                   >
                     <div className="w-[10%] min-w-[100px] py-1">
-                      <Avatar
-                        image={product.image}
-                        alt={product.name}
-                        width={50}
-                        withBorder={false}
-                        fallbackImage="/utils/product-placeholder.png"
-                      />
+                      <Link to={`/products/${product.upid}`}>
+                        <Avatar
+                          image={product.image}
+                          alt={product.name}
+                          width={50}
+                          withBorder={false}
+                          fallbackImage="/utils/product-placeholder.png"
+                        />
+                      </Link>
                     </div>
                     <div className="w-1/5 min-w-[50px]">
                       <HoverCard title={product?.name} to={product?.upid}>
-                        <ProductCardSmall product={product} editable={false}/>
+                        <ProductCardSmall product={product} editable={false} />
                       </HoverCard>
                     </div>
                     <div className="w-[10%] min-w-[50px] px-2">
@@ -195,7 +198,7 @@ const ViewProducts = () => {
                       return prev;
                     });
                   }}
-                  disabled={limit === steps[0] || results.totalProducts < limit}
+                  disabled={limit === steps[0]}
                   className="px-3 flex items-center justify-center rounded-md bg-[var(--color-primary)] w-6 aspect-square border border-neutral-500/50 hover:opacity-75 disabled:opacity-50 disabled:cursor-not-allowed disabled:border-neutral-500/20"
                 >
                   -
@@ -212,7 +215,10 @@ const ViewProducts = () => {
                       return prev;
                     });
                   }}
-                  disabled={limit === steps[steps.length - 1]}
+                  disabled={
+                    limit === steps[steps.length - 1] ||
+                    results?.totalProducts < limit
+                  }
                   className="px-3 flex items-center justify-center rounded-md bg-[var(--color-primary)] w-6 aspect-square border border-neutral-500/50 hover:opacity-75 disabled:opacity-50 disabled:cursor-not-allowed disabled:border-neutral-500/20"
                 >
                   +

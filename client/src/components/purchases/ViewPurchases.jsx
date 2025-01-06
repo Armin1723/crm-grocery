@@ -56,16 +56,16 @@ const ViewPurchases = () => {
             onClick={() => setRefetch((p) => !p)}
           ></p>
         </div>
-        <ExportButton title="Purchases" />
+        {/* <ExportButton title="Purchases" /> */}
       </div>
 
       <div className="table-wrapper flex relative flex-1 my-2 overflow-y-auto">
         <div
-          className={`table-container w-full min-w-fit bg-[var(--bg-card)] h-full flex flex-col flex-nowrap overflow-x-auto shadow-md rounded-md max-sm:text-xs text-wrap relative ${
+          className={`table-container w-full min-w-fit bg-[var(--bg-card)] h-full flex flex-col flex-nowrap overflow-x-auto px-2 shadow-md rounded-md max-sm:text-xs text-wrap relative ${
             loading && "overflow-hidden"
           }`}
         >
-          <div className="table-headers flex w-full justify-between py-3 px-4 border rounded-t-md border-neutral-500  max-sm:px-1 sticky top-0 bg-[var(--color-card)] z-[20] font-semibold gap-2">
+          <div className="table-headers flex w-full justify-between py-3 px-4 border rounded-t-md border-neutral-500/50  max-sm:px-1 sticky top-0 bg-[var(--color-card)] z-[20] font-semibold gap-2">
             <div className="w-1/5 min-w-[50px] flex items-center gap-2 ">
               <SortableLink
                 title="supplier"
@@ -114,7 +114,7 @@ const ViewPurchases = () => {
             <p className="w-[10%] min-w-[50px] py-1">Actions</p>
           </div>
 
-          <div className="flex-1 border-l border-r border-neutral-500 flex flex-col ">
+          <div className="flex-1 border-l border-r border-neutral-500/50 flex flex-col ">
             {results?.purchases?.length ? (
               results?.purchases?.map((purchase, index) => {
                 return (
@@ -161,7 +161,7 @@ const ViewPurchases = () => {
             )}
           </div>
 
-          <div className="table-footer border border-neutral-500 rounded-b-md select-none flex w-full justify-between items-center max-lg:items-start p-3 px-4 max-sm:px-1 sticky bottom-0 bg-[var(--color-card)] font-semibold gap-2">
+          <div className="table-footer border border-neutral-500/50 rounded-b-md select-none flex w-full justify-between items-center max-lg:items-start p-3 px-4 max-sm:px-1 sticky bottom-0 bg-[var(--color-card)] font-semibold gap-2">
             <div className="flex items-center justify-start">
               <span>
                 Showing {(page - 1) * limit + 1} -{" "}
@@ -182,7 +182,7 @@ const ViewPurchases = () => {
                     });
                   }}
                   disabled={
-                    limit === steps[0] || results.totalPurchases < limit
+                    limit === steps[0] 
                   }
                   className="px-3 flex items-center justify-center rounded-md bg-[var(--color-primary)] w-6 aspect-square border border-neutral-500/50 hover:opacity-75 disabled:opacity-50 disabled:cursor-not-allowed disabled:border-neutral-500/20"
                 >
@@ -200,7 +200,7 @@ const ViewPurchases = () => {
                       return prev;
                     });
                   }}
-                  disabled={limit === steps[steps.length - 1]}
+                  disabled={limit === steps[steps.length - 1] || results?.totalPurchases < limit}
                   className="px-3 flex items-center justify-center rounded-md bg-[var(--color-primary)] w-6 aspect-square border border-neutral-500/50 hover:opacity-75 disabled:opacity-50 disabled:cursor-not-allowed disabled:border-neutral-500/20"
                 >
                   +

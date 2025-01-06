@@ -55,7 +55,7 @@ const ViewSales = () => {
             onClick={() => setRefetch((p) => !p)}
           ></p>
         </div>
-        <ExportButton title="Sales" />
+        {/* <ExportButton title="Sales" /> */}
       </div>
 
       <div className="table-wrapper flex relative flex-1 my-2 overflow-x-scroll">
@@ -156,7 +156,7 @@ const ViewSales = () => {
                     });
                   }}
                   disabled={
-                    limit === steps[0] || results.totalSales < limit
+                    limit === steps[0] 
                   }
                   className="px-3 flex items-center justify-center rounded-md bg-[var(--color-primary)] w-6 aspect-square border border-neutral-500/50 hover:opacity-75 disabled:opacity-50 disabled:cursor-not-allowed disabled:border-neutral-500/20"
                 >
@@ -174,7 +174,7 @@ const ViewSales = () => {
                       return prev;
                     });
                   }}
-                  disabled={limit === steps[steps.length - 1]}
+                  disabled={limit === steps[steps.length - 1] || results?.totalSales < limit}
                   className="px-3 flex items-center justify-center rounded-md bg-[var(--color-primary)] w-6 aspect-square border border-neutral-500/50 hover:opacity-75 disabled:opacity-50 disabled:cursor-not-allowed disabled:border-neutral-500/20"
                 >
                   +
