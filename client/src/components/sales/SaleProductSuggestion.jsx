@@ -4,8 +4,8 @@ import { toast } from "react-toastify";
 import { formatDateIntl } from "../utils/index";
 
 const SaleProductSuggestion = ({
-  products = [],
-  setProducts = () => {},
+  getValues = () => {},
+  setValue = () => {},
   suggestedProducts = [],
   setSuggestedProducts = () => {},
   disabled = false,
@@ -39,7 +39,7 @@ const SaleProductSuggestion = ({
   };
 
   const handleAddProduct = (product) => {
-    const isMatch = products.some(
+    const isMatch = getValues("products").some(
       (p) =>
         p.name === product.name &&
         p.sellingRate === product.sellingRate &&
@@ -54,13 +54,14 @@ const SaleProductSuggestion = ({
       return;
     }
 
-    setProducts((prev) => [
-      ...prev,
+    setValue("products", [
+      ...getValues("products"),
       {
         ...product,
         quantity: 1,
+        price: product.sellingRate ,
       },
-    ]);
+    ])
 
     setSuggestedProducts([]);
     setSelectedIndex(-1);

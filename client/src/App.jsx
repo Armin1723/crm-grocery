@@ -29,16 +29,36 @@ import SaleDetails from "./components/sales/SaleDetails";
 import ProductDetails from "./components/products/ProductDetails";
 import SaleReturn from "./components/sales/SaleReturn";
 import ViewSaleReturns from "./components/sales/ViewSaleReturns";
+import Reports from "./components/home/Reports";
+import ExpenseReport from "./components/Reports/ExpenseReport";
 
 const App = () => {
   const theme = useSelector((state) => state.theme.value);
+
   useEffect(() => {
     if (theme === "dark") {
       document.body.classList.add("dark");
     } else {
       document.body.classList.remove("dark");
     }
+
+    // Prevent scrolling on number input fields
+    const handleWheel = (event) => {
+      if (
+        document.activeElement.type === "number" &&
+        document.activeElement === event.target
+      ) {
+        event.preventDefault();
+      }
+    };
+
+    document.addEventListener("wheel", handleWheel, { passive: false });
+
+    return () => {
+      document.removeEventListener("wheel", handleWheel);
+    };
   }, [theme]);
+
 
   return (
     <BrowserRouter>
@@ -79,10 +99,16 @@ const App = () => {
 
           <Route path="inventory" element={<Inventory />} />
 
-          <Route path="/suppliers" element={<Suppliers />} >
+          {/* Suppliers Routes */}
+          <Route path="/suppliers" element={<Suppliers />}>
             <Route path="" element={<ViewSuppliers />} />
             <Route path="add" element={<AddSuppliers />} />
             <Route path=":id" element={<SupplierDetails />} />
+          </Route>
+
+          {/* Reports */}
+          <Route path="reports" element={<Reports />} >
+            <Route path="" element={<ExpenseReport />} />
           </Route>
         </Route>
 

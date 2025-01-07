@@ -28,6 +28,7 @@ app.use('/api/v1/purchases', require('./routes/purchase.routes.js'));
 app.use('/api/v1/suppliers', require('./routes/supplier.routes.js'));
 app.use('/api/v1/employees', require('./routes/employee.routes.js'));
 app.use('/api/v1/inventory', require('./routes/inventory.routes.js'));
+app.use('/api/v1/reports', require('./routes/report.routes.js'));
 app.use('/api/v1/sales', require('./routes/sale.routes.js'));
 app.use('/api/v1/stats', require('./routes/stat.routes.js'));
 app.use('/api/v1/auth', require('./routes/auth.routes.js'));

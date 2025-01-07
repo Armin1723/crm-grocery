@@ -3,41 +3,31 @@ import { toast } from "react-toastify";
 import Modal from "../utils/Modal";
 import { formatDateIntl } from "../utils";
 
-const AddByBarcode = ({ products = [], setProducts = () => {} }) => {
+const AddByBarcode = ({ getValues = [], setValue = () => {} }) => {
   const [batches, setBatches] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const products = getValues("products");
 
   const handleProductUpdate = (product) => {
     const existingProduct = products.find(
       (p) =>
         p._id === product._id &&
         p.sellingRate === product.sellingRate &&
-        p?.expiry === product?.expiry
+        (!p.expiry || !product.expiry || p.expiry === product?.expiry)
     );
 
     if (existingProduct) {
-      setProducts(
-        products.map((p) => {
-          if (
-            p._id === product._id &&
-            p.sellingRate === product.sellingRate &&
-            p?.expiry === product?.expiry
-          ) {
-            if (p.quantity < p.maxQuantity) {
-              return {
-                ...p,
-                quantity: p.quantity + 1,
-                price: (p.quantity + 1) * p.sellingRate,
-              };
-            }
-            toast.error("Maximum quantity in stock", { autoClose: 2000 });
-            return p;
-          }
-          return p;
-        })
+      const updatedProducts = products.map((p) =>
+        p._id === product._id &&
+        p.sellingRate === product.sellingRate &&
+        (!p.expiry || !product.expiry || p.expiry === product?.expiry)
+          ? { ...p, quantity: p.quantity + 1, price: p.sellingRate * (p.quantity + 1) }
+          : p
       );
+      setValue("products", updatedProducts);
     } else {
-      setProducts([...products, { ...product, quantity: 1 }]);
+      setValue("products", [...products, { ...product, quantity: 1, price: product.sellingRate }]);
     }
   };
 
@@ -110,6 +100,7 @@ const AddByBarcode = ({ products = [], setProducts = () => {} }) => {
               return (
                 <button
                   key={product._id}
+                  disabled={maxQuantityAdded} 
                   onClick={() => {
                     handleProductUpdate(product);
                     setIsModalOpen(false);
