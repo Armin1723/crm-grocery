@@ -1,69 +1,175 @@
 import { useState } from "react";
 import { FaPrint, FaFileDownload } from "react-icons/fa";
+import { formatDate } from "../utils";
 
 const ReportHeader = ({
-  onPrint = () => {},
-  onDownload = () => {}, 
   title = "",
-  dateRange= {},
+  dateRange = {},
+  printRef = {},
   setDateRange = () => {},
+  handleDownload = () => {},
 }) => {
   const [selectedRange, setSelectedRange] = useState("");
 
   const handleDropdownChange = (value) => {
     const today = new Date();
+    const timezoneOffset = today.getTimezoneOffset();  
+  
     let startDate, endDate;
-
+  
+    // Reset the time to midnight (00:00:00)
+    today.setHours(0, 0, 0, 0);  
+    today.setMinutes(today.getMinutes() - timezoneOffset); 
+  
     switch (value) {
       case "today":
         startDate = endDate = today.toISOString().split("T")[0];
         break;
       case "thisWeek":
         const weekStart = new Date(today);
-        weekStart.setDate(today.getDate() - today.getDay());
+        weekStart.setDate(today.getDate() - today.getDay());  
+        weekStart.setHours(0, 0, 0, 0);  
+        weekStart.setMinutes(weekStart.getMinutes() - timezoneOffset); 
         startDate = weekStart.toISOString().split("T")[0];
         endDate = today.toISOString().split("T")[0];
         break;
       case "thisMonth":
-        const monthStart = new Date(today.getFullYear(), today.getMonth(), 1);
+        const monthStart = new Date(today.getFullYear(), today.getMonth(), 1);  
+        monthStart.setHours(0, 0, 0, 0);  
+        monthStart.setMinutes(monthStart.getMinutes() - timezoneOffset); 
         startDate = monthStart.toISOString().split("T")[0];
         endDate = today.toISOString().split("T")[0];
         break;
       case "thisYear":
-        const yearStart = new Date(today.getFullYear(), 0, 1);
+        const yearStart = new Date(today.getFullYear(), 0, 1); 
+        yearStart.setHours(0, 0, 0, 0);  
+        yearStart.setMinutes(yearStart.getMinutes() - timezoneOffset); 
         startDate = yearStart.toISOString().split("T")[0];
         endDate = today.toISOString().split("T")[0];
         break;
       default:
         startDate = endDate = "";
     }
-
+  
     setSelectedRange(value);
     setDateRange({ startDate, endDate });
-  };
+  };  
 
   const handleDateChange = (field, value) => {
     setDateRange((prev) => ({
       ...prev,
       [field]: value,
     }));
-    setSelectedRange(""); 
+    setSelectedRange("");
+  };
+
+  const handlePrint = () => {
+    if (printRef.current) {
+      let printContents = printRef.current.innerHTML;
+      const printWindow = window.open("", "_blank");
+
+      // Get the compiled Tailwind CSS styles (from a built file)
+
+      // List of classnames you want to omit
+      const classesToRemove = [
+        "overflow-x-auto",
+        "overflow-y-auto",
+        "overflow-hidden",
+        "max-h-[60vh]",
+        "sticky",
+        "shadow",
+      ];
+
+      // Dynamically remove these classnames from the HTML
+      classesToRemove.forEach((className) => {
+        const regex = new RegExp(`\\b${className}\\b`, "g"); // Match the class exactly
+        printContents = printContents.replace(regex, ""); // Remove it
+      });
+      const tailwindCSS =
+        document.querySelector("style[data-vite-dev-id]")?.innerHTML || "";
+
+      printWindow.document.open();
+      printWindow.document.write(`
+        <html>
+          <head>
+            <title>Expense Report - Grocery CRM - ${
+              formatDate(dateRange?.startDate) +
+              " to " +
+              formatDate(dateRange?.endDate)
+            }</title>
+            <style>
+            ${tailwindCSS}
+
+            /* General print styles */
+            @media print {
+              body {
+                margin: 0.5in;
+                font-family: 'Outfit', sans-serif;
+              }
+
+              /* Ensure no page breaks inside the table */
+              table {
+                border-collapse: collapse;
+              }
+
+              tr, th, td {
+                page-break-inside: avoid; /* Prevent rows from breaking in the middle */
+              }
+
+              /* For multi-page tables */
+              table, thead, tbody {
+                page-break-inside: auto; /* Allows table to span multiple pages */
+              }
+
+              /* Optional: Ensure that we add space between pages */
+              .page {
+                page-break-after: always;
+                margin-bottom: 1in;
+              }
+
+              /* no-print class */
+              .no-print, body button {
+                display: none;
+              }
+            }
+          </style>
+          </head>
+          <body onload="window.print(); window.close();">
+            <header class="bg-[var(--color-card)] rounded-lg flex flex-col gap-2 items-center">
+              <img src="/logo.png" alt="Grocery CRM" loading={lazy} class="h-16" />
+              <h1 class="text-xl md
+              :text-2xl lg:text-3xl font-bold">Expense Report - Grocery</h1>
+              <p>Generated on: ${new Date().toLocaleString()}</p>
+              <p>Date Range: ${
+                formatDate(dateRange?.startDate) +
+                " to " +
+                formatDate(dateRange?.endDate)
+              }</p>
+            </header>
+
+            ${printContents}
+
+          </body>
+        </html>
+      `);
+      printWindow.document.close();
+    }
   };
 
   return (
-    <header className="bg-[var(--color-card)] rounded-lg p-6 sticky top-0 z-[20]">
-      <div className="flex justify-between items-center">
-        <h1 className="text-xl md:text-2xl lg:text-3xl font-bold">{title}</h1>
+    <header className="bg-[var(--color-card)] rounded-lg p-6 sticky top-0 z-[20] no-print">
+      <div className="flex justify-between items-center ">
+        <h1 className="text-xl md:text-2xl lg:text-3xl font-bold capitalize">{title} Report</h1>
         <div className="space-x-4">
           <button
-            onClick={onPrint}
+            onClick={handlePrint}
             className="inline-flex items-center px-3 py-1.5 gap-2 bg-gradient-to-br from-blue-800/80 to-blue-500/80 text-white rounded-lg hover:bg-gradient-to-b transition-colors"
           >
             <FaPrint className="" />
             <span className="max-md:hidden">Print Report</span>
           </button>
           <button
-            onClick={onDownload}
+            onClick={handleDownload}
             className="inline-flex items-center px-3 py-1.5 gap-2 bg-gradient-to-br from-green-800/80 to-green-500/80 text-white rounded-lg hover:bg-gradient-to-b transition-colors"
           >
             <FaFileDownload className="" />
@@ -71,7 +177,7 @@ const ReportHeader = ({
           </button>
         </div>
       </div>
-      <div className="flex max-md:flex-col max-md:gap-2 w-full justify-between mt-4">
+      <div className="flex max-md:flex-col max-md:gap-2 w-full justify-between mt-4 no-print">
         <div className="flex-1 ">
           <label
             htmlFor="rangeSelect"
@@ -88,10 +194,18 @@ const ReportHeader = ({
             <option value="" className="!bg-[var(--color-card)]" disabled>
               Select a range
             </option>
-            <option value="today" className="!bg-[var(--color-card)]">Today</option>
-            <option value="thisWeek" className="!bg-[var(--color-card)]">This Week</option>
-            <option value="thisMonth" className="!bg-[var(--color-card)]">This Month</option>
-            <option value="thisYear" className="!bg-[var(--color-card)]">This Year</option>
+            <option value="today" className="!bg-[var(--color-card)]">
+              Today
+            </option>
+            <option value="thisWeek" selected className="!bg-[var(--color-card)]">
+              This Week
+            </option>
+            <option value="thisMonth" className="!bg-[var(--color-card)]">
+              This Month
+            </option>
+            <option value="thisYear" className="!bg-[var(--color-card)]">
+              This Year
+            </option>
           </select>
         </div>
         <div className="flex gap-4 flex-1">

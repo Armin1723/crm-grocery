@@ -2,7 +2,8 @@ import React, { useState } from "react";
 import Modal from "../utils/Modal";
 import Barcode from "react-barcode";
 import { MdEdit } from "react-icons/md";
-import { FaPrint } from "react-icons/fa";
+import { FaDownload, FaPrint } from "react-icons/fa";
+import { toPng } from "html-to-image";
 
 const ProductBarcode = ({ product, setRefetch = () => {} }) => {
   const [isModalOpen, setModalOpen] = useState(false);
@@ -71,6 +72,26 @@ const ProductBarcode = ({ product, setRefetch = () => {} }) => {
     }
   };
 
+  const handleDownload = async () => {
+    if (labelRef.current) {
+      const noPrint = document.querySelectorAll(".no-print");
+      noPrint.forEach((el) => (el.style.display = "none"));
+      try {
+        const dataUrl = await toPng(labelRef.current);
+        const link = document.createElement("a");
+        link.href = dataUrl;
+        link.download = `Barcode_${product.name.split(" ").join("_")}_${product.upic || product.upid || "label"}.png`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      } catch (error) {
+        console.error("Error generating image:", error);
+      } finally {
+        noPrint.forEach((el) => (el.style.display = "block"));
+      }
+    }
+  };
+
   return (
     <div className="bg-[var(--color-card)] p-4 rounded-lg shadow-md text-[var(--color-text)] flex items-center justify-center relative">
       <div
@@ -123,13 +144,24 @@ const ProductBarcode = ({ product, setRefetch = () => {} }) => {
         </div>
       </div>
 
-      {/* Print Button */}
-      <button
-        onClick={handlePrint}
-        className="text-accent px-4 py-2 rounded hover:text-accentDark no-print absolute top-4 right-4 cursor-pointer"
-      >
-        <FaPrint />
-      </button>
+      <div className="buttons absolute top-6 right-4 flex items-center gap-2">
+        <button
+          onClick={handlePrint}
+          title="Print Barcode"
+          className="py-2 text-accent hover:text-accentDark text-sm no-print cursor-pointer"
+        >
+          <FaPrint />
+        </button>
+
+        {/* Download Button */}
+        <button
+          onClick={handleDownload}
+          title="Print Barcode"
+          className="py-2 text-accent hover:text-accentDark text-sm no-print cursor-pointer"
+        >
+          <FaDownload />
+        </button>
+      </div>
 
       {/* Modal */}
       {isModalOpen && (

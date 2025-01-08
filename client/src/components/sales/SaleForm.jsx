@@ -153,10 +153,7 @@ const SaleForm = ({ setRefetch = () => {}, closeModal = () => {} }) => {
           suggestedProducts={suggestedProducts}
           setSuggestedProducts={setSuggestedProducts}
         />
-        <AddByBarcode
-          getValues={getValues}
-          setValue={setValue}
-        />
+        <AddByBarcode getValues={getValues} setValue={setValue} />
       </div>
       {watchedProducts.length > 0 ? (
         <>
@@ -174,7 +171,11 @@ const SaleForm = ({ setRefetch = () => {}, closeModal = () => {} }) => {
               {watchedProducts.map((product, index) => (
                 <div
                   key={index}
-                  className="tr min-w-full w-fit flex-1 px-2 py-3 gap-2 product-item flex justify-between items-center"
+                  className={` ${
+                    index % 2 == 0
+                      ? "bg-[var(--color-card)]"
+                      : "bg-[var(--color-primary)]"
+                  } tr min-w-full w-fit flex-1 px-2 py-3 gap-2 product-item flex justify-between items-center`}
                 >
                   <button
                     type="button"

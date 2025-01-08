@@ -66,7 +66,14 @@ const EditBatchForm = ({
             {...register("sellingRate", {
               required: "sellingRate is required",
               valueAsNumber: true,
-              validate: (value) => (value > batch?.purchaseRate - 1 && value <= batch?.mrp) || "Selling rate should be betweeen purchase rate and MRP",
+              min:{
+                value: batch.purchaseRate ? batch.purchaseRate : 0.01,
+                message: "Selling rate should be greater than purchase rate"
+              },
+              max: {
+                value: batch.mrp,
+                message: "Selling rate should be less than or equal to MRP"
+              },  
             })}
           />
           <label

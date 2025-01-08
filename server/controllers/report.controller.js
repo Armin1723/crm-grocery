@@ -16,6 +16,7 @@ const getExpenseReport = async (req, res) => {
     const purchaseQuery = Purchase.aggregate([
       { $match: matchStage },
       { $unwind: "$products" },
+      { $sort: { createdAt: -1 } },
       {
         $lookup: {
           from: "users",

@@ -1,8 +1,9 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import Barcode from "react-barcode";
-import { FaPrint } from "react-icons/fa";
+import { FaPrint, FaDownload } from "react-icons/fa";
 import Modal from "../utils/Modal";
 import { MdEdit } from "react-icons/md";
+import { toPng } from "html-to-image";
 
 const BatchLabel = ({
   inventory = {},
@@ -13,7 +14,7 @@ const BatchLabel = ({
   const [isModalOpen, setModalOpen] = useState(false);
   const [barcodeInfo, setBarcodeInfo] = useState(inventory?.barcodeInfo);
 
-  const labelRefInventory = React.useRef(null);
+  const labelRefInventory = useRef(null);
 
   const handleSave = async () => {
     try {
@@ -49,25 +50,20 @@ const BatchLabel = ({
           <head>
             <title>Barcode - ${inventory?.upid}</title>
             <style>
-                body {
-                  margin: 0;
-                  padding: 0;
-                  display: flex;
-                  flex-direction: column;
-                  align-items: center;
-                  justify-content: center;
-                  font-family: 'Outfit', sans-serif;
-                  height: 100vh;
-                  gap: 0;
-                }
-                h2{
-                  font-size: 2rem;
-                  padding: 0;
-                  margin: 0;
-                }
-                .no-print, body button {
-                  display: none !important;
-                }
+              body {
+                margin: 0;
+                padding: 0;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                font-family: 'Outfit', sans-serif;
+                height: 100vh;
+                gap: 0;
+              }
+              .no-print, body button {
+                display: none !important;
+              }
             </style>
           </head>
           <body onload="window.print(); window.close();">
@@ -79,23 +75,61 @@ const BatchLabel = ({
     }
   };
 
+  const handleDownload = async () => {
+    if (labelRefInventory.current) {
+      const noPrint = document.querySelectorAll(".no-print");
+      noPrint.forEach((el) => (el.style.display = "none"));
+      try {
+        const dataUrl = await toPng(labelRefInventory.current);
+        const link = document.createElement("a");
+        link.href = dataUrl;
+        link.download = `barcode_${inventory?.upid || "label"}.png`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      } catch (error) {
+        console.error("Error generating image:", error);
+      } finally {
+        noPrint.forEach((el) => (el.style.display = "block"));
+      }
+    }
+  };
+
   return (
     <div className="bg-[var(--color-card)] p-4 rounded-lg shadow-md text-[var(--color-text)] flex items-center justify-center relative">
       <div
         ref={labelRefInventory}
-        className="label flex flex-col items-center relative bg-white w-fit text-black"
         style={{
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
+          width: "fit-content",
+          color: "black",
+          padding: "1rem",
+          backgroundColor: "white",
         }}
       >
-        <h2 className="text-xl max-sm:text-lg font-semibold mt-2 text-black">
+        <h2
+          style={{
+            fontSize: "1.4rem",
+            padding: 0,
+            margin: 0,
+            fontWeight: "semibold",
+          }}
+          className="text-xl max-sm:text-lg font-semibold mt-2"
+        >
           Store Name
         </h2>
         <p style={{ display: "flex", gap: "0.25rem", alignItems: "center" }}>
           <span className="">{inventory?.name}</span>
-          <span className="text-xs italic"> ({inventory.category})</span>
+          <span
+            style={{
+              textTransform: "italic",
+            }}
+          >
+            {" "}
+            ({inventory.category})
+          </span>
         </p>
         <div
           className="rates"
@@ -103,6 +137,8 @@ const BatchLabel = ({
             display: "flex",
             gap: "0.25rem",
             alignItems: "center",
+            margin: 0,
+            padding: 0,
           }}
         >
           {batch.mrp && batch.mrp > batch.sellingRate && (
@@ -149,12 +185,12 @@ const BatchLabel = ({
             {inventory?.barcodeInfo ? (
               <p>{inventory.barcodeInfo}</p>
             ) : (
-              <button>No more info</button>
+              <button className="no-print">No more info</button>
             )}
 
             {/* Edit Button */}
             <button
-              className="text-black rounded-md hover:text-accent/80 transition-all duration-300"
+              className="text-black rounded-md hover:text-accent/80 transition-all duration-300 no-print"
               onClick={() => setModalOpen(true)}
             >
               <MdEdit />
@@ -163,13 +199,25 @@ const BatchLabel = ({
         </div>
       </div>
 
-      {/* Print Button */}
-      <button
-        onClick={handlePrint}
-        className="text-accent px-4 py-2 rounded hover:text-accentDark no-print absolute top-4 right-4 cursor-pointer"
-      >
-        <FaPrint />
-      </button>
+      <div className="buttons absolute top-6 right-4 flex items-center gap-2">
+        {/* Print Button */}
+        <button
+          onClick={handlePrint}
+          title="Print Barcode"
+          className="py-2 text-accent hover:text-accentDark text-sm no-print cursor-pointer"
+        >
+          <FaPrint />
+        </button>
+
+        {/* Download Button */}
+        <button
+          onClick={handleDownload}
+          title="Print Barcode"
+          className="py-2 text-accent hover:text-accentDark text-sm no-print cursor-pointer"
+        >
+          <FaDownload />
+        </button>
+      </div>
 
       {/* Modal */}
       {isModalOpen && (
