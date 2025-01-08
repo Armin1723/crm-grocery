@@ -13,47 +13,47 @@ const ReportHeader = ({
 
   const handleDropdownChange = (value) => {
     const today = new Date();
-    const timezoneOffset = today.getTimezoneOffset();  
-  
+    const timezoneOffset = today.getTimezoneOffset();
+
     let startDate, endDate;
-  
+
     // Reset the time to midnight (00:00:00)
-    today.setHours(0, 0, 0, 0);  
-    today.setMinutes(today.getMinutes() - timezoneOffset); 
-  
+    today.setHours(0, 0, 0, 0);
+    today.setMinutes(today.getMinutes() - timezoneOffset);
+
     switch (value) {
       case "today":
         startDate = endDate = today.toISOString().split("T")[0];
         break;
       case "thisWeek":
         const weekStart = new Date(today);
-        weekStart.setDate(today.getDate() - today.getDay());  
-        weekStart.setHours(0, 0, 0, 0);  
-        weekStart.setMinutes(weekStart.getMinutes() - timezoneOffset); 
+        weekStart.setDate(today.getDate() - today.getDay());
+        weekStart.setHours(0, 0, 0, 0);
+        weekStart.setMinutes(weekStart.getMinutes() - timezoneOffset);
         startDate = weekStart.toISOString().split("T")[0];
         endDate = today.toISOString().split("T")[0];
         break;
       case "thisMonth":
-        const monthStart = new Date(today.getFullYear(), today.getMonth(), 1);  
-        monthStart.setHours(0, 0, 0, 0);  
-        monthStart.setMinutes(monthStart.getMinutes() - timezoneOffset); 
+        const monthStart = new Date(today.getFullYear(), today.getMonth(), 1);
+        monthStart.setHours(0, 0, 0, 0);
+        monthStart.setMinutes(monthStart.getMinutes() - timezoneOffset);
         startDate = monthStart.toISOString().split("T")[0];
         endDate = today.toISOString().split("T")[0];
         break;
       case "thisYear":
-        const yearStart = new Date(today.getFullYear(), 0, 1); 
-        yearStart.setHours(0, 0, 0, 0);  
-        yearStart.setMinutes(yearStart.getMinutes() - timezoneOffset); 
+        const yearStart = new Date(today.getFullYear(), 0, 1);
+        yearStart.setHours(0, 0, 0, 0);
+        yearStart.setMinutes(yearStart.getMinutes() - timezoneOffset);
         startDate = yearStart.toISOString().split("T")[0];
         endDate = today.toISOString().split("T")[0];
         break;
       default:
         startDate = endDate = "";
     }
-  
+
     setSelectedRange(value);
     setDateRange({ startDate, endDate });
-  };  
+  };
 
   const handleDateChange = (field, value) => {
     setDateRange((prev) => ({
@@ -68,7 +68,9 @@ const ReportHeader = ({
       let printContents = printRef.current.innerHTML;
       const printWindow = window.open("", "_blank");
 
-      // Get the compiled Tailwind CSS styles (from a built file)
+      const tailwindCSSStyles = document.querySelector(
+        'link[rel="stylesheet"]'
+      )?.href;
 
       // List of classnames you want to omit
       const classesToRemove = [
@@ -85,6 +87,8 @@ const ReportHeader = ({
         const regex = new RegExp(`\\b${className}\\b`, "g"); // Match the class exactly
         printContents = printContents.replace(regex, ""); // Remove it
       });
+
+      // Get the compiled Tailwind CSS styles (from a built file)
       const tailwindCSS =
         document.querySelector("style[data-vite-dev-id]")?.innerHTML || "";
 
@@ -97,6 +101,7 @@ const ReportHeader = ({
               " to " +
               formatDate(dateRange?.endDate)
             }</title>
+          <link rel="stylesheet" href="${tailwindCSSStyles}" />
             <style>
             ${tailwindCSS}
 
@@ -159,7 +164,9 @@ const ReportHeader = ({
   return (
     <header className="bg-[var(--color-card)] rounded-lg p-6 sticky top-0 z-[20] no-print">
       <div className="flex justify-between items-center ">
-        <h1 className="text-xl md:text-2xl lg:text-3xl font-bold capitalize">{title} Report</h1>
+        <h1 className="text-xl md:text-2xl lg:text-3xl font-bold capitalize">
+          {title} Report
+        </h1>
         <div className="space-x-4">
           <button
             onClick={handlePrint}
@@ -197,7 +204,11 @@ const ReportHeader = ({
             <option value="today" className="!bg-[var(--color-card)]">
               Today
             </option>
-            <option value="thisWeek" selected className="!bg-[var(--color-card)]">
+            <option
+              value="thisWeek"
+              selected
+              className="!bg-[var(--color-card)]"
+            >
               This Week
             </option>
             <option value="thisMonth" className="!bg-[var(--color-card)]">
