@@ -1,3 +1,4 @@
+const { mergeBatchesHelper } = require("../helpers");
 const Inventory = require("../models/inventory.model");
 const Product = require("../models/product.model");
 
@@ -6,6 +7,7 @@ const getProductsFromInventory = async (req, res) => {
   const skip = (page - 1) * limit;
 
   const pipeline = [
+    { $match: { totalQuantity: { $gt: 0 } } },
     {
       $lookup: {
         from: "products",
@@ -44,6 +46,7 @@ const getProductsFromInventory = async (req, res) => {
 
   pipeline.push(
     { $unwind: { path : "$batches", preserveNullAndEmptyArrays: true  }},
+    { $match: { "totalQuantity": { $gt: 0 } }},
     {
       $project: {
         product: 1,
@@ -295,6 +298,8 @@ const editBatch = async (req, res) => {
   } else {
     inventory.batches[batchIndex].sellingRate = newBatch.sellingRate;
     inventory.batches[batchIndex].expiry = newBatch.expiry;
+
+    inventory.batches = await mergeBatchesHelper(inventory.batches);
     await inventory.save();
     res.json({
       success: true,
@@ -316,7 +321,7 @@ const mergeBatches = async (req, res) => {
   }
 
   // Fetch inventory and batches
-  const inventory = await Inventory.findOne({ product: product._id }).select("batches").lean();
+  const inventory = await Inventory.findOne({ product: product._id }).select("batches");
   if (!inventory || !inventory.batches || inventory.batches.length === 0) {
     return res.status(404).json({
       success: false,
@@ -324,49 +329,14 @@ const mergeBatches = async (req, res) => {
     });
   }
 
-  let { batches } = inventory;
-
-  // Merge batches with same MRP, sellingRate, and compatible expiry
-  const mergedBatches = [];
-  const visited = new Set();
-
-  for (let i = 0; i < batches.length; i++) {
-    if (visited.has(i)) continue;
-
-    const batch1 = batches[i];
-    let mergedBatch = { ...batch1 };
-    visited.add(i);
-
-    for (let j = i + 1; j < batches.length; j++) {
-      if (visited.has(j)) continue;
-
-      const batch2 = batches[j];
-
-      // Check if MRP, sellingRate match, and expiry is compatible
-      const canMerge =
-        batch1.mrp == batch2.mrp &&
-        batch1.sellingRate == batch2.sellingRate &&
-        (!batch1.expiry || !batch2.expiry || batch1.expiry.getTime() == batch2.expiry.getTime());
-
-      if (canMerge) {
-        // Merge quantities and mark batch as visited
-        mergedBatch.quantity = (mergedBatch.quantity || 0) + (batch2.quantity || 0);
-        mergedBatch.purchaseRate = Math.max(mergedBatch.purchaseRate, batch2.purchaseRate);
-        visited.add(j);
-      }
-    }
-
-    mergedBatches.push(mergedBatch);
-  }
-
   // Update the inventory with merged batches
-  inventory.batches = mergedBatches;
-  await Inventory.updateOne({ product: product._id }, { $set: { batches: mergedBatches } });
+  inventory.batches = await mergeBatchesHelper(inventory.batches);
+  await inventory.save();
 
   return res.status(200).json({
     success: true,
     message: "Batches merged successfully",
-    batches: mergedBatches,
+    batches: inventory.batches,
   });
 };
 

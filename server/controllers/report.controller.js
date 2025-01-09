@@ -7,8 +7,8 @@ const getExpenseReport = async (req, res) => {
     // Match within the date range
     const matchStage = {
       createdAt: {
-        $gte: new Date(startDate),
-        $lte: new Date(endDate),
+        $gte: new Date(new Date(startDate).setHours(0, 0, 0, 0)),  // Start of the day for startDate
+        $lte: new Date(new Date(endDate).setHours(23, 59, 59, 999)), // End of the day for endDate
       },
     };
 
@@ -84,7 +84,7 @@ const getExpenseReport = async (req, res) => {
       },
       {
         $addFields: {
-          source: "other",
+          source: "expense",
           signedBy: { $arrayElemAt: ["$signedBy.name", 0] },
           signedById: { $arrayElemAt: ["$signedBy._id", 0] },
         },

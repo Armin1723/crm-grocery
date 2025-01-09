@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { set, useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { IoCloseCircle } from "react-icons/io5";
 import { toast } from "react-toastify";
 import { FaRobot } from "react-icons/fa";
@@ -20,6 +20,7 @@ const PurchaseForm = ({ setRefetch = () => {}, closeModal = () => {} }) => {
     register,
     handleSubmit,
     formState: { errors },
+    control,
     setValue,
     getValues,
     reset,
@@ -37,11 +38,10 @@ const PurchaseForm = ({ setRefetch = () => {}, closeModal = () => {} }) => {
     },
   });
 
-  const subTotal = watch("subTotal", 0);
-  const otherCharges = watch("otherCharges", 0);
-  const discount = watch("discount", 0);
-
-  const [globalErrors, setGlobalErrors] = useState({});
+  const watchedProducts = useWatch({ name: "products", control });
+  const subTotal = useWatch({ name: "subTotal", control });
+  const otherCharges = useWatch({ name: "otherCharges", control });
+  const discount = useWatch({ name: "discount", control });
 
   const handleKeyDown = (event) => {
     if (event.key === "Enter") {
@@ -50,19 +50,14 @@ const PurchaseForm = ({ setRefetch = () => {}, closeModal = () => {} }) => {
   };
 
   useEffect(() => {
-    const calculatedSubTotal = products.reduce(
+    const calculatedSubTotal = watchedProducts.reduce(
       (acc, curr) => acc + (curr.price || 0),
       0
     );
     setValue("subTotal", calculatedSubTotal);
-  }, [products, setValue]);
-
-  useEffect(() => {
-    const calculatedTotal =
-      Number(subTotal) - Number(discount) + Number(otherCharges);
-    setValue("totalAmount", calculatedTotal);
-    setValue("paidAmount", calculatedTotal);
-  }, [subTotal, discount, otherCharges, setValue, products]);
+    setValue("totalAmount", calculatedSubTotal - discount + otherCharges);
+    setValue("paidAmount", calculatedSubTotal - discount + otherCharges);
+  }, [watchedProducts, setValue, discount, otherCharges]);
 
   const fetchSuggestedSuppliers = async (e) => {
     const value = e.target.value;
@@ -87,10 +82,8 @@ const PurchaseForm = ({ setRefetch = () => {}, closeModal = () => {} }) => {
   };
 
   const normaliseCharges = () => {
-    const subTotal = watch("subTotal", 0);
-    const otherCharges = watch("otherCharges", 0);
 
-    const updatedProducts = products.map((product) => {
+    const updatedProducts = watchedProducts?.map((product) => {
       const sharePercent = (product.price / subTotal) * 100;
       const shareAmount = parseFloat(
         Number((sharePercent / 100) * otherCharges).toFixed(1)
@@ -100,45 +93,27 @@ const PurchaseForm = ({ setRefetch = () => {}, closeModal = () => {} }) => {
         ...product,
         price: product.price + shareAmount,
         purchaseRate: parseFloat(
-          Number((product.price + shareAmount) / (product.quantity * product.conversionFactor)).toFixed(1)
+          Number(
+            (product.price + shareAmount) /
+              (product.quantity * product.conversionFactor)
+          ).toFixed(1)
         ),
       };
     });
 
-    setProducts(updatedProducts);
+    setValue("products", updatedProducts);
     setValue("otherCharges", 0);
+  };
+
+  const removeProduct = (index) => {
+    const updatedProducts = [...watchedProducts];
+    updatedProducts.splice(index, 1);
+    setValue("products", updatedProducts);
   };
 
   const addPurchase = async (values) => {
     const id = toast.loading("Adding purchase...");
-    const emptyFields = products.some(
-      (product) =>
-        !product.expiry ||
-        !product.sellingRate ||
-        !product.price ||
-        product.quantity <= 0
-    );
-    if (emptyFields) {
-      toast.update(id, {
-        render: "Please fill all the fields",
-        type: "error",
-        isLoading: false,
-        autoClose: 2000,
-      });
-      return;
-    }
 
-    if(globalErrors){
-      for (const [key, value] of Object.entries(globalErrors)) {
-        toast.update(id, {
-          render: value,
-          type: "error",
-          isLoading: false,
-          autoClose: 2000,
-        });
-        return;
-      }
-    }
     try {
       const response = await fetch(
         `${import.meta.env.VITE_BACKEND_URL}/api/v1/purchases`,
@@ -149,7 +124,7 @@ const PurchaseForm = ({ setRefetch = () => {}, closeModal = () => {} }) => {
           },
           body: JSON.stringify({
             supplierId: supplierId,
-            products: products.map((product) => ({
+            products: values?.products?.map((product) => ({
               ...product,
               quantity: product.quantity * product.conversionFactor,
             })),
@@ -194,89 +169,88 @@ const PurchaseForm = ({ setRefetch = () => {}, closeModal = () => {} }) => {
   };
 
   return (
-      <form
-        onSubmit={handleSubmit(addPurchase)}
-        onKeyDown={handleKeyDown}
-        className="flex flex-col max-sm:px-2 gap-2 w-full flex-1 h-full min-h-[50vh] justify-between "
-      >
-        {/* Supplier Input */}
-        <p className="my-1 font-semibold text-lg max-sm:text-base">Supplier</p>
-        <div className="supplier-input w-full flex flex-col relative group">
-          <input
-            type="text"
-            placeholder="Enter Supplier Name"
-            autoComplete="off"
-            className={`outline-none border-b border-[var(--color-accent)] !z-[10] bg-transparent focus:border-[var(--color-accent-dark)] transition-all duration-300 peer ${
-              errors.supplier && "border-red-500 focus:!border-red-500"
-            }`}
-            {...register("supplier", {
-              required: "Supplier name is required",
-              onChange: fetchSuggestedSuppliers,
-            })}
-          />
-          {suggestedSuppliers.length > 0 && (
-            <div className="suggested-suppliers w-full absolute top-full left-0 bg-[var(--color-card)] rounded-md shadow-md border border-neutral-500/50">
-              {suggestedSuppliers.map((supplier) => (
-                <div
-                  key={supplier._id}
-                  className="supplier-option px-3 py-2 text-sm hover:bg-accentDark/20 transition-all duration-300 ease-in cursor-pointer"
-                  onClick={() => {
-                    setValue("supplier", supplier.name);
-                    setSupplierId(supplier._id);
-                    setSuggestedSuppliers([]);
-                  }}
-                >
-                  {supplier.name}
-                </div>
-              ))}
-            </div>
-          )}
-          {errors.supplier && (
-            <span className="text-red-500 text-sm">
-              {errors.supplier.message}
-            </span>
-          )}
-        </div>
+    <form
+      onSubmit={handleSubmit(addPurchase)}
+      onKeyDown={handleKeyDown}
+      className="flex flex-col max-sm:px-2 gap-2 w-full flex-1 h-full min-h-[50vh] justify-between "
+    >
+      {/* Supplier Input */}
+      <p className="my-1 font-semibold text-lg max-sm:text-base">Supplier</p>
+      <div className="supplier-input w-full flex flex-col relative group">
+        <input
+          type="text"
+          placeholder="Enter Supplier Name"
+          autoComplete="off"
+          className={`outline-none border-b border-[var(--color-accent)] !z-[10] bg-transparent focus:border-[var(--color-accent-dark)] transition-all duration-300 peer ${
+            errors.supplier && "border-red-500 focus:!border-red-500"
+          }`}
+          {...register("supplier", {
+            required: "Supplier name is required",
+            onChange: fetchSuggestedSuppliers,
+          })}
+        />
+        {suggestedSuppliers.length > 0 && (
+          <div className="suggested-suppliers w-full absolute top-full left-0 bg-[var(--color-card)] rounded-md shadow-md border border-neutral-500/50">
+            {suggestedSuppliers.map((supplier) => (
+              <div
+                key={supplier._id}
+                className="supplier-option px-3 py-2 text-sm hover:bg-accentDark/20 transition-all duration-300 ease-in cursor-pointer"
+                onClick={() => {
+                  setValue("supplier", supplier.name);
+                  setSupplierId(supplier._id);
+                  setSuggestedSuppliers([]);
+                }}
+              >
+                {supplier.name}
+              </div>
+            ))}
+          </div>
+        )}
+        {errors.supplier && (
+          <span className="text-red-500 text-sm">
+            {errors.supplier.message}
+          </span>
+        )}
+      </div>
 
-        {/* Products Section */}
-        <div className="title flex justify-between flex-wrap">
-          <p className="my-1 font-semibold text-lg max-sm:text-base">
-            Products
-          </p>
+      {/* Products Section */}
+      <div className="title flex justify-between flex-wrap">
+        <p className="my-1 font-semibold text-lg max-sm:text-base">Products</p>
 
-          <SaveReload
+        {/* <SaveReload
             products={products}
             setProducts={setProducts}
             name="purchaseData"
-          />
-        </div>
+          /> */}
+      </div>
 
-        {/* Add Product */}
-        <div className="add-product flex items-end w-fit relative">
-          <PurchaseProductSuggestion
-            products={products}
-            setProducts={setProducts}
-            suggestedProducts={suggestedProducts}
-            setSuggestedProducts={setSuggestedProducts}
-            disabled={getValues("supplier") === ""}
-          />
-          <AddProductModal />
-        </div>
+      {/* Add Product */}
+      <div className="add-product flex items-end w-fit relative">
+        <PurchaseProductSuggestion
+          getValues={getValues}
+          setValue={setValue}
+          suggestedProducts={suggestedProducts}
+          setSuggestedProducts={setSuggestedProducts}
+          disabled={getValues("supplier") === ""}
+        />
+        <AddProductModal />
+      </div>
 
-        <div className="table-wrapper flex relative max-h-[55vh] min-h-fit flex-1 my-2 overflow-x-scroll">
-          {products.length > 0 ? (
-            <div className="products-container overflow-x-scroll w-fir table flex-col min-w-[1000px] max-sm:text-sm">
-              <div className="th flex w-fit min-w-full flex-1 justify-between items-center gap-4 border border-neutral-500/50 bg-[var(--color-card)] font-semibold rounded-t-md px-2 py-1 sticky top-0 ">
-                <p className="w-[5%] min-w-[30px]">*</p>
-                <p className="w-1/5 min-w-[100px]">Name</p>
-                <p className="w-1/5 min-w-[120px]">Expiry</p>
-                <p className="w-1/5 min-w-[120px]">Purchase Rate</p>
-                <p className="w-1/5 min-w-[120px]">Selling Rate</p>
-                <p className="w-1/5 min-w-[50px]">MRP</p>
-                <p className="w-1/5 min-w-[80px]">Quantity</p>
-                <p className="w-1/5 min-w-[80px] flex justify-end">Price</p>
-              </div>
-              {products.map((product, index) => {
+      <div className="table-wrapper flex relative max-h-[55vh] min-h-fit flex-1 my-2 overflow-x-scroll">
+        {watchedProducts.length > 0 ? (
+          <div className="products-container overflow-x-scroll w-fir table flex-col min-w-[1000px] max-sm:text-sm">
+            <div className="th flex w-fit min-w-full flex-1 justify-between items-center gap-4 border border-neutral-500/50 bg-[var(--color-card)] font-semibold rounded-t-md px-2 py-1 sticky top-0 ">
+              <p className="w-[5%] min-w-[30px]">*</p>
+              <p className="w-1/5 min-w-[100px]">Name</p>
+              <p className="w-1/5 min-w-[120px]">Expiry</p>
+              <p className="w-1/5 min-w-[120px]">Purchase Rate</p>
+              <p className="w-1/5 min-w-[120px]">Selling Rate</p>
+              <p className="w-1/5 min-w-[50px]">MRP</p>
+              <p className="w-1/5 min-w-[80px]">Quantity</p>
+              <p className="w-1/5 min-w-[80px] flex justify-end">Price</p>
+            </div>
+            {watchedProducts &&
+              watchedProducts.map((product, index) => {
                 return (
                   <div
                     key={index}
@@ -288,11 +262,7 @@ const PurchaseForm = ({ setRefetch = () => {}, closeModal = () => {} }) => {
                   >
                     <button
                       type="button"
-                      onClick={() =>
-                        setProducts((prev) =>
-                          prev.filter((_, i) => i !== index)
-                        )
-                      }
+                      onClick={removeProduct}
                       className="w-[5%] min-w-[30px] text-red-500 hover:text-red-600 transition-all duration-300 ease-in"
                     >
                       <IoCloseCircle />
@@ -304,28 +274,18 @@ const PurchaseForm = ({ setRefetch = () => {}, closeModal = () => {} }) => {
                       <input
                         type="date"
                         min={new Date().toISOString().split("T")[0]}
-                        value={product.expiry}
                         className="border-b placeholder:text-sm bg-transparent border-[var(--color-accent)] outline-none p-1 w-full"
-                        onChange={(e) =>
-                          setProducts((prev) =>
-                            prev.map((p, i) =>
-                              i === index
-                                ? {
-                                    ...p,
-                                    expiry: e.target.value,
-                                  }
-                                : p
-                            )
-                          )
-                        }
+                        {...register(`products.${index}.expiry`)}
                       />
                     </div>
                     <div className="purchaseRate w-1/5 min-w-[120px] relative">
                       <input
                         type="number"
-                        value={product.purchaseRate}
                         readOnly
-                        className={`${product?.purchaseRate > product?.mrp && 'text-red-500'} w-full border-b border-accent bg-transparent outline-none p-1`}
+                        className={`${
+                          product?.purchaseRate > product?.mrp && "text-red-500"
+                        } w-full border-b border-accent bg-transparent outline-none p-1`}
+                        {...register(`products.${index}.purchaseRate`)}
                       />
                       <span className="text-xs absolute top-1/2 -translate-y-1/2 right-2 rounded-lg bg-accent text-white px-2">
                         ₹/{product.secondaryUnit}
@@ -334,31 +294,27 @@ const PurchaseForm = ({ setRefetch = () => {}, closeModal = () => {} }) => {
                     <div className="selling-rate w-1/5 min-w-[120px] relative">
                       <input
                         type="number"
-                        min={Math.ceil(product.purchaseRate)}
-                        value={product.sellingRate}
                         className={` ${
-                          (product.purchaseRate > product.sellingRate) ||
-                          (product.sellingRate > product.mrp && "text-red-700")
+                          errors?.products?.[index]?.sellingRate && "text-red-700 border-red-500"
                         } border-b w-full placeholder:text-sm bg-transparent border-[var(--color-accent)] outline-none p-1 `}
-                        onChange={(e) => {
-                          if (e.target.value < product.purchaseRate) {
-                            return;
-                          }
-                          setProducts((prev) =>
-                            prev.map((p, i) =>
-                              i === index
-                                ? {
-                                    ...p,
-                                    sellingRate: Number(e.target.value),
-                                  }
-                                : p
-                            )
-                          );
-                        }}
+                        {...register(`products.${index}.sellingRate`, {
+                          required: "Selling Rate is required",
+                          valueAsNumber: true,
+                          min: {
+                            value: getValues(`products.${index}.purchaseRate`),
+                            message:
+                              "Selling rate should be greater than purchase rate",
+                          },
+                        })}
                       />
                       <span className="text-xs absolute top-1/2 -translate-y-1/2 right-2 rounded-lg bg-accent text-white px-2">
                         ₹/{product.secondaryUnit}
                       </span>
+                      {errors && errors?.products?.[index]?.sellingRate && (
+                        <span className="text-red-500 text-xs absolute top-full left-0" >
+                          {errors.products[index].sellingRate.message}
+                        </span>
+                      )}
                     </div>
                     <div className="mrp w-1/5 min-w-[80px]">
                       <input
@@ -367,174 +323,175 @@ const PurchaseForm = ({ setRefetch = () => {}, closeModal = () => {} }) => {
                         placeholder="MRP"
                         defaultValue={product.mrp}
                         className="border-b placeholder:text-sm bg-transparent border-[var(--color-accent)] outline-none p-1 w-20 "
-                        onChange={(e) =>
-                          setProducts((prev) =>
-                            prev.map((p, i) =>
-                              i === index
-                                ? {
-                                    ...p,
-                                    mrp: Number(e.target.value),
-                                  }
-                                : p
-                            )
-                          )
-                        }
+                        {...register(`products.${index}.mrp`)}
                       />
                     </div>
                     <div className="quantity w-1/5 min-w-[80px] relative">
                       <input
                         type="number"
                         min="1"
-                        value={product.quantity}
-                        defaultValue={1}
                         className="border-b placeholder:text-sm  bg-transparent border-[var(--color-accent)] outline-none p-1 w-full "
-                        onChange={(e) =>
-                          setProducts((prev) =>
-                            prev.map((p, i) =>
-                              i === index
-                                ? {
-                                    ...p,
-                                    quantity: Number(e.target.value),
-                                    purchaseRate: e.target.value
-                                      ? parseFloat(
-                                          Number(
-                                            Number(p.price) /
-                                              (Number(e.target.value) *
-                                                Number(p.conversionFactor))
-                                          ).toFixed(2)
-                                        )
-                                      : 0,
-                                  }
-                                : p
-                            )
-                          )
-                        }
+                        {...register(`products.${index}.quantity`, {
+                          required: "Quantity is required",
+                          valueAsNumber: true,
+                          min: {
+                            value: 1,
+                            message: "Quantity should be greater than 0",
+                          },
+                          onChange: (e) => {
+                            const price = getValues(`products.${index}.price`);
+                            const conversionFactor = getValues(`products.${index}.conversionFactor`);
+                            const inputValue = e.target.value;
+                          
+                            const purchaseRate = (price / (inputValue * conversionFactor)).toFixed(2);
+                          
+                            setValue(`products.${index}.purchaseRate`, parseFloat(purchaseRate));
+                          }
+                        })}
                       />
                       <div className="absolute text-xs px-1 rounded-lg bg-accent text-white right-2 top-1/2 -translate-y-1/2 capitalize">
                         {product.primaryUnit}
                       </div>
                     </div>
-                    <div className="price w-1/5 min-w-[80px] flex justify-end">
+                    <div className="price w-1/5 min-w-[80px] flex justify-end relative">
                       <input
                         type="number"
                         min="0"
                         step="0.1"
                         placeholder="Price"
-                        value={product.price}
-                        onChange={(e) =>
-                          setProducts((prev) =>
-                            prev.map((p, i) =>
-                              i === index
-                                ? {
-                                    ...p,
-                                    price: Number(e.target.value),
-                                    purchaseRate: e.target.value
-                                      ? parseFloat(
-                                          Number(
-                                            Number(e.target.value) /
-                                              (Number(p.quantity) *
-                                                Number(p.conversionFactor))
-                                          ).toFixed(2)
-                                        )
-                                      : 0,
-                                  }
-                                : p
-                            )
-                          )
-                        }
-                        className="border-b placeholder:text-sm bg-transparent text-right border-[var(--color-accent)] outline-none p-1 w-20"
+                        {...register(`products.${index}.price`, {
+                          required: "Price is required",
+                          valueAsNumber: true,
+                          min: {
+                            value: 1,
+                            message: "Price should be greater than 0",
+                          },
+                          onChange: (e) => {
+                            const quantity = getValues(`products.${index}.quantity`);
+                            const conversionFactor = getValues(`products.${index}.conversionFactor`);
+                            const inputValue = e.target.value;
+                          
+                            const purchaseRate = (inputValue / (quantity * conversionFactor)).toFixed(2);
+                          
+                            setValue(
+                              `products.${index}.purchaseRate`,
+                              parseFloat(purchaseRate) 
+                            );
+                          }                          
+                        })}
+                        className={` ${errors && errors?.products?.[index]?.price && 'text-red-500 border-red-500'} border-b placeholder:text-sm bg-transparent text-right border-[var(--color-accent)] outline-none p-1 w-20`}
                       />
+                      {errors && errors?.products?.[index]?.price && (
+                        <span className="text-red-500 text-xs absolute top-full" >
+                          {errors.products[index].price.message}
+                        </span>
+                      )}
                     </div>
                   </div>
                 );
               })}
 
-              <div className="table-footer flex-1 flex flex-col items-end w-fit min-w-full py-1 bg-[var(--color-card)] px-2 border border-neutral-500/50 rounded-b-md">
-                <div className="text-right flex items-center">
-                  Sub Total:{" "}
-                  <input
-                    type="number"
-                    readOnly
-                    className="border-b placeholder:text-sm bg-transparent text-right border-[var(--color-accent)] outline-none p-1 w-20"
-                    {...register("subTotal")}
-                  />
-                  ₹
+            <div className="table-footer flex-1 flex flex-col items-end w-fit min-w-full py-1 bg-[var(--color-card)] px-2 border border-neutral-500/50 rounded-b-md">
+              <div className="text-right flex items-center">
+                Sub Total:{" "}
+                <input
+                  type="number"
+                  readOnly
+                  className="border-b placeholder:text-sm bg-transparent text-right border-[var(--color-accent)] outline-none p-1 w-20"
+                  {...register("subTotal",{
+                    valueAsNumber: true,
+                    min: {
+                      value: 0,
+                      message: "Subtotal should be greater than 0",
+                    },  
+                  })}
+                />
+                ₹
+              </div>
+              <div className="text-right flex items-center">
+                <div className="title flex items-center gap-2">
+                  <span
+                    className="text-accent/80 hover:text-accentDark transition-all duration-300 ease-in cursor-pointer"
+                    onClick={normaliseCharges}
+                  >
+                    <FaRobot />
+                  </span>
+                  <span>Other Charges: </span>
                 </div>
-                <div className="text-right flex items-center">
-                  <div className="title flex items-center gap-2">
-                    <span
-                      className="text-accent/80 hover:text-accentDark transition-all duration-300 ease-in cursor-pointer"
-                      onClick={normaliseCharges}
-                    >
-                      <FaRobot />
-                    </span>
-                    <span>Other Charges: </span>
-                  </div>
-                  <input
-                    type="number"
-                    min="0"
-                    step="0.1"
-                    className="border-b placeholder:text-sm bg-transparent text-right border-[var(--color-accent)] outline-none p-1 w-20"
-                    {...register("otherCharges")}
-                  />
-                  ₹
-                </div>
-                <div className="text-right flex items-center">
-                  Discount:{" "}
-                  <input
-                    type="number"
-                    min="0"
-                    step="0.1"
-                    className="border-b placeholder:text-sm bg-transparent text-right border-[var(--color-accent)] outline-none p-1 w-20"
-                    {...register("discount")}
-                  />
-                  ₹
-                </div>
-                <div className="text-right flex items-center">
-                  Total:{" "}
-                  <input
-                    type="number"
-                    readOnly
-                    className="border-b placeholder:text-sm bg-transparent text-right border-[var(--color-accent)] outline-none p-1 w-20"
-                    {...register("totalAmount")}
-                    value={
-                      Number(watch("subTotal", 0)) -
-                      Number(watch("discount", 0)) +
-                      Number(watch("otherCharges", 0))
-                    }
-                  />
-                  ₹
-                </div>
-                <div className="text-right flex items-center">
-                  Paid Amount:{" "}
-                  <input
-                    type="number"
-                    min="0"
-                    defaultValue={watch("totalAmount", 0)}
-                    max={watch("totalAmount", 0)}
-                    className="border-b placeholder:text-sm bg-transparent text-right border-[var(--color-accent)] outline-none p-1 w-20"
-                    {...register("paidAmount")}
-                  />
-                  ₹
-                </div>
+                <input
+                  type="number"
+                  min="0"
+                  step="0.1"
+                  className="border-b placeholder:text-sm bg-transparent text-right border-[var(--color-accent)] outline-none p-1 w-20"
+                  {...register("otherCharges",{
+                    valueAsNumber: true,
+                  })}
+                />
+                ₹
+              </div>
+              <div className="text-right flex items-center">
+                Discount:{" "}
+                <input
+                  type="number"
+                  step="0.1"
+                  className="border-b placeholder:text-sm bg-transparent text-right border-[var(--color-accent)] outline-none p-1 w-20"
+                  {...register("discount",{
+                    valueAsNumber: true,  
+                    min: {
+                      value: 0,
+                      message: "Discount should be greater than 0",
+                    },
+                  })}
+                />
+                ₹
+              </div>
+              <div className="text-right flex items-center">
+                Total:{" "}
+                <input
+                  type="number"
+                  readOnly
+                  className="border-b placeholder:text-sm bg-transparent text-right border-[var(--color-accent)] outline-none p-1 w-20"
+                  {...register("totalAmount",{
+                    valueAsNumber: true,
+                  })}
+                  value={
+                    Number(watch("subTotal", 0)) -
+                    Number(watch("discount", 0)) +
+                    Number(watch("otherCharges", 0))
+                  }
+                />
+                ₹
+              </div>
+              <div className="text-right flex items-center">
+                Paid Amount:{" "}
+                <input
+                  type="number"
+                  min="0"
+                  defaultValue={watch("totalAmount", 0)}
+                  max={watch("totalAmount", 0)}
+                  className="border-b placeholder:text-sm bg-transparent text-right border-[var(--color-accent)] outline-none p-1 w-20"
+                  {...register("paidAmount")}
+                />
+                ₹
               </div>
             </div>
-          ) : (
-            <div className="flex items-center justify-center w-full min-h-[25vh] my-1 bg-[var(--color-card)] rounded-md border border-neutral-500/50">
-              <p className="text-lg text-neutral-500">No products added</p>
-            </div>
-          )}
-        </div>
+          </div>
+        ) : (
+          <div className="flex items-center justify-center w-full min-h-[25vh] my-1 bg-[var(--color-card)] rounded-md border border-neutral-500/50">
+            <p className="text-lg text-neutral-500">No products added</p>
+          </div>
+        )}
+      </div>
 
-        {/* Submit Button */}
-        <button
-          type="submit"
-          disabled={products.length === 0 || Object.keys(errors).length > 0}
-          className="px-3 py-1.5 my-2 capitalize rounded-md disabled:bg-gray-600 disabled:opacity-35 disabled:cursor-not-allowed disabled:hover-none bg-accent hover:bg-accentDark text-white"
-        >
-          Add Purchase
-        </button>
-      </form>
+      {/* Submit Button */}
+      <button
+        type="submit"
+        disabled={Object.keys(errors).length > 0}
+        className="px-3 py-1.5 my-2 capitalize rounded-md disabled:bg-gray-600 disabled:opacity-35 disabled:cursor-not-allowed disabled:hover-none bg-accent hover:bg-accentDark text-white"
+      >
+        Add Purchase
+      </button>
+    </form>
   );
 };
 

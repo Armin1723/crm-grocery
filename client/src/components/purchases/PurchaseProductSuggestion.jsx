@@ -9,8 +9,8 @@ const defaultExpiry = (shelfLife) => {
   }
 
 const PurchaseProductSuggestion = ({
-  products = [],
-  setProducts = () => {},
+  getValues = () => {},
+  setValue = () => {},
   suggestedProducts = [],
   setSuggestedProducts = () => {},
   disabled = false,
@@ -42,7 +42,7 @@ const PurchaseProductSuggestion = ({
   };
 
   const handleAddProduct = (product) => {
-    const isMatch = products.some((p) => p.name === product.name)
+    const isMatch = getValues("products").some((p) => p.name === product.name)
         
 
     if (isMatch) {
@@ -53,13 +53,14 @@ const PurchaseProductSuggestion = ({
       return;
     }
 
-    setProducts((prev) => [
-      ...prev, {
+    setValue("products", [
+      ...getValues("products"),
+      {
         ...product,
         quantity: 1,
-        expiry: product.shelfLife && defaultExpiry(product.shelfLife)
-      }
-    ]);
+        expiry: defaultExpiry(product.shelfLife),
+      },
+    ])
 
     setSuggestedProducts([]);
     setSelectedIndex(-1);

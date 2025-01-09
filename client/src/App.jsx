@@ -4,7 +4,7 @@ import Home from "./pages/Home";
 import Auth from "./pages/Auth";
 import Login from "./components/auth/Login";
 import ForgotPassword from "./components/auth/ForgotPassword";
-import { ToastContainer, toast } from "react-toastify";
+import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import ResetPassword from "./components/auth/ResetPassword";
 import { useSelector } from "react-redux";
@@ -31,6 +31,7 @@ import SaleReturn from "./components/sales/SaleReturn";
 import ViewSaleReturns from "./components/sales/ViewSaleReturns";
 import Reports from "./components/home/Reports";
 import ExpenseReport from "./components/Reports/ExpenseReport";
+import AddExpense from "./components/purchases/AddExpense";
 
 const App = () => {
   const theme = useSelector((state) => state.theme.value);
@@ -59,7 +60,6 @@ const App = () => {
     };
   }, [theme]);
 
-
   return (
     <BrowserRouter>
       <ToastContainer
@@ -86,6 +86,7 @@ const App = () => {
             <Route path="" element={<ViewPurchases />} />
             <Route path="add" element={<AddPurchase />} />
             <Route path=":id" element={<PurchaseDetails />} />
+            <Route path="expense" element={<AddExpense />} />
           </Route>
 
           {/* Sales Routes */}
@@ -107,7 +108,7 @@ const App = () => {
           </Route>
 
           {/* Reports */}
-          <Route path="reports" element={<Reports />} >
+          <Route path="reports" element={<Reports />}>
             <Route path="" element={<ExpenseReport />} />
           </Route>
         </Route>

@@ -8,13 +8,16 @@ const CategoryChart = () => {
       return (
         <div
           style={{
-            background: "transparent",
+            background: "var(--color-card)",
             border: "none",
+            borderRadius: "10px",
+            padding: "0 10px",
             fontSize: "0.875rem",
-            color: "var(--color-accent)",
+            color: "var(--color-text-light)",
           }}
         >
-          {payload[0].value}
+          {data[payload[0].name]._id} :
+          {' '}{payload[0].value}
         </div>
       );
     }
@@ -64,14 +67,13 @@ const CategoryChart = () => {
   ];
 
   return (
-    <div className="w-full h-2/3 relative flex flex-col justify-center py-3 px-4 bg-[var(--color-sidebar)] border border-neutral-500/50 rounded-md">
-      <div className="flex flex-1 w-full">
-        <div className="title px-3 py-2">
+    <div className="w-full h-2/3 min-h-[40vh] md:min-h-fit relative flex flex-col justify-center py-3 px-4 bg-[var(--color-sidebar)] border border-neutral-500/50 rounded-md">
+        <div className="title px-3 py-2 ">
           <p className="text-xl font-bold">Stocks</p>
           <p className="text-xs text-neutral-500">by category</p>
         </div>
 
-        <div className="chart w-full relative cursor-pointer min-h-[18vh] flex">
+        <div className="chart w-full relative cursor-pointer flex-1 flex">
           <ResponsiveContainer width="99%" height="99%">
             <PieChart>
               <Pie
@@ -87,6 +89,7 @@ const CategoryChart = () => {
                   <Cell
                     key={`cell-${index}`}
                     fill={COLORS[index % COLORS.length]}
+                    cursor="pointer"
                     stroke={
                       index === activeIndex
                         ? COLORS[index % COLORS.length]
@@ -103,7 +106,6 @@ const CategoryChart = () => {
             </PieChart>
           </ResponsiveContainer>
         </div>
-      </div>
 
       {/* Legends */}
       <div className="flex overflow-x-auto items-start space-x-2">
@@ -113,7 +115,7 @@ const CategoryChart = () => {
               className="w-3 h-3 rounded-full"
               style={{ backgroundColor: COLORS[index % COLORS.length] }}
             ></div>
-            <p className="text-sm font-medium text-neutral-700 capitalize">
+            <p className="text-sm font-medium text-[var(--color-text-light)] capitalize">
               {entry._id}
             </p>
           </div>

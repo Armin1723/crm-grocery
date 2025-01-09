@@ -5,10 +5,13 @@ import { formatDateIntl } from "../utils";
 import Divider from "../utils/Divider";
 import { toast } from "react-toastify";
 import Modal from "../utils/Modal"; 
+import { useNavigate } from "react-router-dom";
 
 const SaleReturnForm = ({ sale = {}, setSale = () => {}, loading = false }) => {
   const [saleReturn, setSaleReturn] = useState({});
   const [invoiceModal, setInvoiceModal] = useState(false);
+
+  const navigate = useNavigate();
 
   const {
     register,
@@ -60,18 +63,22 @@ const SaleReturnForm = ({ sale = {}, setSale = () => {}, loading = false }) => {
   }, [getValues("products"), setError]);
 
   const watchedProducts = useWatch({ name: "products", control });
-  const watchedDiscount = useWatch({ name: "discount", control });
 
   useEffect(() => {
-    const subTotal = watchedProducts?.reduce((acc, item) => {
-      const price = parseFloat(item.sellingRate * item.quantity) || 0;
-      return acc + price;
-    }, 0);
-
-    const discount = parseFloat(watchedDiscount) || 0;
-    setValue("subTotal", subTotal);
-    setValue("totalAmount", subTotal - discount);
-  }, [watchedProducts, setValue]);
+      const calculatedSubTotal = watchedProducts.reduce(
+        (acc, curr) =>
+          acc + ((curr.mrp || curr.sellingRate) * curr.quantity || 0),
+        0
+      );
+      const calculatedDiscount = watchedProducts.reduce(
+        (acc, curr) =>
+          acc + (curr.mrp ? curr.mrp - curr.sellingRate : 0) * curr.quantity,
+        0
+      );
+      setValue("subTotal", calculatedSubTotal);
+      setValue("discount", calculatedDiscount);
+      setValue("totalAmount", calculatedSubTotal - calculatedDiscount);
+    }, [watchedProducts, setValue]);
 
   const removeProduct = (index) => {
     const updatedProducts = [...watchedProducts];
@@ -99,8 +106,8 @@ const SaleReturnForm = ({ sale = {}, setSale = () => {}, loading = false }) => {
         throw new Error(data.message || "Something went wrong!");
       }
       setSale({});
-      setSaleReturn(data.saleReturn);
       reset();
+      navigate("/sales");
       toast.update(id, {
         render: "Sale returned successfully!",
         type: "success",
@@ -234,7 +241,7 @@ const SaleReturnForm = ({ sale = {}, setSale = () => {}, loading = false }) => {
           <div className="table-wrapper flex relative flex-1 mt-2 border border-b-0 border-neutral-500/50 rounded-md rounded-b-none overflow-x-auto">
             <div className="products-container overflow-x-auto overflow-y-auto max-sm:px-2 table flex-col w-fit min-w-full max-sm:text-sm flex-1">
               <TableHeader />
-              {watchedProducts.map((product, index) => (
+              {watchedProducts && watchedProducts.map((product, index) => (
                 <ProductRow key={index} product={product} index={index} />
               ))}
             </div>
@@ -256,7 +263,6 @@ const SaleReturnForm = ({ sale = {}, setSale = () => {}, loading = false }) => {
               <input
                 type="number"
                 min="0"
-                step="0.1"
                 readOnly
                 {...register("discount")}
                 className="border-b placeholder:text-sm bg-transparent text-right border-[var(--color-accent)] outline-none p-1 w-20"

@@ -9,8 +9,7 @@ import { formatDateIntl } from "../utils";
 
 const SaleForm = ({ setRefetch = () => {}, closeModal = () => {} }) => {
   const [suggestedProducts, setSuggestedProducts] = useState([]);
-
-  const [discountType, setDiscountType] = useState("number");
+  const [loading, setLoading] = useState(false);
 
   const {
     register,
@@ -43,33 +42,21 @@ const SaleForm = ({ setRefetch = () => {}, closeModal = () => {} }) => {
     }
   };
 
-  const calculateDisc = () => {
-    let discount;
-    if (discountType === "percent") {
-      discount = parseFloat(
-        Number(
-          (Number(subTotal) * Number(getValues("discount"))) / 100
-        ).toFixed(1)
-      );
-    } else {
-      discount = Number(getValues("discount"));
-    }
-    return { discount };
-  };
-
   useEffect(() => {
     const calculatedSubTotal = watchedProducts.reduce(
-      (acc, curr) => acc + (curr.sellingRate * curr.quantity || 0),
+      (acc, curr) =>
+        acc + ((curr.mrp || curr.sellingRate) * curr.quantity || 0),
+      0
+    );
+    const calculatedDiscount = watchedProducts.reduce(
+      (acc, curr) =>
+        acc + (curr.mrp ? curr.mrp - curr.sellingRate : 0) * curr.quantity,
       0
     );
     setValue("subTotal", calculatedSubTotal);
+    setValue("discount", calculatedDiscount);
+    setValue("totalAmount", calculatedSubTotal - calculatedDiscount);
   }, [watchedProducts, setValue]);
-
-  useEffect(() => {
-    const { discount } = calculateDisc();
-    const calculatedTotal = Number(subTotal) - Number(discount);
-    setValue("totalAmount", calculatedTotal);
-  }, [subTotal, discount, discountType]);
 
   const removeProduct = (index) => {
     const updatedProducts = [...watchedProducts];
@@ -79,7 +66,7 @@ const SaleForm = ({ setRefetch = () => {}, closeModal = () => {} }) => {
 
   const addSale = async (values) => {
     const id = toast.loading("Adding sale...");
-    const { discount } = calculateDisc();
+    setLoading(true);
     try {
       const response = await fetch(
         `${import.meta.env.VITE_BACKEND_URL}/api/v1/sales`,
@@ -125,6 +112,8 @@ const SaleForm = ({ setRefetch = () => {}, closeModal = () => {} }) => {
         isLoading: false,
         autoClose: 2000,
       });
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -317,7 +306,7 @@ const SaleForm = ({ setRefetch = () => {}, closeModal = () => {} }) => {
               <input
                 type="number"
                 min={0}
-                step="0.1"
+                readOnly
                 className={` ${
                   errors?.discount &&
                   "border-red-500 text-red-500 focus:border-red-500"
@@ -330,10 +319,7 @@ const SaleForm = ({ setRefetch = () => {}, closeModal = () => {} }) => {
                     message: "Invalid discount",
                   },
                   max: {
-                    value:
-                      discountType === "number"
-                        ? Number(watch("subTotal", 0))
-                        : 100,
+                    value: Number(watch("subTotal", 0)),
                     message: "Discount greater than total",
                   },
                 })}
@@ -346,7 +332,7 @@ const SaleForm = ({ setRefetch = () => {}, closeModal = () => {} }) => {
                   )
                 }
               >
-                {discountType === "number" ? <p>₹</p> : <p>%</p>}
+                ₹
               </div>
             </div>
             <div className="text-right flex items-center">
@@ -407,7 +393,7 @@ const SaleForm = ({ setRefetch = () => {}, closeModal = () => {} }) => {
       {/* Submit Button */}
       <button
         type="submit"
-        disabled={Object.keys(errors).length > 0}
+        disabled={Object.keys(errors).length > 0 || loading}
         className="px-3 py-1.5 my-2 capitalize rounded-md disabled:cursor-not-allowed disabled:hover-none disabled:opacity-30 bg-accent hover:bg-accentDark text-white"
       >
         Add Sale

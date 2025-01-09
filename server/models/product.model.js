@@ -73,7 +73,7 @@ const productSchema = new mongoose.Schema(
     },
     stockAlert: {
       preference: { type: Boolean, default: false },
-      quantity: { type: Number },
+      quantity: { type: Number, default: 0 },
     },
   },
   { timestamps: true }

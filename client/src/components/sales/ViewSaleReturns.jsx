@@ -10,7 +10,7 @@ const ViewSaleReturns = () => {
   const [loading, setLoading] = useState(false);
   const [refetch, setRefetch] = useState(false);
 
-  const [invoiceModalOpen, setInvoiceModalOpen] = useState(false);
+  const [selectedSaleId, setSelectedSaleId] = useState("");
 
   const [limit, setLimit] = useState(10);
   const [page, setPage] = useState(1);
@@ -138,10 +138,10 @@ const ViewSaleReturns = () => {
                     <div className="actions w-[10%] min-w-[50px] flex items-center justify-center gap-2">
                       <FaFileInvoice
                         className="text-red-500 hover:text-red-600 cursor-pointer"
-                        onClick={() => setInvoiceModalOpen(true)}
+                        onClick={() => setSelectedSaleId(saleReturn?.saleId)}
                       />
-                      {invoiceModalOpen && (
-                        <Modal title="Return Invoice" isOpen={invoiceModalOpen} onClose={() => setInvoiceModalOpen(false)}>
+                      {selectedSaleId === saleReturn?.saleId && (
+                        <Modal title="Return Invoice" isOpen={true} onClose={() => setSelectedSaleId(null)}>
                           <embed src={saleReturn?.invoice} type="application/pdf" width="100%" height="600px" />
                         </Modal>
                       )}

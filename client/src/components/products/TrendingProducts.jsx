@@ -6,11 +6,11 @@ import {
   YAxis,
   Tooltip,
   ResponsiveContainer,
-  Cell,
 } from "recharts";
 
 const TrendingProducts = () => {
   const [trendingProducts, setTrendingProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchTrendingProducts = async () => {
@@ -35,9 +35,10 @@ const TrendingProducts = () => {
         }
       } catch (error) {
         console.error(error.message);
+      } finally {
+        setLoading(false);
       }
     };
-
     fetchTrendingProducts();
   }, []);
 
@@ -45,6 +46,13 @@ const TrendingProducts = () => {
   const categories = [
     ...new Set(trendingProducts.map((product) => product.category)),
   ];
+
+  if (loading)
+    return (
+      <div className="bg-[var(--color-sidebar)] p-4 rounded-md border border-neutral-500/50 w-full md:hidden lg:flex md:w-[30%] h-full flex flex-col items-center justify-center">
+        <div className="spinner" />
+      </div>
+    );
 
   return (
     <div className="bg-[var(--color-sidebar)] p-4 rounded-md border border-neutral-500/50 w-full md:hidden lg:flex md:w-[30%] h-full flex flex-col">
@@ -103,8 +111,7 @@ const TrendingProducts = () => {
                   formatter: (value, name, props) =>
                     `${value} ${props?.payload?.secondaryUnit || "units"} sold`,
                 }}
-              >
-              </Bar>
+              ></Bar>
             </BarChart>
           </ResponsiveContainer>
         ) : (
@@ -119,7 +126,10 @@ const TrendingProducts = () => {
             <p className="font-semibold text-lg py-1">Categories:</p>
             <ul className="list-disc pl-5 grid grid-cols-2 gap-2">
               {categories.map((category, index) => (
-                <li key={index} className="text-sm text-[var(--color-text-light)]">
+                <li
+                  key={index}
+                  className="text-sm text-[var(--color-text-light)]"
+                >
                   {category}
                 </li>
               ))}

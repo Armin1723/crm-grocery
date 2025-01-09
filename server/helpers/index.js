@@ -3,7 +3,6 @@ const PDFDocument = require("pdfkit");
 const fs = require("fs");
 const cloudinary = require("../config/cloudinary");
 const Purchase = require("../models/purchase.model");
-const Sale = require("../models/sale.model");
 const path = require("path");
 const nodemailer = require("nodemailer");
 
@@ -233,107 +232,6 @@ function generateHr(doc, y) {
     .stroke();
 }
 
-
-const generateSaleInvoice = async (saleId) => {
-  try {
-    const sale = await Sale.findById(saleId)
-      .populate("products.product")
-      .populate("customer")
-      .populate("signedBy");
-
-    const doc = new PDFDocument({
-      size: [216, 400], 
-      margin: 10, 
-    });
-
-    const filePath = `./tmp/sale_receipt_${sale._id}.pdf`;
-    const stream = fs.createWriteStream(filePath);
-    doc.pipe(stream);
-
-    // Header
-    doc
-      .fontSize(12)
-      .text("SALE RECEIPT", { align: "center", underline: true })
-      .moveDown(0.5);
-
-    doc
-      .fontSize(8)
-      .text(`Receipt No: ${sale._id}`, { align: "center" })
-      .text(`Date: ${new Date().toLocaleDateString("en-IN")}`, { align: "center" })
-      .moveDown();
-
-    // Customer Details
-    doc
-      .fontSize(8)
-      .text("Customer Details:")
-      .text(`Name: ${sale.customer?.name || "N/A"}`)
-      .text(`Contact: ${sale.customer?.phone || "N/A"}`)
-      .moveDown();
-
-    // Products Table
-    doc.fontSize(8).text("Items:", { underline: true });
-    doc
-      .text("S.No  Product          Qty   Rate    Total", { align: "left" })
-      .moveDown(0.5);
-
-    let totalItems = 0;
-    sale.products.forEach((item, index) => {
-      const productName = item.product?.name || "Unknown";
-      const quantity = item.quantity || 0;
-      const price = item.sellingRate || 0;
-      const total = quantity * price;
-
-      doc
-        .text(
-          `${index + 1}. ${productName.substring(0, 10)}   ${quantity}    ${formatCurrency(price)}   ${formatCurrency(
-            total
-          )}`,
-          { align: "left" }
-        );
-
-      totalItems += quantity;
-    });
-
-    doc.moveDown(1);
-
-    // Invoice Summary
-    doc.fontSize(8).text("Summary:", { underline: true });
-    doc.text(`Total Items: ${totalItems}`);
-    doc.text(`Sub Total: ${formatCurrency(sale.subTotal)}`);
-    doc.text(`Other Charges: ${formatCurrency(sale.otherCharges || 0)}`);
-    doc.text(`Discount: ${formatCurrency(sale.discount || 0)}`);
-    doc.text(`Total Amount: ${formatCurrency(sale.totalAmount)}`, { bold: true });
-    doc.moveDown(1);
-
-    // Footer
-    doc
-      .fontSize(8)
-      .text("Thank you for shopping with us!", { align: "center" })
-      .moveDown(0.5)
-      .text("This is a computer-generated receipt.", { align: "center" })
-      .text(`Generated on ${new Date().toLocaleString("en-IN")}`, { align: "center" });
-
-    doc.end();
-
-    // Upload to Cloudinary
-    await new Promise((resolve, reject) => {
-      stream.on("finish", resolve);
-      stream.on("error", reject);
-    });
-
-    const uploadResult = await cloudinary.uploader.upload(filePath, {
-      folder: "grocery-crm/invoices",
-      resource_type: "raw",
-    });
-
-    fs.unlinkSync(filePath);
-    return uploadResult.secure_url;
-  } catch (error) {
-    console.error("Error generating sale receipt:", error);
-    throw error;
-  }
-};
-
 const sendMail = async (to, subject, message) => {
   try {
     const transporter = nodemailer.createTransport({
@@ -366,4 +264,44 @@ const sendMail = async (to, subject, message) => {
   }
 };
 
-module.exports = { sendMail, generatePurchaseInvoice, generateSaleInvoice };
+const mergeBatchesHelper = async (batches) => {
+
+  if(batches.length < 2) return batches;
+
+  // Merge batches with same MRP, sellingRate, and compatible expiry
+  const mergedBatches = [];
+  const visited = new Set();
+
+  for (let i = 0; i < batches.length; i++) {
+    if (visited.has(i)) continue;
+
+    const batch1 = batches[i];
+    let mergedBatch = { ...batch1 };
+    visited.add(i);
+
+    for (let j = i + 1; j < batches.length; j++) {
+      if (visited.has(j)) continue;
+
+      const batch2 = batches[j];
+
+      // Check if MRP, sellingRate match, and expiry is compatible
+      const canMerge =
+        (!batch1.mrp || !batch2.mrp || batch1.mrp == batch2.mrp ) &&
+        (batch1.sellingRate == batch2.sellingRate) &&
+        (!batch1.expiry || !batch2.expiry || batch1.expiry.getTime() == batch2.expiry.getTime());
+
+      if (canMerge) {
+        // Merge quantities and mark batch as visited
+        mergedBatch.quantity += batch2.quantity || 0;
+        mergedBatch.expiry = mergedBatch.expiry || batch2.expiry;
+        visited.add(j);
+      }
+    }
+
+    mergedBatches.push(mergedBatch);
+  }
+
+  return mergedBatches;
+};
+
+module.exports = { sendMail, mergeBatchesHelper, generatePurchaseInvoice };

@@ -1,20 +1,26 @@
+const Sale = require("../../models/sale.model");
 const PDFDocument = require("pdfkit");
 const fs = require("fs");
-const path = require("path");
 const cloudinary = require("../../config/cloudinary");
 
 const formatCurrency = (value) => `₹${value.toFixed(2)}`;
 const formatDate = (date) => date.toLocaleDateString("en-IN");
 
-const generateSalesReturnInvoice = async (salesReturn) => {
+const generateSaleInvoice = async (saleId) => {
   try {
-    // Create a new PDF document
+    const sale = await Sale.findById(saleId)
+      .populate("products.product")
+      .populate("customer")
+      .populate("signedBy");
+
+    if (!sale) throw new Error("Sale not found");
+
     const doc = new PDFDocument({
-      size: [216, 400], // 3-inch width, variable height
+      size: [216, 400],
       margin: 10,
     });
 
-    const filePath = `./tmp/sales_return_invoice_${salesReturn._id}.pdf`;
+    const filePath = `./tmp/sale_receipt_${sale._id}.pdf`;
     const stream = fs.createWriteStream(filePath);
     doc.pipe(stream);
 
@@ -22,22 +28,19 @@ const generateSalesReturnInvoice = async (salesReturn) => {
     doc.font("Courier");
 
     // Add Header
-    addHeader(doc, salesReturn);
+    addHeader(doc, sale);
 
     // Add Customer Details
-    addCustomerDetails(doc, salesReturn.customer);
+    addCustomerDetails(doc, sale.customer);
 
-    // Add Product Table
-    addProductTable(doc, salesReturn.products);
+    // Add Product Details
+    addProductTable(doc, sale.products);
 
     // Add Invoice Summary
-    addInvoiceSummary(doc, salesReturn);
-
-    // Add Reason for Return
-    addReasonForReturn(doc, salesReturn.reason);
+    addInvoiceSummary(doc, sale);
 
     // Add Footer
-    addFooter(doc);
+    addFooter(doc, sale?.discount);
 
     doc.end();
 
@@ -55,12 +58,12 @@ const generateSalesReturnInvoice = async (salesReturn) => {
 
     return uploadResult.secure_url;
   } catch (error) {
-    console.error("Error generating sales return invoice:", error);
+    console.error("Error generating sale receipt:", error);
     throw error;
   }
 };
 
-const addHeader = (doc, salesReturn) => {
+const addHeader = (doc, sale) => {
   doc
     .fontSize(10)
     .text("YOUR STORE NAME", { align: "center", bold: true })
@@ -70,10 +73,10 @@ const addHeader = (doc, salesReturn) => {
     .text("City, State, ZIP", { align: "center" })
     .text("Phone: (123) 456-7890", { align: "center" })
     .moveDown(0.5)
-    .text("SALES RETURN INVOICE", { align: "center", underline: true })
+    .text("SALE RECEIPT", { align: "center", underline: true })
     .moveDown(0.5)
-    .text(`Return ID: ${salesReturn._id}`, { align: "center" })
-    .text(`Date: ${formatDate(salesReturn.returnDate)}`, { align: "center" })
+    .text(`Receipt No: ${sale._id}`, { align: "center" })
+    .text(`Date: ${formatDate(new Date())}`, { align: "center" })
     .moveDown();
 };
 
@@ -124,45 +127,45 @@ const addProductTable = (doc, products) => {
     .moveDown(1);
 };
 
-const addInvoiceSummary = (doc, salesReturn) => {
+const addInvoiceSummary = (doc, sale) => {
   doc
     .fontSize(8)
     .text("Summary:", { underline: true })
     .moveDown(0.2)
     .text(
-      `Total Items   :  ${salesReturn.products.reduce(
+      `Total Items   :  ${sale.products.reduce(
         (sum, item) => sum + item.quantity,
         0
       )}`
     )
-    .text(`Sub Total     : ${formatCurrency(salesReturn.subTotal || 0)}`)
-    .text(`Other Charges : ${formatCurrency(salesReturn.otherCharges || 0)}`)
-    .text(`Discount      : ${formatCurrency(salesReturn.discount || 0)}`)
-    .text(`Amount        : ${formatCurrency(salesReturn.totalAmount || 0)}`, {
+    .text(`Sub Total     : ${formatCurrency(sale.subTotal || 0)}`)
+    .text(`Other Charges : ${formatCurrency(sale.otherCharges || 0)}`)
+    .text(`Discount      : ${formatCurrency(sale.discount || 0)}`)
+    .text(`Total Amount  : ${formatCurrency(sale.totalAmount || 0)}`, {
       bold: true,
     })
     .moveDown(1);
 };
 
-const addReasonForReturn = (doc, reason) => {
+const addFooter = (doc, discount = 0) => {
   doc
     .fontSize(8)
-    .text("Reason for Return:", { underline: true })
-    .text(reason || "N/A")
-    .moveDown();
-};
-
-const addFooter = (doc) => {
-  doc
-    .fontSize(8)
-    .text("------------------------------------------------", { align: "center" })
+    .text("------------------------------------------------", {
+      align: "center",
+    })
     .moveDown(0.2)
-    .text("Thank you for your cooperation!", { align: "center" })
+    .text(`You saved ₹${discount.toFixed(2)} on this purchase.`, {
+      align: "center",
+      bold: true,
+      italic: true,
+    })
     .moveDown(0.5)
-    .text("This is a computer-generated invoice.", { align: "center" })
+    .text("Thank you for shopping with us!", { align: "center" })
+    .moveDown(0.5)
+    .text("This is a computer-generated receipt.", { align: "center" })
     .text(`Generated on ${new Date().toLocaleString("en-IN")}`, {
       align: "center",
     });
 };
 
-module.exports = generateSalesReturnInvoice;
+module.exports = generateSaleInvoice;

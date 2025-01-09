@@ -70,7 +70,7 @@ const ProductCardLarge = ({
                     <h3 className="text-lg max-sm:text-base font-semibold text-[var(--color-text)]">
                       Product Specifications
                     </h3>
-                    <div className="my-1 flex items-center justify-between">
+                    <div className="my-1 flex flex-col justify-between">
                       <p className="text-[var(--color-text-light)]">
                         <span className="">Tax Rate:</span>{" "}
                         {product.tax ? `${product.tax}%` : "Not Set"}
@@ -86,14 +86,15 @@ const ProductCardLarge = ({
                 </div>
 
                 {/* Right Column */}
-                <div className="space-y-2">
+                <div className="">
                   {product.stockAlert?.preference && (
-                    <div className="bg-[var(--color-accent)]/10 p-4 rounded-lg">
-                      <h3 className="text-lg max-sm:text-base font-semibold text-[var(--color-accent)]">
+                    <div className="py-4 rounded-lg">
+                      <h3 className="text-lg max-sm:text-base font-semibold ">
                         Stock Alert Settings
                       </h3>
                       <p className="text-[var(--color-text-light)]">
-                        Stock alerts are enabled for this product
+                        <span className="">Preference:</span>{" "}
+                        {product.stockAlert.quantity} {product.secondaryUnit}
                       </p>
                     </div>
                   )}

@@ -13,6 +13,7 @@ const getProduct = async (req, res) => {
 
 const addProduct = async (req, res) => {
   const { upc, name } = req.body;
+  console.log(req.body);
   if (upc) {
     const existingProduct = await Product.findOne({ upc });
     if (existingProduct) {
@@ -119,6 +120,9 @@ const getProducts = async (req, res) => {
 
 const getTrendingProducts = async (req, res) => {
   const trendingProducts = await Sale.aggregate([
+    { $match: { createdAt : {
+      $gte: new Date(new Date().setDate(new Date().getDate() - 30))
+    } } },
     { $unwind: "$products" },
     {
       $group: {
@@ -280,7 +284,7 @@ const setStockPreference = async (req, res) => {
     sendMail(
       (to = process.env.ADMIN_EMAIL),
       (subject = "Stock Alert Set"),
-      (text = `Stock alert set for ${product.name}. You will be notified when the stock reaches ${quantity} ${product.unit}`)
+      (message = `Stock alert set for ${product.name}. You will be notified when the stock reaches ${quantity} ${product.unit}`)
     );
   }
 

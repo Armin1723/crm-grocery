@@ -1,10 +1,12 @@
-const { generateSaleInvoice, sendMail } = require("../helpers");
+const { sendMail } = require("../helpers");
 const Inventory = require("../models/inventory.model");
 const Sale = require("../models/sale.model");
 const Customer = require("../models/customer.model");
 const SalesReturn = require("../models/salesReturn.model");
 const lowStockMailTemplate = require("../templates/email/lowStockMailTemplate");
 const generateSalesReturnInvoice = require("../templates/invoice/saleReturnInvoice");
+const generateSaleInvoice = require("../templates/invoice/saleInvoice");
+const saleReturnInvoiceMailTemplate = require("../templates/email/saleReturnInvoiceMailTemplate");
 
 const getSales = async (req, res) => {
   const {
@@ -166,25 +168,26 @@ const addSale = async (req, res) => {
     const inventory = await Inventory.findOne({
       product: product.product,
     }).populate("product");
-    inventory?.batches.forEach((batch) => {
+
+    for (const batch of inventory?.batches || []) {
       const sameBatch =
         (!batch.expiry ||
           !product.expiry ||
           new Date(batch?.expiry).getTime() ===
             new Date(product?.expiry).getTime()) &&
         batch.sellingRate === product.sellingRate &&
-        (!!product.mrp || batch?.mrp === product?.mrp);
+        (!product.mrp || batch?.mrp === product?.mrp);
       if (sameBatch) {
         batch.quantity -= product.quantity;
         if (batch.quantity === 0) {
           inventory.batches.pull(batch._id);
         }
-        return;
+        break;
       }
-    });
+    }
     inventory.totalQuantity -= product.quantity;
     await inventory.save();
-
+    
     // Send Mail to Admin if stockPreference set
     if (inventory?.product?.stockAlert?.preference) {
       if (inventory.totalQuantity < inventory?.product?.stockAlert.quantity) {
@@ -199,20 +202,20 @@ const addSale = async (req, res) => {
       }
     }
   });
-
+  
   sale.invoice = await generateSaleInvoice(sale._id);
-
+  
   await sale.save();
   res.json({ success: true, sale });
 };
 
 const addSaleReturn = async (req, res) => {
-  // console.log(req.body);
   const { invoiceId, products = [] } = req.body;
   const sale = await Sale.findById(invoiceId).populate("customer").lean();
   if (!sale) {
-    return res.status(404).json({ error: "Sale not found." });
+    return res.status(404).json({ success:false, message: "Sale not found." });
   }
+
   // Check if valid products are returned (less than sold quantity)
   for (const product of products) {
     if (
@@ -229,15 +232,21 @@ const addSaleReturn = async (req, res) => {
     .select(" saleId ")
     .lean();
   if (existingReturn) {
-    return res.status(400).json({ error: "Sales Return already exists." });
+    return res.status(400).json({ success:false, message: "Return already exists on this bill." });
   }
 
   // Create a new sale return document
   const saleReturn = await SalesReturn.create({
     reason: req.body.reason,
     saleId: invoiceId,
-    customer: sale?.customer,
-    products: req.body.products,
+    customer: sale?.customer?._id,
+    products: req.body.products.map((product) => ({
+      product: product.product,
+      quantity: product.quantity,
+      mrp: product.mrp,
+      sellingRate: product.sellingRate,
+      expiry: product.expiry,
+    })),
     signedBy: req.user.id,
     subTotal: req.body.subTotal,
     otherCharges: req.body.otherCharges,
@@ -264,16 +273,6 @@ const addSaleReturn = async (req, res) => {
         ],
       });
     }
-    inventory?.batches.forEach((batch) => {
-      const sameBatch =
-        (!batch.expiry || !product.expiry || batch.expiry === product.expiry) &&
-        batch.sellingRate === product.sellingRate &&
-        batch.mrp === product.mrp;
-      if (sameBatch) {
-        batch.quantity += product.quantity;
-        return;
-      }
-    });
     inventory.batches.push({
       quantity: product.quantity,
       mrp: product.mrp,
@@ -281,14 +280,16 @@ const addSaleReturn = async (req, res) => {
       expiry: product.expiry,
     });
     inventory.totalQuantity += product.quantity;
+
+    inventory.batches = await mergeBatchesHelper(inventory.batches);
     await inventory.save();
   });
 
   // Generate a sales return invoice
-  const invoice = await generateSalesReturnInvoice({
+  saleReturn.invoice = await generateSalesReturnInvoice({
     _id: saleReturn._id,
     returnDate: saleReturn.createdAt,
-    customer: saleReturn?.customer,
+    customer: sale?.customer,
     products,
     subTotal: saleReturn?.subTotal,
     otherCharges: saleReturn?.otherCharges,
@@ -297,16 +298,18 @@ const addSaleReturn = async (req, res) => {
     reason: saleReturn?.reason,
   });
 
-  saleReturn.invoice = invoice;
   await saleReturn.save();
+
+  const populatedSaleReturn = await SalesReturn.findById(saleReturn._id).populate(
+    "customer products.product"
+  );
 
   // Send the invoice to the customer
   if (sale?.customer?.email) {
     await sendMail(
-      sale.customer.email,
+      sale?.customer?.email,
       "Sales Return Invoice",
-      "Please find attached the sales return invoice.",
-      invoice
+      (message = saleReturnInvoiceMailTemplate(populatedSaleReturn))
     );
   }
 

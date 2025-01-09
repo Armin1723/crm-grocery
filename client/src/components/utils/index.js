@@ -341,6 +341,21 @@ export const taxSlabs = [
   },
 ];
 
+export const expenseTypes = [
+  "Rent",
+  "Salary",
+  "Electricity",
+  "Internet",
+  "Transport",
+  "Marketing",
+  "Maintenance",
+  "Insurance",
+  "Legal",
+  "Office Supplies",
+  "Travel",
+  "Miscellaneous"
+];
+
 export const formatDate = (date) => {
   return new Date(date).toLocaleString("en-IN", {
     day: "numeric",

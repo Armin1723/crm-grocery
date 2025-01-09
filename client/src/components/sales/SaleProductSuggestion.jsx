@@ -14,7 +14,7 @@ const SaleProductSuggestion = ({
   const inputRef = useRef(null);
 
   const fetchSuggestedProducts = async (e) => {
-    const value = e.target.value.trim();
+    const value = e.target.value;
     if (value.length > 1) {
       try {
         const response = await fetch(
@@ -46,7 +46,7 @@ const SaleProductSuggestion = ({
         p?.expiry === product?.expiry
     );
 
-    if (isMatch) {
+    if (isMatch){
       toast.error("Product already added", { autoClose: 2000 });
       inputRef.current.value = "";
       setSuggestedProducts([]);
@@ -106,9 +106,9 @@ const SaleProductSuggestion = ({
 
       <div className="suggested-products w-full absolute top-full left-0 z-[999] bg-[var(--color-card)] rounded-b-md shadow-md border border-neutral-500/50">
         {suggestedProducts.length > 0 &&
-          suggestedProducts.map((product, index) => (
+          suggestedProducts && suggestedProducts.map((product, index) => (
             <div
-              key={product._id}
+              key={index}
               className={`supplier-option px-3 py-2 w-full flex items-center justify-between gap-4 text-sm hover:bg-accentDark/20 transition-all duration-300 ease-in cursor-pointer ${
                 index === selectedIndex ? "bg-accentDark/20" : ""
               }`}

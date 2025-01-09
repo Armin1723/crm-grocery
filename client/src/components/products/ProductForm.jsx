@@ -30,8 +30,6 @@ const ProductForm = ({
 
   const [conversionModalOpen, setConversionModalOpen] = React.useState(false);
 
-  console.log(product);
-
   const {
     register,
     handleSubmit,
@@ -46,7 +44,7 @@ const ProductForm = ({
       image: product.image || undefined,
       name: product.name || "",
       description: product.description || "",
-      rate: product.rate || "",
+      rate: product.rate || undefined,
       category: product.category || "",
       subCategory: product.subCategory || "",
       shelfLife: product.shelfLife || "",
@@ -61,7 +59,7 @@ const ProductForm = ({
 
   //Use effect for auto conversion-factor calculation
   React.useEffect(() => {
-    if (watch("primaryUnit") && watch("secondaryUnit")) {
+    if (watch("primaryUnit") && watch("secondaryUnit") && !getValues("conversionFactor")) {
       const factor = autoSetConversionFactor(
         watch("primaryUnit"),
         watch("secondaryUnit")
@@ -111,9 +109,9 @@ const ProductForm = ({
     formData.append("primaryUnit", values.primaryUnit);
     formData.append("secondaryUnit", values.secondaryUnit);
     formData.append("conversionFactor", values.conversionFactor);
-    formData.append("rate", values.rate);
+    if (values.mrp) formData.append("rate", values.rate);
     if (values.mrp) formData.append("mrp", values.mrp);
-    formData.append("shelfLife", values.shelfLife);
+    if (values.shelfLife) formData.append("shelfLife", values.shelfLife);
     formData.append("description", values.description);
     formData.append("tax", values.tax);
     if (isStockAlertEnabled && values.stockAlert) {
@@ -499,10 +497,7 @@ const ProductForm = ({
               errors && errors.rate && "border-red-500 focus:!border-red-500"
             }`}
             name="rate"
-            {...register("rate",{
-              valueAsNumber: true,
-              min: 0
-            })}
+            {...register("rate")}
           />
         </FormInput>
 
@@ -523,10 +518,7 @@ const ProductForm = ({
               "border-red-500 focus:!border-red-500 text-red-500"
             }`}
             name="shelfLife"
-            {...register("shelfLife",{
-              valueAsNumber: true,
-              min: 1
-            })}
+            {...register("shelfLife")}
           />
         </FormInput>
       </div>
@@ -591,7 +583,9 @@ const ProductForm = ({
               inputMode="alphanumeric"
               placeholder=" "
               className={`input peer ${
-                errors && errors.mrp && "border-red-500 focus:!border-red-500 text-red-500"
+                errors &&
+                errors.mrp &&
+                "border-red-500 focus:!border-red-500 text-red-500"
               }`}
               name="mrp"
               {...register("mrp", {
