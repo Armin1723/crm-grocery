@@ -1,7 +1,9 @@
 import React, { useEffect } from "react";
 import { Outlet, useNavigate } from "react-router-dom";
-import Lottie from "lottie-react";
-import loginAnimation from "../assets/animations/login-animation.json";
+const Lottie = React.lazy(() => import("lottie-react"));
+const loginAnimation = React.lazy(() =>
+  import("../assets/animations/login-animation.json")
+);
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import { toggleTheme } from "../redux/features/theme/themeSlice";
@@ -14,14 +16,14 @@ const Auth = () => {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    if(user && user.avatar) {
+    if (user && user.avatar) {
       toast.info("You are already logged in");
       navigate("/");
     }
-    if(theme === "dark") {
+    if (theme === "dark") {
       dispatch(toggleTheme());
     }
-  },[]);
+  }, []);
 
   return (
     <div className="w-full h-dvh flex items-center justify-between max-sm:flex-col-reverse ">
@@ -29,7 +31,7 @@ const Auth = () => {
         <Outlet />
       </div>
       <div className="animation-container flex flex-col items-center justify-center bg-[var(--color-primary)] h-full w-1/2 max-sm:w-full max-sm:h-1/3">
-        <Lottie animationData={loginAnimation} className="w-1/2"/>
+        <Lottie animationData={loginAnimation} className="w-1/2" />
       </div>
     </div>
   );
