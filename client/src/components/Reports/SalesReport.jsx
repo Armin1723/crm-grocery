@@ -200,7 +200,7 @@ const SalesReport = () => {
             <SalesTable data={data?.salesList} title="sales" />
             <SalesTable data={data?.returnsList} title="returns" />
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 no-print">
               {data.salesByCategory?.length > 0 && (
                 <div className="bg-[var(--color-card)] rounded-lg shadow p-6">
                   <h2 className="text-xl font-bold pb-4 mb-3 border-b border-neutral-500/50">

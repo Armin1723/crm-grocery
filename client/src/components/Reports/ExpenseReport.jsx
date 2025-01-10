@@ -35,7 +35,7 @@ const ExpenseSummary = ({ totalPurchases, totalOtherExpenses }) => {
                   ? "Other Expenses"
                   : "Total Expenses"}
               </p>
-              <div className="text-2xl font-semibold ">
+              <div className={`text-2xl font-semibold ${index === 2 && 'text-red-500'}`}>
                 ₹
                 <CountUp
                   end={item || 0}

@@ -7,6 +7,7 @@ const lowStockMailTemplate = require("../templates/email/lowStockMailTemplate");
 const generateSalesReturnInvoice = require("../templates/invoice/saleReturnInvoice");
 const generateSaleInvoice = require("../templates/invoice/saleInvoice");
 const saleReturnInvoiceMailTemplate = require("../templates/email/saleReturnInvoiceMailTemplate");
+const saleInvoiceMailTemplate = require("../templates/email/saleInvoiceMailTemplate");
 
 const getSales = async (req, res) => {
   const {
@@ -152,15 +153,13 @@ const addSale = async (req, res) => {
     paymentMode,
   });
 
+  let customer = null;
   if (customerMobile) {
-    const customer = await Customer.findOne({ phone: customerMobile });
+      customer = await Customer.findOne({ phone: customerMobile });
     if (!customer) {
-      const newCustomer = new Customer({ phone: customerMobile });
-      await newCustomer.save();
-      sale.customer = newCustomer._id;
-    } else {
-      sale.customer = customer._id;
-    }
+      customer = await Customer.create({ phone: customerMobile });
+    } 
+    sale.customer = customer._id;
   }
   await sale.save();
 
@@ -205,8 +204,16 @@ const addSale = async (req, res) => {
   });
   
   sale.invoice = await generateSaleInvoice(sale._id);
-  
   await sale.save();
+
+  //send mail to customer
+  if(customer?.email){
+    await sendMail(
+      customer.email,
+      "Sales Invoice",
+      (message = saleInvoiceMailTemplate(customer, sale.invoice))
+    )
+  }
   res.json({ success: true, sale });
 };
 

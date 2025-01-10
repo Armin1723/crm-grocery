@@ -339,6 +339,8 @@ const getSalesReport = async (req, res) => {
         category: "return",
         amount: 1,
         description: "$notes",
+        customer: 1,
+        customerId: 1,
         signedBy: 1,
         signedById: 1,
       },
