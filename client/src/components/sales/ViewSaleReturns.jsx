@@ -116,7 +116,7 @@ const ViewSaleReturns = () => {
                 return (
                   <div
                     key={index}
-                    className="tr flex w-full justify-between items-center py-2 px-4 max-sm:px-1 gap-2 hover:bg-accent/10"
+                    className="tr flex w-full justify-between items-center p-4 max-sm:px-1 gap-2 hover:bg-accent/10"
                   >
                     <div className="w-1/5 min-w-[50px]">
                       {saleReturn?.customer?.name ||

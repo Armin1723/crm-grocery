@@ -5,6 +5,7 @@ const { sendMail } = require("../helpers");
 const cloudinary = require("../config/cloudinary");
 const Purchase = require("../models/purchase.model");
 const mongoose = require("mongoose");
+const stockAlertMailTemplate = require("../templates/email/stockAlertMailTemplate");
 
 const getProduct = async (req, res) => {
   const product = await Product.findOne({ upid: req.params.id });
@@ -284,7 +285,7 @@ const setStockPreference = async (req, res) => {
     sendMail(
       (to = process.env.ADMIN_EMAIL),
       (subject = "Stock Alert Set"),
-      (message = `Stock alert set for ${product.name}. You will be notified when the stock reaches ${quantity} ${product.unit}`)
+      (message = stockAlertMailTemplate(product))
     );
   }
 

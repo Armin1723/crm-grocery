@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import ProductForm from "./ProductForm";
 import AlertForm from "./AlertForm";
 import { toast } from "react-toastify";
+import Modal from "../utils/Modal";
 
 const ProductActionButton = ({ product, setRefetch = () => {} }) => {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -18,7 +19,9 @@ const ProductActionButton = ({ product, setRefetch = () => {} }) => {
     const id = toast.loading("Setting Rate Automatically...");
     try {
       const response = await fetch(
-        `${import.meta.env.VITE_BACKEND_URL}/api/v1/products/${product._id}/auto-set-rate`,
+        `${import.meta.env.VITE_BACKEND_URL}/api/v1/products/${
+          product._id
+        }/auto-set-rate`,
         {
           method: "POST",
           credentials: "include",
@@ -44,7 +47,6 @@ const ProductActionButton = ({ product, setRefetch = () => {} }) => {
       });
     }
   };
-
 
   // Close menu when clicking outside
   useEffect(() => {
@@ -124,18 +126,20 @@ const ProductActionButton = ({ product, setRefetch = () => {} }) => {
           <p className="capitalize">Set Alert</p>
         </div>
 
-        {!product.rate && <div
-          className="menu-item px-4 py-1 text-sm text-center hover:bg-accentDark/10 cursor-pointer transition-all duration-200 ease-in flex items-center gap-2"
-          role="menuitem"
-          tabIndex={0}
-          onClick={() => {
-            setMenuOpen(false);
-            autoRateProduct();
-          }}
-        >
-          <FaSync />
-          <p className="capitalize">Auto Rate</p>
-        </div>}
+        {!product.rate && (
+          <div
+            className="menu-item px-4 py-1 text-sm text-center hover:bg-accentDark/10 cursor-pointer transition-all duration-200 ease-in flex items-center gap-2"
+            role="menuitem"
+            tabIndex={0}
+            onClick={() => {
+              setMenuOpen(false);
+              autoRateProduct();
+            }}
+          >
+            <FaSync />
+            <p className="capitalize">Auto Rate</p>
+          </div>
+        )}
       </div>
 
       {/* Edit Modal */}
@@ -166,21 +170,18 @@ const ProductActionButton = ({ product, setRefetch = () => {} }) => {
 
       {/* Set Alert Modal */}
       {alertModalOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-[1000]">
-          <div className="bg-[var(--color-sidebar)] rounded-md p-6 w-1/3 max-sm:w-[90%] overflow-y-auto max-h-[90vh] max-sm:px-6">
-            <div className="flex items-center gap-2 w-full justify-between my-4">
-              <h2 className="text-lg font-bold ">Set Alert</h2>
-              <button
-                className="bg-red-500 text-white px-3 py-1 rounded-md"
-                onClick={() => setAlertModalOpen(false)}
-              >
-                Close
-              </button>
-            </div>
-            {/* Modal Content for setting alert */}
-            <AlertForm product={product} closeModal={()=> setAlertModalOpen(false)} />
-          </div>
-        </div>
+        <Modal
+          isOpen={alertModalOpen}
+          onClose={() => setAlertModalOpen(false)}
+          title="Set Alert"
+        >
+          {/* Modal Content for setting alert */}
+          <AlertForm
+            product={product}
+            closeModal={() => setAlertModalOpen(false)}
+            setRefetch={setRefetch}
+          />
+        </Modal>
       )}
     </div>
   );

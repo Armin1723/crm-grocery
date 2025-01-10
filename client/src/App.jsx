@@ -32,6 +32,7 @@ import ViewSaleReturns from "./components/sales/ViewSaleReturns";
 import Reports from "./components/home/Reports";
 import ExpenseReport from "./components/Reports/ExpenseReport";
 import AddExpense from "./components/purchases/AddExpense";
+import SalesReport from "./components/Reports/SalesReport";
 
 const App = () => {
   const theme = useSelector((state) => state.theme.value);
@@ -70,58 +71,60 @@ const App = () => {
           border: "1px solid var(--color-card)",
         }}
       />
-      <Routes>
-        <Route path="/" element={<Home />}>
-          <Route path="" element={<Stats />} />
+        <Routes>
+          <Route path="/" element={<Home />}>
+            <Route path="" element={<Stats />} />
 
-          {/* Product Routes */}
-          <Route path="products" element={<Products />}>
-            <Route path="" element={<ViewProducts />} />
-            <Route path="add" element={<AddProduct />} />
-            <Route path=":id" element={<ProductDetails />} />
+            {/* Product Routes */}
+            <Route path="products" element={<Products />}>
+              <Route path="" element={<ViewProducts />} />
+              <Route path="add" element={<AddProduct />} />
+              <Route path=":id" element={<ProductDetails />} />
+            </Route>
+
+            {/* Purchase Routes */}
+            <Route path="purchases" element={<Purchases />}>
+              <Route path="" element={<ViewPurchases />} />
+              <Route path="add" element={<AddPurchase />} />
+              <Route path=":id" element={<PurchaseDetails />} />
+              <Route path="expense" element={<AddExpense />} />
+            </Route>
+
+            {/* Sales Routes */}
+            <Route path="sales" element={<Sales />}>
+              <Route path="" element={<ViewSales />} />
+              <Route path="add" element={<AddSale />} />
+              <Route path=":id" element={<SaleDetails />} />
+              <Route path="returns" element={<ViewSaleReturns />} />
+              <Route path="add-return" element={<SaleReturn />} />
+            </Route>
+
+            <Route path="inventory" element={<Inventory />} />
+
+            {/* Suppliers Routes */}
+            <Route path="/suppliers" element={<Suppliers />}>
+              <Route path="" element={<ViewSuppliers />} />
+              <Route path="add" element={<AddSuppliers />} />
+              <Route path=":id" element={<SupplierDetails />} />
+            </Route>
+
+            {/* Reports */}
+            <Route path="reports" element={<Reports />}>
+              <Route path="" element={<ExpenseReport />} />
+              <Route path="expense" element={<ExpenseReport />} />
+              <Route path="sales" element={<SalesReport />} />
+            </Route>
           </Route>
 
-          {/* Purchase Routes */}
-          <Route path="purchases" element={<Purchases />}>
-            <Route path="" element={<ViewPurchases />} />
-            <Route path="add" element={<AddPurchase />} />
-            <Route path=":id" element={<PurchaseDetails />} />
-            <Route path="expense" element={<AddExpense />} />
+          <Route path="/auth" element={<Auth />}>
+            <Route path="" element={<Login />} />
+            <Route path="login" element={<Login />} />
+            <Route path="forgot-password" element={<ForgotPassword />} />
+            <Route path="reset-password" element={<ResetPassword />} />
           </Route>
 
-          {/* Sales Routes */}
-          <Route path="sales" element={<Sales />}>
-            <Route path="" element={<ViewSales />} />
-            <Route path="add" element={<AddSale />} />
-            <Route path=":id" element={<SaleDetails />} />
-            <Route path="returns" element={<ViewSaleReturns />} />
-            <Route path="add-return" element={<SaleReturn />} />
-          </Route>
-
-          <Route path="inventory" element={<Inventory />} />
-
-          {/* Suppliers Routes */}
-          <Route path="/suppliers" element={<Suppliers />}>
-            <Route path="" element={<ViewSuppliers />} />
-            <Route path="add" element={<AddSuppliers />} />
-            <Route path=":id" element={<SupplierDetails />} />
-          </Route>
-
-          {/* Reports */}
-          <Route path="reports" element={<Reports />}>
-            <Route path="" element={<ExpenseReport />} />
-          </Route>
-        </Route>
-
-        <Route path="/auth" element={<Auth />}>
-          <Route path="" element={<Login />} />
-          <Route path="login" element={<Login />} />
-          <Route path="forgot-password" element={<ForgotPassword />} />
-          <Route path="reset-password" element={<ResetPassword />} />
-        </Route>
-
-        <Route path="*" element={<NotFound />} />
-      </Routes>
+          <Route path="*" element={<NotFound />} />
+        </Routes>
     </BrowserRouter>
   );
 };

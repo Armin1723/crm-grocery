@@ -1,5 +1,7 @@
 const Purchase = require("../models/purchase.model");
 const Expenses = require("../models/expense.model");
+const Sale = require("../models/sale.model");
+const SalesReturn = require("../models/salesReturn.model");
 
 const getExpenseReport = async (req, res) => {
     const { startDate, endDate } = req.query;
@@ -215,5 +217,224 @@ const getExpenseReport = async (req, res) => {
     });
 };
 
+const getSalesReport = async (req, res) => {
+  const { startDate, endDate } = req.query;
 
-module.exports = { getExpenseReport };
+  // Match within the date range
+  const matchStage = {
+    createdAt: {
+      $gte: new Date(new Date(startDate).setHours(0, 0, 0, 0)),
+      $lte: new Date(new Date(endDate).setHours(23, 59, 59, 999)),
+    },
+  };
+
+  // Define queries
+  const salesQuery = Sale.aggregate([
+    { $match: matchStage },
+    { $unwind: "$products" },
+    { $sort: { createdAt: -1 } },
+    {
+      $lookup: {
+        from: "users",
+        localField: "signedBy",
+        foreignField: "_id",
+        as: "signedBy",
+      },
+    },
+    {
+      $lookup: {
+        from: "products",
+        localField: "products.product",
+        foreignField: "_id",
+        as: "productDetails",
+      },
+    },
+    {
+      $lookup: {
+        from: "customers",
+        localField: "customer",
+        foreignField: "_id",
+        as: "customerDetails",
+      },
+    },
+    {
+      $addFields: {
+        customer: { $arrayElemAt: ["$customerDetails.phone", 0] },
+        customerId: { $arrayElemAt: ["$customerDetails._id", 0] },
+        signedBy: { $arrayElemAt: ["$signedBy.name", 0] },
+        signedById: { $arrayElemAt: ["$signedBy._id", 0] },
+        description: "$notes",
+        amount: "$totalAmount",
+      },
+    },
+    {
+      $project: {
+        createdAt: 1,
+        category: "sale",
+        customer: 1,
+        customerId: 1,
+        amount: 1,
+        description: 1,
+        signedBy: 1,
+        signedById: 1,
+      },
+    },
+  ]);
+
+  const salesReturnQuery = SalesReturn.aggregate([
+    { $match: matchStage },
+    { $unwind: "$products" },
+    {
+      $lookup: {
+        from: "users",
+        localField: "signedBy",
+        foreignField: "_id",
+        as: "signedBy",
+      },
+    },
+    {
+      $lookup: {
+        from: "products",
+        localField: "products.product",
+        foreignField: "_id",
+        as: "productDetails",
+      },
+    },
+    {
+      $addFields: {
+        signedBy: { $arrayElemAt: ["$signedBy.name", 0] },
+        signedById: { $arrayElemAt: ["$signedBy._id", 0] },
+        amount: {
+          $multiply: ["$products.quantity", "$products.sellingRate"],
+        },
+      },
+    },
+    {
+      $project: {
+        createdAt: 1,
+        category: "saleReturn",
+        amount: 1,
+        description: "$notes",
+        signedBy: 1,
+        signedById: 1,
+      },
+    },
+  ]);
+
+  const reportQuery = Sale.aggregate([
+    { $match: matchStage },
+    { $unwind: "$products" },
+    {
+      $lookup: {
+        from: "products",
+        localField: "products.product",
+        foreignField: "_id",
+        as: "productDetails",
+      },
+    },
+    {
+      $lookup: {
+        from: "customers",
+        localField: "customer",
+        foreignField: "_id",
+        as: "customerDetails",
+      },
+    },
+    {
+      $addFields: {
+        productCategory: { $arrayElemAt: ["$productDetails.category", 0] },
+        customerPhone: { $arrayElemAt: ["$customerDetails.phone", 0] },
+        saleAmount: {
+          $subtract: [
+            {
+              $multiply: ["$products.quantity", "$products.sellingRate"],
+            },
+            "$discount",
+          ],
+        },
+      },
+    },
+    {
+      $facet: {
+        totalSales: [
+          {
+            $group: {
+              _id: null,
+              total: { $sum: "$saleAmount" },
+            },
+          },
+        ],
+        salesByCategory: [
+          {
+            $group: {
+              _id: "$productCategory",
+              total: { $sum: "$saleAmount" },
+            },
+          },
+        ],
+        salesByCustomer: [
+          {
+            $group: {
+              _id: "$customerPhone",
+              total: { $sum: "$saleAmount" },
+            },
+          },
+        ],
+      },
+    },
+    {
+      $project: {
+        totalSales: { $arrayElemAt: ["$totalSales.total", 0] },
+        salesByCategory: {
+          $map: {
+            input: "$salesByCategory",
+            as: "category",
+            in: {
+              category: "$$category._id",
+              total: "$$category.total",
+            },
+          },
+        },
+        salesByCustomer: {
+          $map: {
+            input: "$salesByCustomer",
+            as: "customer",
+            in: {
+              customer: "$$customer._id",
+              total: "$$customer.total",
+            },
+          },
+        },
+      },
+    },
+  ]);
+
+  // Run all queries concurrently
+  const [sales, salesReturns, report] = await Promise.all([
+    salesQuery,
+    salesReturnQuery,
+    reportQuery,
+  ]);
+
+  // Combine and calculate totals
+  const salesList = [
+    ...sales.map((sale) => ({ ...sale, source: "sales" })),
+    ...salesReturns.map((returnItem) => ({ ...returnItem, source: "salesReturn" })),
+  ];
+
+  res.status(200).json({
+    success: true,
+    data: {
+      ...report[0],
+      salesList,
+      totalSales: sales.reduce((acc, curr) => acc + curr.amount, 0),
+      totalSalesReturns: salesReturns.reduce((acc, curr) => acc + curr.amount, 0),
+      netSales:
+        sales.reduce((acc, curr) => acc + curr.amount, 0) -
+        salesReturns.reduce((acc, curr) => acc + curr.amount, 0),
+    },
+  });
+};
+
+
+module.exports = { getExpenseReport, getSalesReport };

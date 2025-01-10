@@ -30,7 +30,7 @@ const ExpenseTable = ({ expenses }) => {
           </thead>
           <tbody className="bg-[var(--color-card)] divide-y divide-neutral-500/50 text-[var(--color-text-light)]">
             {expenses?.map((expense, index) => (
-              <tr key={expense?._id} className={`${index % 2 !== 0 && "bg-[var(--color-primary)]"}`}>
+              <tr key={index} className={`${index % 2 !== 0 && "bg-[var(--color-primary)]"}`}>
                 <td className="px-6 py-2 whitespace-nowrap text-sm ">
                   {formatDate(expense?.createdAt)}
                 </td>

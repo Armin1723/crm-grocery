@@ -392,7 +392,7 @@ export const getColor = (height) => {
   if (height <= 120) return "#ADFF2Ff1";
   if (height <= 140) return "#7FFF00f1";
   if (height <= 160) return "#32CD32f1";
-  if (height <= 180) return "#008000f1";
+  if (height <= 180) return "#00CC00a2";
   return "#006400f1";
 };
 

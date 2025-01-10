@@ -27,7 +27,7 @@ const ExpenseSummary = ({ totalPurchases, totalOtherExpenses }) => {
       {[totalPurchases, totalOtherExpenses, totalExpenses].map(
         (item, index) => {
           return (
-            <div className="text-center text-[var(--color-text-light)] bg-[var(--color-primary)] rounded-md p-2">
+            <div key={index} className="text-center text-[var(--color-text-light)] bg-[var(--color-primary)] rounded-md p-2">
               <p className="text-sm font-medium  mb-2">
                 {index === 0
                   ? "Total Purchases"

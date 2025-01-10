@@ -135,7 +135,7 @@ const ViewSales = () => {
             </div>
           )}
           </div>
-          <div className="table-footer border border-neutral-500/50 rounded-b-md select-none flex w-full justify-between items-center max-lg:items-start p-3 px-4 max-sm:px-1 sticky bottom-0 bg-[var(--color-card)] font-semibold gap-2">
+          <div className="table-footer border border-neutral-500/50 rounded-b-md select-none flex flex-wrap w-full justify-between items-center max-lg:items-start p-3 px-4 max-sm:px-1 sticky bottom-0 bg-[var(--color-card)] font-semibold gap-2">
             <div className="flex items-center">
               <span>
                 Showing {(page - 1) * limit + 1} -{" "}

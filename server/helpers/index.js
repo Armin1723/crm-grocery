@@ -7,9 +7,9 @@ const path = require("path");
 const nodemailer = require("nodemailer");
 
 const formatCurrency = (amount) => {
-  return new Intl.NumberFormat('en-IN', {
-    style: 'currency',
-    currency: 'INR'
+  return new Intl.NumberFormat("en-IN", {
+    style: "currency",
+    currency: "INR",
   }).format(amount);
 };
 
@@ -63,7 +63,7 @@ const generatePurchaseInvoice = async (purchaseId) => {
 
 function generateHeader(doc) {
   doc
-    .image(path.join(__dirname, 'logo.png'), 50, 45, { width: 50 })
+    .image(path.join(__dirname, "logo.png"), 50, 45, { width: 50 })
     .fillColor("#444444")
     .fontSize(20)
     .text("Grocery CRM", 110, 57)
@@ -75,10 +75,7 @@ function generateHeader(doc) {
 }
 
 function generateSupplierInformation(doc, purchase) {
-  doc
-    .fillColor("#444444")
-    .fontSize(12)
-    .text("Supplier Details", 50, 160);
+  doc.fillColor("#444444").fontSize(12).text("Supplier Details", 50, 160);
 
   generateHr(doc, 185);
 
@@ -86,7 +83,7 @@ function generateSupplierInformation(doc, purchase) {
   doc
     .fontSize(10)
     .text("Supplier Name:", 50, supplierInformationTop)
-    .font("Helvetica-Bold") 
+    .font("Helvetica-Bold")
     .text(purchase.supplier?.name || "N/A", 150, supplierInformationTop)
     .font("Helvetica")
     .text("Contact:", 50, supplierInformationTop + 15)
@@ -116,8 +113,8 @@ function generateInvoiceTable(doc, purchase) {
 
   purchase.products.forEach((item, index) => {
     const productName = item.product?.name || "Unknown";
-    const quantity = item.quantity || 0;
-    const price = item.purchaseRate || 0;
+    const quantity = (item?.quantity / item?.product?.conversionFactor) || 0;
+    const price = item?.purchaseRate * item?.product?.conversionFactor || 0;
     const total = quantity * price;
 
     const position = invoiceTableTop + (index + 1) * 30;
@@ -144,8 +141,8 @@ function generateSummary(doc, purchase) {
     subtotalPosition,
     "",
     "",
-    "Subtotal",
     "",
+    "Subtotal",
     formatCurrency(purchase.subTotal)
   );
 
@@ -155,8 +152,8 @@ function generateSummary(doc, purchase) {
     otherChargesPosition,
     "",
     "",
-    "Other Charges",  
     "",
+    "Other Charges",
     formatCurrency(purchase?.otherCharges || 0)
   );
 
@@ -167,8 +164,8 @@ function generateSummary(doc, purchase) {
     totalAmountPosition,
     "",
     "",
-    "Total Amount",   
     "",
+    "Total Amount",
     formatCurrency(purchase?.totalAmount || 0)
   );
 
@@ -178,8 +175,8 @@ function generateSummary(doc, purchase) {
     paidToDatePosition,
     "",
     "",
-    "Paid To Date",
     "",
+    "Paid To Date",
     formatCurrency(purchase?.paidAmount)
   );
 
@@ -189,8 +186,8 @@ function generateSummary(doc, purchase) {
     duePosition,
     "",
     "",
-    "Balance Due",
     "",
+    "Balance Due",
     formatCurrency(purchase?.deficitAmount || 0)
   );
   doc.font("Helvetica");
@@ -208,8 +205,8 @@ function generateTableRow(
   doc
     .fontSize(10)
     .text(item, 50, y)
-    .text(description, 150, y)
-    .text(quantity, 300, y, { width: 90, align: "right" })
+    .text(description, 100, y)
+    .text(quantity, 320, y, { width: 90, align: "right" })
     .text(rate, 390, y, { width: 90, align: "right" })
     .text(total, 480, y, { width: 90, align: "right" });
 }
@@ -220,16 +217,13 @@ function generateFooter(doc) {
     .text("Thank you for your business!", 50, 750, { align: "center" })
     .moveDown(0.5)
     .text("This is a computer-generated receipt.", { align: "center" })
-    .text(`Generated on ${new Date().toLocaleString("en-IN")}`, { align: "center" });
+    .text(`Generated on ${new Date().toLocaleString("en-IN")}`, {
+      align: "center",
+    });
 }
 
 function generateHr(doc, y) {
-  doc
-    .strokeColor("#aaaaaa")
-    .lineWidth(1)
-    .moveTo(50, y)
-    .lineTo(550, y)
-    .stroke();
+  doc.strokeColor("#aaaaaa").lineWidth(1).moveTo(20, y).lineTo(580, y).stroke();
 }
 
 const sendMail = async (to, subject, message) => {
@@ -265,8 +259,7 @@ const sendMail = async (to, subject, message) => {
 };
 
 const mergeBatchesHelper = async (batches) => {
-
-  if(batches.length < 2) return batches;
+  if (batches.length < 2) return batches;
 
   // Merge batches with same MRP, sellingRate, and compatible expiry
   const mergedBatches = [];
@@ -276,7 +269,7 @@ const mergeBatchesHelper = async (batches) => {
     if (visited.has(i)) continue;
 
     const batch1 = batches[i];
-    let mergedBatch = { ...batch1 };
+    let mergedBatch = { ...batch1, quantity: Number(batch1.quantity) || 0 };
     visited.add(i);
 
     for (let j = i + 1; j < batches.length; j++) {
@@ -286,13 +279,15 @@ const mergeBatchesHelper = async (batches) => {
 
       // Check if MRP, sellingRate match, and expiry is compatible
       const canMerge =
-        (!batch1.mrp || !batch2.mrp || batch1.mrp == batch2.mrp ) &&
-        (batch1.sellingRate == batch2.sellingRate) &&
-        (!batch1.expiry || !batch2.expiry || batch1.expiry.getTime() == batch2.expiry.getTime());
+        (!batch1.mrp || !batch2.mrp || batch1.mrp == batch2.mrp) &&
+        batch1.sellingRate == batch2.sellingRate &&
+        (!batch1.expiry ||
+          !batch2.expiry ||
+          batch1.expiry.getTime() == batch2.expiry.getTime());
 
       if (canMerge) {
         // Merge quantities and mark batch as visited
-        mergedBatch.quantity += batch2.quantity || 0;
+        mergedBatch.quantity += Number(batch2?.quantity) || 0;
         mergedBatch.expiry = mergedBatch.expiry || batch2.expiry;
         visited.add(j);
       }

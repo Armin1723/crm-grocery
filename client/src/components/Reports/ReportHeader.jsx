@@ -9,7 +9,7 @@ const ReportHeader = ({
   setDateRange = () => {},
   handleDownload = () => {},
 }) => {
-  const [selectedRange, setSelectedRange] = useState("");
+  const [selectedRange, setSelectedRange] = useState("today");
 
   const handleDropdownChange = (value) => {
     const today = new Date();
@@ -206,7 +206,6 @@ const ReportHeader = ({
             </option>
             <option
               value="thisWeek"
-              selected
               className="!bg-[var(--color-card)]"
             >
               This Week

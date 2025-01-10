@@ -1,4 +1,4 @@
-const { sendMail } = require("../helpers");
+const { sendMail, mergeBatchesHelper } = require("../helpers");
 const Inventory = require("../models/inventory.model");
 const Sale = require("../models/sale.model");
 const Customer = require("../models/customer.model");
@@ -162,6 +162,7 @@ const addSale = async (req, res) => {
       sale.customer = customer._id;
     }
   }
+  await sale.save();
 
   // Update Inventory
   products.forEach(async (product) => {
@@ -285,35 +286,36 @@ const addSaleReturn = async (req, res) => {
     await inventory.save();
   });
 
-  // Generate a sales return invoice
-  saleReturn.invoice = await generateSalesReturnInvoice({
-    _id: saleReturn._id,
-    returnDate: saleReturn.createdAt,
-    customer: sale?.customer,
-    products,
-    subTotal: saleReturn?.subTotal,
-    otherCharges: saleReturn?.otherCharges,
-    discount: saleReturn?.discount,
-    totalAmount: saleReturn?.totalAmount,
-    reason: saleReturn?.reason,
-  });
-
-  await saleReturn.save();
-
   const populatedSaleReturn = await SalesReturn.findById(saleReturn._id).populate(
     "customer products.product"
   );
 
+  // Generate a sales return invoice
+  saleReturn.invoice = await generateSalesReturnInvoice({
+    _id: populatedSaleReturn._id,
+    returnDate: populatedSaleReturn.createdAt,
+    customer: populatedSaleReturn?.customer,
+    products : populatedSaleReturn?.products,
+    subTotal: populatedSaleReturn?.subTotal,
+    otherCharges: populatedSaleReturn?.otherCharges,
+    discount: populatedSaleReturn?.discount,
+    totalAmount: populatedSaleReturn?.totalAmount,
+    reason: populatedSaleReturn?.reason,
+  });
+
+  await saleReturn.save();
+
+
   // Send the invoice to the customer
-  if (sale?.customer?.email) {
+  if (populatedSaleReturn?.customer?.email) {
     await sendMail(
-      sale?.customer?.email,
+      populatedSaleReturn?.customer?.email,
       "Sales Return Invoice",
       (message = saleReturnInvoiceMailTemplate(populatedSaleReturn))
     );
   }
 
-  res.json({ success: true, saleReturn });
+  res.json({ success: true, populatedSaleReturn });
 };
 
 const getRecentSale = async (req, res) => {

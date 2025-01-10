@@ -1,49 +1,52 @@
 import React from "react";
 import { toast } from "react-toastify";
 
-const AlertForm = ({product, closeModal}) => {
-    const [quantity, setQuantity] = React.useState(product?.stockAlert?.preference ? product?.stockAlert?.quantity : "");
+const AlertForm = ({ product, closeModal, setRefetch = () => {} }) => {
+  const [quantity, setQuantity] = React.useState(
+    product?.stockAlert?.preference ? product?.stockAlert?.quantity : ""
+  );
 
-    const setAlert = async () => {
-        const id = toast.loading("Setting alert...");
-        try{
-            const response = await fetch(
-                `${import.meta.env.VITE_BACKEND_URL}/api/v1/products/${product._id}/alert`,
-                {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify({quantity}),
-                    credentials: "include",
-                }
-            );
-            if (!response.ok) {
-                const data = await response.json();
-                throw new Error(data.message || "Failed to set alert");
-            }
-            const data = await response.json();
-            toast.update(id, {
-                render: data.message,
-                type: "success",
-                isLoading: false,
-                autoClose: 2000,
-            });
-            closeModal();
-
-        }catch(error){
-            toast.update(id, {
-                render: error.message,
-                type: "error",
-                isLoading: false,
-                autoClose: 2000,
-            });
+  const setAlert = async () => {
+    const id = toast.loading("Setting alert...");
+    try {
+      const response = await fetch(
+        `${import.meta.env.VITE_BACKEND_URL}/api/v1/products/${
+          product._id
+        }/alert`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ quantity }),
+          credentials: "include",
         }
+      );
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.message || "Failed to set alert");
+      }
+      toast.update(id, {
+        render: data.message,
+        type: "success",
+        isLoading: false,
+        autoClose: 2000,
+      });
+      setRefetch((prev) => !prev);
+      closeModal();
+    } catch (error) {
+      toast.update(id, {
+        render: error.message,
+        type: "error",
+        isLoading: false,
+        autoClose: 2000,
+      });
     }
+  };
 
   return (
     <div>
-      <p className="text-neutral-500 text-sm my-4">
+      <p className="text-neutral-500 text-sm mb-4 mt-2">
         Set an alert for {product?.name} to get notified when it reaches a
         certain quantity.
       </p>
@@ -68,11 +71,19 @@ const AlertForm = ({product, closeModal}) => {
         {product?.secondaryUnit}
       </div>
       <div className="buttons flex gap-2 max-sm:flex-col">
-        <button onClick={setAlert} disabled={!quantity} className="w-1/2 max-sm:w-full px-3 py-1.5 text-white rounded-md bg-accent hover:bg-accentDark transiton-all duration-300 disabled:cursor-not-allowed">
-        Set Alert
+        <button
+          onClick={setAlert}
+          disabled={!quantity}
+          className="w-1/2 max-sm:w-full px-3 py-1.5 text-white rounded-md bg-accent hover:bg-accentDark transiton-all duration-300 disabled:cursor-not-allowed"
+        >
+          Set Alert
         </button>
-        <button onClick={setAlert} disabled={!product?.stockAlert?.preference} className="w-1/2 max-sm:w-full px-3 py-1.5 text-[var(--color-text)] rounded-md border disabled:cursor-not-allowed border-accent hover:border-accentDark hover:bg-accent/20 transiton-all duration-300">
-        Remove Alert
+        <button
+          onClick={setAlert}
+          disabled={!product?.stockAlert?.preference}
+          className="w-1/2 max-sm:w-full px-3 py-1.5 text-[var(--color-text)] rounded-md border disabled:cursor-not-allowed border-accent hover:border-accentDark hover:bg-accent/20 transiton-all duration-300"
+        >
+          Remove Alert
         </button>
       </div>
     </div>
