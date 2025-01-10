@@ -58,7 +58,7 @@ const NavSmall = () => {
               const isActive =
                 link.to === "/"
                   ? pathname === link.to
-                  : pathname.includes(link.to);
+                  : pathname.startsWith(link.to);
 
               return (
                 <li key={index} className="link  w-full ">

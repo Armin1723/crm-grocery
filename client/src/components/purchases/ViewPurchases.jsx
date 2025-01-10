@@ -89,7 +89,7 @@ const ViewPurchases = () => {
                 title="Balance"
                 isActive={sort === "deficitAmount"}
                 sortType={sortType}
-                setSort={setSort}
+                setSort={() => setSort("deficitAmount")}
                 setSortType={setSortType}
               />
             </div>

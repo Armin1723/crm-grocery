@@ -115,6 +115,7 @@ const Card = ({ data, index, chartData = {} }) => {
                 <Line
                   type="monotone"
                   dataKey="count"
+                  // dataKey={data.title === "Inventory" ? "totalValue" : "count"}
                   stroke={data?.color}
                   strokeWidth={2}
                 />

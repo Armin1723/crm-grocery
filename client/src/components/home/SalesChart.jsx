@@ -117,12 +117,14 @@ const SalesChart = () => {
             <YAxis />
             <Tooltip
               contentStyle={{
-                background: "transparent",
+                background: "var(--color-card-overlay)",
                 border: "none",
                 gap: "0",
+                borderRadius: "0.5rem",
+                boxShadow: "0 0 10px 0 rgba(0, 0, 0, 0.1)",
               }}
               itemStyle={{ fontWeight: "bold", textTransform: "capitalize" }}
-              labelStyle={{ color: "gray", fontSize: "0.7rem" }}
+              labelStyle={{ color: "var(--color-text-light)", fontSize: "0.7rem" }}
             />
             <Area
               type="monotone"

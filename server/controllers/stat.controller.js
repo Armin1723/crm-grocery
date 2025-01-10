@@ -6,42 +6,78 @@ const Sale = require("../models/sale.model");
 // Basic stats of sales, purchases, and inventory for recharts
 const getBasicStats = async (req, res) => {
   const currentMonth = new Date().getMonth() + 1;
-  const sixMonthsAgo = new Date().setMonth(currentMonth - 6);
+  const currentYear = new Date().getFullYear();
+  const sixMonthsAgoDate = new Date();
+  sixMonthsAgoDate.setMonth(sixMonthsAgoDate.getMonth() - 6);
+
+  // Helper function to calculate percentage change
+  const calculatePercentageChange = (current, last) =>
+    last > 0 ? ((current - last) / last) * 100 : current > 0 ? 100 : 0;
+
+  // Helper function to find previous month data
+  const calculatePreviousMonthData = (data, currentMonth, currentYear) => {
+    const previousMonth = currentMonth === 1 ? 12 : currentMonth - 1;
+    const previousYear = currentMonth === 1 ? currentYear - 1 : currentYear;
+
+    return (
+      data.find(
+        (d) =>
+          d._id.month === previousMonth && d._id.year === previousYear
+      ) || { count: 0, totalValue: 0 }
+    );
+  };
 
   // Aggregate data for sales, purchases, products, and inventory
   const [salesData, purchaseData, productsData, inventoryData] =
     await Promise.all([
       Sale.aggregate([
-        { $match: { createdAt: { $gte: new Date(sixMonthsAgo) } } },
+        { $match: { createdAt: { $gte: sixMonthsAgoDate } } },
         {
           $group: {
-            _id: { $month: "$createdAt" },
+            _id: {
+              year: { $year: "$createdAt" },
+              month: { $month: "$createdAt" },
+            },
             count: { $sum: "$totalAmount" },
           },
         },
-        { $sort: { _id: 1 } },
+        { $sort: { "_id.year": 1, "_id.month": 1 } },
       ]),
       Purchase.aggregate([
-        { $match: { createdAt: { $gte: new Date(sixMonthsAgo) } } },
+        { $match: { createdAt: { $gte: sixMonthsAgoDate } } },
         {
           $group: {
-            _id: { $month: "$createdAt" },
+            _id: {
+              year: { $year: "$createdAt" },
+              month: { $month: "$createdAt" },
+            },
             count: { $sum: "$totalAmount" },
           },
         },
-        { $sort: { _id: 1 } },
+        { $sort: { "_id.year": 1, "_id.month": 1 } },
       ]),
       Product.aggregate([
-        { $match: { createdAt: { $gte: new Date(sixMonthsAgo) } } },
-        { $group: { _id: { $month: "$createdAt" }, count: { $sum: 1 } } },
-        { $sort: { _id: 1 } },
+        { $match: { createdAt: { $gte: sixMonthsAgoDate } } },
+        {
+          $group: {
+            _id: {
+              year: { $year: "$createdAt" },
+              month: { $month: "$createdAt" },
+            },
+            count: { $sum: 1 },
+          },
+        },
+        { $sort: { "_id.year": 1, "_id.month": 1 } },
       ]),
       Inventory.aggregate([
-        { $match: { createdAt: { $gte: new Date(sixMonthsAgo) } } },
+        { $match: { createdAt: { $gte: sixMonthsAgoDate } } },
         { $unwind: "$batches" },
         {
           $group: {
-            _id: { $month: "$createdAt" },
+            _id: {
+              year: { $year: "$createdAt" },
+              month: { $month: "$createdAt" },
+            },
             totalValue: {
               $sum: {
                 $multiply: ["$batches.quantity", "$batches.purchaseRate"],
@@ -49,8 +85,21 @@ const getBasicStats = async (req, res) => {
             },
           },
         },
+        { $sort: { "_id.year": 1, "_id.month": 1 } },
       ]),
     ]);
+
+  // Add date strings for Recharts and calculate totals
+  const formatData = (data) =>
+    data.map((item) => ({
+      ...item,
+      date: `${item._id.year}-${String(item._id.month).padStart(2, "0")}`, // e.g., "2024-06"
+    }));
+
+  const formattedSalesData = formatData(salesData);
+  const formattedPurchaseData = formatData(purchaseData);
+  const formattedProductsData = formatData(productsData);
+  const formattedInventoryData = formatData(inventoryData);
 
   const totalSales = salesData.reduce((acc, curr) => acc + curr.count, 0);
   const totalPurchases = purchaseData.reduce(
@@ -58,80 +107,89 @@ const getBasicStats = async (req, res) => {
     0
   );
   const totalProducts = await Product.countDocuments();
-  const totalInventory = inventoryData[0]?.totalValue || 0;
+  const totalInventory = inventoryData.reduce(
+    (acc, curr) => acc + curr.totalValue,
+    0
+  );
 
-  // Calculate percentage changes
-  const calculatePercentageChange = (current, last) =>
-    last > 0 ? ((current - last) / last) * 100 : current > 0 ? 100 : 0;
+  // Get current and last month's data for percentage change calculations
+  const currentSales =
+    salesData.find(
+      (d) => d._id.month === currentMonth && d._id.year === currentYear
+    )?.count || 0;
+  const lastMonthSales = calculatePreviousMonthData(
+    salesData,
+    currentMonth,
+    currentYear
+  ).count;
 
-  const lastMonth = currentMonth === 1 ? 12 : currentMonth - 1;
+  const currentPurchases =
+    purchaseData.find(
+      (d) => d._id.month === currentMonth && d._id.year === currentYear
+    )?.count || 0;
+  const lastMonthPurchases = calculatePreviousMonthData(
+    purchaseData,
+    currentMonth,
+    currentYear
+  ).count;
 
-  // Handle year change for January (previous December's data)
-  const lastMonthYear =
-    currentMonth === 1
-      ? new Date().getFullYear() - 1
-      : new Date().getFullYear();
+  const currentProducts =
+    productsData.find(
+      (d) => d._id.month === currentMonth && d._id.year === currentYear
+    )?.count || 0;
+  const lastMonthProducts = calculatePreviousMonthData(
+    productsData,
+    currentMonth,
+    currentYear
+  ).count;
 
+  const currentInventory =
+    inventoryData.find(
+      (d) => d._id.month === currentMonth && d._id.year === currentYear
+    )?.totalValue || 0;
+  const lastMonthInventory = calculatePreviousMonthData(
+    inventoryData,
+    currentMonth,
+    currentYear
+  ).totalValue;
+
+  // Build stats object
   const stats = {
     sales: {
       total: totalSales,
-      currentValue: salesData.find((d) => d._id === currentMonth)?.count || 0,
-      increase: calculatePercentageChange(
-        salesData.find((d) => d._id === currentMonth)?.count || 0,
-        salesData.find(
-          (d) =>
-            d._id === lastMonth &&
-            new Date(sixMonthsAgo).getFullYear() === lastMonthYear
-        )?.count || 0
-      ),
-      data: salesData,
+      currentValue: currentSales,
+      increase: calculatePercentageChange(currentSales, lastMonthSales),
+      data: formattedSalesData,
     },
     purchases: {
       total: totalPurchases,
-      currentValue:
-        purchaseData.find((d) => d._id === currentMonth)?.count || 0,
+      currentValue: currentPurchases,
       increase: calculatePercentageChange(
-        purchaseData.find((d) => d._id === currentMonth)?.count || 0,
-        purchaseData.find(
-          (d) =>
-            d._id === lastMonth &&
-            new Date(sixMonthsAgo).getFullYear() === lastMonthYear
-        )?.count || 0
+        currentPurchases,
+        lastMonthPurchases
       ),
-      data: purchaseData,
+      data: formattedPurchaseData,
     },
     products: {
       total: totalProducts,
-      currentValue:
-        productsData.find((d) => d._id === currentMonth)?.count || 0,
-      increase: calculatePercentageChange(
-        productsData.find((d) => d._id === currentMonth)?.count || 0,
-        productsData.find(
-          (d) =>
-            d._id === lastMonth &&
-            new Date(sixMonthsAgo).getFullYear() === lastMonthYear
-        )?.count || 0
-      ),
-      data: productsData,
+      currentValue: currentProducts,
+      increase: calculatePercentageChange(currentProducts, lastMonthProducts),
+      data: formattedProductsData,
     },
     inventory: {
       total: totalInventory,
-      currentValue:
-        inventoryData.find((d) => d._id === currentMonth)?.totalValue || 0,
+      currentValue: currentInventory,
       increase: calculatePercentageChange(
-        inventoryData.find((d) => d._id === currentMonth)?.totalValue || 0,
-        inventoryData.find(
-          (d) =>
-            d._id === lastMonth &&
-            new Date(sixMonthsAgo).getFullYear() === lastMonthYear
-        )?.totalValue || 0
+        currentInventory,
+        lastMonthInventory
       ),
-      data: inventoryData,
+      data: formattedInventoryData,
     },
   };
 
   res.json({ success: true, stats });
 };
+
 
 const getProductsGroupedByCategory = async (req, res) => {
   const productData = await Inventory.aggregate([

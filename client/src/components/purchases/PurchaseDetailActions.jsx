@@ -17,7 +17,7 @@ const PurchaseDetailActions = ({ purchase = {} }) => {
           <FaFileInvoice className="w-5 h-5" />
         </button>
 
-        {purchase?.deficitAmount > 0  || purchase?.followUpPayments.length > 0 && (
+        {(purchase?.deficitAmount > 0  || purchase?.followUpPayments.length > 0) && (
           <button
             onClick={() => setShowFollowUp(true)}
             className="flex items-center gap-2 rounded-lg font-medium text-blue-600 hover:text-blue-500 cursor-pointer shadow-sm hover:bg-gradient-to-tr transition-all duration-200"

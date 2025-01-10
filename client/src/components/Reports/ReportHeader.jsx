@@ -96,7 +96,7 @@ const ReportHeader = ({
       printWindow.document.write(`
         <html>
           <head>
-            <title>Expense Report - Grocery CRM - ${
+            <title>${title} Report - Grocery CRM - ${
               formatDate(dateRange?.startDate) +
               " to " +
               formatDate(dateRange?.endDate)
@@ -143,7 +143,7 @@ const ReportHeader = ({
             <header class="bg-[var(--color-card)] rounded-lg flex flex-col gap-2 items-center">
               <img src="/logo.png" alt="Grocery CRM" loading={lazy} class="h-16" />
               <h1 class="text-xl md
-              :text-2xl lg:text-3xl font-bold">Expense Report - Grocery</h1>
+              :text-2xl lg:text-3xl font-bold capitalize">${title} Report - Grocery</h1>
               <p>Generated on: ${new Date().toLocaleString()}</p>
               <p>Date Range: ${
                 formatDate(dateRange?.startDate) +
@@ -162,7 +162,7 @@ const ReportHeader = ({
   };
 
   return (
-    <header className="bg-[var(--color-card)] rounded-lg p-6 sticky top-0 z-[20] no-print">
+    <header className="bg-[var(--color-card)] rounded-lg p-6 max-sm:p-2 sticky top-0 z-[20] no-print">
       <div className="flex justify-between items-center ">
         <h1 className="text-xl md:text-2xl lg:text-3xl font-bold capitalize">
           {title} Report
@@ -185,7 +185,7 @@ const ReportHeader = ({
         </div>
       </div>
       <div className="flex max-md:flex-col max-md:gap-2 w-full justify-between mt-4 no-print">
-        <div className="flex-1 ">
+        <div className="flex-1">
           <label
             htmlFor="rangeSelect"
             className="block text-sm font-medium text-[var(--color-text-light)]"
@@ -218,8 +218,8 @@ const ReportHeader = ({
             </option>
           </select>
         </div>
-        <div className="flex gap-4 flex-1">
-          <div className="flex-1">
+        <div className="flex gap-2 tab:gap-4 flex-1">
+          <div className="w-1/2">
             <label
               htmlFor="startDate"
               className="block text-sm font-medium text-[var(--color-text-light)]"
