@@ -42,14 +42,25 @@ const BatchLabel = ({
 
   const handlePrint = () => {
     if (labelRefInventory.current) {
-      const printContents = labelRefInventory.current.innerHTML;
+      let printContents = labelRefInventory.current.innerHTML;
       const printWindow = window.open("", "_blank");
+
+      const tailwindCSSStyles = document.querySelector(
+        'link[rel="stylesheet"]'
+      )?.href;
+
+      // Get the compiled Tailwind CSS styles (from a built file)
+      const tailwindCSS =
+        document.querySelector("style[data-vite-dev-id]")?.innerHTML || "";
+
       printWindow.document.open();
       printWindow.document.write(`
         <html>
           <head>
-            <title>Barcode - ${inventory?.upid}</title>
+            <title>Barcode</title>
+             <link rel="stylesheet" href="${tailwindCSSStyles}" />
             <style>
+            ${tailwindCSS}
               body {
                 margin: 0;
                 padding: 0;

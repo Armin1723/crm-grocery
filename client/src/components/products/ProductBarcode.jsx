@@ -35,14 +35,25 @@ const ProductBarcode = ({ product, setRefetch = () => {} }) => {
 
   const handlePrint = () => {
     if (labelRef.current) {
-      const printContents = labelRef.current.innerHTML;
+      let printContents = labelRef.current.innerHTML;
       const printWindow = window.open("", "_blank");
+
+      const tailwindCSSStyles = document.querySelector(
+        'link[rel="stylesheet"]'
+      )?.href;
+
+      // Get the compiled Tailwind CSS styles (from a built file)
+      const tailwindCSS =
+        document.querySelector("style[data-vite-dev-id]")?.innerHTML || "";
+
       printWindow.document.open();
       printWindow.document.write(`
         <html>
           <head>
-            <title>Barcode - ${product?.upid}</title>
+            <title>Barcode_${product.name}_${product?.upid}</title>
+             <link rel="stylesheet" href="${tailwindCSSStyles}" />
             <style>
+            ${tailwindCSS}
                 body {
                   margin: 0;
                   padding: 0;
@@ -52,11 +63,6 @@ const ProductBarcode = ({ product, setRefetch = () => {} }) => {
                   justify-content: center;
                   font-family: 'Outfit', sans-serif;
                   height: 100vh;
-                }
-                h2{
-                  font-size: 2rem;
-                  padding: 0;
-                  margin: 0;
                 }
                 .no-print, body button {
                   display: none !important;
@@ -80,7 +86,9 @@ const ProductBarcode = ({ product, setRefetch = () => {} }) => {
         const dataUrl = await toPng(labelRef.current);
         const link = document.createElement("a");
         link.href = dataUrl;
-        link.download = `Barcode_${product.name.split(" ").join("_")}_${product.upic || product.upid || "label"}.png`;
+        link.download = `Barcode_${product.name.split(" ").join("_")}_${
+          product.upic || product.upid || "label"
+        }.png`;
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
@@ -122,11 +130,6 @@ const ProductBarcode = ({ product, setRefetch = () => {} }) => {
         {/* Additional Barcode Info */}
         <div
           className="text-sm text-gray-500 mb-2 flex items-center gap-2"
-          style={{
-            display: "flex",
-            gap: "0.5rem",
-            alignItems: "center",
-          }}
         >
           {product?.barcodeInfo ? (
             <p>{product.barcodeInfo}</p>

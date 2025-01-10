@@ -85,7 +85,61 @@ const SalesReport = () => {
     endDate: new Date().toISOString().slice(0, 10),
   });
 
-  const handleDownload = () => {};
+  const handleDownload = () => {
+    const headers = [
+      "_id",
+      "Signed By",
+      "Customer",
+      "Created At",
+      "Source",
+      "Category",
+      "Amount",
+    ];
+  
+    // Map the `sales` data into CSV rows
+    const salesRows = data?.salesList?.map((item) => [
+      item._id,
+      item.signedBy,
+      item.customer,
+      item.createdAt,
+      item.source,
+      item.category,
+      item.amount,
+    ]);
+  
+    // Map the `salesReturns` data into CSV rows
+    const salesReturnsRows = data?.returnsList?.map((item) => [
+      item._id,
+      item.signedBy,
+      item.customer,
+      item.createdAt,
+      item.source,
+      item.category,
+      item.amount,
+    ]);
+  
+    // Combine the headers and rows, adding table separators
+    const csvRows = [
+      ["Sales Data"], // Table title
+      headers,
+      ...(salesRows || []),
+      [], // Empty line for separation
+      ["Sales Returns Data"], // Table title
+      headers,
+      ...(salesReturnsRows || []),
+    ];
+  
+    // Convert rows into a CSV string
+    const csvString = csvRows.map((row) => row.join(",")).join("\n");
+  
+    // Create a Blob from the CSV string and trigger download
+    const blob = new Blob([csvString], { type: "text/csv;charset=utf-8;" });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = `Sales Data - ${dateRange.startDate} to ${dateRange.endDate}.csv`;
+    link.click();
+  };
+  
 
   useEffect(() => {
     setIsLoading(true);
@@ -107,7 +161,7 @@ const SalesReport = () => {
         }
         setData(data.data);
       } catch (error) {
-        setError("An error occurred. Please try again.");
+        setError(error.message || "An error occurred. Please try again.");
       } finally {
         setIsLoading(false);
       }
