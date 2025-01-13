@@ -51,12 +51,7 @@ const getExpenseReport = async (req, res) => {
         signedById: { $arrayElemAt: ["$signedBy._id", 0] },
         description: "$notes",
         amount: {
-          $subtract: [
-            {
               $multiply: ["$products.quantity", "$products.purchaseRate"],
-            },
-            "$deficitAmount",
-          ],
         },
       },
     },
@@ -510,11 +505,29 @@ const getProfitLossReport = async (req, res) => {
         $group: {
           _id: null,
           totalSales: { $sum: "$totalAmount" },
-          totalReturns: { $sum: "$discount" },
-          netSales: { $sum: { $subtract: ["$totalAmount", "$discount"] } },
         },
       },
     ]);
+
+    const returns = await SalesReturn.aggregate([
+      {
+        $match: matchStage,
+      },
+      {
+        $project: {
+          totalAmount: 1,
+        },
+      },
+      {
+        $group: {
+          _id: null,
+          totalReturns: { $sum: "$totalAmount" },
+        },
+      },
+    ]);
+
+    salesAggregation[0].totalReturns = returns[0]?.totalReturns || 0;
+    salesAggregation[0].netSales = salesAggregation[0].totalSales - salesAggregation[0].totalReturns;
 
     // Aggregating Purchase Data
     const purchasesAggregation = await Purchase.aggregate([
@@ -544,6 +557,30 @@ const getProfitLossReport = async (req, res) => {
         $group: {
           _id: null,
           totalOtherExpenses: { $sum: "$amount" },
+        },
+      },
+    ]);
+    
+    // Grouped sales data by category
+    const salesByCategory = await Sale.aggregate([
+      {
+        $match: matchStage,
+      },
+      {
+        $unwind: "$products",
+      },
+      {
+        $lookup: {
+          from: "products",
+          localField: "products.product",
+          foreignField: "_id",
+          as: "productDetails",
+        },
+      },
+      {
+        $group: {
+          _id: "$productDetails.category",
+          totalSales: { $sum: { $multiply: ["$products.sellingRate", "$products.quantity"] } },
         },
       },
     ]);
@@ -580,6 +617,7 @@ const getProfitLossReport = async (req, res) => {
       },
     ]);
 
+    // Aggregating Expense Data
     const expenseChartData = await Expense.aggregate([
       {
         $match: matchStage,
@@ -601,6 +639,43 @@ const getProfitLossReport = async (req, res) => {
         $sort: { "_id.year": 1, "_id.month": 1 },
       },
     ]);
+
+    // Grouped expenses data by category
+    const expensesByCategory = await Expense.aggregate([
+      {
+        $match: matchStage,
+      },
+      {
+        $group: {
+          _id: "$category",
+          totalExpense: { $sum: "$amount" },
+        },
+      },
+    ]);
+    const purchasesByCategory = await Purchase.aggregate([
+      {
+        $match: matchStage,
+      },
+      {
+        $unwind: "$products",
+      },
+      {
+        $lookup: {
+          from: "products",
+          localField: "products.product",
+          foreignField: "_id",
+          as: "productDetails",
+        },
+      },
+      {
+        $group: {
+          _id: "$productDetails.category",
+          totalPurchases: { $sum: { $multiply: ["$products.quantity", "$products.purchaseRate"] } },
+        },
+      },
+    ]);
+
+    const allExpensesByCategory = [...expensesByCategory, ...purchasesByCategory];
 
     // Formatting the response data
     const reportData = {
@@ -626,6 +701,14 @@ const getProfitLossReport = async (req, res) => {
         expenseChartData: expenseChartData.map((item) => ({
           month: `${item._id.month}-${item._id.year}`,
           expense: item.totalExpense,
+        })),
+        salesByCategory: salesByCategory.map((item) => ({
+          category: item._id[0] || item._id,
+          total: item.totalSales,
+        })),
+        expensesByCategory: allExpensesByCategory.map((item) => ({
+          category: item.totalExpense ? item._id : item._id[0],
+          total: item.totalExpense || item.totalPurchases,
         })),
       },
     };

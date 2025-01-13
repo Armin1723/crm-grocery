@@ -113,7 +113,11 @@ const SalesChart = () => {
               bottom: 10,
             }}
           >
-            <XAxis dataKey="name" />
+            <XAxis dataKey="name" tickFormatter={(value)=>{
+              if(groupBy === "daily") return value;      
+              if(groupBy === "weekly") return `Wk ${value}`;
+              return value;
+            }}/>
             <YAxis />
             <Tooltip
               contentStyle={{

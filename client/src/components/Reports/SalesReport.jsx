@@ -140,7 +140,7 @@ const SalesReport = () => {
       item.amount,
     ]);
 
-    // Map the `salesReturns` data into CSV rows
+    // Map the `salesReturn` data into CSV rows
     const salesReturnsRows = data?.returnsList?.map((item) => [
       item._id,
       item.signedBy,

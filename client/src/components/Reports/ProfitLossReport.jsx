@@ -13,6 +13,8 @@ import {
 } from "recharts";
 import ReportHeader from "./ReportHeader";
 import Divider from "../utils/Divider";
+import PLData from "./PLData";
+import CountUp from "react-countup";
 
 const ProfitLossReport = () => {
   const printRef = useRef(null);
@@ -60,7 +62,7 @@ const ProfitLossReport = () => {
       className="w-full p-6 min-h-fit max-sm:p-3 bg-[var(--color-sidebar)] rounded-lg "
       ref={printRef}
     >
-      <div className="max-w-7xl mx-auto space-y-3 rounded-lg p-4 border border-neutral-500/50">
+      <div className="max-w-7xl mx-auto space-y-3 rounded-lg p-2 m-2 border border-neutral-500/50">
         <ReportHeader
           title="P/L"
           dateRange={dateRange}
@@ -74,78 +76,7 @@ const ProfitLossReport = () => {
           </div>
         ) : (
           <>
-            {/* Sales Section */}
-            <div className="bg-[var(--color-card)] rounded-lg p-6 shadow-sm">
-              <h2 className="text-xl font-bold text-[var(--color-text)] my-3">
-                Sales Overview
-              </h2>
-
-              {/* Sales Data */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 my-4">
-                <div className="bg-[var(--color-primary)] p-4 rounded-lg">
-                  <h3 className="text-sm text-[var(--color-text-light)]">
-                    Total Sales
-                  </h3>
-                  <p className="text-2xl font-bold text-green-500">
-                    ₹{reportData?.sales?.sales}
-                  </p>
-                </div>
-
-                <div className="bg-[var(--color-primary)] p-4 rounded-lg">
-                  <h3 className="text-sm text-[var(--color-text-light)]">
-                    Returns
-                  </h3>
-                  <p className="text-2xl font-bold text-red-500">
-                    ₹{reportData?.sales?.returns}
-                  </p>
-                </div>
-
-                <div className="bg-[var(--color-primary)] p-4 rounded-lg">
-                  <h3 className="text-sm text-[var(--color-text-light)]">
-                    Net Sales
-                  </h3>
-                  <p className="text-2xl font-bold text-blue-600">
-                    ₹{reportData?.sales?.netSales}
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            {/* Expense Section */}
-            <div className="bg-[var(--color-card)] rounded-lg p-6 shadow-sm">
-              <h2 className="text-xl font-bold text-[var(--color-text)] my-3">
-                Expense Overview
-              </h2>
-
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 my-4">
-                <div className="bg-[var(--color-primary)] p-4 rounded-lg">
-                  <h3 className="text-sm text-[var(--color-text-light)]">
-                    Purchases
-                  </h3>
-                  <p className="text-2xl font-bold text-red-500">
-                    ₹{reportData?.expenses?.purchases}
-                  </p>
-                </div>
-
-                <div className="bg-[var(--color-primary)] p-4 rounded-lg">
-                  <h3 className="text-sm text-[var(--color-text-light)]">
-                    Other Expenses
-                  </h3>
-                  <p className="text-2xl font-bold text-red-500">
-                    ₹{reportData?.expenses?.otherExpenses}
-                  </p>
-                </div>
-
-                <div className="bg-[var(--color-primary)] p-4 rounded-lg">
-                  <h3 className="text-sm text-[var(--color-text-light)]">
-                    Total Expenses
-                  </h3>
-                  <p className="text-2xl font-bold text-red-500">
-                    ₹{reportData?.expenses?.total}
-                  </p>
-                </div>
-              </div>
-            </div>
+            <PLData reportData={reportData} />
 
             {/* Profit / Loss Section */}
             <div className="bg-[var(--color-card)] rounded-lg p-6 shadow-sm">
@@ -158,18 +89,28 @@ const ProfitLossReport = () => {
                   <h3 className="text-sm text-[var(--color-text-light)]">
                     Gross Profit/Loss
                   </h3>
-                  <p className="text-2xl font-bold text-red-600">
-                    ₹{reportData?.grossProfit}
-                  </p>
+                  <CountUp
+                   className={`text-2xl font-bold ${reportData?.grossProfit < 0 ? "text-red-600" : "text-green-600"}`}
+                    end={reportData?.grossProfit}
+                    duration={2}
+                    separator=","
+                    decimal={2}
+                    prefix="₹"
+                  />
                 </div>
 
                 <div className="bg-[var(--color-primary)] p-4 rounded-lg">
                   <h3 className="text-sm text-[var(--color-text-light)]">
                     Net Profit/Loss
                   </h3>
-                  <p className="text-2xl font-bold text-red-600">
-                    ₹{reportData?.netProfit}
-                  </p>
+                  <CountUp
+                   className={`text-2xl font-bold ${reportData?.netProfit < 0 ? "text-red-600" : "text-green-600"}`}
+                    end={reportData?.netProfit}
+                    duration={2}
+                    separator=","
+                    decimal={2}
+                    prefix="₹"
+                  />
                 </div>
               </div>
             </div>
@@ -224,7 +165,7 @@ const ProfitLossReport = () => {
                           }}
                         />
                         <Legend />
-                        <Bar dataKey="expense" barSize={40} fill="#8884d8" />
+                        <Bar dataKey="expense" barSize={40} fill="#5d3fd388" />
                       </BarChart>
                     </ResponsiveContainer>
                   </div>

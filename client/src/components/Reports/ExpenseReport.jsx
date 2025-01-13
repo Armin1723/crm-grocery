@@ -65,6 +65,7 @@ const COLORS = [
 const ExpenseReport = () => {
   const [data, setData] = useState({
     totalExpenses: 0,
+    totalOtherExpenses: 0,
     expensesByCategory: [],
     expensesBySupplier: [],
     expenseList: [],
