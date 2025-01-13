@@ -74,8 +74,8 @@ const ProductCardSmall = ({
 
           {/* Stock Alert */}
           {product.stockAlert?.preference && (
-            <p className="text-[var(--color-accent)] text-sm mt-2">
-              <strong>Stock Alert:</strong> Enabled
+            <p className="text-[var(--color-text-light)] text-sm mt-2">
+              <strong>Stock Alert:</strong> {product.stockAlert.quantity}{" "}{product?.secondaryUnit}
             </p>
           )}
         </div>

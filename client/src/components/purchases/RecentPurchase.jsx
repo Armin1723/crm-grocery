@@ -68,7 +68,7 @@ const RecentPurchase = () => {
           <h3 className="text-base font-semibold underline">Products in This Purchase</h3>
 
           {recentPurchase?.products.length > 0 ? (
-            <ResponsiveContainer width="100%" height={250}>
+            <ResponsiveContainer width="100%" height={Math.max(250, recentPurchase?.products?.length * 50 || 250)}>
               <BarChart
                 data={recentPurchase?.products}
                 layout="vertical"

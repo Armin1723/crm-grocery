@@ -1,5 +1,5 @@
 const Purchase = require("../models/purchase.model");
-const Expenses = require("../models/expense.model");
+const Expense = require("../models/expense.model");
 const Sale = require("../models/sale.model");
 const SalesReturn = require("../models/salesReturn.model");
 
@@ -74,7 +74,7 @@ const getExpenseReport = async (req, res) => {
     },
   ]);
 
-  const otherExpensesQuery = Expenses.aggregate([
+  const otherExpensesQuery = Expense.aggregate([
     { $match: matchStage },
     {
       $lookup: {
@@ -264,20 +264,26 @@ const getSalesReport = async (req, res) => {
       },
     },
     {
-      $addFields: {
+      $group: {
+        _id: "$_id", // Group by the sale document ID
+        createdAt: { $first: "$createdAt" },
+        signedBy: { $first: { $arrayElemAt: ["$signedBy.name", 0] } },
+        signedById: { $first: { $arrayElemAt: ["$signedBy._id", 0] } },
         customer: {
-          $ifNull: [
-            { $arrayElemAt: ["$customerDetails.name", 0] },
-            { $arrayElemAt: ["$customerDetails.phone", 0] },
-          ],
+          $first: {
+            $ifNull: [
+              { $arrayElemAt: ["$customerDetails.name", 0] },
+              { $arrayElemAt: ["$customerDetails.phone", 0] },
+            ],
+          },
         },
-        customerId: { $arrayElemAt: ["$customerDetails._id", 0] },
-        signedBy: { $arrayElemAt: ["$signedBy.name", 0] },
-        signedById: { $arrayElemAt: ["$signedBy._id", 0] },
-        description: "$notes",
-        amount: "$totalAmount",
+        customerId: { $first: { $arrayElemAt: ["$customerDetails._id", 0] } },
+        description: { $first: "$notes" },
+        amount: { $first: "$totalAmount" },
+        paymentMode: { $first: "$paymentMode" },
       },
     },
+    { $sort: { createdAt: -1 } },
     {
       $project: {
         createdAt: 1,
@@ -288,6 +294,7 @@ const getSalesReport = async (req, res) => {
         description: 1,
         signedBy: 1,
         signedById: 1,
+        paymentMode: 1,
       },
     },
   ]);
@@ -333,6 +340,7 @@ const getSalesReport = async (req, res) => {
         amount: "$totalAmount",
       },
     },
+    { $sort: { createdAt: -1 } },
     {
       $project: {
         createdAt: 1,
@@ -369,8 +377,16 @@ const getSalesReport = async (req, res) => {
     {
       $addFields: {
         productCategory: { $arrayElemAt: ["$productDetails.category", 0] },
-        customerPhone: { $arrayElemAt: ["$customerDetails.phone", 0] },
-        saleAmount: "$totalAmount",
+        customerPhone: {
+          $ifNull: [
+            { $arrayElemAt: ["$customerDetails.name", 0] },
+            { $arrayElemAt: ["$customerDetails.phone", 0] },
+            "Others",
+          ],
+        },
+        saleAmount: {
+          $multiply: ["$products.sellingRate", "$products.quantity"],
+        },
       },
     },
     {
@@ -403,7 +419,6 @@ const getSalesReport = async (req, res) => {
     },
     {
       $project: {
-        totalSales: { $arrayElemAt: ["$totalSales.total", 0] },
         salesByCategory: {
           $map: {
             input: "$salesByCategory",
@@ -435,19 +450,191 @@ const getSalesReport = async (req, res) => {
     reportQuery,
   ]);
 
+  const totalSales = sales.reduce((acc, curr) => acc + (curr.amount || 0), 0);
+  const totalSalesReturns = salesReturns.reduce(
+    (acc, curr) => acc + curr.amount,
+    0
+  );
+  const netSales = totalSales - totalSalesReturns;
+
+  // Calculate cashInHand and cashAtBank
+  const cashInHand =
+    sales
+      .filter((sale) => sale.paymentMode === "cash")
+      .reduce((acc, curr) => acc + curr.amount, 0) - totalSalesReturns;
+
+  const cashAtBank = netSales - cashInHand;
+
   res.status(200).json({
     success: true,
     data: {
+      totalSales,
+      cashInHand,
+      cashAtBank,
+      totalSalesReturns,
+      netSales,
       ...report[0],
       salesList: [...sales.map((sale) => ({ ...sale, source: "sales" }))],
-      totalSales: sales.reduce((acc, curr) => acc + curr.amount, 0),
       returnsList: salesReturns,
-      totalSalesReturns: salesReturns.reduce(
-        (acc, curr) => acc + curr.amount,
-        0
-      ),
     },
   });
 };
 
-module.exports = { getExpenseReport, getSalesReport };
+// Controller to fetch the Profit/Loss report
+const getProfitLossReport = async (req, res) => {
+  const { startDate, endDate } = req.query;
+
+  // Match within the date range
+  const matchStage = {
+    createdAt: {
+      $gte: new Date(new Date(startDate).setHours(0, 0, 0, 0)),
+      $lte: new Date(new Date(endDate).setHours(23, 59, 59, 999)),
+    },
+  };
+
+  try {
+    // Aggregating Sales Data
+    const salesAggregation = await Sale.aggregate([
+      {
+        $match: matchStage ,
+      },
+      {
+        $project: {
+          totalAmount: 1,
+          discount: 1,
+          otherCharges: 1,
+          products: 1,
+        },
+      },
+      {
+        $group: {
+          _id: null,
+          totalSales: { $sum: "$totalAmount" },
+          totalReturns: { $sum: "$discount" },
+          netSales: { $sum: { $subtract: ["$totalAmount", "$discount"] } },
+        },
+      },
+    ]);
+
+    // Aggregating Purchase Data
+    const purchasesAggregation = await Purchase.aggregate([
+      {
+        $match: matchStage,
+      },
+      {
+        $project: {
+          totalAmount: 1,
+          products: 1,
+        },
+      },
+      {
+        $group: {
+          _id: null,
+          totalPurchases: { $sum: "$totalAmount" },
+        },
+      },
+    ]);
+
+    // Aggregating Expense Data
+    const expenseAggregation = await Expense.aggregate([
+      {
+        $match: matchStage,
+      },
+      {
+        $group: {
+          _id: null,
+          totalOtherExpenses: { $sum: "$amount" },
+        },
+      },
+    ]);
+
+    // Calculating Gross Profit (Sales - Purchases)
+    const grossProfit =
+      salesAggregation[0]?.netSales - purchasesAggregation[0]?.totalPurchases ||
+      0;
+
+    // Calculating Net Profit (Gross Profit - Expenses)
+    const netProfit =
+      grossProfit - (expenseAggregation[0]?.totalOtherExpenses || 0);
+
+    // Preparing Chart Data for Recharts (Sales and Expenses over time)
+    const salesChartData = await Sale.aggregate([
+      {
+        $match: matchStage,
+      },
+      {
+        $project: {
+          month: { $month: "$createdAt" },
+          year: { $year: "$createdAt" },
+          totalAmount: 1,
+        },
+      },
+      {
+        $group: {
+          _id: { month: "$month", year: "$year" },
+          sales: { $sum: "$totalAmount" },
+        },
+      },
+      {
+        $sort: { "_id.year": 1, "_id.month": 1 },
+      },
+    ]);
+
+    const expenseChartData = await Expense.aggregate([
+      {
+        $match: matchStage,
+      },
+      {
+        $project: {
+          month: { $month: "$createdAt" },
+          year: { $year: "$createdAt" },
+          amount: 1,
+        },
+      },
+      {
+        $group: {
+          _id: { month: "$month", year: "$year" },
+          totalExpense: { $sum: "$amount" },
+        },
+      },
+      {
+        $sort: { "_id.year": 1, "_id.month": 1 },
+      },
+    ]);
+
+    // Formatting the response data
+    const reportData = {
+      expenses: {
+        purchases: purchasesAggregation[0]?.totalPurchases || 0,
+        otherExpenses: expenseAggregation[0]?.totalOtherExpenses || 0,
+        total:
+          (purchasesAggregation[0]?.totalPurchases || 0) +
+          (expenseAggregation[0]?.totalOtherExpenses || 0),
+      },
+      sales: {
+        sales: salesAggregation[0]?.totalSales || 0,
+        returns: salesAggregation[0]?.totalReturns || 0,
+        netSales: salesAggregation[0]?.netSales || 0,
+      },
+      grossProfit: grossProfit,
+      netProfit: netProfit,
+      charts: {
+        salesChartData: salesChartData.map((item) => ({
+          month: `${item._id.month}-${item._id.year}`,
+          sales: item.sales,
+        })),
+        expenseChartData: expenseChartData.map((item) => ({
+          month: `${item._id.month}-${item._id.year}`,
+          expense: item.totalExpense,
+        })),
+      },
+    };
+
+    return res.status(200).json(reportData);
+  } catch (error) {
+    console.error("Error generating ProfitLossReport:", error);
+    return res.status(500).json({ message: "Server Error" });
+  }
+};
+
+module.exports = { getExpenseReport, getSalesReport, getProfitLossReport };

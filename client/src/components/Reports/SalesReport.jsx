@@ -13,6 +13,7 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
+import { FaChevronCircleDown } from "react-icons/fa";
 
 const COLORS = [
   "#4299E1", // Blue
@@ -23,42 +24,74 @@ const COLORS = [
   "#38B2AC", // Teal
 ];
 
-const SalesSummary = ({ totalSales, totalReturns }) => {
-  const netSales = (totalSales || 0) - (totalReturns || 0);
-
+const SalesSummary = ({
+  totalSales,
+  totalReturns,
+  cashInHand,
+  cashAtBank,
+  netSales,
+}) => {
   return (
     <div className="bg-[var(--color-card)] shadow-md rounded-lg p-6">
       <h2 className="text-xl font-semibold text-[var(--color-text)] mb-6">
         Sales Summary
       </h2>
 
-      <div className="grid gap-6 md:grid-cols-3">
-        {[totalSales, totalReturns, netSales].map((item, index) => {
+      <div className="grid gap-6 md:grid-cols-3 ">
+        {[
+          {
+            name: "Total Sales",
+            value: totalSales,
+          },
+          {
+            name: "Total Returns",
+            value: totalReturns,
+          },
+          {
+            name: "Net Sales",
+            value: netSales,
+          },
+        ].map((item, index) => {
+          const [expanded, setExpanded] = useState(null);
           return (
             <div
               key={index}
-              className="text-center text-[var(--color-text-light)] bg-[var(--color-primary)] rounded-md p-2"
+              className="text-center text-[var(--color-text-light)] bg-[var(--color-primary)] rounded-md p-2 flex flex-col items-center justify-center"
             >
-              <p className="text-sm font-medium  mb-2">
-                {index === 0
-                  ? "Total Sales"
-                  : index === 1
-                  ? "Returns"
-                  : "Net Sales"}
-              </p>
+              <div className="text-sm font-medium mb-2 flex items-center justify-center gap-2 w-full">
+                <p>{item.name}</p>
+                {item?.name === "Net Sales" && (
+                  <FaChevronCircleDown
+                    className="cursor-pointer"
+                    onClick={() =>
+                      setExpanded((p) => (p === index ? null : index))
+                    }
+                  />
+                )}
+              </div>
               <div
                 className={`text-2xl font-semibold ${
-                  index === 2 && (item > 0 ? "text-green-500" : "text-red-500")
+                  index == 2 ? item.value > 0 ? "text-green-500" : "text-red-500" : ""
                 }`}
               >
                 ₹
                 <CountUp
-                  end={item || 0}
+                  end={item.value || 0}
                   decimals={2}
                   duration={1}
                   separator=","
                 />
               </div>
+              {index === 2 && (
+                <div
+                  className={` ${
+                    expanded === index ? "max-h-screen" : "max-h-0"
+                  } overflow-hidden transition-all duration-300 text-sm font-medium mt-2 flex flex-col`}
+                >
+                  <p>Cash In Hand: ₹{cashInHand?.toFixed(2)}</p>
+                  <p>Cash In Bank:₹{cashAtBank?.toFixed(2)}</p>
+                </div>
+              )}
             </div>
           );
         })}
@@ -95,7 +128,7 @@ const SalesReport = () => {
       "Category",
       "Amount",
     ];
-  
+
     // Map the `sales` data into CSV rows
     const salesRows = data?.salesList?.map((item) => [
       item._id,
@@ -106,7 +139,7 @@ const SalesReport = () => {
       item.category,
       item.amount,
     ]);
-  
+
     // Map the `salesReturns` data into CSV rows
     const salesReturnsRows = data?.returnsList?.map((item) => [
       item._id,
@@ -117,7 +150,7 @@ const SalesReport = () => {
       item.category,
       item.amount,
     ]);
-  
+
     // Combine the headers and rows, adding table separators
     const csvRows = [
       ["Sales Data"], // Table title
@@ -128,10 +161,10 @@ const SalesReport = () => {
       headers,
       ...(salesReturnsRows || []),
     ];
-  
+
     // Convert rows into a CSV string
     const csvString = csvRows.map((row) => row.join(",")).join("\n");
-  
+
     // Create a Blob from the CSV string and trigger download
     const blob = new Blob([csvString], { type: "text/csv;charset=utf-8;" });
     const link = document.createElement("a");
@@ -139,7 +172,6 @@ const SalesReport = () => {
     link.download = `Sales Data - ${dateRange.startDate} to ${dateRange.endDate}.csv`;
     link.click();
   };
-  
 
   useEffect(() => {
     setIsLoading(true);
@@ -195,6 +227,9 @@ const SalesReport = () => {
             <SalesSummary
               totalSales={data?.totalSales}
               totalReturns={data?.totalSalesReturns}
+              cashInHand={data?.cashInHand}
+              cashAtBank={data?.cashAtBank}
+              netSales={data?.netSales}
             />
 
             <SalesTable data={data?.salesList} title="sales" />
@@ -206,7 +241,11 @@ const SalesReport = () => {
                   <h2 className="text-xl font-bold pb-4 mb-3 border-b border-neutral-500/50">
                     Sales by Category
                   </h2>
-                  <ResponsiveContainer width="100%" height={300} style={{ overflow: "visible"}}>
+                  <ResponsiveContainer
+                    width="100%"
+                    height={300}
+                    style={{ overflow: "visible" }}
+                  >
                     <PieChart>
                       <Pie
                         data={data.salesByCategory}
@@ -274,14 +313,21 @@ const SalesReport = () => {
                 </div>
               )}
 
-              {data.salesByCustomer?.length > 0 && (
+              {data?.salesByCustomer?.length > 0 && (
                 <div className="bg-[var(--color-card)] rounded-lg shadow p-6 flex-1 flex flex-col justify-between">
                   <h2 className="text-xl font-bold pb-4 mb-3 border-b border-neutral-500/50">
                     Top Customers
                   </h2>
                   <ResponsiveContainer width="100%" height={300}>
-                    <BarChart data={data.salesByCustomer.slice(0, 5)}>
-                      <XAxis dataKey="customer" />
+                    <BarChart data={data?.salesByCustomer?.slice(0, 5)}>
+                      <XAxis
+                        dataKey="customer"
+                        tickFormatter={(value) => {
+                          if (value.length > 6)
+                            return value.substring(0, 5) + "...";
+                          return value;
+                        }}
+                      />
                       <YAxis />
                       <Tooltip
                         contentStyle={{

@@ -52,7 +52,7 @@ const PurchaseCardSmall = ({ purchase }) => {
             >
               {supplier?.name}
             </Link>
-            <p className="text-[var(--color-text-light)] truncate text-ellipsis">{supplier?.email}</p>
+            <p className="text-[var(--color-text-light)] truncate text-ellipsis">{supplier?.email || "No Email"}</p>
           </div>
         </div>
       </div>

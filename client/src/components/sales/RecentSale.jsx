@@ -40,34 +40,40 @@ const RecentSale = () => {
   return (
     <div className="bg-[var(--color-sidebar)] flex flex-col sm:hidden lg:flex p-4 rounded-md border border-neutral-500/50 w-[30%] max-sm:w-full min-h-[50vh] overflow-y-auto">
       <div className="title flex gap-2 items-center mb-2">
-        <p className="text-xl max-lg:text-lg font-bold ">
-          Recent Sale
-        </p>
+        <p className="text-xl max-lg:text-lg font-bold ">Recent Sale</p>
         <div
           className="w-4 rounded-full aspect-square border-t-2 border-b-2 border-accent cursor-pointer"
           onClick={() => setRefetch((p) => !p)}
         />
       </div>
 
-      <div className="bg-[var(--color-card)] flex-1 overflow-y-scroll p-2 rounded-md">
+      <div className="bg-[var(--color-card)] flex-1 overflow-y-auto p-2 rounded-md">
         {/* Display sale details */}
         <div className="mb-3">
           <h3 className="font-semibold">Sale Details</h3>
           <p>
-            Customer: 
-            <span className="">{" "}
-              {recentSale?.customer?.name || recentSale?.customer?.phone || "N/A"}
+            Customer:
+            <span className="">
+              {" "}
+              {recentSale?.customer?.name ||
+                recentSale?.customer?.phone ||
+                "N/A"}
             </span>
           </p>
           <p>Email: {recentSale?.customer?.email || "N/A"}</p>
           <p className="text-xs italic">{formatDate(recentSale?.date)}</p>
         </div>
 
-        <div className="bg-[var(--color-card)]">
-          <h3 className="text-base font-semibold underline">Products in This sale</h3>
+        <div className="bg-[var(--color-card)] flex-1 ">
+          <h3 className="text-base font-semibold underline">
+            Products in This sale
+          </h3>
 
           {recentSale?.products.length > 0 ? (
-            <ResponsiveContainer width="100%" height={250}>
+            <ResponsiveContainer
+              width="100%"
+              height={Math.max(250, recentSale?.products?.length * 60 || 250)}
+            >
               <BarChart
                 data={recentSale?.products}
                 layout="vertical"
@@ -93,7 +99,9 @@ const RecentSale = () => {
                   }}
                   itemStyle={{ fontSize: "14px", lineHeight: "1" }}
                   formatter={(value, name, props) => [
-                    `${value} ${props.payload.secondaryUnit || "units"} (${props.payload.rate}₹)`,
+                    `${value} ${props.payload.secondaryUnit || "units"} (${
+                      props.payload.rate
+                    }₹)`,
                     <div
                       style={{
                         fontWeight: "bold",
@@ -116,17 +124,16 @@ const RecentSale = () => {
                     formatter: (value, name, props) =>
                       `${value} ${props?.payload?.secondaryUnit || "units"}`,
                   }}
-                >
-                </Bar>
+                ></Bar>
               </BarChart>
             </ResponsiveContainer>
           ) : (
-            <p className="text-neutral-500 flex-1">
-              No products in this sale.
-            </p>
+            <p className="text-neutral-500 flex-1">No products in this sale.</p>
           )}
 
-          <p className="font-semibold">Total Amount: {recentSale?.totalAmount} ₹</p>
+          <p className="font-semibold">
+            Total Amount: {recentSale?.totalAmount} ₹
+          </p>
           <p>Signed By: {recentSale?.signedBy?.name}</p>
         </div>
       </div>

@@ -33,6 +33,7 @@ import Reports from "./components/home/Reports";
 import ExpenseReport from "./components/Reports/ExpenseReport";
 import AddExpense from "./components/purchases/AddExpense";
 import SalesReport from "./components/Reports/SalesReport";
+import ProfitLossReport from "./components/Reports/ProfitLossReport";
 
 const App = () => {
   const theme = useSelector((state) => state.theme.value);
@@ -113,6 +114,7 @@ const App = () => {
               <Route path="" element={<ExpenseReport />} />
               <Route path="expense" element={<ExpenseReport />} />
               <Route path="sales" element={<SalesReport />} />
+              <Route path="profit-loss" element={<ProfitLossReport />} />
             </Route>
           </Route>
 

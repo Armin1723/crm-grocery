@@ -27,7 +27,7 @@ const Sidebar = () => {
 
   return (
     <div
-      className={`nav max-sm:hidden sticky top-0 z-[90] ${
+      className={`nav max-sm:hidden sticky top-0 z-[90] select-none ${
         expanded
           ? "min-w-[17%] max-w-[20%]"
           : "min-w-[5%] max-lg:min-w-[8%] max-w-[5%]"
@@ -64,6 +64,7 @@ const Sidebar = () => {
               <div key={index} className="link">
                 <Link
                   to={link.to}
+                  title={link.title}
                   className={`link flex items-center gap-4 py-2 group hover:bg-accent/5 transition-all relative duration-300 ease-in group ${
                     !expanded && "justify-start gap-2 "
                   } ${

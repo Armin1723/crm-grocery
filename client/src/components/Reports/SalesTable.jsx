@@ -20,10 +20,10 @@ const SalesTable = ({ data = {}, title = "" }) => {
                 <th className="px-6 py-3 text-left text-xs font-medium  uppercase tracking-wider">
                   Customer
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium  uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium  uppercase tracking-wider min-w-[150px]">
                   Signed By
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium  uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium  uppercase tracking-wider min-w-[150px]">
                   Amount
                 </th>
               </tr>
@@ -51,10 +51,10 @@ const SalesTable = ({ data = {}, title = "" }) => {
                   <td className="px-6 py-2 whitespace-nowrap text-sm ">
                     {data?.customer || "Walk-in"}
                   </td>
-                  <td className="px-6 py-2 whitespace-nowrap text-sm ">
+                  <td className="px-6 py-2 whitespace-nowrap text-sm min-w-[150px]">
                     {data?.signedBy}
                   </td>
-                  <td className="px-6 py-2 whitespace-nowrap text-sm ">
+                  <td className="px-6 py-2 whitespace-nowrap text-sm min-w-[150px]">
                     ₹{data?.amount.toFixed(2)}
                   </td>
                 </tr>

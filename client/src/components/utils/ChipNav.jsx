@@ -9,7 +9,7 @@ const ChipNav = ({ chips, baseUrl = "/" }) => {
   const canGoBack = window.history.length > 1;
 
   return (
-    <div className="flex gap-2 justify-start items-start p-3 bg-[var(--color-primary)] h-fit w-full ">
+    <div className="flex gap-2 justify-start items-start p-3 bg-[var(--color-primary)] h-fit w-full select-none">
       <div className="wrapper flex gap-2 justify-start items-start w-full overflow-x-auto">
         {/* Leading chip for going back */}
         {canGoBack && (
