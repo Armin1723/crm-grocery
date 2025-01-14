@@ -3,6 +3,7 @@ import { FaSearch } from "react-icons/fa";
 import { toast } from "react-toastify";
 
 const defaultExpiry = (shelfLife) => {
+  if(!shelfLife) return "";
     const date = new Date();
     date.setDate(date.getDate() + shelfLife);
     return date.toISOString().split("T")[0];

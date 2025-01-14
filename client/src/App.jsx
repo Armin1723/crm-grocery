@@ -34,6 +34,8 @@ import ExpenseReport from "./components/Reports/ExpenseReport";
 import AddExpense from "./components/purchases/AddExpense";
 import SalesReport from "./components/Reports/SalesReport";
 import ProfitLossReport from "./components/Reports/ProfitLossReport";
+import ViewPurchaseReturns from "./components/purchases/ViewPurchaseReturns";
+import AddPurchaseReturn from "./components/purchases/AddPurchaseReturn";
 
 const App = () => {
   const theme = useSelector((state) => state.theme.value);
@@ -89,6 +91,8 @@ const App = () => {
               <Route path="add" element={<AddPurchase />} />
               <Route path=":id" element={<PurchaseDetails />} />
               <Route path="expense" element={<AddExpense />} />
+              <Route path="returns" element={<ViewPurchaseReturns />} />
+              <Route path="returns/add" element={<AddPurchaseReturn />} />
             </Route>
 
             {/* Sales Routes */}
@@ -97,7 +101,7 @@ const App = () => {
               <Route path="add" element={<AddSale />} />
               <Route path=":id" element={<SaleDetails />} />
               <Route path="returns" element={<ViewSaleReturns />} />
-              <Route path="add-return" element={<SaleReturn />} />
+              <Route path="returns/add" element={<SaleReturn />} />
             </Route>
 
             <Route path="inventory" element={<Inventory />} />

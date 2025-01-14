@@ -80,7 +80,6 @@ const SalesChart = () => {
   }, [groupBy]);
   return (
     <div className="flex-1 flex flex-col rounded-md border border-neutral-500/50 bg-[var(--color-sidebar)]">
-
       <div className="header px-3 py-4 flex items-center justify-between gap-4 flex-wrap">
         <div className="title flex items-center gap-2 flex-wrap">
           <p className="font-bold text-xl max-lg:text-lg ">Sales/Purchases</p>
@@ -113,11 +112,25 @@ const SalesChart = () => {
               bottom: 10,
             }}
           >
-            <XAxis dataKey="name" tickFormatter={(value)=>{
-              if(groupBy === "daily") return value;      
-              if(groupBy === "weekly") return `Wk ${value}`;
-              return value;
-            }}/>
+            <defs>
+              <linearGradient id="colorUv" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="5%" stopColor="#8884d8" stopOpacity={0.8} />
+                <stop offset="95%" stopColor="#8884d8" stopOpacity={0} />
+              </linearGradient>
+              <linearGradient id="colorPv" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="5%" stopColor="#82ca9d" stopOpacity={0.8} />
+                <stop offset="95%" stopColor="#82ca9d" stopOpacity={0} />
+              </linearGradient>
+            </defs>
+            <XAxis
+              dataKey="name"
+              tickFormatter={(value) => {
+                if (groupBy === "daily") return value;
+                if (groupBy === "weekly") return `Wk ${value}`;
+                return value;
+              }}
+              interval={5}
+            />
             <YAxis />
             <Tooltip
               contentStyle={{
@@ -128,21 +141,26 @@ const SalesChart = () => {
                 boxShadow: "0 0 10px 0 rgba(0, 0, 0, 0.1)",
               }}
               itemStyle={{ fontWeight: "bold", textTransform: "capitalize" }}
-              labelStyle={{ color: "var(--color-text-light)", fontSize: "0.7rem" }}
+              labelStyle={{
+                color: "var(--color-text-light)",
+                fontSize: "0.7rem",
+              }}
             />
             <Area
               type="monotone"
               dataKey="sales"
               stackId="1"
               stroke="#5d3fd3"
-              fill="#8884d8"
+              fillOpacity={1}
+              fill="url(#colorUv)"
             />
             <Area
               type="monotone"
               dataKey="purchases"
               stackId="1"
               stroke="seaGreen"
-              fill="#82ca9d"
+              fillOpacity={1}
+              fill="url(#colorPv)"
             />
           </AreaChart>
         </ResponsiveContainer>

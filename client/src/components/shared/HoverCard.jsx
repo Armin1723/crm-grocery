@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { Link } from "react-router-dom";
 
-const HoverCard = ({ title, children, to= "" }) => {
+const HoverCard = ({ title, children, to= "", otherClasses = '' }) => {
   const [isHovered, setIsHovered] = useState(false);
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const titleRef = useRef(null);
@@ -45,7 +45,7 @@ const HoverCard = ({ title, children, to= "" }) => {
   }
 
   return (
-    <div className="relative inline-block">
+    <div className={`relative inline-block ${otherClasses}`}>
       <div
         ref={titleRef}
         onMouseEnter={() => setIsHovered(true)}

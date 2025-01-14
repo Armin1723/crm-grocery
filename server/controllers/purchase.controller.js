@@ -3,6 +3,7 @@ require("dotenv").config();
 const Purchase = require("../models/purchase.model");
 const Inventory = require("../models/inventory.model");
 const Supplier = require("../models/supplier.model");
+const PurchaseReturn = require("../models/purchaseReturn.model");
 
 const { sendMail, generatePurchaseInvoice } = require("../helpers");
 const followUpPaymentMailTemplate = require("../templates/email/followUpPaymentMailTemplate");
@@ -165,6 +166,28 @@ const getPurchase = async (req, res) => {
   res.json({ success: true, purchase: purchaseData[0] });
 };
 
+const getPurchaseReturns = async (req, res) => {
+  const {
+    limit = 10,
+    page = 1,
+    sort = "createdAt",
+    sortType = "desc",
+  } = req.query;
+  const purchaseReturns = await PurchaseReturn.find({})
+    .limit(limit)
+    .skip((page - 1) * limit)
+    .sort({ [sort]: sortType });
+
+  const totalPurchaseReturns = await PurchaseReturn.countDocuments({});
+  res.json({
+    success: true,
+    purchaseReturns,
+    totalPages: Math.ceil(totalPurchaseReturns / limit),
+    page,
+    totalPurchaseReturns,
+  });
+};
+
 const addPurchase = async (req, res) => {
   const {
     supplierId,
@@ -222,7 +245,10 @@ const addPurchase = async (req, res) => {
       const existingBatch = inventory.batches.find(
         (batch) =>
           batch.sellingRate === product.sellingRate &&
-          (!product.expiry || !batch.expiry || new Date(batch.expiry).getTime() == new Date(product.expiry).getTime())
+          (!product.expiry ||
+            !batch.expiry ||
+            new Date(batch.expiry).getTime() ==
+              new Date(product.expiry).getTime())
       );
 
       if (existingBatch) {
@@ -339,6 +365,7 @@ module.exports = {
   getEmployeePurchases,
   getRecentPurchase,
   getPurchase,
+  getPurchaseReturns,
   addPurchase,
   addPayment,
 };

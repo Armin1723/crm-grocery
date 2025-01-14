@@ -3,6 +3,7 @@ import { FaPlus, FaShoppingCart, FaWallet } from "react-icons/fa";
 import { Outlet } from "react-router-dom";
 import RecentPurchase from '../purchases/RecentPurchase';
 import ChipNav from '../utils/ChipNav';
+import { MdOutlineKeyboardReturn } from 'react-icons/md';
 
 const Purchases = () => {
   const chipData = [
@@ -17,10 +18,20 @@ const Purchases = () => {
       to: "/purchases/add",
     },
     {
+      label: "View Returns",
+      icon: MdOutlineKeyboardReturn,
+      to: "/purchases/returns",
+    },
+    {
+      label: "Add Return",
+      icon: FaPlus,
+      to: "/purchases/returns/add",
+    },
+    {
       label: "Add Expense",
       icon: FaWallet,
       to: "/purchases/expense",
-    }
+    },
   ];
   return (
     <div className="flex-1 overflow-y-scroll md:overflow-y-hidden flex flex-col p-3 w-full">

@@ -131,13 +131,13 @@ const ProfitLossReport = () => {
                         />
                         <Legend />
                         <Bar
-                          dataKey="expense"
+                          dataKey="purchase"
                           stackId="a"
                           barSize={40}
-                          fill="#5d3fd388"
+                          fill="#8884d8"
                         />
                         <Bar
-                          dataKey="purchase"
+                          dataKey="expense"
                           stackId="a"
                           barSize={40}
                           fill="#82ca9d"

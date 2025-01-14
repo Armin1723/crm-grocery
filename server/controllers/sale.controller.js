@@ -164,7 +164,7 @@ const addSale = async (req, res) => {
   await sale.save();
 
   // Update Inventory
-  products.forEach(async (product) => {
+  for (const product of products) {
     const inventory = await Inventory.findOne({
       product: product.product,
     }).populate("product");
@@ -176,17 +176,17 @@ const addSale = async (req, res) => {
           new Date(batch?.expiry).getTime() ===
             new Date(product?.expiry).getTime()) &&
         batch.sellingRate === product.sellingRate &&
-        (!product.mrp || batch?.mrp === product?.mrp);
+        (!product.mrp || !batch.mrp || batch.mrp === product?.mrp);
       if (sameBatch) {
         batch.quantity -= product.quantity;
         if (batch.quantity === 0) {
           inventory.batches.pull(batch._id);
         }
+        inventory.totalQuantity -= product.quantity;
+        await inventory.save();
         break;
       }
     }
-    inventory.totalQuantity -= product.quantity;
-    await inventory.save();
     
     // Send Mail to Admin if stockPreference set
     if (inventory?.product?.stockAlert?.preference) {
@@ -201,7 +201,7 @@ const addSale = async (req, res) => {
         );
       }
     }
-  });
+  };
   
   sale.invoice = await generateSaleInvoice(sale._id);
   await sale.save();

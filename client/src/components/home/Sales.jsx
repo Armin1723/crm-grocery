@@ -20,21 +20,21 @@ const Purchases = () => {
     {
       label: "View Returns",
       icon: MdOutlineKeyboardReturn,
-      to: "/sales/returns"
+      to: "/sales/returns",
     },
     {
       label: "Add Return",
       icon: FaPlus,
-      to: "/sales/add-return",
-    }
+      to: "/sales/returns/add",
+    },
   ];
   return (
     <div className="flex-1 overflow-y-scroll md:overflow-y-hidden flex flex-col p-3 w-full">
       <ChipNav chips={chipData} baseUrl="/sales" />
       <div className="flex-1 flex w-full flex-col md:flex-row gap-3 overflow-y-auto">
         <div className="flex-1 max-sm:min-h-fit overflow-y-scroll">
-                  <Outlet />
-                </div>
+          <Outlet />
+        </div>
         <RecentSale />
       </div>
     </div>

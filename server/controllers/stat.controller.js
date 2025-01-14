@@ -358,12 +358,12 @@ const getSaleStats = async (req, res) => {
   const salesData = await Sale.aggregate([
     {
       $group: {
-        _id: { $month: "$createdAt" }, // Group by month
+        _id: { $month: "$createdAt", $year: "$createdAt" }, 
         count: { $sum: "$totalAmount" },
       },
     },
     {
-      $sort: { _id: 1 }, // Sort by month
+      $sort: { _id: 1 }, 
     },
   ]);
 
@@ -441,7 +441,7 @@ const salesPurchaseChart = async (req, res) => {
       };
       break;
     case "weekly":
-      groupFormat = { $isoWeek: "$createdAt" }; // Week number of the year
+      groupFormat = { $isoWeek: "$createdAt" }; 
       break;
     case "monthly":
       groupFormat = { $dateToString: { format: "%Y-%m", date: "$createdAt" } };

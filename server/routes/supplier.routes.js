@@ -11,6 +11,8 @@ const { asyncHandler } = require("../middleware/errorHandler");
 
 const router = require("express").Router();
 
+router.use(isLoggedIn);
+
 router.get("/", asyncHandler(getSuppliers));
 
 router.post("/", asyncHandler(addSupplier));

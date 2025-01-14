@@ -4,7 +4,7 @@ const { asyncHandler } = require("../middleware/errorHandler");
 
 const router = require("express").Router();
 
-// router.use(isAdmin);
+router.use(isAdmin);
 
 router.get("/", asyncHandler(getEmployees));
 

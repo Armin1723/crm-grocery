@@ -7,6 +7,7 @@ import { useNavigate } from "react-router-dom";
 import AddProductModal from "./AddProductModal";
 import SaveReload from "../utils/SaveReload";
 import PurchaseProductSuggestion from "./PurchaseProductSuggestion";
+import HoverCard from "../shared/HoverCard";
 
 const PurchaseForm = ({ setRefetch = () => {}, closeModal = () => {} }) => {
   const [products, setProducts] = useState([]);
@@ -82,7 +83,6 @@ const PurchaseForm = ({ setRefetch = () => {}, closeModal = () => {} }) => {
   };
 
   const normaliseCharges = () => {
-
     const updatedProducts = watchedProducts?.map((product) => {
       const sharePercent = (product.price / subTotal) * 100;
       const shareAmount = parseFloat(
@@ -262,7 +262,7 @@ const PurchaseForm = ({ setRefetch = () => {}, closeModal = () => {} }) => {
                   >
                     <button
                       type="button"
-                      onClick={removeProduct}
+                      onClick={() => removeProduct(index)}
                       className="w-[5%] min-w-[30px] text-red-500 hover:text-red-600 transition-all duration-300 ease-in"
                     >
                       <IoCloseCircle />
@@ -295,7 +295,8 @@ const PurchaseForm = ({ setRefetch = () => {}, closeModal = () => {} }) => {
                       <input
                         type="number"
                         className={` ${
-                          errors?.products?.[index]?.sellingRate && "text-red-700 border-red-500"
+                          errors?.products?.[index]?.sellingRate &&
+                          "text-red-700 border-red-500"
                         } border-b w-full placeholder:text-sm bg-transparent border-[var(--color-accent)] outline-none p-1 `}
                         {...register(`products.${index}.sellingRate`, {
                           required: "Selling Rate is required",
@@ -311,7 +312,7 @@ const PurchaseForm = ({ setRefetch = () => {}, closeModal = () => {} }) => {
                         ₹/{product.secondaryUnit}
                       </span>
                       {errors && errors?.products?.[index]?.sellingRate && (
-                        <span className="text-red-500 text-xs absolute top-full left-0" >
+                        <span className="text-red-500 text-xs absolute top-full left-0">
                           {errors.products[index].sellingRate.message}
                         </span>
                       )}
@@ -340,16 +341,27 @@ const PurchaseForm = ({ setRefetch = () => {}, closeModal = () => {} }) => {
                           },
                           onChange: (e) => {
                             const price = getValues(`products.${index}.price`);
-                            const conversionFactor = getValues(`products.${index}.conversionFactor`);
+                            const conversionFactor = getValues(
+                              `products.${index}.conversionFactor`
+                            );
                             const inputValue = e.target.value;
-                          
-                            const purchaseRate = (price / (inputValue * conversionFactor)).toFixed(2);
-                          
-                            setValue(`products.${index}.purchaseRate`, parseFloat(purchaseRate));
-                          }
+
+                            const purchaseRate = (
+                              price /
+                              (inputValue * conversionFactor)
+                            ).toFixed(2);
+
+                            setValue(
+                              `products.${index}.purchaseRate`,
+                              parseFloat(purchaseRate)
+                            );
+                          },
                         })}
                       />
-                      <div className="absolute text-xs px-1 rounded-lg bg-accent text-white right-2 top-1/2 -translate-y-1/2 capitalize">
+                      <div
+                        title={`1 ${product?.primaryUnit} = ${product?.conversionFactor} ${product?.secondaryUnit}`}
+                        className="absolute text-xs px-1 rounded-lg bg-accent text-white right-2 top-1/2 -translate-y-1/2 capitalize cursor-pointer"
+                      >
                         {product.primaryUnit}
                       </div>
                     </div>
@@ -367,22 +379,33 @@ const PurchaseForm = ({ setRefetch = () => {}, closeModal = () => {} }) => {
                             message: "Price should be greater than 0",
                           },
                           onChange: (e) => {
-                            const quantity = getValues(`products.${index}.quantity`);
-                            const conversionFactor = getValues(`products.${index}.conversionFactor`);
+                            const quantity = getValues(
+                              `products.${index}.quantity`
+                            );
+                            const conversionFactor = getValues(
+                              `products.${index}.conversionFactor`
+                            );
                             const inputValue = e.target.value;
-                          
-                            const purchaseRate = (inputValue / (quantity * conversionFactor)).toFixed(2);
-                          
+
+                            const purchaseRate = (
+                              inputValue /
+                              (quantity * conversionFactor)
+                            ).toFixed(2);
+
                             setValue(
                               `products.${index}.purchaseRate`,
-                              parseFloat(purchaseRate) 
+                              parseFloat(purchaseRate)
                             );
-                          }                          
+                          },
                         })}
-                        className={` ${errors && errors?.products?.[index]?.price && 'text-red-500 border-red-500'} border-b placeholder:text-sm bg-transparent text-right border-[var(--color-accent)] outline-none p-1 w-20`}
+                        className={` ${
+                          errors &&
+                          errors?.products?.[index]?.price &&
+                          "text-red-500 border-red-500"
+                        } border-b placeholder:text-sm bg-transparent text-right border-[var(--color-accent)] outline-none p-1 w-20`}
                       />
                       {errors && errors?.products?.[index]?.price && (
-                        <span className="text-red-500 text-xs absolute top-full" >
+                        <span className="text-red-500 text-xs absolute top-full">
                           {errors.products[index].price.message}
                         </span>
                       )}
@@ -398,12 +421,12 @@ const PurchaseForm = ({ setRefetch = () => {}, closeModal = () => {} }) => {
                   type="number"
                   readOnly
                   className="border-b placeholder:text-sm bg-transparent text-right border-[var(--color-accent)] outline-none p-1 w-20"
-                  {...register("subTotal",{
+                  {...register("subTotal", {
                     valueAsNumber: true,
                     min: {
                       value: 0,
                       message: "Subtotal should be greater than 0",
-                    },  
+                    },
                   })}
                 />
                 ₹
@@ -423,7 +446,7 @@ const PurchaseForm = ({ setRefetch = () => {}, closeModal = () => {} }) => {
                   min="0"
                   step="0.1"
                   className="border-b placeholder:text-sm bg-transparent text-right border-[var(--color-accent)] outline-none p-1 w-20"
-                  {...register("otherCharges",{
+                  {...register("otherCharges", {
                     valueAsNumber: true,
                   })}
                 />
@@ -435,8 +458,8 @@ const PurchaseForm = ({ setRefetch = () => {}, closeModal = () => {} }) => {
                   type="number"
                   step="0.1"
                   className="border-b placeholder:text-sm bg-transparent text-right border-[var(--color-accent)] outline-none p-1 w-20"
-                  {...register("discount",{
-                    valueAsNumber: true,  
+                  {...register("discount", {
+                    valueAsNumber: true,
                     min: {
                       value: 0,
                       message: "Discount should be greater than 0",
@@ -451,7 +474,7 @@ const PurchaseForm = ({ setRefetch = () => {}, closeModal = () => {} }) => {
                   type="number"
                   readOnly
                   className="border-b placeholder:text-sm bg-transparent text-right border-[var(--color-accent)] outline-none p-1 w-20"
-                  {...register("totalAmount",{
+                  {...register("totalAmount", {
                     valueAsNumber: true,
                   })}
                   value={

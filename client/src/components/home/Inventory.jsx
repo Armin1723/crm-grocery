@@ -1,6 +1,9 @@
 import React, { useEffect, useState } from "react";
 import InventoryTable from "../inventory/InventoryTable";
 import SearchBar from "../utils/SearchBar";
+import ChipNav from "../utils/ChipNav";
+import { FaChartLine, FaClock, FaExclamationTriangle, FaPlus } from "react-icons/fa";
+import { BsInboxesFill } from "react-icons/bs";
 
 const Inventory = () => {
   const [results, setResults] = useState({});
@@ -39,8 +42,27 @@ const Inventory = () => {
     fetchInventory();
   }, [refetch, page, query]);
 
+  const chipData = [
+    {
+      label: "Inventory Details",
+      icon: BsInboxesFill,
+      to: "/inventory",
+    },
+    {
+      label: "Expiring Soon",
+      icon: FaClock,
+      to: "/inventory/expiring",
+    },
+    {
+      label: "Low Stock",
+      icon: FaExclamationTriangle,
+      to: "/inventory/low-stock",
+    },
+  ];
+
   return (
     <div className="flex flex-col m-2 rounded-md bg-[var(--color-sidebar)] select-none p-2 border border-neutral-500/50 flex-1 w-full overflow-y-auto">
+      <ChipNav chips={chipData} baseUrl="/inventory" />
       <div className="title flex items-center justify-between w-full space-x-2 flex-wrap">
         <div className="title-left flex items-center gap-2">
           <p className="md:my-2 text-xl max-lg:text-lg font-bold pl-2">
