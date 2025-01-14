@@ -530,7 +530,7 @@ const ProductForm = ({
             type="checkbox"
             id="stockAlert"
             checked={isStockAlertEnabled}
-            className="w-4 h-4"
+            className="w-4 h-4 checkbox"
             onChange={(e) => setIsStockAlertEnabled(e.target.checked)}
           />
           <label

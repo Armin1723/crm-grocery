@@ -3,46 +3,88 @@ const Expense = require("../models/expense.model");
 const Sale = require("../models/sale.model");
 const SalesReturn = require("../models/salesReturn.model");
 
+// Utils
+const matchStage = (startDate, endDate) => ({
+  $match: {
+    createdAt: {
+      $gte: new Date(new Date(startDate).setHours(0, 0, 0, 0)),
+      $lte: new Date(new Date(endDate).setHours(23, 59, 59, 999)),
+    },
+  },
+});
+
+const userLookup = {
+  $lookup: {
+    from: "users",
+    localField: "signedBy",
+    foreignField: "_id",
+    as: "signedBy",
+  },
+};
+
+const productLookup = {
+  $lookup: {
+    from: "products",
+    localField: "products.product",
+    foreignField: "_id",
+    as: "productDetails",
+  },
+};
+
+const supplierLookup = {
+  $lookup: {
+    from: "suppliers",
+    localField: "supplier",
+    foreignField: "_id",
+    as: "supplierDetails",
+  },
+};
+
+const customerLookup = {
+  $lookup: {
+    from: "customers",
+    localField: "customer",
+    foreignField: "_id",
+    as: "customerDetails",
+  },
+};
+
+const mergeSortedArrays = (arr1, arr2, key) => {
+  let i = 0,
+    j = 0;
+  const mergedArray = [];
+  while (i < arr1.length && j < arr2.length) {
+    if (arr1[i][key] > arr2[j][key]) {
+      mergedArray.push(arr1[i]);
+      i++;
+    } else {
+      mergedArray.push(arr2[j]);
+      j++;
+    }
+  }
+  while (i < arr1.length) {
+    mergedArray.push(arr1[i]);
+    i++;
+  }
+  while (j < arr2.length) {
+    mergedArray.push(arr2[j]);
+    j++;
+  }
+  return mergedArray;
+};
+
+// Controller to fetch the Expense Report
 const getExpenseReport = async (req, res) => {
   const { startDate, endDate } = req.query;
 
-  // Match within the date range
-  const matchStage = {
-    createdAt: {
-      $gte: new Date(new Date(startDate).setHours(0, 0, 0, 0)), // Start of the day for startDate
-      $lte: new Date(new Date(endDate).setHours(23, 59, 59, 999)), // End of the day for endDate
-    },
-  };
-
   // Define queries
   const purchaseQuery = Purchase.aggregate([
-    { $match: matchStage },
-    { $unwind: "$products" },
+    matchStage(startDate, endDate),
+    userLookup,
     { $sort: { createdAt: -1 } },
-    {
-      $lookup: {
-        from: "users",
-        localField: "signedBy",
-        foreignField: "_id",
-        as: "signedBy",
-      },
-    },
-    {
-      $lookup: {
-        from: "products",
-        localField: "products.product",
-        foreignField: "_id",
-        as: "productDetails",
-      },
-    },
-    {
-      $lookup: {
-        from: "suppliers",
-        localField: "supplier",
-        foreignField: "_id",
-        as: "supplierDetails",
-      },
-    },
+    { $unwind: "$products" },
+    productLookup,
+    supplierLookup,
     {
       $addFields: {
         supplier: { $arrayElemAt: ["$supplierDetails.name", 0] },
@@ -51,7 +93,7 @@ const getExpenseReport = async (req, res) => {
         signedById: { $arrayElemAt: ["$signedBy._id", 0] },
         description: "$notes",
         amount: {
-              $multiply: ["$products.quantity", "$products.purchaseRate"],
+          $multiply: ["$products.quantity", "$products.purchaseRate"],
         },
       },
     },
@@ -70,15 +112,8 @@ const getExpenseReport = async (req, res) => {
   ]);
 
   const otherExpensesQuery = Expense.aggregate([
-    { $match: matchStage },
-    {
-      $lookup: {
-        from: "users",
-        localField: "signedBy",
-        foreignField: "_id",
-        as: "signedBy",
-      },
-    },
+    matchStage(startDate, endDate),
+    userLookup,
     {
       $addFields: {
         source: "expense",
@@ -101,35 +136,16 @@ const getExpenseReport = async (req, res) => {
   ]);
 
   const reportQuery = Purchase.aggregate([
-    { $match: matchStage },
+    matchStage(startDate, endDate),
     { $unwind: "$products" },
-    {
-      $lookup: {
-        from: "products",
-        localField: "products.product",
-        foreignField: "_id",
-        as: "productDetails",
-      },
-    },
-    {
-      $lookup: {
-        from: "suppliers",
-        localField: "supplier",
-        foreignField: "_id",
-        as: "supplierDetails",
-      },
-    },
+    productLookup,
+    supplierLookup,
     {
       $addFields: {
         productCategory: { $arrayElemAt: ["$productDetails.category", 0] },
         supplierName: { $arrayElemAt: ["$supplierDetails.name", 0] },
         expenseAmount: {
-          $subtract: [
-            {
-              $multiply: ["$products.quantity", "$products.purchaseRate"],
-            },
-            "$deficitAmount",
-          ],
+          $multiply: ["$products.quantity", "$products.purchaseRate"],
         },
       },
     },
@@ -196,10 +212,7 @@ const getExpenseReport = async (req, res) => {
   ]);
 
   // Combine and calculate totals
-  const expenseList = [
-    ...purchaseExpenses.map((expense) => ({ ...expense, source: "purchase" })),
-    ...otherExpenses.map((expense) => ({ ...expense, source: "other" })),
-  ];
+  const expenseList = mergeSortedArrays(purchaseExpenses, otherExpenses, "createdAt");
 
   res.status(200).json({
     success: true,
@@ -221,43 +234,14 @@ const getExpenseReport = async (req, res) => {
 const getSalesReport = async (req, res) => {
   const { startDate, endDate } = req.query;
 
-  // Match within the date range
-  const matchStage = {
-    createdAt: {
-      $gte: new Date(new Date(startDate).setHours(0, 0, 0, 0)),
-      $lte: new Date(new Date(endDate).setHours(23, 59, 59, 999)),
-    },
-  };
-
   // Define queries
   const salesQuery = Sale.aggregate([
-    { $match: matchStage },
+    matchStage(startDate, endDate),
     { $unwind: "$products" },
     { $sort: { createdAt: -1 } },
-    {
-      $lookup: {
-        from: "users",
-        localField: "signedBy",
-        foreignField: "_id",
-        as: "signedBy",
-      },
-    },
-    {
-      $lookup: {
-        from: "products",
-        localField: "products.product",
-        foreignField: "_id",
-        as: "productDetails",
-      },
-    },
-    {
-      $lookup: {
-        from: "customers",
-        localField: "customer",
-        foreignField: "_id",
-        as: "customerDetails",
-      },
-    },
+    userLookup,
+    productLookup,
+    customerLookup,
     {
       $group: {
         _id: "$_id", // Group by the sale document ID
@@ -295,32 +279,11 @@ const getSalesReport = async (req, res) => {
   ]);
 
   const salesReturnQuery = SalesReturn.aggregate([
-    { $match: matchStage },
+    matchStage(startDate, endDate),
     { $unwind: "$products" },
-    {
-      $lookup: {
-        from: "users",
-        localField: "signedBy",
-        foreignField: "_id",
-        as: "signedBy",
-      },
-    },
-    {
-      $lookup: {
-        from: "products",
-        localField: "products.product",
-        foreignField: "_id",
-        as: "productDetails",
-      },
-    },
-    {
-      $lookup: {
-        from: "customers",
-        localField: "customer",
-        foreignField: "_id",
-        as: "customerDetails",
-      },
-    },
+    userLookup, 
+    productLookup,
+    customerLookup,
     {
       $addFields: {
         signedBy: { $arrayElemAt: ["$signedBy.name", 0] },
@@ -351,24 +314,10 @@ const getSalesReport = async (req, res) => {
   ]);
 
   const reportQuery = Sale.aggregate([
-    { $match: matchStage },
+    matchStage(startDate, endDate),
     { $unwind: "$products" },
-    {
-      $lookup: {
-        from: "products",
-        localField: "products.product",
-        foreignField: "_id",
-        as: "productDetails",
-      },
-    },
-    {
-      $lookup: {
-        from: "customers",
-        localField: "customer",
-        foreignField: "_id",
-        as: "customerDetails",
-      },
-    },
+    productLookup,
+    customerLookup,
     {
       $addFields: {
         productCategory: { $arrayElemAt: ["$productDetails.category", 0] },
@@ -479,20 +428,10 @@ const getSalesReport = async (req, res) => {
 const getProfitLossReport = async (req, res) => {
   const { startDate, endDate } = req.query;
 
-  // Match within the date range
-  const matchStage = {
-    createdAt: {
-      $gte: new Date(new Date(startDate).setHours(0, 0, 0, 0)),
-      $lte: new Date(new Date(endDate).setHours(23, 59, 59, 999)),
-    },
-  };
-
   try {
     // Aggregating Sales Data
     const salesAggregation = await Sale.aggregate([
-      {
-        $match: matchStage ,
-      },
+      matchStage(startDate, endDate),
       {
         $project: {
           totalAmount: 1,
@@ -510,9 +449,7 @@ const getProfitLossReport = async (req, res) => {
     ]);
 
     const returns = await SalesReturn.aggregate([
-      {
-        $match: matchStage,
-      },
+      matchStage(startDate, endDate),
       {
         $project: {
           totalAmount: 1,
@@ -527,13 +464,12 @@ const getProfitLossReport = async (req, res) => {
     ]);
 
     salesAggregation[0].totalReturns = returns[0]?.totalReturns || 0;
-    salesAggregation[0].netSales = salesAggregation[0].totalSales - salesAggregation[0].totalReturns;
+    salesAggregation[0].netSales =
+      salesAggregation[0].totalSales - salesAggregation[0].totalReturns;
 
     // Aggregating Purchase Data
     const purchasesAggregation = await Purchase.aggregate([
-      {
-        $match: matchStage,
-      },
+      matchStage(startDate, endDate),
       {
         $project: {
           totalAmount: 1,
@@ -550,9 +486,7 @@ const getProfitLossReport = async (req, res) => {
 
     // Aggregating Expense Data
     const expenseAggregation = await Expense.aggregate([
-      {
-        $match: matchStage,
-      },
+      matchStage(startDate, endDate),
       {
         $group: {
           _id: null,
@@ -560,12 +494,10 @@ const getProfitLossReport = async (req, res) => {
         },
       },
     ]);
-    
+
     // Grouped sales data by category
     const salesByCategory = await Sale.aggregate([
-      {
-        $match: matchStage,
-      },
+      matchStage(startDate, endDate),
       {
         $unwind: "$products",
       },
@@ -580,7 +512,11 @@ const getProfitLossReport = async (req, res) => {
       {
         $group: {
           _id: "$productDetails.category",
-          totalSales: { $sum: { $multiply: ["$products.sellingRate", "$products.quantity"] } },
+          totalSales: {
+            $sum: {
+              $multiply: ["$products.sellingRate", "$products.quantity"],
+            },
+          },
         },
       },
     ]);
@@ -596,9 +532,7 @@ const getProfitLossReport = async (req, res) => {
 
     // Preparing Chart Data for Recharts (Sales and Expenses over time)
     const salesChartData = await Sale.aggregate([
-      {
-        $match: matchStage,
-      },
+      matchStage(startDate, endDate),
       {
         $project: {
           month: { $month: "$createdAt" },
@@ -619,9 +553,7 @@ const getProfitLossReport = async (req, res) => {
 
     // Aggregating Expense Data
     const expenseChartData = await Expense.aggregate([
-      {
-        $match: matchStage,
-      },
+      matchStage(startDate, endDate),
       {
         $project: {
           month: { $month: "$createdAt" },
@@ -642,9 +574,7 @@ const getProfitLossReport = async (req, res) => {
 
     // Grouped expenses data by category
     const expensesByCategory = await Expense.aggregate([
-      {
-        $match: matchStage,
-      },
+      matchStage(startDate, endDate),
       {
         $group: {
           _id: "$category",
@@ -653,9 +583,7 @@ const getProfitLossReport = async (req, res) => {
       },
     ]);
     const purchasesByCategory = await Purchase.aggregate([
-      {
-        $match: matchStage,
-      },
+      matchStage(startDate, endDate), 
       {
         $unwind: "$products",
       },
@@ -670,12 +598,19 @@ const getProfitLossReport = async (req, res) => {
       {
         $group: {
           _id: "$productDetails.category",
-          totalPurchases: { $sum: { $multiply: ["$products.quantity", "$products.purchaseRate"] } },
+          totalPurchases: {
+            $sum: {
+              $multiply: ["$products.quantity", "$products.purchaseRate"],
+            },
+          },
         },
       },
     ]);
 
-    const allExpensesByCategory = [...expensesByCategory, ...purchasesByCategory];
+    const allExpensesByCategory = [
+      ...expensesByCategory,
+      ...purchasesByCategory,
+    ];
 
     // Formatting the response data
     const reportData = {

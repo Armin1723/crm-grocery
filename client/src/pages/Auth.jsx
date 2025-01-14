@@ -1,9 +1,7 @@
 import React, { useEffect } from "react";
 import { Outlet, useNavigate } from "react-router-dom";
-const Lottie = React.lazy(() => import("lottie-react"));
-const loginAnimation = React.lazy(() =>
-  import("../assets/animations/login-animation.json")
-);
+import Lottie from "lottie-react";
+import loginAnimation from "../assets/animations/login-animation.json";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import { toggleTheme } from "../redux/features/theme/themeSlice";
