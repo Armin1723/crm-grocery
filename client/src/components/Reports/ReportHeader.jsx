@@ -97,10 +97,10 @@ const ReportHeader = ({
         <html>
           <head>
             <title>${title} Report - Grocery CRM - ${
-              formatDate(dateRange?.startDate) +
-              " to " +
-              formatDate(dateRange?.endDate)
-            }</title>
+        formatDate(dateRange?.startDate) +
+        " to " +
+        formatDate(dateRange?.endDate)
+      }</title>
           <link rel="stylesheet" href="${tailwindCSSStyles}" />
             <style>
             ${tailwindCSS}
@@ -175,13 +175,15 @@ const ReportHeader = ({
             <FaPrint className="" />
             <span className="max-md:hidden">Print Report</span>
           </button>
-          <button
-            onClick={handleDownload}
-            className="inline-flex items-center px-3 py-1.5 gap-2 bg-gradient-to-br from-green-800/80 to-green-500/80 text-white rounded-lg hover:bg-gradient-to-b transition-colors"
-          >
-            <FaFileDownload className="" />
-            <span className="max-md:hidden">Download CSV</span>
-          </button>
+          {handleDownload && (
+            <button
+              onClick={handleDownload}
+              className="inline-flex items-center px-3 py-1.5 gap-2 bg-gradient-to-br from-green-800/80 to-green-500/80 text-white rounded-lg hover:bg-gradient-to-b transition-colors"
+            >
+              <FaFileDownload className="" />
+              <span className="max-md:hidden">Download CSV</span>
+            </button>
+          )}
         </div>
       </div>
       <div className="flex max-md:flex-col max-md:gap-2 w-full justify-between mt-4 no-print">
@@ -204,10 +206,7 @@ const ReportHeader = ({
             <option value="today" className="!bg-[var(--color-card)]">
               Today
             </option>
-            <option
-              value="thisWeek"
-              className="!bg-[var(--color-card)]"
-            >
+            <option value="thisWeek" className="!bg-[var(--color-card)]">
               This Week
             </option>
             <option value="thisMonth" className="!bg-[var(--color-card)]">

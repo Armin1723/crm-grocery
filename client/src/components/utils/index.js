@@ -446,3 +446,23 @@ export const isMergable = (inventory) => {
 
   return false;
 };
+
+export const getMonthName = (date) => {
+  // If date is not provided, return current month
+  const monthNumber = date ? date.split("-")[0] : new Date().getMonth() + 1;
+  const months = [
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "May",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec",
+  ];
+  return `${months[monthNumber - 1]}-${date.split("-")[1]}`;  
+};

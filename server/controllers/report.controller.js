@@ -82,8 +82,6 @@ const getExpenseReport = async (req, res) => {
     matchStage(startDate, endDate),
     userLookup,
     { $sort: { createdAt: -1 } },
-    { $unwind: "$products" },
-    productLookup,
     supplierLookup,
     {
       $addFields: {
@@ -92,13 +90,12 @@ const getExpenseReport = async (req, res) => {
         signedBy: { $arrayElemAt: ["$signedBy.name", 0] },
         signedById: { $arrayElemAt: ["$signedBy._id", 0] },
         description: "$notes",
-        amount: {
-          $multiply: ["$products.quantity", "$products.purchaseRate"],
-        },
+        amount: "$totalAmount",
       },
     },
     {
       $project: {
+        _id: 1,
         createdAt: 1,
         category: "purchase",
         supplier: 1,
@@ -124,6 +121,7 @@ const getExpenseReport = async (req, res) => {
     { $sort: { createdAt: -1 } },
     {
       $project: {
+        _id: 1,
         amount: 1,
         source: 1,
         createdAt: 1,
@@ -145,7 +143,9 @@ const getExpenseReport = async (req, res) => {
         productCategory: { $arrayElemAt: ["$productDetails.category", 0] },
         supplierName: { $arrayElemAt: ["$supplierDetails.name", 0] },
         expenseAmount: {
-          $multiply: ["$products.quantity", "$products.purchaseRate"],
+          $ceil: {
+            $multiply: ["$products.quantity", "$products.purchaseRate"],
+          },
         },
       },
     },
@@ -212,7 +212,11 @@ const getExpenseReport = async (req, res) => {
   ]);
 
   // Combine and calculate totals
-  const expenseList = mergeSortedArrays(purchaseExpenses, otherExpenses, "createdAt");
+  const expenseList = mergeSortedArrays(
+    purchaseExpenses,
+    otherExpenses,
+    "createdAt"
+  );
 
   res.status(200).json({
     success: true,
@@ -231,6 +235,7 @@ const getExpenseReport = async (req, res) => {
   });
 };
 
+// Controller to fetch the Sales Report
 const getSalesReport = async (req, res) => {
   const { startDate, endDate } = req.query;
 
@@ -281,7 +286,7 @@ const getSalesReport = async (req, res) => {
   const salesReturnQuery = SalesReturn.aggregate([
     matchStage(startDate, endDate),
     { $unwind: "$products" },
-    userLookup, 
+    userLookup,
     productLookup,
     customerLookup,
     {
@@ -329,7 +334,9 @@ const getSalesReport = async (req, res) => {
           ],
         },
         saleAmount: {
-          $multiply: ["$products.sellingRate", "$products.quantity"],
+          $ceil: {
+            $multiply: ["$products.sellingRate", "$products.quantity"],
+          },
         },
       },
     },
@@ -428,231 +435,308 @@ const getSalesReport = async (req, res) => {
 const getProfitLossReport = async (req, res) => {
   const { startDate, endDate } = req.query;
 
-  try {
-    // Aggregating Sales Data
-    const salesAggregation = await Sale.aggregate([
-      matchStage(startDate, endDate),
-      {
-        $project: {
-          totalAmount: 1,
-          discount: 1,
-          otherCharges: 1,
-          products: 1,
-        },
+  // Aggregating Sales Data
+  const salesAggregation = await Sale.aggregate([
+    matchStage(startDate, endDate),
+    {
+      $project: {
+        totalAmount: 1,
+        discount: 1,
+        otherCharges: 1,
+        products: 1,
       },
-      {
-        $group: {
-          _id: null,
-          totalSales: { $sum: "$totalAmount" },
-        },
+    },
+    {
+      $group: {
+        _id: null,
+        totalSales: { $sum: "$totalAmount" },
       },
-    ]);
+    },
+  ]);
 
-    const returns = await SalesReturn.aggregate([
-      matchStage(startDate, endDate),
-      {
-        $project: {
-          totalAmount: 1,
-        },
+  const returns = await SalesReturn.aggregate([
+    matchStage(startDate, endDate),
+    {
+      $project: {
+        totalAmount: 1,
       },
-      {
-        $group: {
-          _id: null,
-          totalReturns: { $sum: "$totalAmount" },
-        },
+    },
+    {
+      $group: {
+        _id: null,
+        totalReturns: { $sum: "$totalAmount" },
       },
-    ]);
+    },
+  ]);
 
-    salesAggregation[0].totalReturns = returns[0]?.totalReturns || 0;
-    salesAggregation[0].netSales =
-      salesAggregation[0].totalSales - salesAggregation[0].totalReturns;
+  if (!salesAggregation[0]) {
+    salesAggregation[0] = { totalSales: 0, totalReturns: 0, netSales: 0 };
+  }
 
-    // Aggregating Purchase Data
-    const purchasesAggregation = await Purchase.aggregate([
-      matchStage(startDate, endDate),
-      {
-        $project: {
-          totalAmount: 1,
-          products: 1,
-        },
-      },
-      {
-        $group: {
-          _id: null,
-          totalPurchases: { $sum: "$totalAmount" },
-        },
-      },
-    ]);
+  salesAggregation[0].totalReturns = returns[0]?.totalReturns || 0;
+  salesAggregation[0].netSales =
+    salesAggregation[0].totalSales - salesAggregation[0].totalReturns;
 
-    // Aggregating Expense Data
-    const expenseAggregation = await Expense.aggregate([
-      matchStage(startDate, endDate),
-      {
-        $group: {
-          _id: null,
-          totalOtherExpenses: { $sum: "$amount" },
-        },
+  // Aggregating Purchase Data
+  const purchasesAggregation = await Purchase.aggregate([
+    matchStage(startDate, endDate),
+    {
+      $project: {
+        totalAmount: 1,
+        products: 1,
       },
-    ]);
+    },
+    {
+      $group: {
+        _id: null,
+        totalPurchases: { $sum: "$totalAmount" },
+      },
+    },
+  ]);
 
-    // Grouped sales data by category
-    const salesByCategory = await Sale.aggregate([
-      matchStage(startDate, endDate),
-      {
-        $unwind: "$products",
+  // Aggregating Expense Data
+  const expenseAggregation = await Expense.aggregate([
+    matchStage(startDate, endDate),
+    {
+      $group: {
+        _id: null,
+        totalOtherExpenses: { $sum: "$amount" },
       },
-      {
-        $lookup: {
-          from: "products",
-          localField: "products.product",
-          foreignField: "_id",
-          as: "productDetails",
-        },
+    },
+  ]);
+
+  // Grouped sales data by category
+  const salesByCategory = await Sale.aggregate([
+    matchStage(startDate, endDate),
+    {
+      $unwind: "$products",
+    },
+    {
+      $lookup: {
+        from: "products",
+        localField: "products.product",
+        foreignField: "_id",
+        as: "productDetails",
       },
-      {
-        $group: {
-          _id: "$productDetails.category",
-          totalSales: {
-            $sum: {
+    },
+    {
+      $group: {
+        _id: "$productDetails.category",
+        totalSales: {
+          $sum: {
+            $ceil: {
               $multiply: ["$products.sellingRate", "$products.quantity"],
             },
           },
         },
       },
-    ]);
+    },
+  ]);
 
-    // Calculating Gross Profit (Sales - Purchases)
-    const grossProfit =
-      salesAggregation[0]?.netSales - purchasesAggregation[0]?.totalPurchases ||
-      0;
+  // Calculating Gross Profit (Sales - Purchases)
+  const grossProfit =
+    salesAggregation[0]?.netSales -
+    (purchasesAggregation[0]?.totalPurchases || 0);
 
-    // Calculating Net Profit (Gross Profit - Expenses)
-    const netProfit =
-      grossProfit - (expenseAggregation[0]?.totalOtherExpenses || 0);
+  // Calculating Net Profit (Gross Profit - Expenses)
+  const netProfit =
+    grossProfit - (expenseAggregation[0]?.totalOtherExpenses || 0);
 
-    // Preparing Chart Data for Recharts (Sales and Expenses over time)
-    const salesChartData = await Sale.aggregate([
-      matchStage(startDate, endDate),
-      {
-        $project: {
-          month: { $month: "$createdAt" },
-          year: { $year: "$createdAt" },
-          totalAmount: 1,
+  // Preparing Chart Data for Recharts (Sales and Expenses over time)
+  const salesChartData = await Sale.aggregate([
+    matchStage(startDate, endDate),
+    {
+      $project: {
+        month: { $month: "$createdAt" },
+        year: { $year: "$createdAt" },
+        totalAmount: 1,
+      },
+    },
+    {
+      $group: {
+        _id: {
+          month: "$month",
+          year: "$year",
         },
+        sales: { $sum: "$totalAmount" },
       },
-      {
-        $group: {
-          _id: { month: "$month", year: "$year" },
-          sales: { $sum: "$totalAmount" },
-        },
-      },
-      {
-        $sort: { "_id.year": 1, "_id.month": 1 },
-      },
-    ]);
+    },
+    {
+      $sort: { "_id.year": 1, "_id.month": 1 },
+    },
+  ]);
 
-    // Aggregating Expense Data
-    const expenseChartData = await Expense.aggregate([
-      matchStage(startDate, endDate),
-      {
-        $project: {
-          month: { $month: "$createdAt" },
-          year: { $year: "$createdAt" },
-          amount: 1,
+  // Aggregating Expense Data
+  const expenseChartData = await Expense.aggregate([
+    matchStage(startDate, endDate),
+    {
+      $project: {
+        month: { $month: "$createdAt" },
+        year: { $year: "$createdAt" },
+        amount: 1,
+      },
+    },
+    {
+      $group: {
+        _id: {
+          month: "$month",
+          year: "$year",
         },
+        totalExpense: { $sum: "$amount" },
       },
-      {
-        $group: {
-          _id: { month: "$month", year: "$year" },
-          totalExpense: { $sum: "$amount" },
-        },
-      },
-      {
-        $sort: { "_id.year": 1, "_id.month": 1 },
-      },
-    ]);
+    },
+    {
+      $sort: { "_id.year": 1, "_id.month": 1 },
+    },
+  ]);
 
-    // Grouped expenses data by category
-    const expensesByCategory = await Expense.aggregate([
-      matchStage(startDate, endDate),
-      {
-        $group: {
-          _id: "$category",
-          totalExpense: { $sum: "$amount" },
+  const purchaseChartData = await Purchase.aggregate([
+    matchStage(startDate, endDate),
+    {
+      $project: {
+        month: { $month: "$createdAt" },
+        year: { $year: "$createdAt" },
+        totalAmount: 1,
+      },
+    },
+    {
+      $group: {
+        _id: {
+          month: "$month",
+          year: "$year",
         },
+        totalPurchase: { $sum: "$totalAmount" },
       },
-    ]);
-    const purchasesByCategory = await Purchase.aggregate([
-      matchStage(startDate, endDate), 
-      {
-        $unwind: "$products",
+    },
+    {
+      $sort: { "_id.year": 1, "_id.month": 1 },
+    },
+  ]);
+
+  const combinedExpenseChartData = purchaseChartData.map((purchase) => {
+    // Find matching expense data for the same month-year combination
+    const expense = expenseChartData.find(
+      (expense) =>
+        expense._id.month === purchase._id.month &&
+        expense._id.year === purchase._id.year
+    );
+
+    // If there's no matching expense data, create a default object
+    if (!expense) {
+      return {
+        month: `${purchase._id.month}-${purchase._id.year}`,
+        expense: 0,
+        purchase: purchase.totalPurchase, // Return the purchase data
+      };
+    }
+
+    // If there's no matching purchase data, create a default object
+    if (!purchase) {
+      return {
+        month: `${expense._id.month}-${expense._id.year}`,
+        expense: expense.totalExpense, // Return the expense data
+        purchase: 0,
+      };
+    }
+
+    // Return the combined data if both exist
+    return {
+      month: `${expense._id.month}-${expense._id.year}`,
+      expense: expense.totalExpense,
+      purchase: purchase.totalPurchase,
+    };
+  });
+
+  // Ensure you include months that are in the `expenseChartData` but not in `purchaseChartData`
+  expenseChartData.forEach((expense) => {
+    const purchase = purchaseChartData.find(
+      (purchase) =>
+        purchase._id.month === expense._id.month &&
+        purchase._id.year === expense._id.year
+    );
+
+    if (!purchase) {
+      combinedExpenseChartData.push({
+        month: `${expense._id.month}-${expense._id.year}`,
+        expense: expense.totalExpense,
+        purchase: 0,
+      });
+    }
+  });
+
+  // Grouped expenses data by category
+  const expensesByCategory = await Expense.aggregate([
+    matchStage(startDate, endDate),
+    {
+      $group: {
+        _id: "$category",
+        totalExpense: { $sum: "$amount" },
       },
-      {
-        $lookup: {
-          from: "products",
-          localField: "products.product",
-          foreignField: "_id",
-          as: "productDetails",
-        },
+    },
+  ]);
+  const purchasesByCategory = await Purchase.aggregate([
+    matchStage(startDate, endDate),
+    {
+      $unwind: "$products",
+    },
+    {
+      $lookup: {
+        from: "products",
+        localField: "products.product",
+        foreignField: "_id",
+        as: "productDetails",
       },
-      {
-        $group: {
-          _id: "$productDetails.category",
-          totalPurchases: {
-            $sum: {
+    },
+    {
+      $group: {
+        _id: "$productDetails.category",
+        totalPurchases: {
+          $sum: {
+            $ceil: {
               $multiply: ["$products.quantity", "$products.purchaseRate"],
             },
           },
         },
       },
-    ]);
+    },
+  ]);
 
-    const allExpensesByCategory = [
-      ...expensesByCategory,
-      ...purchasesByCategory,
-    ];
+  const allExpensesByCategory = [...expensesByCategory, ...purchasesByCategory];
 
-    // Formatting the response data
-    const reportData = {
-      expenses: {
-        purchases: purchasesAggregation[0]?.totalPurchases || 0,
-        otherExpenses: expenseAggregation[0]?.totalOtherExpenses || 0,
-        total:
-          (purchasesAggregation[0]?.totalPurchases || 0) +
-          (expenseAggregation[0]?.totalOtherExpenses || 0),
-      },
-      sales: {
-        sales: salesAggregation[0]?.totalSales || 0,
-        returns: salesAggregation[0]?.totalReturns || 0,
-        netSales: salesAggregation[0]?.netSales || 0,
-      },
-      grossProfit: grossProfit,
-      netProfit: netProfit,
-      charts: {
-        salesChartData: salesChartData.map((item) => ({
-          month: `${item._id.month}-${item._id.year}`,
-          sales: item.sales,
-        })),
-        expenseChartData: expenseChartData.map((item) => ({
-          month: `${item._id.month}-${item._id.year}`,
-          expense: item.totalExpense,
-        })),
-        salesByCategory: salesByCategory.map((item) => ({
-          category: item._id[0] || item._id,
-          total: item.totalSales,
-        })),
-        expensesByCategory: allExpensesByCategory.map((item) => ({
-          category: item.totalExpense ? item._id : item._id[0],
-          total: item.totalExpense || item.totalPurchases,
-        })),
-      },
-    };
+  // Formatting the response data
+  const reportData = {
+    expenses: {
+      purchases: purchasesAggregation[0]?.totalPurchases || 0,
+      otherExpenses: expenseAggregation[0]?.totalOtherExpenses || 0,
+      total:
+        (purchasesAggregation[0]?.totalPurchases || 0) +
+        (expenseAggregation[0]?.totalOtherExpenses || 0),
+    },
+    sales: {
+      sales: salesAggregation[0]?.totalSales || 0,
+      returns: salesAggregation[0]?.totalReturns || 0,
+      netSales: salesAggregation[0]?.netSales || 0,
+    },
+    grossProfit: grossProfit,
+    netProfit: netProfit,
+    charts: {
+      salesChartData: salesChartData.map((item) => ({
+        month: `${item._id.month}-${item._id.year}`,
+        sales: item.sales,
+      })),
+      expenseChartData: combinedExpenseChartData,
+      salesByCategory: salesByCategory.map((item) => ({
+        category: item._id[0] || item._id,
+        total: item.totalSales,
+      })),
+      expensesByCategory: allExpensesByCategory.map((item) => ({
+        category: item.totalExpense ? item._id : item._id[0],
+        total: item.totalExpense || item.totalPurchases,
+      })),
+    },
+  };
 
-    return res.status(200).json(reportData);
-  } catch (error) {
-    console.error("Error generating ProfitLossReport:", error);
-    return res.status(500).json({ message: "Server Error" });
-  }
+  return res.status(200).json(reportData);
 };
 
 module.exports = { getExpenseReport, getSalesReport, getProfitLossReport };

@@ -1,6 +1,8 @@
+import { useNavigate } from "react-router-dom";
 import { formatDate } from "../utils";
 
 const SalesTable = ({ data = {}, title = "" }) => {
+  const navigate = useNavigate();
   return (
     <div className="bg-[var(--color-card)] shadow rounded-lg overflow-hidden p-2">
       <h2 className="text-xl font-bold p-6 border-b border-neutral-500/50 capitalize">
@@ -34,7 +36,12 @@ const SalesTable = ({ data = {}, title = "" }) => {
                   key={index}
                   className={`${
                     index % 2 !== 0 && "bg-[var(--color-primary)]"
-                  }`}
+                  } cursor-pointer`}
+                  onClick={() => {
+                    if(title === "sales") {
+                      navigate(`/sales/${data?._id}`);
+                    }
+                  }}
                 >
                   <td className="px-6 py-2 whitespace-nowrap text-sm ">
                     {formatDate(data?.createdAt)}

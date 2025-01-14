@@ -33,6 +33,7 @@ app.use('/api/v1/sales', require('./routes/sale.routes.js'));
 app.use('/api/v1/stats', require('./routes/stat.routes.js'));
 app.use('/api/v1/auth', require('./routes/auth.routes.js'));
 app.use('/api/v1/expenses', require('./routes/expense.routes.js'));
+app.use('/api/v1/customers', require('./routes/customer.routes.js'));
 
 // Server
 app.get('/', (req, res) => {

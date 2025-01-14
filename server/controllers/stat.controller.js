@@ -190,7 +190,6 @@ const getBasicStats = async (req, res) => {
   res.json({ success: true, stats });
 };
 
-
 const getProductsGroupedByCategory = async (req, res) => {
   const productData = await Inventory.aggregate([
     {

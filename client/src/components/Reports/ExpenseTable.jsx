@@ -1,7 +1,8 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { formatDate } from "../utils";
 
 const ExpenseTable = ({ expenses }) => {
+  const navigate = useNavigate();
   return (
     <div className="bg-[var(--color-card)] shadow rounded-lg overflow-hidden p-2">
       <h2 className="text-xl font-bold p-6 border-b border-neutral-500/50">
@@ -35,13 +36,22 @@ const ExpenseTable = ({ expenses }) => {
                   key={index}
                   className={`${
                     index % 2 !== 0 && "bg-[var(--color-primary)]"
-                  }`}
+                  } ${expense?.category === "purchase" && "cursor-pointer"}`}
+                  onClick={() => navigate(`/purchases/${expense?._id}`)}
                 >
                   <td className="px-6 py-2 whitespace-nowrap text-sm ">
                     {formatDate(expense?.createdAt)}
                   </td>
                   <td className="px-6 py-2 whitespace-nowrap text-sm ">
-                    {expense?.category}
+                    <span
+                      className={`px-3 rounded-lg border text-xs cursor-pointer ${
+                        expense?.category === "purchase"
+                          ? "bg-yellow-400/20 text-yellow-500 border-yellow-400 hover:bg-yellow-400/30"
+                          : "bg-blue-400/20 border-blue-400 text-blue-400 hover:bg-blue-400/30"
+                      }`}
+                    >
+                      {expense?.category}
+                    </span>
                   </td>
                   <td className="px-6 py-2 whitespace-nowrap text-sm ">
                     <Link to={`/suppliers/${expense.supplierId}`}>

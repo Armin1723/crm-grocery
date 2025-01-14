@@ -6,6 +6,7 @@ import SaveReload from "../utils/SaveReload";
 import AddByBarcode from "./AddByBarcode";
 import SaleProductSuggestion from "./SaleProductSuggestion";
 import { formatDateIntl } from "../utils";
+import AddCustomerModal from "../customer/AddCustomerModal";
 
 const SaleForm = ({ setRefetch = () => {}, closeModal = () => {} }) => {
   const [suggestedProducts, setSuggestedProducts] = useState([]);
@@ -360,7 +361,13 @@ const SaleForm = ({ setRefetch = () => {}, closeModal = () => {} }) => {
 
       {/* Customer Section */}
       <div className="flex flex-col w-full py-2">
-        <p className="my-1 font-semibold text-lg max-sm:text-base">Customer</p>
+        <div className="flex items-center gap-2">
+
+          <p className="my-1 font-semibold text-lg max-sm:text-base">
+            Customer
+          </p>
+          <AddCustomerModal setValue={setValue}/>
+        </div>
         <input
           type="number"
           placeholder="Enter Customer Number"
