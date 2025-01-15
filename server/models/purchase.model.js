@@ -14,6 +14,12 @@ const purchaseSchema = new mongoose.Schema(
         purchaseRate: {
           type: Number,
         },
+        expiry: {
+          type: Date,
+        },
+        mrp: {
+          type: Number,
+        },
       },
     ],
     followUpPayments: [{

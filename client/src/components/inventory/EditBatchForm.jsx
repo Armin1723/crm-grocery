@@ -12,7 +12,6 @@ const EditBatchForm = ({
     register,
     formState: { errors },
     handleSubmit,
-    setValue,
   } = useForm({
     mode: "onChange",
     defaultValues: {
@@ -89,33 +88,6 @@ const EditBatchForm = ({
               {errors.sellingRate.message}
             </span>
           )}
-        </div>
-
-        <div className="expiry-input w-full flex flex-col relative group my-2">
-          <input
-            type="date"
-            className={`input peer ${
-              errors && errors.expiry && "border-red-500 focus:!border-red-500"
-            }`}
-            name="expiry"
-            defaultValue={
-              batch.expiry
-                ? new Date(batch.expiry).toISOString().split("T")[0]
-                : ""
-            }
-            onChange={(e) => {
-              setValue("expiry", e.target.value);
-            }}
-            min={new Date().toISOString().split("T")[0]}
-          />
-          <label
-            htmlFor="expiry"
-            className={`input-label peer-focus:text-[var(--color-accent-dark)] ${
-              errors && errors.expiry && "!text-red-500"
-            }`}
-          >
-            Expiry Date
-          </label>
         </div>
 
         <button

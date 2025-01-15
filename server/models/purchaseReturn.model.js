@@ -36,12 +36,12 @@ const purchaseReturnSchema = new mongoose.Schema(
     totalAmount: {
       type: Number,
     },
-    paidAmount: {
-      type: Number,
-    },
     signedBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
+    },
+    invoice: {
+      type: String,
     },
     supplier: {
       type: mongoose.Schema.Types.ObjectId,

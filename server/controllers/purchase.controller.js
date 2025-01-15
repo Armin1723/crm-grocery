@@ -5,9 +5,12 @@ const Inventory = require("../models/inventory.model");
 const Supplier = require("../models/supplier.model");
 const PurchaseReturn = require("../models/purchaseReturn.model");
 
-const { sendMail, generatePurchaseInvoice } = require("../helpers");
+const { sendMail } = require("../helpers");
 const followUpPaymentMailTemplate = require("../templates/email/followUpPaymentMailTemplate");
-const mongoose = require("mongoose");
+const {
+  generatePurchaseInvoice,
+} = require("../templates/invoice/purchaseInvoice");
+const { generatePurchaseReturnInvoice } = require("../templates/invoice/purchaseReturnInvoice");
 
 const getPurchases = async (req, res) => {
   const {
@@ -62,108 +65,74 @@ const getEmployeePurchases = async (req, res) => {
 };
 
 const getPurchase = async (req, res) => {
-  const purchaseData = await Purchase.aggregate([
-    { $match: { _id: new mongoose.Types.ObjectId(req.params.id) } },
+  const { return: isReturn } = req.query;
+  const purchase = await Purchase.findById(req.params.id)
+    .populate("products.product")
+    .populate("supplier")
+    .populate("signedBy");
 
-    // Populate products.product with details
-    {
-      $lookup: {
-        from: "products",
-        localField: "products.product",
-        foreignField: "_id",
-        as: "productDetails",
-      },
-    },
-
-    // Map product details back into the products array
-    {
-      $addFields: {
-        products: {
-          $map: {
-            input: "$products",
-            as: "productItem",
-            in: {
-              _id: "$$productItem._id",
-              product: {
-                $arrayElemAt: [
-                  {
-                    $filter: {
-                      input: "$productDetails",
-                      as: "details",
-                      cond: { $eq: ["$$details._id", "$$productItem.product"] },
-                    },
-                  },
-                  0,
-                ],
-              },
-              purchaseRate: "$$productItem.purchaseRate",
-              quantity: "$$productItem.quantity",
-            },
-          },
-        },
-      },
-    },
-
-    // Populate supplier details and unwind (ensure single object instead of array)
-    {
-      $lookup: {
-        from: "suppliers",
-        localField: "supplier",
-        foreignField: "_id",
-        as: "supplier",
-      },
-    },
-    { $unwind: { path: "$supplier", preserveNullAndEmptyArrays: true } },
-
-    // Populate signedBy details and unwind
-    {
-      $lookup: {
-        from: "users",
-        localField: "signedBy",
-        foreignField: "_id",
-        as: "signedBy",
-      },
-    },
-    { $unwind: { path: "$signedBy", preserveNullAndEmptyArrays: true } },
-
-    // Project the desired fields
-    {
-      $project: {
-        _id: 1,
-        createdAt: 1,
-        invoice: 1,
-        products: 1,
-        supplier: {
-          _id: "$supplier._id",
-          name: "$supplier.name",
-          phone: "$supplier.phone",
-          email: "$supplier.email",
-          gstin: "$supplier.gstin",
-          pan: "$supplier.pan",
-          notes: "$supplier.notes",
-          balance: "$supplier.balance",
-        },
-        signedBy: {
-          _id: "$signedBy._id",
-          name: "$signedBy.name",
-          email: "$signedBy.email",
-          phone: "$signedBy.phone",
-        },
-        subTotal: 1,
-        otherCharges: 1,
-        discount: 1,
-        totalAmount: 1,
-        paidAmount: 1,
-        deficitAmount: 1,
-        followUpPayments: 1,
-      },
-    },
-  ]);
-
-  if (!purchaseData.length) {
-    return res.status(404).json({ error: "Purchase not found." });
+  if (!purchase) {
+    return res
+      .status(404)
+      .json({ success: false, message: "Purchase not found." });
   }
-  res.json({ success: true, purchase: purchaseData[0] });
+
+  const alreadyReturned = await PurchaseReturn.findOne({
+    purchase: purchase._id,
+  });
+  if (alreadyReturned) {
+    return res.status(400).json({
+      success: false,
+      message: "Purchase already returned for this bill.",
+    });
+  }
+
+  if (!isReturn) {
+    res.json({ success: true, purchase });
+  }
+  const purchaseObj = purchase.toObject();
+  for (const product of purchaseObj.products) {
+    const inventory = await Inventory.findOne({
+      product: product.product,
+      totalQuantity: { $gte: product.quantity },
+    });
+    if (!inventory || !inventory.batches.length) {
+      product.maxQuantity = 0;
+      continue;
+    }
+    const sameBatch = inventory.batches.find(
+      (batch) =>
+        batch.purchaseRate === product.purchaseRate &&
+        (!product.expiry ||
+          new Date(batch.expiry).getTime() ==
+            new Date(product.expiry).getTime()) &&
+        (!product.mrp || batch.mrp == product.mrp)
+    );
+    if (sameBatch) {
+      product.maxQuantity = Math.min(sameBatch.quantity, product.quantity);
+    } else {
+      product.maxQuantity = 0;
+    }
+  }
+  res.json({
+    success: true,
+    purchase: {
+      ...purchaseObj,
+      products: purchaseObj.products.map((product) => ({
+        _id: product.product._id,
+        expiry: product.expiry,
+        name: product.product.name,
+        purchaseRate: product.purchaseRate,
+        mrp: product.mrp,
+        primaryUnit: product.product.primaryUnit,
+        secondaryUnit: product.product.secondaryUnit,
+        conversion: product.product.conversion,
+        quantity: product.quantity,
+        maxQuantity: product.maxQuantity,
+        price: product.purchaseRate * product.quantity,
+      })),
+    },
+  });
 };
 
 const getPurchaseReturns = async (req, res) => {
@@ -174,6 +143,7 @@ const getPurchaseReturns = async (req, res) => {
     sortType = "desc",
   } = req.query;
   const purchaseReturns = await PurchaseReturn.find({})
+  .populate("products.product supplier signedBy")
     .limit(limit)
     .skip((page - 1) * limit)
     .sort({ [sort]: sortType });
@@ -186,6 +156,72 @@ const getPurchaseReturns = async (req, res) => {
     page,
     totalPurchaseReturns,
   });
+};
+
+const addPurchaseReturn = async (req, res) => {
+  const { products, invoiceId } = req.body;
+
+  const alreadyReturned = await PurchaseReturn.findOne({
+    invoice: invoiceId,
+  });
+  if (alreadyReturned) {
+    return res.status(400).json({
+      success: false,
+      message: "Purchase already returned for this bill.",
+    });
+  }
+
+  const purchaseReturn = await PurchaseReturn.create({
+    products: products.map((product) => ({
+      product: product._id,
+      quantity: product.quantity,
+      purchaseRate: product.purchaseRate,
+      expiry: product?.expiry,
+      mrp: product?.mrp,
+    })),
+    subTotal: req.body.subTotal,
+    otherCharges: req.body.otherCharges,
+    discount: req.body.discount,
+    totalAmount: req.body.totalAmount,
+    reason: req.body.reason,
+    supplier: req.body.supplierId,
+    signedBy: req.user.id,
+    purchaseId: invoiceId,
+  });
+
+  // Update Inventory
+  for (const product of products) {
+    const inventory = await Inventory.findOne({
+      product: product._id,
+    });
+    if (!inventory) {
+      return res.status(404).json({ error: "Product not found in inventory." });
+    }
+    const sameBatch = inventory.batches.find(
+      (batch) =>
+        batch.purchaseRate === product.purchaseRate &&
+        batch.mrp === product.mrp &&
+        ((!product.expiry && !batch.expiry) ||
+          new Date(batch.expiry).getTime() ==
+            new Date(product.expiry).getTime())
+    );
+    if (sameBatch) {
+      sameBatch.quantity -= product.quantity;
+      inventory.totalQuantity -= product.quantity;
+      if (sameBatch.quantity === 0) {
+        inventory.batches = inventory.batches.filter(
+          (batch) => batch._id.toString() !== sameBatch._id.toString()
+        );
+      }
+    }
+    await inventory.save();
+  }
+
+  purchaseReturn.invoice = await generatePurchaseReturnInvoice(
+    purchaseReturn._id
+  );
+  await purchaseReturn.save();
+  res.json({ success: true, purchaseReturn });
 };
 
 const addPurchase = async (req, res) => {
@@ -203,6 +239,8 @@ const addPurchase = async (req, res) => {
       product: product._id,
       purchaseRate: product.purchaseRate,
       quantity: product.quantity || 1,
+      expiry: product?.expiry,
+      mrp: product?.mrp,
     })),
     signedBy: req.user.id,
     supplier: supplierId,
@@ -366,6 +404,7 @@ module.exports = {
   getRecentPurchase,
   getPurchase,
   getPurchaseReturns,
+  addPurchaseReturn,
   addPurchase,
   addPayment,
 };
