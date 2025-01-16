@@ -3,8 +3,8 @@ const Purchase = require("./models/purchase.model");
 const Sale = require("./models/sale.model");
 // const saleReturn = require("./models/saleReturn.model");
 
-const { generatePurchaseReturnInvoice } = require("./templates/invoice/purchaseReturnInvoice");
-const { generatePurchaseInvoice } = require("./templates/invoice/purchaseInvoice");
+const generatePurchaseReturnInvoice = require("./templates/invoice/purchaseReturnInvoice");
+const generatePurchaseInvoice = require("./templates/invoice/purchaseInvoice");
 const generateSaleInvoice = require("./templates/invoice/saleInvoice");
 // const { generateSaleReturnInvoice } = require("./templates/invoice/saleReturnInvoice");
 
@@ -31,8 +31,8 @@ const updatePurchaseReturnInvoice = async () => {
     console.log("Updated all purchase return invoices");
 }
 
-const updateSaleInvoice = async () => {
-    const sales = await Sale.find().sort({createdAt: -1}).limit(1);
+const updateSaleInvoice = async (limit = 1) => {
+    const sales = await Sale.find().sort({createdAt: -1}).limit(limit);
 
     for (const sale of sales) {
         sale.invoice = await generateSaleInvoice(sale._id);

@@ -61,35 +61,33 @@ const generatePurchaseReturnInvoice = async (purchaseReturnId) => {
 };
 
 function generateHeader(doc, purchaseReturnId) {
-    // Main Title
-    doc
-      .fillColor("#444444")
-      .fontSize(18)
-      .font("Helvetica-Bold")
-      .text("Purchase Return Invoice", { align: "center", bold: true })
-      .moveDown(1);
-  
-    // Logo and Title
-    doc
-      .font("Helvetica")
-      .image(path.join(__dirname, "logo.png"), 50, 85, { width: 50 }) // Add logo
-      .fillColor("#444444")
-      .fontSize(20)
-      .text("Grocery CRM", 110, 97);
-  
-    // Invoice ID
-    doc
-      .fontSize(10)
-      .text("Invoice Id: " + purchaseReturnId, 110, 122);
-  
-    // Address Section
-    doc
-      .fontSize(10)
-      .text("Grocery CRM", 200, 90, { align: "right" })
-      .text("123 Main Street", 200, 105, { align: "right" })
-      .text("New York, NY, 10025", 200, 120, { align: "right" })
-      .moveDown();
-  } 
+  // Main Title
+  doc
+    .fillColor("#444444")
+    .fontSize(18)
+    .font("Helvetica-Bold")
+    .text("Purchase Return Invoice", { align: "center", bold: true })
+    .moveDown(1);
+
+  // Logo and Title
+  doc
+    .font("Helvetica")
+    .image(path.join(__dirname, "logo.png"), 50, 85, { width: 50 }) // Add logo
+    .fillColor("#444444")
+    .fontSize(20)
+    .text("Grocery CRM", 110, 97);
+
+  // Invoice ID
+  doc.fontSize(10).text("Invoice Id: " + purchaseReturnId, 110, 122);
+
+  // Address Section
+  doc
+    .fontSize(10)
+    .text("Grocery CRM", 200, 90, { align: "right" })
+    .text("123 Main Street", 200, 105, { align: "right" })
+    .text("New York, NY, 10025", 200, 120, { align: "right" })
+    .moveDown();
+}
 
 function generateSupplierInformation(doc, purchaseReturn) {
   doc.fillColor("#444444").fontSize(12).text("Supplier Details", 50, 160);
@@ -220,4 +218,4 @@ function generateHr(doc, y) {
   doc.strokeColor("#aaaaaa").lineWidth(1).moveTo(20, y).lineTo(580, y).stroke();
 }
 
-module.exports = { generatePurchaseReturnInvoice };
+module.exports = generatePurchaseReturnInvoice;

@@ -4,16 +4,12 @@ const Purchase = require("../models/purchase.model");
 const Inventory = require("../models/inventory.model");
 const Supplier = require("../models/supplier.model");
 const PurchaseReturn = require("../models/purchaseReturn.model");
-
-const { sendMail } = require("../helpers");
-const followUpPaymentMailTemplate = require("../templates/email/followUpPaymentMailTemplate");
-const {
-  generatePurchaseInvoice,
-} = require("../templates/invoice/purchaseInvoice");
-const {
-  generatePurchaseReturnInvoice,
-} = require("../templates/invoice/purchaseReturnInvoice");
 const Product = require("../models/product.model");
+
+const followUpPaymentMailTemplate = require("../templates/email/followUpPaymentMailTemplate");
+const generatePurchaseInvoice = require("../templates/invoice/purchaseInvoice");
+const generatePurchaseReturnInvoice = require("../templates/invoice/purchaseReturnInvoice");
+const { sendMail } = require("../helpers");
 
 const getPurchases = async (req, res) => {
   const {

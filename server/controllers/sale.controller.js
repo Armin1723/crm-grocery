@@ -208,10 +208,11 @@ const addSale = async (req, res) => {
 
   //send mail to customer
   if(customer?.email){
+    const updatedSale = await Sale.findById(sale._id).populate("customer signedBy products.product" );
     await sendMail(
       customer.email,
       "Sales Invoice",
-      (message = saleInvoiceMailTemplate(customer, sale.invoice))
+      (message = saleInvoiceMailTemplate(updatedSale))
     )
   }
   res.json({ success: true, sale });

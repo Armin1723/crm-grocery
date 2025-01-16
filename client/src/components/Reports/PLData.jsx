@@ -158,39 +158,39 @@ const PLData = ({ reportData }) => {
           <div className="flex flex-col gap-3 flex-1 w-full">
             <div className="bg-[var(--color-primary)] p-4 rounded-lg">
               <h3 className="text-sm text-[var(--color-text-light)]">
-                Purchases
-              </h3>
-              <CountUp
-                className="text-2xl font-bold"
-                end={reportData?.expenses?.purchases}
-                duration={2}
-                separator=","
-                decimals={2}
-                prefix="₹"
-              />
-            </div>
-
-            <div className="bg-[var(--color-primary)] p-4 rounded-lg">
-              <h3 className="text-sm text-[var(--color-text-light)]">
-                Other Expenses
-              </h3>
-              <CountUp
-                className="text-2xl font-bold"
-                end={reportData?.expenses?.otherExpenses}
-                duration={2}
-                separator=","
-                decimals={2}
-                prefix="₹"
-              />
-            </div>
-
-            <div className="bg-[var(--color-primary)] p-4 rounded-lg">
-              <h3 className="text-sm text-[var(--color-text-light)]">
                 Total Expenses
               </h3>
               <CountUp
+                className="text-2xl font-bold"
+                end={reportData?.expenses?.expenses}
+                duration={2}
+                separator=","
+                decimals={2}
+                prefix="₹"
+              />
+            </div>
+
+            <div className="bg-[var(--color-primary)] p-4 rounded-lg">
+              <h3 className="text-sm text-[var(--color-text-light)]">
+                Returns
+              </h3>
+              <CountUp
+                className="text-2xl font-bold"
+                end={reportData?.expenses?.returns}
+                duration={2}
+                separator=","
+                decimals={2}
+                prefix="₹"
+              />
+            </div>
+
+            <div className="bg-[var(--color-primary)] p-4 rounded-lg">
+              <h3 className="text-sm text-[var(--color-text-light)]">
+                Net Expenses
+              </h3>
+              <CountUp
                 className="text-2xl font-bold text-red-500"
-                end={reportData?.expenses?.total}
+                end={reportData?.expenses?.netExpenses}
                 duration={2}
                 separator=","
                 decimals={2}

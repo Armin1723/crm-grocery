@@ -13,9 +13,18 @@ import {
 import CountUp from "react-countup";
 import ExpenseTable from "./ExpenseTable";
 import ReportHeader from "./ReportHeader";
+import { FaChevronCircleDown } from "react-icons/fa";
 
-const ExpenseSummary = ({ totalPurchases, totalOtherExpenses }) => {
-  const totalExpenses = (totalPurchases || 0) + (totalOtherExpenses || 0);
+const ExpenseSummary = ({
+  totalPurchases = 0,
+  totalOtherExpenses = 0,
+  totalReturns = 0,
+}) => {
+
+  const [expanded, setExpanded] = useState(false);
+
+  const totalExpenses = totalPurchases + totalOtherExpenses - totalReturns;
+  const netPurchases = totalPurchases - totalReturns;
 
   return (
     <div className="bg-[var(--color-card)] shadow-md rounded-lg p-6">
@@ -24,37 +33,62 @@ const ExpenseSummary = ({ totalPurchases, totalOtherExpenses }) => {
       </h2>
 
       <div className="grid gap-6 md:grid-cols-3">
-        {[totalPurchases, totalOtherExpenses, totalExpenses].map(
-          (item, index) => {
-            return (
-              <div
-                key={index}
-                className="text-center text-[var(--color-text-light)] bg-[var(--color-primary)] rounded-md p-2"
-              >
-                <p className="text-sm font-medium  mb-2">
-                  {index === 0
-                    ? "Total Purchases"
-                    : index === 1
-                    ? "Other Expenses"
-                    : "Total Expenses"}
-                </p>
-                <div
-                  className={`text-2xl font-semibold ${
-                    index === 2 && "text-red-500"
-                  }`}
-                >
-                  ₹
-                  <CountUp
-                    end={item || 0}
-                    decimals={2}
-                    duration={1}
-                    separator=","
+        {[
+          {
+            name: "Net Purchases",
+            value: netPurchases,
+          },
+          {
+            name: "Other Expenses",
+            value: totalOtherExpenses,
+          },
+          {
+            name: "Total Expenses",
+            value: totalExpenses,
+          },
+        ].map((item, index) => {
+          return (
+            <div
+              key={index}
+              className="text-center text-[var(--color-text-light)] bg-[var(--color-primary)] rounded-md p-2 flex flex-col justify-center"
+            >
+              <div className="text-sm font-medium mb-2 flex items-center justify-center gap-2 w-full">
+                <p>{item.name}</p>
+                {item?.name === "Net Purchases" && (
+                  <FaChevronCircleDown
+                    className="cursor-pointer"
+                    onClick={() =>
+                      setExpanded((p) => (p === index ? null : index))
+                    }
                   />
-                </div>
+                )}
               </div>
-            );
-          }
-        )}
+              <div
+                className={`text-2xl font-semibold ${
+                  index === 2 && "text-red-500"
+                }`}
+              >
+                ₹
+                <CountUp
+                  end={item?.value || 0}
+                  decimals={2}
+                  duration={1}
+                  separator=","
+                />
+              </div>
+              {item.name == "Net Purchases" && (
+                <div
+                  className={` ${
+                    expanded === index ? "max-h-screen" : "max-h-0"
+                  } overflow-hidden transition-all duration-300 text-sm font-medium mt-2 flex flex-col`}
+                >
+                  <p>Purchases: ₹{totalPurchases?.toFixed(2)}</p>
+                  <p>Returns: ₹{totalReturns?.toFixed(2)}</p>
+                </div>
+              )}
+            </div>
+          );
+        })}
       </div>
     </div>
   );
@@ -182,10 +216,13 @@ const ExpenseReport = () => {
             <ExpenseSummary
               totalPurchases={data.totalPurchases}
               totalOtherExpenses={data?.totalOtherExpenses}
+              totalReturns={data?.totalReturns}
             />
 
-            <ExpenseTable expenses={data?.expenseList} />
+            <ExpenseTable title="Expense" data={data?.expenseList} />
+            <ExpenseTable title="Return" data={data?.purchaseReturnsList} />
 
+            {/* Charts */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 no-print">
               {data.expensesByCategory?.length > 0 && (
                 <div className="bg-[var(--color-card)] rounded-lg shadow p-6">

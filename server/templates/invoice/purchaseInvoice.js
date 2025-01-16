@@ -243,4 +243,4 @@ function generateHeader(doc, purchaseId) {
     doc.strokeColor("#aaaaaa").lineWidth(1).moveTo(20, y).lineTo(580, y).stroke();
   }
 
-module.exports = { generatePurchaseInvoice };
+module.exports = generatePurchaseInvoice;

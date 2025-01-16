@@ -2,6 +2,7 @@ const Purchase = require("../models/purchase.model");
 const Expense = require("../models/expense.model");
 const Sale = require("../models/sale.model");
 const SalesReturn = require("../models/salesReturn.model");
+const PurchaseReturn = require("../models/purchaseReturn.model");
 
 // Utils
 const matchStage = (startDate, endDate) => ({
@@ -133,6 +134,25 @@ const getExpenseReport = async (req, res) => {
     },
   ]);
 
+  const purchaseReturnQuery = PurchaseReturn.aggregate([
+    matchStage(startDate, endDate),
+    supplierLookup,
+    userLookup,
+    {
+      $project: {
+        _id: 1,
+        createdAt: 1,
+        category: "return",
+        purchaseId: 1,
+        supplier: { $arrayElemAt: ["$supplierDetails.name", 0] },
+        supplierId: { $arrayElemAt: ["$supplierDetails._id", 0] },
+        signedBy: { $arrayElemAt: ["$signedBy.name", 0] },
+        signedById: { $arrayElemAt: ["$signedBy._id", 0] },
+        amount: "$totalAmount",
+      },
+    },
+  ]);
+
   const reportQuery = Purchase.aggregate([
     matchStage(startDate, endDate),
     { $unwind: "$products" },
@@ -205,11 +225,13 @@ const getExpenseReport = async (req, res) => {
   ]);
 
   // Run all queries concurrently
-  const [purchaseExpenses, otherExpenses, report] = await Promise.all([
-    purchaseQuery,
-    otherExpensesQuery,
-    reportQuery,
-  ]);
+  const [purchaseExpenses, otherExpenses, purchaseReturns, report] =
+    await Promise.all([
+      purchaseQuery,
+      otherExpensesQuery,
+      purchaseReturnQuery,
+      reportQuery,
+    ]);
 
   // Combine and calculate totals
   const expenseList = mergeSortedArrays(
@@ -223,10 +245,12 @@ const getExpenseReport = async (req, res) => {
     data: {
       ...report[0],
       expenseList,
+      purchaseReturnsList: purchaseReturns,
       totalPurchases: purchaseExpenses.reduce(
         (acc, curr) => acc + curr.amount,
         0
       ),
+      totalReturns: purchaseReturns.reduce((acc, curr) => acc + curr.amount, 0),
       totalOtherExpenses: otherExpenses.reduce(
         (acc, curr) => acc + curr.amount,
         0
@@ -505,6 +529,39 @@ const getProfitLossReport = async (req, res) => {
     },
   ]);
 
+  // Aggregating Purchase Returns
+  const purchaseReturns = await PurchaseReturn.aggregate([
+    matchStage(startDate, endDate),
+    {
+      $project: {
+        totalAmount: 1,
+      },
+    },
+    {
+      $group: {
+        _id: null,
+        totalReturns: { $sum: "$totalAmount" },
+      },
+    },
+  ]);
+
+  if (!purchasesAggregation[0]) {
+    purchasesAggregation[0] = {
+      totalPurchases: 0,
+      totalOtherExpenses: 0,
+      totalReturns: 0,
+    };
+  }
+
+  purchasesAggregation[0].totalReturns = purchaseReturns[0]?.totalReturns || 0;
+  purchasesAggregation[0].totalExpenses =
+    purchasesAggregation[0].totalPurchases +
+    expenseAggregation[0]?.totalOtherExpenses;
+  purchasesAggregation[0].netExpenses =
+    purchasesAggregation[0].totalPurchases +
+    expenseAggregation[0]?.totalOtherExpenses -
+    purchasesAggregation[0].totalReturns;
+
   // Grouped sales data by category
   const salesByCategory = await Sale.aggregate([
     matchStage(startDate, endDate),
@@ -536,11 +593,10 @@ const getProfitLossReport = async (req, res) => {
   // Calculating Gross Profit (Sales - Purchases)
   const grossProfit =
     salesAggregation[0]?.netSales -
-    (purchasesAggregation[0]?.totalPurchases || 0);
+    purchasesAggregation[0]?.totalPurchases + purchasesAggregation[0]?.totalReturns; 
 
   // Calculating Net Profit (Gross Profit - Expenses)
-  const netProfit =
-    grossProfit - (expenseAggregation[0]?.totalOtherExpenses || 0);
+  const netProfit = grossProfit - expenseAggregation[0]?.totalOtherExpenses;
 
   // Preparing Chart Data for Recharts (Sales and Expenses over time)
   const salesChartData = await Sale.aggregate([
@@ -706,11 +762,9 @@ const getProfitLossReport = async (req, res) => {
   // Formatting the response data
   const reportData = {
     expenses: {
-      purchases: purchasesAggregation[0]?.totalPurchases || 0,
-      otherExpenses: expenseAggregation[0]?.totalOtherExpenses || 0,
-      total:
-        (purchasesAggregation[0]?.totalPurchases || 0) +
-        (expenseAggregation[0]?.totalOtherExpenses || 0),
+      expenses: purchasesAggregation[0]?.totalExpenses || 0,
+      returns: purchasesAggregation[0]?.totalReturns || 0,
+      netExpenses: purchasesAggregation[0]?.netExpenses || 0,
     },
     sales: {
       sales: salesAggregation[0]?.totalSales || 0,
