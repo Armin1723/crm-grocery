@@ -440,9 +440,15 @@ const salesPurchaseChart = async (req, res) => {
         $dateToString: { format: "%Y-%m-%d", date: "$createdAt" },
       };
       break;
-    case "weekly":
-      groupFormat = { $isoWeek: "$createdAt" }; 
-      break;
+      case "weekly":
+        groupFormat = {
+          $concat: [
+            { $toString: { $isoWeekYear: "$createdAt" } }, // Year of the ISO week
+            "-",
+            { $toString: { $isoWeek: "$createdAt" } },    // ISO week number
+          ],
+        };
+        break;
     case "monthly":
       groupFormat = { $dateToString: { format: "%Y-%m", date: "$createdAt" } };
       break;

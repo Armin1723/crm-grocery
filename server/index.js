@@ -5,7 +5,6 @@ const cors = require('cors');
 const connectToDB = require('./db');
 const cookieParser = require('cookie-parser');
 const { errorHandler } = require('./middleware/errorHandler.js');
-const { updatePurchaseReturnInvoice } = require('./trial.js');
 
 const app = express();
 
@@ -40,8 +39,6 @@ app.use('/api/v1/customers', require('./routes/customer.routes.js'));
 app.get('/', (req, res) => {
     res.send('Hello World from CRM API');
 });
-
-updatePurchaseReturnInvoice();
 
 // Error Handler middleware
 app.use(errorHandler);

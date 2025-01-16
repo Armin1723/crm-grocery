@@ -55,14 +55,14 @@ const TrendingProducts = () => {
     );
 
   return (
-    <div className="bg-[var(--color-sidebar)] p-4 rounded-md border border-neutral-500/50 w-full md:hidden lg:flex md:w-[30%] h-full flex flex-col">
+    <div className="bg-[var(--color-sidebar)] p-4 rounded-md border border-neutral-500/50 w-full md:hidden lg:flex md:w-[30%] h-full flex flex-col justify-between">
       <p className="text-2xl max-lg:text-xl font-bold mb-4">
         Trending Products
       </p>
 
       <div className="bg-[var(--color-card)] flex-1 overflow-y-scroll rounded-md p-4">
         {trendingProducts.length > 0 ? (
-          <ResponsiveContainer width="100%" height={300}>
+          <ResponsiveContainer width="100%" height={280}>
             <BarChart
               data={trendingProducts}
               layout="vertical"
@@ -136,6 +136,8 @@ const TrendingProducts = () => {
             </ul>
           </div>
         )}
+
+        <div className="text-xs text-[var(--color-text-light)] italic">*Data for {new Date().getFullYear()}</div>
       </div>
     </div>
   );

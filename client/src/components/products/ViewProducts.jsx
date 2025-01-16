@@ -84,10 +84,10 @@ const ViewProducts = () => {
             </div>
             <div className="w-[10%] min-w-[50px] flex items-center  ">
               <SortableLink
-                title="rate"
-                isActive={sort === "rate"}
+                title="MRP"
+                isActive={sort === "mrp"}
                 sortType={sortType}
-                setSort={setSort}
+                setSort={() => setSort("mrp")}
                 setSortType={setSortType}
               />
             </div>
@@ -138,7 +138,7 @@ const ViewProducts = () => {
                       </HoverCard>
                     </div>
                     <div className="w-[10%] min-w-[50px] px-2">
-                      {product?.rate || "N/A"}
+                      {product?.mrp || "N/A"}
                     </div>
                     <div className="w-[15%] min-w-[50px] px-2 capitalize">
                       {product?.category || "N/A"}

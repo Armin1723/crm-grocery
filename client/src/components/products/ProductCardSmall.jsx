@@ -40,7 +40,7 @@ const ProductCardSmall = ({
             )}
           </Link>
           <p className="text-[var(--color-text)] font-semibold">
-            {product.rate ? `₹${product.rate}` : "Price: Not Set"}
+            {product.mrp ? `₹${product.mrp}` : "MRP: Not Set"}
           </p>
 
           {/* Product Category & Subcategory */}

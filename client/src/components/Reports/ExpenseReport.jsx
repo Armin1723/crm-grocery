@@ -24,30 +24,37 @@ const ExpenseSummary = ({ totalPurchases, totalOtherExpenses }) => {
       </h2>
 
       <div className="grid gap-6 md:grid-cols-3">
-      {[totalPurchases, totalOtherExpenses, totalExpenses].map(
-        (item, index) => {
-          return (
-            <div key={index} className="text-center text-[var(--color-text-light)] bg-[var(--color-primary)] rounded-md p-2">
-              <p className="text-sm font-medium  mb-2">
-                {index === 0
-                  ? "Total Purchases"
-                  : index === 1
-                  ? "Other Expenses"
-                  : "Total Expenses"}
-              </p>
-              <div className={`text-2xl font-semibold ${index === 2 && 'text-red-500'}`}>
-                ₹
-                <CountUp
-                  end={item || 0}
-                  decimals={2}
-                  duration={1}
-                  separator=","
-                />
+        {[totalPurchases, totalOtherExpenses, totalExpenses].map(
+          (item, index) => {
+            return (
+              <div
+                key={index}
+                className="text-center text-[var(--color-text-light)] bg-[var(--color-primary)] rounded-md p-2"
+              >
+                <p className="text-sm font-medium  mb-2">
+                  {index === 0
+                    ? "Total Purchases"
+                    : index === 1
+                    ? "Other Expenses"
+                    : "Total Expenses"}
+                </p>
+                <div
+                  className={`text-2xl font-semibold ${
+                    index === 2 && "text-red-500"
+                  }`}
+                >
+                  ₹
+                  <CountUp
+                    end={item || 0}
+                    decimals={2}
+                    duration={1}
+                    separator=","
+                  />
+                </div>
               </div>
-            </div>
-          );
-        }
-      )}
+            );
+          }
+        )}
       </div>
     </div>
   );
@@ -89,8 +96,8 @@ const ExpenseReport = () => {
         const response = await fetch(
           `${
             import.meta.env.VITE_BACKEND_URL
-          }/api/v1/reports/expense?startDate=${dateRange.startDate}&endDate=${
-            dateRange.endDate
+          }/api/v1/reports/expense?startDate=${dateRange?.startDate}&endDate=${
+            dateRange?.endDate
           }`,
           {
             credentials: "include",

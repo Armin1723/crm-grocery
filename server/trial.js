@@ -1,5 +1,12 @@
+const PurchaseReturn = require("./models/purchaseReturn.model");
 const Purchase = require("./models/purchase.model");
+const Sale = require("./models/sale.model");
+// const saleReturn = require("./models/saleReturn.model");
+
+const { generatePurchaseReturnInvoice } = require("./templates/invoice/purchaseReturnInvoice");
 const { generatePurchaseInvoice } = require("./templates/invoice/purchaseInvoice");
+const generateSaleInvoice = require("./templates/invoice/saleInvoice");
+// const { generateSaleReturnInvoice } = require("./templates/invoice/saleReturnInvoice");
 
 const updatePurchaseInvoice = async () => {
     const purchases = await Purchase.find();
@@ -12,8 +19,6 @@ const updatePurchaseInvoice = async () => {
     console.log("Updated all purchase invoices");
 }
 
-const PurchaseReturn = require("./models/purchaseReturn.model");
-const { generatePurchaseReturnInvoice } = require("./templates/invoice/purchaseReturnInvoice");
 
 const updatePurchaseReturnInvoice = async () => {
     const purchaseReturns = await PurchaseReturn.find();
@@ -26,4 +31,15 @@ const updatePurchaseReturnInvoice = async () => {
     console.log("Updated all purchase return invoices");
 }
 
-module.exports = {updatePurchaseInvoice, updatePurchaseReturnInvoice};
+const updateSaleInvoice = async () => {
+    const sales = await Sale.find().sort({createdAt: -1}).limit(1);
+
+    for (const sale of sales) {
+        sale.invoice = await generateSaleInvoice(sale._id);
+        console.log("Updated sale invoice for", sale._id);
+        await sale.save();
+    }
+    console.log("Updated all sale invoices");
+}
+
+module.exports = {updatePurchaseInvoice, updatePurchaseReturnInvoice, updateSaleInvoice};

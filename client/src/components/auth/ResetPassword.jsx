@@ -74,7 +74,7 @@ const ResetPassword = () => {
       exit={{ opacity: 0, x: 50 }}
       transition={{ duration: 0.5 }}
       onSubmit={handleSubmit(updatePassword)}
-      className="flex flex-col gap-4 p-3 rounded-md bg-[var(--color-sidebar)] py-6 max-sm:w-3/4 lg:max-w-[80%] md:w-2/3"
+      className="flex flex-col gap-4 p-3 rounded-md py-6 max-sm:w-3/4 lg:max-w-[80%] md:w-2/3"
     >
       <div className="intro my-6 max-lg:my-4 max-sm:my-2">
         <h2 className="font-outfit font-bold text-xl sm:text-3xl md:text-3xl lg:text-3xl ">

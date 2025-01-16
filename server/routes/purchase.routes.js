@@ -7,6 +7,7 @@ const {
   addPayment,
   getPurchaseReturns,
   addPurchaseReturn,
+  getPurchaseReturn,
 } = require("../controllers/purchase.controller");
 const { isLoggedIn } = require("../middleware");
 const { asyncHandler } = require("../middleware/errorHandler");
@@ -24,6 +25,8 @@ router.get("/employee/:employeeId", asyncHandler(getEmployeePurchases));
 router.post("/", asyncHandler(addPurchase));
 
 router.get("/return", asyncHandler(getPurchaseReturns));
+
+router.get("/return/:id", asyncHandler(getPurchaseReturn));
 
 router.post("/return", asyncHandler(addPurchaseReturn));
 

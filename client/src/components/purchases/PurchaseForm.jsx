@@ -217,11 +217,11 @@ const PurchaseForm = ({ setRefetch = () => {}, closeModal = () => {} }) => {
       <div className="title flex justify-between flex-wrap">
         <p className="my-1 font-semibold text-lg max-sm:text-base">Products</p>
 
-        {/* <SaveReload
-            products={products}
-            setProducts={setProducts}
-            name="purchaseData"
-          /> */}
+        <SaveReload
+          products={getValues("products")}
+          setProducts={(products) => setValue("products", products)}
+          name="purchaseData"
+        />
       </div>
 
       {/* Add Product */}

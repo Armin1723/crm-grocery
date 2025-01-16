@@ -124,7 +124,7 @@ const ViewPurchaseReturns = () => {
                         "No data"}
                     </div>
                     <div className="w-[15%] min-w-[80px] px-2 truncate text-ellipsis">
-                      <Link to={`/sales/${purchaseReturn?.purchaseId}`}> {purchaseReturn?.purchaseId || "N/A"} </Link>
+                      <Link to={`/purchases/${purchaseReturn?.purchaseId}`}> {purchaseReturn?.purchaseId || "N/A"} </Link>
                     </div>
                     <div className="w-[15%] min-w-[80px] px-2">
                       {purchaseReturn?.totalAmount || "N/A"}

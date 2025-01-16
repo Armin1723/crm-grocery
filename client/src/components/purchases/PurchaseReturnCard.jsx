@@ -1,0 +1,110 @@
+import React, { useState } from "react";
+import { formatDate } from "../utils";
+import Avatar from "../utils/Avatar";
+import { FaFileInvoice } from "react-icons/fa";
+import Modal from "../utils/Modal";
+
+const PurchaseReturnCard = ({ purchaseReturn = {} }) => {
+  const [invoiceModalOpen, setInvoiceModalOpen] = useState(false);
+
+  return (
+    <div className="flex flex-col rounded-md p-3 bg-[var(--color-card)]">
+      {/* Header */}
+      <div className="flex justify-between items-center flex-wrap text-xs">
+        <h2 className="text-lg font-semibold">Purchase Return Summary</h2>
+        <div className="flex items-center gap-2">
+          <div className="px-3 py-1 rounded-full bg-[var(--color-accent)] text-white ">
+            {formatDate(purchaseReturn?.createdAt) || "Today"}
+          </div>
+          <FaFileInvoice
+            className="text-red-500 cursor-pointer hover:text-red-600"
+            onClick={() => setInvoiceModalOpen(true)}
+          />
+          {invoiceModalOpen && (
+            <Modal
+              title="Purchase Return Invoice"
+              isOpen={invoiceModalOpen}
+              onClose={() => setInvoiceModalOpen(false)}
+            >
+              <embed
+                src={purchaseReturn?.invoice}
+                type="application/pdf"
+                width="100%"
+                height="500px"
+              />
+            </Modal>
+          )}
+        </div>
+      </div>
+
+      {/* Stats Grid */}
+      <div className="purchaseReturnSummary mt-3 grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div className="flex flex-col items-center justify-center p-4 rounded-lg bg-[var(--color-sidebar)]">
+          <span className="text-xl font-bold ">
+            {purchaseReturn?.totalAmount.toLocaleString() || "0"}₹
+          </span>
+          <p className="text-sm text-[var(--color-text-light)]">Total Amount</p>
+        </div>
+
+        {/* Individual Stat */}
+        <div className="flex flex-col items-center justify-center p-4 rounded-lg bg-[var(--color-sidebar)]">
+          <span className="text-xl font-bold ">
+            {purchaseReturn?.products?.length || "0"}
+          </span>
+          <p className="text-sm text-[var(--color-text-light)]">Products</p>
+        </div>
+      </div>
+
+      {/* Products */}
+      <h3>Returned Products</h3>
+      <div className="purchaseProducts flex flex-col gap-2 w-full rounded-md py-2 bg-[var(--color-card)] overflow-x-auto">
+        <table className="w-full text-sm">
+          <thead className="bg-[var(--color-primary)] text-neutral-600">
+            <tr>
+              <th className="py-2 text-left pl-4">Image</th>
+              <th className="py-2 text-left pl-4">Product</th>
+              <th className="py-2 text-left pl-4">Quantity</th>
+              <th className="py-2 text-left pl-4">Price</th>
+              <th className="py-2 text-left pl-4">Total</th>
+            </tr>
+          </thead>
+          <tbody>
+            {purchaseReturn?.products.map((product) => (
+              <tr key={product._id} className="border-b border-neutral-500/50">
+                <td className="py-2 pl-4">
+                  <Avatar
+                    image={product?.product?.image}
+                    withBorder={false}
+                    fallbackImage="/utils/product-placeholder.png"
+                  />
+                </td>
+                <td className="py-2 pl-4">{product?.product.name}</td>
+                <td className="py-2 pl-4">
+                  {product.quantity} {product?.product?.secondaryUnit}
+                </td>
+                <td className="py-2 pl-4">₹{product.purchaseRate}</td>
+                <td className="py-2 pl-4">
+                  ₹{Math.ceil(product.purchaseRate * product.quantity)}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        <div className="totalAmount flex justify-end items-center gap-2">
+          <p>Total Amount:</p>
+          <p>₹{purchaseReturn?.totalAmount}</p>
+        </div>
+      </div>
+
+      {/* Reason for Return */}
+      <div className="mt-3 text-sm text-[var(--color-text-light)] flex flex-col gap-2">
+        <span className="font-semibold">Reason:</span>
+        <p className="truncate w-full bg-[var(--color-sidebar)] rounded-md p-3">
+          {purchaseReturn?.reason}
+        </p>
+      </div>
+    </div>
+  );
+};
+
+export default PurchaseReturnCard;

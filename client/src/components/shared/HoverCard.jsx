@@ -58,7 +58,7 @@ const HoverCard = ({ title, children, to= "", otherClasses = '' }) => {
       {isHovered && (
         <div
           ref={contentRef}
-          className="fixed z-50 max-w-sm"
+          className="fixed z-50 max-w-3xl"
           style={{
             top: position.y,
             left: position.x,

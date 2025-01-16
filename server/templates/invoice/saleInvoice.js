@@ -17,7 +17,7 @@ const generateSaleInvoice = async (saleId) => {
 
     const doc = new PDFDocument({
       size: [216, 400],
-      margin: 10,
+      margin: 6,
     });
 
     const filePath = `./tmp/sale_receipt_${sale._id}.pdf`;
@@ -97,7 +97,7 @@ const addProductTable = (doc, products) => {
     .text("------------------------------------------------", {
       align: "center",
     })
-    .text("S.No  Product        Qty   Rate    Total", { align: "left" })
+    .text("S.No  Product        Qty     Rate   Total", { align: "left" })
     .text("------------------------------------------------", {
       align: "center",
     })
@@ -111,8 +111,8 @@ const addProductTable = (doc, products) => {
 
     doc.text(
       `${(index + 1).toString().padEnd(5)}${productName
-        .substring(0, 15)
-        .padEnd(15)}${quantity.toString().padStart(3)}${formatCurrency(
+        .substring(0, 17)
+        .padEnd(15)}${quantity.toString().padStart(5)}${formatCurrency(
         price
       ).padStart(8)}${formatCurrency(total).padStart(7)}`,
       { align: "left" }

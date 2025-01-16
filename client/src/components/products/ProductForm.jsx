@@ -109,7 +109,7 @@ const ProductForm = ({
     formData.append("primaryUnit", values.primaryUnit);
     formData.append("secondaryUnit", values.secondaryUnit);
     formData.append("conversionFactor", values.conversionFactor);
-    if (values.mrp) formData.append("rate", values.rate);
+    if (values.rate) formData.append("rate", values.rate);
     if (values.mrp) formData.append("mrp", values.mrp);
     if (values.shelfLife) formData.append("shelfLife", values.shelfLife);
     formData.append("description", values.description);

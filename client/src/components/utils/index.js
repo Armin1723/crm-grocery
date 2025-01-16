@@ -326,6 +326,13 @@ export const taxSlabs = [
     description: "Special rate for hotel accommodation with a higher tariff.",
   },
   {
+    id: 9,
+    name: "GST 18%",
+    rate: 18,
+    description:
+      "Standard rate for most goods and services, including electronics.",
+  },
+  {
     id: 8,
     name: "GST 20%",
     rate: 20,

@@ -128,11 +128,11 @@ const SaleForm = ({ setRefetch = () => {}, closeModal = () => {} }) => {
       <div className="title flex justify-between py-1">
         <p className="my-1 font-semibold text-lg max-sm:text-base">Products</p>
 
-        {/* <SaveReload
-          products={products}
-          setProducts={setProducts}
+        <SaveReload
+          products={getValues("products")}
+          setProducts={(products)=>setValue("products", products)}
           name="saleData"
-        /> */}
+        />
       </div>
 
       {/* Add Product */}

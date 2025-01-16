@@ -43,7 +43,7 @@ const ProductCardLarge = ({
                   </div>
                 </div>
                 <p className="text-lg max-sm:text-sm font-semibold text-[var(--color-text)] mt-1">
-                  {product.rate ? `₹${product.rate}` : "Price: Not Set"}
+                  {product.mrp ? `₹${product.mrp}` : "MRP: Not Set"}
                 </p>
                 {product.upid && (
                   <p className="text-[var(--color-text-light)] max-sm:text-xs">

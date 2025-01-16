@@ -6,9 +6,12 @@ import { AiFillCheckCircle, AiFillWarning } from "react-icons/ai";
 import Avatar from "../utils/Avatar";
 import PurchaseDetailActions from "./PurchaseDetailActions";
 import SupplierCard from "../suppliers/SupplierCard";
+import PurchaseReturnCard from "./PurchaseReturnCard";
 
-const PurchaseDetails = () => {
-  const { id } = useParams();
+const PurchaseDetails = ({ idBackup = "" }) => {
+  let { id } = useParams();
+
+  if (!id) id = idBackup;
   const [purchase, setPurchase] = useState(null);
   const [loading, setLoading] = useState(false);
   const [refetch, setRefetch] = useState(false);
@@ -66,21 +69,34 @@ const PurchaseDetails = () => {
               <h2 className="text-xl max-lg:text-lg max-sm:text-base font-bold">
                 Payment Details
               </h2>
-              <div className="flex items-center">
-                {purchase?.deficitAmount === 0 ? (
-                  <AiFillCheckCircle className="w-5 h-5 text-green-500 mr-2" />
-                ) : (
-                  <AiFillWarning className="w-5 h-5 text-amber-500 mr-2" />
-                )}
-                <span
-                  className={`font-semibold ${
+              <div className="flex items-center gap-3 capitalize text-xs">
+                <div
+                  className={`status-icon flex items-center px-3 py-1 rounded-lg ${
                     purchase?.deficitAmount === 0
-                      ? "text-green-500"
-                      : "text-amber-500"
+                      ? "bg-green-100 border-green-400"
+                      : "bg-red-100 border-red-400"
                   }`}
                 >
-                  {purchase?.deficitAmount === 0 ? "Paid" : "Pending"}
-                </span>
+                  {purchase?.deficitAmount === 0 ? (
+                    <AiFillCheckCircle className="w-3 h-3 text-green-500 mr-1" />
+                  ) : (
+                    <AiFillWarning className="w-3 h-3 text-amber-500 mr-1" />
+                  )}
+                  <span
+                    className={`font-semibold ${
+                      purchase?.deficitAmount === 0
+                        ? "text-green-500"
+                        : "text-amber-500"
+                    }`}
+                  >
+                    {purchase?.deficitAmount === 0 ? "Paid" : "Pending"}
+                  </span>
+                </div>
+                {purchase?.return && (
+                  <div className=" text-red-500 bg-red-100 rounded-lg border-red-400 px-3 py-1">
+                    returned
+                  </div>
+                )}
               </div>
             </div>
 
@@ -130,13 +146,13 @@ const PurchaseDetails = () => {
                       fallbackImage="/utils/product-placeholder.png"
                     />
                   </td>
-                  <td className="py-2 pl-4">{product.product.name}</td>
+                  <td className="py-2 pl-4">{product?.product?.name}</td>
                   <td className="py-2 pl-4">
-                    {product.quantity} {product.product.secondaryUnit}
+                    {product.quantity} {product?.product?.secondaryUnit}
                   </td>
-                  <td className="py-2 pl-4">₹{product.purchaseRate}</td>
+                  <td className="py-2 pl-4">₹{product?.purchaseRate}</td>
                   <td className="py-2 pl-4">
-                    ₹{Math.ceil(product.purchaseRate * product.quantity)}
+                    ₹{Math.ceil(product?.purchaseRate * product?.quantity)}
                   </td>
                 </tr>
               ))}
@@ -152,6 +168,13 @@ const PurchaseDetails = () => {
         <Divider title="Supplier Information" />
         <SupplierCard supplier={purchase?.supplier} />
 
+        {/* Return Information */}
+        {purchase?.return && (
+          <div className="flex flex-col gap-2 my-2">
+            <Divider title="Return Information" />
+            <PurchaseReturnCard purchaseReturn={purchase?.return} />
+          </div>
+        )}
       </div>
     </div>
   );

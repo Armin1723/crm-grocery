@@ -24,7 +24,7 @@ const Auth = () => {
   }, []);
 
   return (
-    <div className="w-full h-dvh flex items-center justify-between max-sm:flex-col-reverse ">
+    <div className="w-full h-dvh flex items-center justify-between max-sm:flex-col-reverse bg-[var(--color-card)]">
       <div className="form-container flex flex-col items-center justify-center w-1/2 max-sm:w-full max-sm:flex-1 bg-[var(--color-card)]">
         <Outlet />
       </div>

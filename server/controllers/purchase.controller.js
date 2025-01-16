@@ -10,7 +10,10 @@ const followUpPaymentMailTemplate = require("../templates/email/followUpPaymentM
 const {
   generatePurchaseInvoice,
 } = require("../templates/invoice/purchaseInvoice");
-const { generatePurchaseReturnInvoice } = require("../templates/invoice/purchaseReturnInvoice");
+const {
+  generatePurchaseReturnInvoice,
+} = require("../templates/invoice/purchaseReturnInvoice");
+const Product = require("../models/product.model");
 
 const getPurchases = async (req, res) => {
   const {
@@ -88,7 +91,26 @@ const getPurchase = async (req, res) => {
   }
 
   if (!isReturn) {
-    res.json({ success: true, purchase });
+    const formattedPurchase = {
+      products: purchase.products,
+      supplier: purchase.supplier,
+      signedBy: purchase.signedBy,
+      subTotal: purchase.subTotal,
+      otherCharges: purchase.otherCharges,
+      deficitAmount: purchase.deficitAmount,
+      followUpPayments: purchase.followUpPayments,
+      discount: purchase.discount,
+      totalAmount: purchase.totalAmount,
+      paidAmount: purchase.paidAmount,
+      invoice: purchase.invoice,
+    };
+    const purchaseReturn = await PurchaseReturn.findOne({
+      purchaseId: purchase._id,
+    }).populate("products.product", "name secondaryUnit image");
+    if (purchaseReturn) {
+      formattedPurchase.return = purchaseReturn;
+    }
+    return res.status(200).json({ success: true, purchase: formattedPurchase });
   }
   const purchaseObj = purchase.toObject();
   for (const product of purchaseObj.products) {
@@ -143,13 +165,13 @@ const getPurchaseReturns = async (req, res) => {
     sortType = "desc",
   } = req.query;
   const purchaseReturns = await PurchaseReturn.find({})
-  .populate("products.product supplier signedBy")
+    .populate("products.product supplier signedBy")
     .limit(limit)
     .skip((page - 1) * limit)
     .sort({ [sort]: sortType });
 
   const totalPurchaseReturns = await PurchaseReturn.countDocuments({});
-  res.json({
+  res.status(200).json({
     success: true,
     purchaseReturns,
     totalPages: Math.ceil(totalPurchaseReturns / limit),
@@ -162,12 +184,12 @@ const addPurchaseReturn = async (req, res) => {
   const { products, invoiceId } = req.body;
 
   const alreadyReturned = await PurchaseReturn.findOne({
-    invoice: invoiceId,
+    purchaseId: invoiceId,
   });
   if (alreadyReturned) {
     return res.status(400).json({
       success: false,
-      message: "Purchase already returned for this bill.",
+      message: "Return already exists on this bill.",
     });
   }
 
@@ -292,6 +314,7 @@ const addPurchase = async (req, res) => {
       if (existingBatch) {
         // If a batch with the same selling rate exists, update its quantity
         existingBatch.quantity += product.quantity;
+        existingBatch.mrp = existingBatch.mrp || product.mrp || null;
       } else {
         inventory.batches.push({
           quantity: product.quantity,
@@ -303,6 +326,15 @@ const addPurchase = async (req, res) => {
       }
       inventory.totalQuantity = inventory.totalQuantity + product.quantity;
       await inventory.save();
+    }
+
+    // Set MRP of product if not already set
+    if (product.mrp) {
+      const productDoc = await Product.findById(product._id);
+      if (!productDoc.mrp) {
+        productDoc.mrp = product.mrp;
+        await productDoc.save();
+      }
     }
   });
 

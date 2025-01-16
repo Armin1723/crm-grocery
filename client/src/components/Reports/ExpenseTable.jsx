@@ -1,5 +1,7 @@
 import { Link, useNavigate } from "react-router-dom";
 import { formatDate } from "../utils";
+import HoverCard from "../shared/HoverCard";
+import PurchaseDetails from "../purchases/PurchaseDetails";
 
 const ExpenseTable = ({ expenses }) => {
   const navigate = useNavigate();
@@ -40,7 +42,16 @@ const ExpenseTable = ({ expenses }) => {
                   onClick={() => navigate(`/purchases/${expense?._id}`)}
                 >
                   <td className="px-6 py-2 whitespace-nowrap text-sm ">
-                    {formatDate(expense?.createdAt)}
+                    {expense.category === "purchase" ? (
+                      <HoverCard title={formatDate(expense?.createdAt)}>
+                        <PurchaseDetails
+                          purchase={expense}
+                          idBackup={expense?._id}
+                        />
+                      </HoverCard>
+                    ) : (
+                      formatDate(expense?.createdAt)
+                    )}
                   </td>
                   <td className="px-6 py-2 whitespace-nowrap text-sm ">
                     <span
