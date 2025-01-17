@@ -1,41 +1,61 @@
-import React, { useEffect } from "react";
+import React, { useEffect, lazy, Suspense } from "react";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
-import Home from "./pages/Home";
-import Auth from "./pages/Auth";
-import Login from "./components/auth/Login";
-import ForgotPassword from "./components/auth/ForgotPassword";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import ResetPassword from "./components/auth/ResetPassword";
 import { useSelector } from "react-redux";
-import Products from "./components/home/Products";
-import Sales from "./components/home/Sales";
-import Purchases from "./components/home/Purchases";
-import Inventory from "./components/home/Inventory";
-import Stats from "./components/home/Stats";
-import NotFound from "./pages/NotFound";
-import ViewProducts from "./components/products/ViewProducts";
-import AddProduct from "./components/products/AddProduct";
-import ViewPurchases from "./components/purchases/ViewPurchases";
-import AddPurchase from "./components/purchases/AddPurchase";
-import ViewSales from "./components/sales/ViewSales";
-import AddSale from "./components/sales/AddSale";
-import Suppliers from "./components/home/Suppliers";
-import ViewSuppliers from "./components/suppliers/ViewSuppliers";
-import AddSuppliers from "./components/suppliers/AddSuppliers";
-import PurchaseDetails from "./components/purchases/PurchaseDetails";
-import SupplierDetails from "./components/suppliers/SupplierDetails";
-import SaleDetails from "./components/sales/SaleDetails";
-import ProductDetails from "./components/products/ProductDetails";
-import SaleReturn from "./components/sales/SaleReturn";
-import ViewSaleReturns from "./components/sales/ViewSaleReturns";
-import Reports from "./components/home/Reports";
-import ExpenseReport from "./components/Reports/ExpenseReport";
-import AddExpense from "./components/purchases/AddExpense";
-import SalesReport from "./components/Reports/SalesReport";
-import ProfitLossReport from "./components/Reports/ProfitLossReport";
-import ViewPurchaseReturns from "./components/purchases/ViewPurchaseReturns";
-import AddPurchaseReturn from "./components/purchases/AddPurchaseReturn";
+
+const Home = lazy(() => import("./pages/Home"));
+const Auth = lazy(() => import("./pages/Auth"));
+const Login = lazy(() => import("./components/auth/Login"));
+const ForgotPassword = lazy(() => import("./components/auth/ForgotPassword"));
+const ResetPassword = lazy(() => import("./components/auth/ResetPassword"));
+const Products = lazy(() => import("./components/home/Products"));
+const Sales = lazy(() => import("./components/home/Sales"));
+const Purchases = lazy(() => import("./components/home/Purchases"));
+const Inventory = lazy(() => import("./components/home/Inventory"));
+const Stats = lazy(() => import("./components/home/Stats"));
+const NotFound = lazy(() => import("./pages/NotFound"));
+const ViewProducts = lazy(() => import("./components/products/ViewProducts"));
+const AddProduct = lazy(() => import("./components/products/AddProduct"));
+const ViewPurchases = lazy(() =>
+  import("./components/purchases/ViewPurchases")
+);
+const AddPurchase = lazy(() => import("./components/purchases/AddPurchase"));
+const ViewSales = lazy(() => import("./components/sales/ViewSales"));
+const AddSale = lazy(() => import("./components/sales/AddSale"));
+const Suppliers = lazy(() => import("./components/home/Suppliers"));
+const ViewSuppliers = lazy(() =>
+  import("./components/suppliers/ViewSuppliers")
+);
+const AddSuppliers = lazy(() => import("./components/suppliers/AddSuppliers"));
+const PurchaseDetails = lazy(() =>
+  import("./components/purchases/PurchaseDetails")
+);
+const SupplierDetails = lazy(() =>
+  import("./components/suppliers/SupplierDetails")
+);
+const SaleDetails = lazy(() => import("./components/sales/SaleDetails"));
+const ProductDetails = lazy(() =>
+  import("./components/products/ProductDetails")
+);
+const SaleReturn = lazy(() => import("./components/sales/SaleReturn"));
+const ViewSaleReturns = lazy(() =>
+  import("./components/sales/ViewSaleReturns")
+);
+const Reports = lazy(() => import("./components/home/Reports"));
+const ExpenseReport = lazy(() => import("./components/Reports/ExpenseReport"));
+const AddExpense = lazy(() => import("./components/purchases/AddExpense"));
+const SalesReport = lazy(() => import("./components/Reports/SalesReport"));
+const ProfitLossReport = lazy(() =>
+  import("./components/Reports/ProfitLossReport")
+);
+const ViewPurchaseReturns = lazy(() =>
+  import("./components/purchases/ViewPurchaseReturns")
+);
+const AddPurchaseReturn = lazy(() =>
+  import("./components/purchases/AddPurchaseReturn")
+);
+const TaxReport = lazy(() => import("./components/Reports/TaxReport"));
 
 const App = () => {
   const theme = useSelector((state) => state.theme.value);
@@ -74,6 +94,13 @@ const App = () => {
           border: "1px solid var(--color-card)",
         }}
       />
+      <Suspense
+        fallback={
+          <div className="w-full h-full flex flex-col items-center justify-center">
+            <div className="spinner"></div>
+          </div>
+        }
+      >
         <Routes>
           <Route path="/" element={<Home />}>
             <Route path="" element={<Stats />} />
@@ -118,6 +145,7 @@ const App = () => {
               <Route path="" element={<ExpenseReport />} />
               <Route path="expense" element={<ExpenseReport />} />
               <Route path="sales" element={<SalesReport />} />
+              <Route path="tax" element={<TaxReport />} />
               <Route path="profit-loss" element={<ProfitLossReport />} />
             </Route>
           </Route>
@@ -131,6 +159,7 @@ const App = () => {
 
           <Route path="*" element={<NotFound />} />
         </Routes>
+      </Suspense>
     </BrowserRouter>
   );
 };

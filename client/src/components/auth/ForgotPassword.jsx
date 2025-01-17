@@ -55,7 +55,7 @@ const ForgotPassword = () => {
         <h2 className="font-outfit font-bold text-xl sm:text-3xl md:text-3xl lg:text-3xl ">
           Forgot your password?
         </h2>
-        <p className="text-sm text-neutral-500">
+        <p className="text-sm text-[var(--color-text-light)]">
           Enter your email to reset password.
         </p>
       </div>
@@ -71,7 +71,7 @@ const ForgotPassword = () => {
         />
         <label
           htmlFor="email"
-          className="absolute appearance-none text-neutral-500 transition-all duration-300 ease-in -translate-y-full -translate-x-3 scale-75 peer-focus:-translate-y-full peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-x-0 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-x-3 peer-focus:text-[var(--color-accent-dark)] start-1"
+          className="absolute appearance-none text-[var(--color-text-light)] transition-all duration-300 ease-in -translate-y-full -translate-x-3 scale-75 peer-focus:-translate-y-full peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-x-0 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-x-3 peer-focus:text-[var(--color-accent-dark)] start-1"
         >
           Email
         </label>
@@ -82,7 +82,7 @@ const ForgotPassword = () => {
 
       <Link
         to="/auth"
-        className="back-button text-neutral-500 hover:text-neutral-700 transition-all duration-300 ease-in text-sm text-left flex items-center gap-1"
+        className="back-button text-[var(--color-text-light)] hover:text-neutral-700 transition-all duration-300 ease-in text-sm text-left flex items-center gap-1"
       >
         <FaArrowLeft />
         <p>Back to Login</p>

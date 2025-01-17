@@ -38,7 +38,6 @@ const useAuthStatus = () => {
         localStorage.removeItem('user');
         dispatch(setUser(null));
         navigate('/auth');
-        toast.error("Login Expired. Kindly login again.");
       }
     };
 

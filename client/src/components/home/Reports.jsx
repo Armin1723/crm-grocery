@@ -2,7 +2,7 @@ import React from "react";
 import ChipNav from "../utils/ChipNav";
 import { Outlet } from "react-router-dom";
 import { BiReceipt } from "react-icons/bi";
-import { FaBalanceScale, FaChartLine } from "react-icons/fa";
+import { FaBalanceScale, FaChartLine, FaFileInvoiceDollar } from "react-icons/fa";
 
 const Reports = () => {
   const navData = [
@@ -15,6 +15,11 @@ const Reports = () => {
       label: "Sales",
       icon: FaChartLine,
       to: "/reports/sales",
+    },
+    {
+      label: "Tax",
+      icon: FaFileInvoiceDollar,
+      to: "/reports/tax",
     },
     {
       label: "Profit/Loss",
