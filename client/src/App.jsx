@@ -96,7 +96,7 @@ const App = () => {
       />
       <Suspense
         fallback={
-          <div className="w-full h-full flex flex-col items-center justify-center">
+          <div className="w-screen h-screen bg-[var(--color-primary)] flex flex-col items-center justify-center">
             <div className="spinner"></div>
           </div>
         }

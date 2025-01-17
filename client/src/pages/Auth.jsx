@@ -26,7 +26,7 @@ const Auth = () => {
       <div className="animation-container flex flex-col items-center justify-center bg-[var(--color-card)] h-full w-1/2 max-sm:w-full max-sm:h-1/3 md:border-l border-[var(--color-primary)]">
         <Suspense
           fallback={
-            <div className="flex flex-col justify-center items-center w-full h-full">
+            <div className="flex flex-col justify-center items-center w-screen h-screen bg-[var(--color-priamry)] ">
               <div className="spinner"></div>
             </div>
           }
