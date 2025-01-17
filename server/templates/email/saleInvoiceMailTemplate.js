@@ -206,7 +206,7 @@ const saleInvoiceMailTemplate = (sale) => {
                       (product) => `
                     <tr>
                       <td>${product?.product?.name}</td>
-                      <td>${product.quantity}</td>
+                      <td>${product.quantity} ${product?.product?.secondaryUnit}</td>
                       <td>₹${product.sellingRate}</td>
                       <td>₹${product.quantity * product.sellingRate}</td>
                     </tr>

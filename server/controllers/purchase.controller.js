@@ -9,7 +9,7 @@ const Product = require("../models/product.model");
 const followUpPaymentMailTemplate = require("../templates/email/followUpPaymentMailTemplate");
 const generatePurchaseInvoice = require("../templates/invoice/purchaseInvoice");
 const generatePurchaseReturnInvoice = require("../templates/invoice/purchaseReturnInvoice");
-const { sendMail } = require("../helpers");
+const { sendMail, mergeBatchesHelper } = require("../helpers");
 
 const getPurchases = async (req, res) => {
   const {
@@ -298,20 +298,6 @@ const addPurchase = async (req, res) => {
         totalQuantity: product.quantity,
       });
     } else {
-      const existingBatch = inventory.batches.find(
-        (batch) =>
-          batch.sellingRate === product.sellingRate &&
-          (!product.expiry ||
-            !batch.expiry ||
-            new Date(batch.expiry).getTime() ==
-              new Date(product.expiry).getTime())
-      );
-
-      if (existingBatch) {
-        // If a batch with the same selling rate exists, update its quantity
-        existingBatch.quantity += product.quantity;
-        existingBatch.mrp = existingBatch.mrp || product.mrp || null;
-      } else {
         inventory.batches.push({
           quantity: product.quantity,
           purchaseRate: product.purchaseRate,
@@ -321,8 +307,8 @@ const addPurchase = async (req, res) => {
         });
       }
       inventory.totalQuantity = inventory.totalQuantity + product.quantity;
+      inventory.batches = await mergeBatchesHelper(inventory.batches);
       await inventory.save();
-    }
 
     // Set MRP of product if not already set
     if (product.mrp) {

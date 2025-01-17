@@ -55,7 +55,7 @@ const ProductCardSmall = ({
 
           {/* Tags */}
           <div className="flex flex-wrap gap-1 mt-2">
-            {product.tags?.map((tag, index) => (
+            {product.tags?.slice(0,2).map((tag, index) => (
               <span
                 key={index}
                 className="bg-accent/80 text-xs text-white px-2 py-0.5 rounded-md"

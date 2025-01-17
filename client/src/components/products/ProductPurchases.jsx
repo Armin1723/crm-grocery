@@ -6,10 +6,12 @@ const ProductPurchases = () => {
   const [results, setResults] = useState({});
   const [refetch, setRefetch] = useState(false);
   const [page, setPage] = useState(1);
+  const [loading, setLoading] = useState(false);
 
   const { id } = useParams();
 
   useEffect(() => {
+    setLoading(true);
     const fetchProductPurchases = async () => {
       try {
         const res = await fetch(
@@ -26,11 +28,16 @@ const ProductPurchases = () => {
         } else {
           setResults({
             ...data,
-            purchases: [...(results?.purchases || []), ...(data?.purchases || [])],
+            purchases: [
+              ...(results?.purchases || []),
+              ...(data?.purchases || []),
+            ],
           });
         }
       } catch (error) {
         console.error(error.message);
+      } finally {
+        setLoading(false);
       }
     };
     fetchProductPurchases();
@@ -61,7 +68,7 @@ const ProductPurchases = () => {
               onClick={() => setPage((p) => p + 1)}
               className="text-accent hover:text-accentDark"
             >
-              Load More
+              {loading ? <div className="spinner"></div> : "Load More"}
             </button>
           </div>
         </div>

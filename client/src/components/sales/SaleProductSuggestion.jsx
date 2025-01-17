@@ -43,6 +43,7 @@ const SaleProductSuggestion = ({
       (p) =>
         p.name === product.name &&
         p.sellingRate === product.sellingRate &&
+        p.purchaseRate === product.purchaseRate &&
         p?.expiry === product?.expiry
     );
 

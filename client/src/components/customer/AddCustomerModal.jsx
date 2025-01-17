@@ -20,7 +20,7 @@ const AddCustomerModal = ({ setValue = () => {} }) => {
           <Modal
             isOpen={addCustomerModal}
             onClose={() => setAddCustomerModal(false)}
-            title="Add Customer"
+            title={<p className="text-[var(--color-text)]">Add Customer</p>}
           >
             <CustomerForm
               setValue={setValue}

@@ -56,6 +56,7 @@ const mergeBatchesHelper = async (batches) => {
       const canMerge =
         (!batch1.mrp || !batch2.mrp || batch1.mrp == batch2.mrp) &&
         batch1.sellingRate == batch2.sellingRate &&
+        batch1.purchaseRate == batch2.purchaseRate &&
         (!batch1.expiry ||
           !batch2.expiry ||
           batch1.expiry.getTime() == batch2.expiry.getTime());

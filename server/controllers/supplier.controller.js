@@ -56,7 +56,7 @@ const getSupplierPurchases = async (req, res) => {
 };
 
 const getSupplierProducts = async (req, res) => {
-  const { limit = 2, page = 1 } = req.query;
+  const { limit = 5, page = 1 } = req.query;
   const supplierId = req.params.id;
 
   // Validate if the supplier exists

@@ -14,6 +14,7 @@ const AddByBarcode = ({ getValues = [], setValue = () => {} }) => {
       (p) =>
         p._id === product._id &&
         p.sellingRate === product.sellingRate &&
+        p.purchaseRate === product.purchaseRate &&
         (!p.expiry || !product.expiry || p.expiry === product?.expiry)
     );
 

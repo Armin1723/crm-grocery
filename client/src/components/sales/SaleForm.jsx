@@ -130,7 +130,7 @@ const SaleForm = ({ setRefetch = () => {}, closeModal = () => {} }) => {
 
         <SaveReload
           products={getValues("products")}
-          setProducts={(products)=>setValue("products", products)}
+          setProducts={(products) => setValue("products", products)}
           name="saleData"
         />
       </div>
@@ -222,12 +222,17 @@ const SaleForm = ({ setRefetch = () => {}, closeModal = () => {} }) => {
                     <input
                       type="number"
                       placeholder="Quantity"
-                      min={1}
+                      min={
+                        product.secondaryUnit === "kg" ||
+                        product.secondaryUnit === "l"
+                          ? 0.25
+                          : 1
+                      }
                       max={product.maxQuantity}
                       step={
                         product.secondaryUnit === "kg" ||
                         product.secondaryUnit === "l"
-                          ? 0.1
+                          ? 0.25
                           : 1
                       }
                       className={`border-b placeholder:text-sm bg-transparent border-[var(--color-accent)] outline-none p-1 w-full ${
@@ -238,7 +243,11 @@ const SaleForm = ({ setRefetch = () => {}, closeModal = () => {} }) => {
                         valueAsNumber: true,
                         required: `Quantity is required`,
                         min: {
-                          value: 1,
+                          value:
+                            (watchedProducts[index]?.secondaryUnit === "kg" ||
+                            watchedProducts[index]?.secondaryUnit === "l")
+                              ? 0.25
+                              : 1,
                           message: `Invalid Quantity`,
                         },
                         max: {
@@ -362,11 +371,10 @@ const SaleForm = ({ setRefetch = () => {}, closeModal = () => {} }) => {
       {/* Customer Section */}
       <div className="flex flex-col w-full py-2">
         <div className="flex items-center gap-2">
-
           <p className="my-1 font-semibold text-lg max-sm:text-base">
             Customer
           </p>
-          <AddCustomerModal setValue={setValue}/>
+          <AddCustomerModal setValue={setValue} />
         </div>
         <input
           type="number"

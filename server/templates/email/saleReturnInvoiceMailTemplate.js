@@ -101,15 +101,19 @@ const saleReturnInvoiceMailTemplate = (saleReturn) => {
           <div class="flex">
             <div class="left">Name: 
             </div>
-            <div class="right"> ${saleReturn?.customer?.name || 'No name'}</div>
+            <div class="right"> ${saleReturn?.customer?.name || "No name"}</div>
             </div>
             <div class="flex">
               <div class="left">Email: </div>
-              <div class="right"> ${saleReturn?.customer?.email || 'No Email'}</div>
+              <div class="right"> ${
+                saleReturn?.customer?.email || "No Email"
+              }</div>
             </div>
             <div class="flex">
               <div class="left">Phone: </div>
-              <div class="right"> ${saleReturn?.customer?.phone || 'No Contact'}</div>
+              <div class="right"> ${
+                saleReturn?.customer?.phone || "No Contact"
+              }</div>
             </div>
             <h2>Return Details</h2>
             <div class="flex">
@@ -144,7 +148,9 @@ const saleReturnInvoiceMailTemplate = (saleReturn) => {
                             product?.product?.name
                           }" /></td>
                           <td>${product?.product?.name}</td>
-                          <td>${product.quantity}</td>
+                      <td>${product.quantity} ${
+                            product?.product?.secondaryUnit
+                          }</td>
                           <td>₹${product.sellingRate}</td>
                           <td>₹${product.quantity * product.sellingRate}</td>
                         </tr>

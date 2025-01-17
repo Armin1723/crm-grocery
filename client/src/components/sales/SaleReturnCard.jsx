@@ -68,7 +68,7 @@ const SaleReturnCard = ({ saleReturn = {} }) => {
       </div>
 
       {/* Products */}
-      <h3>Returned Products</h3>
+      <h3 className="my-2">Returned Products</h3>
       <div className="saleProducts flex flex-col gap-2 w-full rounded-md py-2 bg-[var(--color-card)] overflow-x-auto">
         <table className="w-full text-sm">
           <thead className="bg-[var(--color-primary)] text-neutral-600">
@@ -111,7 +111,7 @@ const SaleReturnCard = ({ saleReturn = {} }) => {
       {/* Reason of Return */}
       <div className="mt-3 text-sm text-[var(--color-text-light)] flex flex-col gap-2">
         <span className="font-semibold">Reason:</span>
-        <p className="truncate w-full bg-[var(--color-sidebar)] rounded-md p-3">
+        <p className="truncate w-full bg-[var(--color-primary)] line-clamp-4 rounded-md p-3">
           {saleReturn?.reason}
         </p>
       </div>

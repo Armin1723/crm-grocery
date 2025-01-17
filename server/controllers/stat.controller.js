@@ -3,6 +3,12 @@ const Product = require("../models/product.model");
 const Purchase = require("../models/purchase.model");
 const Sale = require("../models/sale.model");
 
+const matchStage = {
+  $match: {
+    totalQuantity: { $gt: 0 },
+  },
+};
+
 // Basic stats of sales, purchases, and inventory for recharts
 const getBasicStats = async (req, res) => {
   const currentMonth = new Date().getMonth() + 1;
@@ -21,8 +27,7 @@ const getBasicStats = async (req, res) => {
 
     return (
       data.find(
-        (d) =>
-          d._id.month === previousMonth && d._id.year === previousYear
+        (d) => d._id.month === previousMonth && d._id.year === previousYear
       ) || { count: 0, totalValue: 0 }
     );
   };
@@ -164,10 +169,7 @@ const getBasicStats = async (req, res) => {
     purchases: {
       total: totalPurchases,
       currentValue: currentPurchases,
-      increase: calculatePercentageChange(
-        currentPurchases,
-        lastMonthPurchases
-      ),
+      increase: calculatePercentageChange(currentPurchases, lastMonthPurchases),
       data: formattedPurchaseData,
     },
     products: {
@@ -179,10 +181,7 @@ const getBasicStats = async (req, res) => {
     inventory: {
       total: totalInventory,
       currentValue: currentInventory,
-      increase: calculatePercentageChange(
-        currentInventory,
-        lastMonthInventory
-      ),
+      increase: calculatePercentageChange(currentInventory, lastMonthInventory),
       data: formattedInventoryData,
     },
   };
@@ -192,6 +191,7 @@ const getBasicStats = async (req, res) => {
 
 const getProductsGroupedByCategory = async (req, res) => {
   const productData = await Inventory.aggregate([
+    matchStage,
     {
       $lookup: {
         from: "products",
@@ -358,12 +358,12 @@ const getSaleStats = async (req, res) => {
   const salesData = await Sale.aggregate([
     {
       $group: {
-        _id: { $month: "$createdAt", $year: "$createdAt" }, 
+        _id: { $month: "$createdAt", $year: "$createdAt" },
         count: { $sum: "$totalAmount" },
       },
     },
     {
-      $sort: { _id: 1 }, 
+      $sort: { _id: 1 },
     },
   ]);
 
@@ -399,6 +399,7 @@ const getSaleStats = async (req, res) => {
 
 const getInventoryGroupedByCategory = async (req, res) => {
   const inventoryData = await Inventory.aggregate([
+    matchStage,
     {
       $lookup: {
         from: "products",
@@ -440,15 +441,15 @@ const salesPurchaseChart = async (req, res) => {
         $dateToString: { format: "%Y-%m-%d", date: "$createdAt" },
       };
       break;
-      case "weekly":
-        groupFormat = {
-          $concat: [
-            { $toString: { $isoWeekYear: "$createdAt" } }, // Year of the ISO week
-            "-",
-            { $toString: { $isoWeek: "$createdAt" } },    // ISO week number
-          ],
-        };
-        break;
+    case "weekly":
+      groupFormat = {
+        $concat: [
+          { $toString: { $isoWeekYear: "$createdAt" } }, // Year of the ISO week
+          "-",
+          { $toString: { $isoWeek: "$createdAt" } }, // ISO week number
+        ],
+      };
+      break;
     case "monthly":
       groupFormat = { $dateToString: { format: "%Y-%m", date: "$createdAt" } };
       break;

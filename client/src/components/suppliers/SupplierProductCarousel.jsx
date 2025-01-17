@@ -10,8 +10,10 @@ const SupplierProductCarousel = () => {
   });
   const [refetch, setRefetch] = React.useState(false);
   const [page, setPage] = React.useState(1);
+  const [loading, setLoading] = React.useState(false);
 
   React.useEffect(() => {
+    setLoading(true);
     const fetchProducts = async () => {
       try {
         const response = await fetch(
@@ -32,6 +34,8 @@ const SupplierProductCarousel = () => {
         });
       } catch (error) {
         console.error(error);
+      } finally {
+        setLoading(false);
       }
     };
     fetchProducts();
@@ -53,8 +57,14 @@ const SupplierProductCarousel = () => {
           onClick={() => setPage((p) => p + 1)}
           className="min-w-full w-full tab:min-w-[50%] tab:w-1/2 md:min-w-[50%] md:w-1/2 lg:min-w-[25%] lg:w-1/4  overflow-hidden snap-start snap-mandatory flex flex-col items-center justify-center bg-[var(--color-card)] rounded-lg border border-neutral-500/50 cursor-pointer"
         >
-          <FaChevronRight className="w-8 h-8 text-accent" />
-          <p className="font-medium">View More</p>
+          {loading ? (
+            <div className="spinner"></div>
+          ) : (
+            <div className="font-medium flex flex-col items-center gap-2 text-accent hover:text-accentDark cursor-pointer">
+              <FaChevronRight className="w-8 h-8 " />
+              <p>Load More</p>
+            </div>
+          )}
         </div>
       )}
     </div>

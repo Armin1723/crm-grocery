@@ -5,6 +5,8 @@ import SortableLink from "../utils/SortableLink";
 import { FaFileInvoice } from "react-icons/fa";
 import Modal from "../utils/Modal";
 import { Link } from "react-router-dom";
+import HoverCard from "../shared/HoverCard";
+import PurchaseDetails from "./PurchaseDetails";
 
 const ViewPurchaseReturns = () => {
   const [loading, setLoading] = useState(false);
@@ -124,7 +126,19 @@ const ViewPurchaseReturns = () => {
                         "No data"}
                     </div>
                     <div className="w-[15%] min-w-[80px] px-2 truncate text-ellipsis">
-                      <Link to={`/purchases/${purchaseReturn?.purchaseId}`}> {purchaseReturn?.purchaseId || "N/A"} </Link>
+                      <HoverCard
+                        title={
+                          <Link to={`/purchases/${purchaseReturn?.purchaseId}`}>
+                            {" "}
+                            {`${purchaseReturn?.purchaseId.slice(0, 10)}...` ||
+                              "N/A"}{" "}
+                          </Link>
+                        }
+                      >
+                        <PurchaseDetails
+                          idBackup={purchaseReturn?.purchaseId}
+                        />
+                      </HoverCard>
                     </div>
                     <div className="w-[15%] min-w-[80px] px-2">
                       {purchaseReturn?.totalAmount || "N/A"}
@@ -138,11 +152,22 @@ const ViewPurchaseReturns = () => {
                     <div className="actions w-[10%] min-w-[50px] flex items-center justify-center gap-2">
                       <FaFileInvoice
                         className="text-red-500 hover:text-red-600 cursor-pointer"
-                        onClick={() => setSelectedPurchaseId(purchaseReturn?.purchaseId)}
+                        onClick={() =>
+                          setSelectedPurchaseId(purchaseReturn?.purchaseId)
+                        }
                       />
                       {selectedPurchaseId === purchaseReturn?.purchaseId && (
-                        <Modal title="Return Invoice" isOpen={true} onClose={() => setSelectedPurchaseId(null)}>
-                          <embed src={purchaseReturn?.invoice} type="application/pdf" width="100%" height="600px" />
+                        <Modal
+                          title="Return Invoice"
+                          isOpen={true}
+                          onClose={() => setSelectedPurchaseId(null)}
+                        >
+                          <embed
+                            src={purchaseReturn?.invoice}
+                            type="application/pdf"
+                            width="100%"
+                            height="600px"
+                          />
                         </Modal>
                       )}
                     </div>
@@ -175,7 +200,9 @@ const ViewPurchaseReturns = () => {
                       return prev;
                     });
                   }}
-                  disabled={limit === steps[0] || results.totalPurchases < limit}
+                  disabled={
+                    limit === steps[0] || results.totalPurchases < limit
+                  }
                   className="px-3 flex items-center justify-center rounded-md bg-[var(--color-primary)] w-6 aspect-square border border-neutral-500/50 hover:opacity-75 disabled:opacity-50 disabled:cursor-not-allowed disabled:border-neutral-500/20"
                 >
                   -
