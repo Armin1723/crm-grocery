@@ -156,7 +156,7 @@ const ProfitLossReport = () => {
               </h2>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 my-4">
-                <div className="bg-[var(--color-primary)] p-4 rounded-lg">
+                <div className={`bg-[var(--color-primary)] p-4 rounded-lg ${reportData?.grossProfit < 0 ? "bg-red-600/20" : "bg-green-600/20"}`}>
                   <h3 className="text-sm text-[var(--color-text-light)]">
                     Gross Profit/Loss
                   </h3>
@@ -174,7 +174,7 @@ const ProfitLossReport = () => {
                   />
                 </div>
 
-                <div className="bg-[var(--color-primary)] p-4 rounded-lg">
+                <div className={`bg-[var(--color-primary)] p-4 rounded-lg ${reportData?.netProfit < 0 ? "bg-red-600/20" : "bg-green-600/20"}`}>
                   <h3 className="text-sm text-[var(--color-text-light)]">
                     Net Profit/Loss
                   </h3>

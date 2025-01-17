@@ -1,5 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { formatDate } from "../utils";
+import HoverCard from "../shared/HoverCard";
+import SaleDetails from "../sales/SaleDetails";
 
 const SalesTable = ({ data = {}, title = "" }) => {
   const navigate = useNavigate();
@@ -44,7 +46,13 @@ const SalesTable = ({ data = {}, title = "" }) => {
                   }}
                 >
                   <td className="px-6 py-2 whitespace-nowrap text-sm ">
-                    {formatDate(data?.createdAt)}
+                  {(data.category === "sale" || data.category === 'return') ? (
+                      <HoverCard title={formatDate(data?.createdAt)}>
+                        <SaleDetails sale={data} idBackup={data?.saleId || data?._id} />
+                      </HoverCard>
+                    ) : (
+                      formatDate(data?.createdAt)
+                    )}
                   </td>
                   <td className="px-6 py-2 whitespace-nowrap text-sm ">
                     <span 

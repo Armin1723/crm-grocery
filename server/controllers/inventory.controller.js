@@ -2,12 +2,18 @@ const { mergeBatchesHelper } = require("../helpers");
 const Inventory = require("../models/inventory.model");
 const Product = require("../models/product.model");
 
+const matchStage = {
+  $match: {
+    totalQuantity: { $gt: 0 },
+  },
+};
+
 const getProductsFromInventory = async (req, res) => {
   const { name, barcode, page = 1, limit = 10 } = req.query;
   const skip = (page - 1) * limit;
 
   const pipeline = [
-    { $match: { totalQuantity: { $gt: 0 } } },
+    matchStage,
     {
       $lookup: {
         from: "products",
@@ -16,7 +22,7 @@ const getProductsFromInventory = async (req, res) => {
         as: "details",
       },
     },
-    { $unwind: { path : "$details", preserveNullAndEmptyArrays: true } },
+    { $unwind: { path: "$details", preserveNullAndEmptyArrays: true } },
   ];
 
   // Initialize the query for matching name and barcode
@@ -45,8 +51,8 @@ const getProductsFromInventory = async (req, res) => {
   }
 
   pipeline.push(
-    { $unwind: { path : "$batches", preserveNullAndEmptyArrays: true  }},
-    { $match: { "totalQuantity": { $gt: 0 } }},
+    { $unwind: { path: "$batches", preserveNullAndEmptyArrays: true } },
+    { $match: { totalQuantity: { $gt: 0 } } },
     {
       $project: {
         product: 1,
@@ -138,14 +144,14 @@ const getProductFromInventory = async (req, res) => {
 };
 
 const getProductsGroupedByCategory = async (req, res) => {
-  const { page = 1, limit = 5, query = '' } = req.query;
+  const { page = 1, limit = 5, query = "" } = req.query;
   const skip = (page - 1) * limit;
   const actualLimit = parseInt(limit);
   const extendedLimit = actualLimit + 1;
 
   const pipeline = [
     // Match products with positive quantity
-    { $match: { totalQuantity: { $gt: 0 } } },
+    matchStage,
 
     // Lookup to populate product details (only fetch required fields)
     {
@@ -162,6 +168,7 @@ const getProductsGroupedByCategory = async (req, res) => {
       $project: {
         productDetails: {
           category: 1,
+          subCategory: 1,
           upid: 1,
           name: 1,
           tags: 1,
@@ -171,7 +178,7 @@ const getProductsGroupedByCategory = async (req, res) => {
       },
     },
 
-    // Unwind the productDetails array 
+    // Unwind the productDetails array
     { $unwind: "$productDetails" },
 
     // Filter products based on search query
@@ -181,7 +188,19 @@ const getProductsGroupedByCategory = async (req, res) => {
             $match: {
               $or: [
                 { "productDetails.name": { $regex: query, $options: "i" } },
-                { "productDetails.description": { $regex: query, $options: "i" } },
+                { "productDetails.category": { $regex: query, $options: "i" } },
+                {
+                  "productDetails.subCategory": {
+                    $regex: query,
+                    $options: "i",
+                  },
+                },
+                {
+                  "productDetails.description": {
+                    $regex: query,
+                    $options: "i",
+                  },
+                },
                 { "productDetails.tags": { $regex: query, $options: "i" } },
               ],
             },
@@ -279,14 +298,16 @@ const editBatch = async (req, res) => {
     });
   }
 
-  const inventory = await Inventory.findOne({ product: product._id })
-    .select("batches")
+  const inventory = await Inventory.findOne({ product: product._id }).select(
+    "batches"
+  );
 
   const batchIndex = inventory.batches.findIndex(
     (batch) =>
       batch.sellingRate === oldBatch.sellingRate &&
-      ((batch.expiry && oldBatch.expiry)
-      ? new Date(batch.expiry).getTime() === new Date(oldBatch.expiry).getTime()
+      (batch.expiry && oldBatch.expiry
+        ? new Date(batch.expiry).getTime() ===
+          new Date(oldBatch.expiry).getTime()
         : true)
   );
 
@@ -321,7 +342,9 @@ const mergeBatches = async (req, res) => {
   }
 
   // Fetch inventory and batches
-  const inventory = await Inventory.findOne({ product: product._id }).select("batches");
+  const inventory = await Inventory.findOne({ product: product._id }).select(
+    "batches"
+  );
   if (!inventory || !inventory.batches || inventory.batches.length === 0) {
     return res.status(404).json({
       success: false,
@@ -346,5 +369,5 @@ module.exports = {
   getProductsGroupedByCategory,
   getRates,
   editBatch,
-  mergeBatches,  
+  mergeBatches,
 };

@@ -56,7 +56,7 @@ const getSale = async (req, res) => {
   );
 
   const saleReturn = await SalesReturn.findOne({ saleId: sale._id })
-    .populate("customer products.product")
+    .populate("customer products.product signedBy")
     .lean();
 
   const formattedSale = {

@@ -11,8 +11,8 @@ const SaleReturnCard = ({ saleReturn = {} }) => {
       {/* Header */}
       <div className="flex justify-between items-center flex-wrap text-xs">
         <h2 className="text-lg font-semibold">Return Summary</h2>
-        <div className="div flex items-center gap-2">
-          <div className="px-3 py-1 rounded-full bg-[var(--color-accent)] text-white ">
+        <div className="flex items-center gap-2">
+          <div className="px-3 py-1 rounded-full bg-[var(--color-accent)] text-white">
             {formatDate(saleReturn?.createdAt) || "Today"}
           </div>
           <FaFileInvoice
@@ -33,6 +33,19 @@ const SaleReturnCard = ({ saleReturn = {} }) => {
               />
             </Modal>
           )}
+        </div>
+      </div>
+
+      {/* Biller Information */}
+      <div className="flex items-center gap-3 mt-3 text-sm text-[var(--color-text-light)]">
+        <span className="font-semibold">Returned By:</span>
+        <div className="flex items-center gap-2">
+          <Avatar
+            image={saleReturn?.signedBy?.avatar}
+            withBorder={true}
+            fallbackImage="github.com/shadcn.png"
+          />
+          <p>{saleReturn?.signedBy?.name || "Unknown"}</p>
         </div>
       </div>
 

@@ -5,6 +5,8 @@ import SortableLink from "../utils/SortableLink";
 import { FaFileInvoice } from "react-icons/fa";
 import Modal from "../utils/Modal";
 import { Link } from "react-router-dom";
+import SaleDetails from "./SaleDetails";
+import HoverCard from "../shared/HoverCard";
 
 const ViewSaleReturns = () => {
   const [loading, setLoading] = useState(false);
@@ -124,7 +126,16 @@ const ViewSaleReturns = () => {
                         "No data"}
                     </div>
                     <div className="w-[15%] min-w-[80px] px-2 truncate text-ellipsis">
-                      <Link to={`/sales/${saleReturn?.saleId}`}> {saleReturn?.saleId || "N/A"} </Link>
+                      <HoverCard
+                        title={
+                          <Link to={`/sales/${saleReturn?.saleId}`}>
+                            {" "}
+                            {`${saleReturn?.saleId.slice(0,10)}...` || "N/A"}{" "}
+                          </Link>
+                        }
+                      >
+                        <SaleDetails idBackup={saleReturn?.saleId} />
+                      </HoverCard>
                     </div>
                     <div className="w-[15%] min-w-[80px] px-2">
                       {saleReturn?.totalAmount || "N/A"}
@@ -141,8 +152,17 @@ const ViewSaleReturns = () => {
                         onClick={() => setSelectedSaleId(saleReturn?.saleId)}
                       />
                       {selectedSaleId === saleReturn?.saleId && (
-                        <Modal title="Return Invoice" isOpen={true} onClose={() => setSelectedSaleId(null)}>
-                          <embed src={saleReturn?.invoice} type="application/pdf" width="100%" height="600px" />
+                        <Modal
+                          title="Return Invoice"
+                          isOpen={true}
+                          onClose={() => setSelectedSaleId(null)}
+                        >
+                          <embed
+                            src={saleReturn?.invoice}
+                            type="application/pdf"
+                            width="100%"
+                            height="600px"
+                          />
                         </Modal>
                       )}
                     </div>

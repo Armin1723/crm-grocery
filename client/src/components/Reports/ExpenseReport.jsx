@@ -219,7 +219,8 @@ const ExpenseReport = () => {
               totalReturns={data?.totalReturns}
             />
 
-            <ExpenseTable title="Expense" data={data?.expenseList} />
+            <ExpenseTable title="Purchase" data={data?.purchases} />
+            <ExpenseTable title="Other Expense" data={data?.otherExpenses} />
             <ExpenseTable title="Return" data={data?.purchaseReturnsList} />
 
             {/* Charts */}

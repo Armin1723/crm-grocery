@@ -153,7 +153,13 @@ const ReportHeader = ({
             </header>
 
             ${printContents}
-
+            
+            <footer class="w-full flex flex-col items-center justify-center gap-2 mt-4">
+              <p class="text-center text-xs italic text-[var(--color-text-light)]">
+                End of Report
+              </p>
+              <hr class="text-[var(--color-text)]" />
+            </footer>
           </body>
         </html>
       `);

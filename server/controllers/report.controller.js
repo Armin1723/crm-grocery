@@ -225,7 +225,7 @@ const getExpenseReport = async (req, res) => {
   ]);
 
   // Run all queries concurrently
-  const [purchaseExpenses, otherExpenses, purchaseReturns, report] =
+  const [purchases, otherExpenses, purchaseReturns, report] =
     await Promise.all([
       purchaseQuery,
       otherExpensesQuery,
@@ -233,20 +233,14 @@ const getExpenseReport = async (req, res) => {
       reportQuery,
     ]);
 
-  // Combine and calculate totals
-  const expenseList = mergeSortedArrays(
-    purchaseExpenses,
-    otherExpenses,
-    "createdAt"
-  );
-
   res.status(200).json({
     success: true,
     data: {
       ...report[0],
-      expenseList,
+      purchases,
+      otherExpenses,
       purchaseReturnsList: purchaseReturns,
-      totalPurchases: purchaseExpenses.reduce(
+      totalPurchases: purchases.reduce(
         (acc, curr) => acc + curr.amount,
         0
       ),
@@ -294,6 +288,7 @@ const getSalesReport = async (req, res) => {
     { $sort: { createdAt: -1 } },
     {
       $project: {
+        _id: 1,
         createdAt: 1,
         category: "sale",
         customer: 1,
@@ -332,6 +327,7 @@ const getSalesReport = async (req, res) => {
       $project: {
         createdAt: 1,
         category: "return",
+        saleId: 1,
         amount: 1,
         description: "$notes",
         customer: 1,
@@ -555,12 +551,11 @@ const getProfitLossReport = async (req, res) => {
 
   purchasesAggregation[0].totalReturns = purchaseReturns[0]?.totalReturns || 0;
   purchasesAggregation[0].totalExpenses =
-    purchasesAggregation[0].totalPurchases +
-    expenseAggregation[0]?.totalOtherExpenses;
+    (purchasesAggregation[0]?.totalPurchases || 0) +
+    (expenseAggregation[0]?.totalOtherExpenses || 0);
   purchasesAggregation[0].netExpenses =
-    purchasesAggregation[0].totalPurchases +
-    expenseAggregation[0]?.totalOtherExpenses -
-    purchasesAggregation[0].totalReturns;
+    (purchasesAggregation[0].totalExpenses || 0) -
+    (purchasesAggregation[0].totalReturns || 0);
 
   // Grouped sales data by category
   const salesByCategory = await Sale.aggregate([
@@ -593,10 +588,12 @@ const getProfitLossReport = async (req, res) => {
   // Calculating Gross Profit (Sales - Purchases)
   const grossProfit =
     salesAggregation[0]?.netSales -
-    purchasesAggregation[0]?.totalPurchases + purchasesAggregation[0]?.totalReturns; 
+    purchasesAggregation[0]?.totalPurchases +
+    purchasesAggregation[0]?.totalReturns;
 
   // Calculating Net Profit (Gross Profit - Expenses)
-  const netProfit = grossProfit - expenseAggregation[0]?.totalOtherExpenses;
+  const netProfit =
+    grossProfit - (expenseAggregation[0]?.totalOtherExpenses || 0);
 
   // Preparing Chart Data for Recharts (Sales and Expenses over time)
   const salesChartData = await Sale.aggregate([
@@ -793,4 +790,220 @@ const getProfitLossReport = async (req, res) => {
   return res.status(200).json(reportData);
 };
 
-module.exports = { getExpenseReport, getSalesReport, getProfitLossReport };
+// Controller for tax report
+const getTaxReport = async (req, res) => {
+  const { startDate, endDate } = req.query;
+
+  // Aggregation for Tax Out (Sales) - excluding returned products
+  const taxOutPipeline = [
+    matchStage(startDate, endDate),
+    { $unwind: "$products" },
+    productLookup,
+    {
+      $match: {
+        "productDetails.tax": { $exists: true, $ne: null, $gt: 0 },
+      },
+    },
+    // Exclude products from sale returns
+    {
+      $lookup: {
+        from: "saleReturns",
+        let: { productId: "$products.product", saleId: "$_id" },
+        pipeline: [
+          {
+            $match: {
+              $expr: {
+                $and: [
+                  { $eq: ["$saleId", "$$saleId"] },
+                  { $eq: ["$product", "$$productId"] },
+                ],
+              },
+            },
+          },
+          {
+            $project: { _id: 1 },
+          },
+        ],
+        as: "returnedProducts",
+      },
+    },
+    {
+      $match: { returnedProducts: { $size: 0 } },
+    },
+    {
+      $addFields: {
+        taxAmount: {
+          $round: [
+            {
+              $multiply: [
+                { $multiply: ["$products.sellingRate", "$products.quantity"] },
+                {
+                  $divide: [{ $arrayElemAt: ["$productDetails.tax", 0] }, 100],
+                },
+              ],
+            },
+            2,
+          ],
+        },
+      },
+    },
+    {
+      $group: {
+        _id: "$_id",
+        totalTax: { $sum: "$taxAmount" },
+        totalAmount: {
+          $sum: { $multiply: ["$products.sellingRate", "$products.quantity"] },
+        },
+        products: {
+          $push: {
+            product: "$products.product",
+            image: { $arrayElemAt: ["$productDetails.image", 0] },
+            name: { $arrayElemAt: ["$productDetails.name", 0] },
+            upid: { $arrayElemAt: ["$productDetails.upid", 0] },
+            secondaryUnit: {$arrayElemAt: ["$productDetails.secondaryUnit", 0] },
+            quantity: "$products.quantity",
+            purchaseRate: "$products.sellingRate",
+            tax: { $arrayElemAt: ["$productDetails.tax", 0] },
+            taxAmount: "$taxAmount",
+          },
+        },
+        createdAt: { $first: "$createdAt" },
+      },
+    },
+    {
+      $project: {
+        _id: 1,
+        totalTax: 1,
+        totalAmount: 1,
+        createdAt: 1,
+        products: 1,
+      },
+    },
+    { $sort: { createdAt: -1 } },
+  ];
+
+  // Aggregation for Tax In (Purchases) - excluding returned products
+  const taxInPipeline = [
+    matchStage(startDate, endDate),
+    { $unwind: "$products" },
+    productLookup,
+    {
+      $match: {
+        "productDetails.tax": { $exists: true, $ne: null, $gt: 0 },
+      },
+    },
+    // Exclude products from purchase returns
+    {
+      $lookup: {
+        from: "purchaseReturns",
+        let: { productId: "$products.product", purchaseId: "$_id" },
+        pipeline: [
+          {
+            $match: {
+              $expr: {
+                $and: [
+                  { $eq: ["$purchaseId", "$$purchaseId"] },
+                  { $eq: ["$product", "$$productId"] },
+                ],
+              },
+            },
+          },
+          {
+            $project: { _id: 1 },
+          },
+        ],
+        as: "returnedProducts",
+      },
+    },
+    {
+      $match: { returnedProducts: { $size: 0 } },
+    },
+    {
+      $addFields: {
+        taxAmount: {
+          $round: [
+            {
+              $multiply: [
+                { $multiply: ["$products.purchaseRate", "$products.quantity"] },
+                {
+                  $divide: [{ $arrayElemAt: ["$productDetails.tax", 0] }, 100],
+                },
+              ],
+            },
+            2,
+          ],
+        },
+      },
+    },
+    {
+      $group: {
+        _id: "$_id",
+        totalTax: { $sum: "$taxAmount" },
+        totalAmount: {
+          $sum: {
+            $multiply: ["$products.purchaseRate", "$products.quantity"],
+          },
+        },
+        products: {
+          $push: {
+            product: "$products.product",
+            image: { $arrayElemAt: ["$productDetails.image", 0] },
+            name: { $arrayElemAt: ["$productDetails.name", 0] },
+            upid: { $arrayElemAt: ["$productDetails.upid", 0] },
+            secondaryUnit: {$arrayElemAt: ["$productDetails.secondaryUnit", 0] },
+            quantity: "$products.quantity",
+            purchaseRate: "$products.purchaseRate",
+            tax: { $arrayElemAt: ["$productDetails.tax", 0] },
+            taxAmount: "$taxAmount",
+          },
+        },
+        createdAt: { $first: "$createdAt" },
+      },
+    },
+    {
+      $project: {
+        _id: 1,
+        totalTax: 1,
+        totalAmount: 1,
+        createdAt: 1,
+        products: 1,
+      },
+    },
+    { $sort: { createdAt: -1 } },
+  ];
+
+  const [taxInTransactions, taxOutTransactions] = await Promise.all([
+    Sale.aggregate(taxOutPipeline),
+    Purchase.aggregate(taxInPipeline),
+  ]);
+
+  const totalTaxIn = Number(
+    parseFloat(
+      taxInTransactions.reduce((sum, tx) => sum + tx.totalTax, 0)
+    ).toFixed(2)
+  );
+  const totalTaxOut = Number(
+    parseFloat(
+      taxOutTransactions.reduce((sum, tx) => sum + tx.totalTax, 0)
+    ).toFixed(2)
+  );
+
+  // Calculate Net Payable
+  const netPayable = Number(parseFloat(totalTaxOut - totalTaxIn).toFixed(2));
+
+  // Send Response
+  res.status(200).json({
+    totalTaxIn,
+    totalTaxOut,
+    netPayable,
+    taxInTransactions,
+    taxOutTransactions,
+  });
+};
+
+module.exports = {
+  getExpenseReport,
+  getSalesReport,
+  getProfitLossReport,
+  getTaxReport,
+};

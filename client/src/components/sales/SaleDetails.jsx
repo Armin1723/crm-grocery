@@ -8,11 +8,13 @@ import SaleCard from "./SaleCard";
 import EmployeeCard from "../employee/EmployeeCard";
 import SaleReturnCard from "./SaleReturnCard";
 
-const SaleDetails = () => {
-  const { id } = useParams();
+const SaleDetails = ({ idBackup = "" }) => {
+  let { id } = useParams();
   const [sale, setSale] = useState(null);
   const [loading, setLoading] = useState(false);
   const [refetch, setRefetch] = useState(false);
+
+  if (!id) id = idBackup;
 
   useEffect(() => {
     const fetchPurchase = async () => {
@@ -62,7 +64,6 @@ const SaleDetails = () => {
         {/* Sale Information */}
         <Divider title="Sale Information" />
         <SaleCard sale={sale} />
-        
 
         {/* Purchase Products */}
         <Divider title="Sale Products" />
@@ -112,11 +113,10 @@ const SaleDetails = () => {
         {/* Return Information */}
         {sale?.saleReturn && (
           <>
-          <Divider title="Return Information" />
-          <SaleReturnCard saleReturn={sale?.saleReturn} />
+            <Divider title="Return Information" />
+            <SaleReturnCard saleReturn={sale?.saleReturn} />
           </>
         )}
-
       </div>
     </div>
   );
