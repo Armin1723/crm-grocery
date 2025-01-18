@@ -16,6 +16,13 @@ const getSales = async (req, res) => {
     sort = "createdAt",
     sortType = "desc",
   } = req.query;
+
+  let query = {};
+  const user = req.user;
+  if(user.role == "employee"){
+    query = { signedBy: user.id };
+  };
+
   const sales = await Sale.find()
     .populate("signedBy")
     .populate("customer")

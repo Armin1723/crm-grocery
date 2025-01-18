@@ -144,7 +144,7 @@ const getProductFromInventory = async (req, res) => {
 };
 
 const getProductsGroupedByCategory = async (req, res) => {
-  const { page = 1, limit = 5, query = "" } = req.query;
+  const { page = 1, limit = 5, query = "", category } = req.query;
   const skip = (page - 1) * limit;
   const actualLimit = parseInt(limit);
   const extendedLimit = actualLimit + 1;
@@ -180,6 +180,17 @@ const getProductsGroupedByCategory = async (req, res) => {
 
     // Unwind the productDetails array
     { $unwind: "$productDetails" },
+
+    // Filter products based on the category if provided
+    ...(category
+      ? [
+          {
+            $match: {
+              "productDetails.category": { $regex: category, $options: "i" },
+            },
+          },
+        ]
+      : []),
 
     // Filter products based on search query
     ...(query
@@ -251,6 +262,117 @@ const getProductsGroupedByCategory = async (req, res) => {
   } catch (error) {
     res.status(500).json({ success: false, error: error.message });
   }
+};
+
+const getExpiringInventory = async (req, res) => {
+  const { page = 1, limit = 10, query = '', category, time = 'day'} = req.query;
+  const skip = (page - 1) * limit;
+
+  const getExpiryDateRange = (timePeriod) => {
+    const now = new Date();
+    switch (timePeriod) {
+      case "day": 
+        return {
+          $gte: new Date(now.setHours(0, 0, 0, 0)),
+          $lte: new Date(now.setHours(23, 59, 59, 999)),
+        };
+      case "week": 
+        const endOfWeek = new Date(now.setDate(now.getDate() + (7 - now.getDay())));
+        endOfWeek.setHours(23, 59, 59, 999);
+        return { $gte: new Date(), $lte: endOfWeek };
+      case "month":
+        const nextMonth = new Date(now.setMonth(now.getMonth() + 1));
+        nextMonth.setHours(23, 59, 59, 999);
+        return { $gte: new Date(), $lte: nextMonth };
+      case "year":
+        const nextYear = new Date(now.setFullYear(now.getFullYear() + 1));
+        nextYear.setHours(23, 59, 59, 999);
+        return { $gte: new Date(), $lte: nextYear };
+      default: 
+        return null;
+    }
+  };
+
+  const expiryDateRange = getExpiryDateRange(time);
+
+  const pipeline = [
+    matchStage,
+    {
+      $lookup: {
+        from: "products",
+        localField: "product",
+        foreignField: "_id",
+        as: "details",
+      },
+    },
+    { $unwind: "$details" },
+
+    // Filter products based on expiry date
+    ...(expiryDateRange ?
+    [{
+      $match: {
+        "batches.expiry": expiryDateRange,
+      },
+    }]
+    : []),
+    
+    // Filter products based on the category if provided
+    ...(category
+      ? [
+          {
+            $match: {
+              "details.category": { $regex: category, $options: "i" },
+            },
+          },
+        ]
+      : []),
+    
+      // Filter products based on search query
+    ...(query
+      ? [
+        {
+          $match: {
+            $or: [
+              { "details.name": { $regex: query, $options: "i" } },
+              { "details.category": { $regex: query, $options: "i" } },
+              { "details.subCategory": { $regex: query, $options: "i" } },
+              { "details.description": { $regex: query, $options: "i" } },
+              { "details.tags": { $regex: query, $options: "i" } },
+            ],
+        }
+      },
+    ]
+    : []),
+
+    {
+      $project: {
+        upid: "$details.upid",
+        category: "$details.category",
+      },
+    },
+    { $skip: skip },
+    { $limit: limit },
+    { $sort: { expiry: 1 } },
+
+    // Group by product category and aggregate products
+    {
+      $group: {
+        _id: "$category",
+        products: {
+          $push: {
+            upid: "$upid",
+          },
+        },
+      },
+    },
+  ];
+
+  const inventory = await Inventory.aggregate(pipeline);
+
+  res.status(200).json({
+    success: true,
+    inventory,
+  });
 };
 
 const getRates = async (req, res) => {
@@ -363,11 +485,73 @@ const mergeBatches = async (req, res) => {
   });
 };
 
+const hardMergeBatches = async (req, res) => {
+  const { upid } = req.params;
+
+  // Find the product by UPID
+  const product = await Product.findOne({ upid }).select("_id").lean();
+
+  if (!product) {
+    return res.status(404).json({
+      success: false,
+      message: "Product not found",
+    });
+  }
+
+  // Fetch inventory and batches
+  const inventory = await Inventory.findOne({ product: product._id }).select(
+    "batches"
+  );
+
+  const { batches } = inventory;
+
+  if (batches.length > 2) {
+    // Merge batches with same MRP, sellingRate, and compatible expiry
+    const mergedBatches = [];
+    const visited = new Set();
+
+    for (let i = 0; i < batches.length; i++) {
+      if (visited.has(i)) continue;
+
+      const batch1 = batches[i];
+      let mergedBatch = { ...batch1, quantity: Number(batch1.quantity) || 0 };
+      visited.add(i);
+
+      for (let j = i + 1; j < batches.length; j++) {
+        if (visited.has(j)) continue;
+
+        const batch2 = batches[j];
+
+        // Check if MRP, sellingRate match, and expiry is compatible
+        const canMerge =
+          (!batch1.mrp || !batch2.mrp || batch1.mrp == batch2.mrp) &&
+          batch1.sellingRate == batch2.sellingRate &&
+          (!batch1.expiry ||
+            !batch2.expiry ||
+            batch1.expiry.getTime() == batch2.expiry.getTime());
+
+        if (canMerge) {
+          // Merge quantities and mark batch as visited
+          mergedBatch.quantity += Number(batch2?.quantity) || 0;
+          mergedBatch.expiry = mergedBatch.expiry || batch2.expiry;
+          visited.add(j);
+        }
+      }
+
+      mergedBatches.push(mergedBatch);
+    }
+    inventory.batches = mergedBatches;
+    await inventory.save();
+  }
+};
+
 module.exports = {
   getProductsFromInventory,
   getProductFromInventory,
   getProductsGroupedByCategory,
+  getExpiringInventory,
   getRates,
   editBatch,
   mergeBatches,
+  hardMergeBatches,
 };

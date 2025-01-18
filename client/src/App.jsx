@@ -3,6 +3,7 @@ import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useSelector } from "react-redux";
+import Seller from "./pages/Seller";
 
 const Home = lazy(() => import("./pages/Home"));
 const Auth = lazy(() => import("./pages/Auth"));
@@ -13,6 +14,8 @@ const Products = lazy(() => import("./components/home/Products"));
 const Sales = lazy(() => import("./components/home/Sales"));
 const Purchases = lazy(() => import("./components/home/Purchases"));
 const Inventory = lazy(() => import("./components/home/Inventory"));
+const InventoryGrid = lazy(() => import("./components/inventory/InventoryGrid"));
+const ExpiringInventory = lazy(() => import("./components/inventory/ExpiringInventory"));
 const Stats = lazy(() => import("./components/home/Stats"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const ViewProducts = lazy(() => import("./components/products/ViewProducts"));
@@ -131,7 +134,11 @@ const App = () => {
               <Route path="returns/add" element={<SaleReturn />} />
             </Route>
 
-            <Route path="inventory" element={<Inventory />} />
+            {/* Inventory Route */}
+            <Route path="inventory" element={<Inventory />} >
+              <Route path="" element={<InventoryGrid />} />
+              <Route path="expiring" element={<ExpiringInventory />} />
+            </Route>
 
             {/* Suppliers Routes */}
             <Route path="/suppliers" element={<Suppliers />}>
@@ -156,6 +163,9 @@ const App = () => {
             <Route path="forgot-password" element={<ForgotPassword />} />
             <Route path="reset-password" element={<ResetPassword />} />
           </Route>
+
+          {/* Seller Routes */}
+          <Route path="/seller" element={<Seller />} />
 
           <Route path="*" element={<NotFound />} />
         </Routes>

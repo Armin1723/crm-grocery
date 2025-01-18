@@ -305,10 +305,10 @@ const addPurchase = async (req, res) => {
           expiry: product.expiry,
           mrp: product.mrp,
         });
+        inventory.totalQuantity = inventory.totalQuantity + product.quantity;
+        inventory.batches = await mergeBatchesHelper(inventory.batches);
+        await inventory.save();
       }
-      inventory.totalQuantity = inventory.totalQuantity + product.quantity;
-      inventory.batches = await mergeBatchesHelper(inventory.batches);
-      await inventory.save();
 
     // Set MRP of product if not already set
     if (product.mrp) {

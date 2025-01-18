@@ -207,7 +207,7 @@ const SalesReport = () => {
       className="w-full p-6 min-h-fit max-sm:p-3 bg-[var(--color-sidebar)] rounded-lg"
       ref={printRef}
     >
-      <div className="max-w-7xl mx-auto space-y-3 rounded-lg border border-neutral-500/50 p-2 m-2 ">
+      <div className="mx-auto space-y-3 rounded-lg p-2 ">
         <ReportHeader
           title="sales"
           dateRange={dateRange}

@@ -12,7 +12,9 @@ const Auth = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (user && user.avatar) {
+    if (user && user.role === "employee") {
+      navigate("/seller");
+    } else if (user && user.avatar) {
       toast.info("You are already logged in");
       navigate("/");
     }

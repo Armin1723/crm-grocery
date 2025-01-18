@@ -65,7 +65,11 @@ const Login = () => {
           isLoading: false,
           autoClose: 2000,
         });
-        navigate("/");
+        if (data.user.role === "admin") {
+          navigate("/");
+        } else if (data.user.role === "employee") {
+          navigate("/seller");
+        }
       }
     } catch (error) {
       toast.update(id, {

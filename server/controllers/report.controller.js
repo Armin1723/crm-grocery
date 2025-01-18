@@ -799,6 +799,7 @@ const getTaxReport = async (req, res) => {
     matchStage(startDate, endDate),
     { $unwind: "$products" },
     productLookup,
+    userLookup,
     {
       $match: {
         "productDetails.tax": { $exists: true, $ne: null, $gt: 0 },
@@ -862,12 +863,14 @@ const getTaxReport = async (req, res) => {
             upid: { $arrayElemAt: ["$productDetails.upid", 0] },
             secondaryUnit: {$arrayElemAt: ["$productDetails.secondaryUnit", 0] },
             quantity: "$products.quantity",
-            purchaseRate: "$products.sellingRate",
+            rate: "$products.sellingRate",
             tax: { $arrayElemAt: ["$productDetails.tax", 0] },
             taxAmount: "$taxAmount",
           },
         },
         createdAt: { $first: "$createdAt" },
+        signedBy: { $first: {$arrayElemAt : ["$signedBy.name", 0]} },
+        signedById: { $first: {$arrayElemAt : ["$signedBy._id", 0]} },
       },
     },
     {
@@ -877,6 +880,8 @@ const getTaxReport = async (req, res) => {
         totalAmount: 1,
         createdAt: 1,
         products: 1,
+        signedBy: 1,
+        signedById: 1,
       },
     },
     { $sort: { createdAt: -1 } },
@@ -887,6 +892,7 @@ const getTaxReport = async (req, res) => {
     matchStage(startDate, endDate),
     { $unwind: "$products" },
     productLookup,
+    userLookup,
     {
       $match: {
         "productDetails.tax": { $exists: true, $ne: null, $gt: 0 },
@@ -952,12 +958,14 @@ const getTaxReport = async (req, res) => {
             upid: { $arrayElemAt: ["$productDetails.upid", 0] },
             secondaryUnit: {$arrayElemAt: ["$productDetails.secondaryUnit", 0] },
             quantity: "$products.quantity",
-            purchaseRate: "$products.purchaseRate",
+            rate: "$products.purchaseRate",
             tax: { $arrayElemAt: ["$productDetails.tax", 0] },
             taxAmount: "$taxAmount",
           },
         },
         createdAt: { $first: "$createdAt" },
+        signedBy: { $first: {$arrayElemAt : ["$signedBy.name", 0]} },
+        signedById: { $first: {$arrayElemAt : ["$signedBy._id", 0]} },
       },
     },
     {
@@ -966,13 +974,15 @@ const getTaxReport = async (req, res) => {
         totalTax: 1,
         totalAmount: 1,
         createdAt: 1,
+        signedBy: 1,
+        signedById: 1,
         products: 1,
       },
     },
     { $sort: { createdAt: -1 } },
   ];
 
-  const [taxInTransactions, taxOutTransactions] = await Promise.all([
+  const [taxOutTransactions, taxInTransactions] = await Promise.all([
     Sale.aggregate(taxOutPipeline),
     Purchase.aggregate(taxInPipeline),
   ]);

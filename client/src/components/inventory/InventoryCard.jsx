@@ -90,7 +90,7 @@ const InventoryCard = ({ upid = "", inventoryData = {}, editable = false }) => {
           <div className="w-full flex items-center justify-between">
             <Link
               to={`/products/${inventory?.upid}`}
-              className="text-lg font-bold hover:underline"
+              className="text-base md:text-lg font-bold hover:underline"
             >
               {inventory?.name}
             </Link>
@@ -102,10 +102,10 @@ const InventoryCard = ({ upid = "", inventoryData = {}, editable = false }) => {
               />
             )}
           </div>
-          <p className="flex items-center gap-2 text-[var(--color-text-light)]">
+          <p className="flex items-center gap-2 text-[var(--color-text-light)] text-sm">
             Category: {inventory?.category} {`>`} {inventory?.subCategory}
           </p>
-          <p className="text-[var(--color-text-light)]">
+          <p className="text-[var(--color-text-light)] text-sm">
             Total Stock: {inventory?.totalQuantity} {inventory?.secondaryUnit}
           </p>
         </div>

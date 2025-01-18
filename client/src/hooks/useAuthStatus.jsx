@@ -12,7 +12,9 @@ const useAuthStatus = () => {
   useEffect(() => {
     const checkAuthStatus = async () => {
       if (user && user?.avatar) {
-        console.log('User is logged in');
+        if(user.role === 'employee') {
+          navigate('/seller');
+        }
         try {
           const response = await fetch(
             `${import.meta.env.VITE_BACKEND_URL}/api/v1/auth/validate`,
