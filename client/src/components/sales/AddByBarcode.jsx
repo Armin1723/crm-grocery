@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { toast } from "react-toastify";
 import Modal from "../utils/Modal";
 import { formatDateIntl } from "../utils";
@@ -6,6 +6,8 @@ import { formatDateIntl } from "../utils";
 const AddByBarcode = ({ getValues = [], setValue = () => {} }) => {
   const [batches, setBatches] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const inputRef = useRef(null);
 
   const products = getValues("products");
 
@@ -23,12 +25,19 @@ const AddByBarcode = ({ getValues = [], setValue = () => {} }) => {
         p._id === product._id &&
         p.sellingRate === product.sellingRate &&
         (!p.expiry || !product.expiry || p.expiry === product?.expiry)
-          ? { ...p, quantity: p.quantity + 1, price: p.sellingRate * (p.quantity + 1) }
+          ? {
+              ...p,
+              quantity: p.quantity + 1,
+              price: p.sellingRate * (p.quantity + 1),
+            }
           : p
       );
       setValue("products", updatedProducts);
     } else {
-      setValue("products", [...products, { ...product, quantity: 1, price: product.sellingRate }]);
+      setValue("products", [
+        ...products,
+        { ...product, quantity: 1, price: product.sellingRate },
+      ]);
     }
   };
 
@@ -61,7 +70,7 @@ const AddByBarcode = ({ getValues = [], setValue = () => {} }) => {
     e.target.value = "";
 
     if (!products || products.length === 0) {
-      toast.error("Product not found", { autoClose: 2000 });
+      toast.error("Not in stock.", { autoClose: 2000 });
       return;
     }
 
@@ -74,9 +83,16 @@ const AddByBarcode = ({ getValues = [], setValue = () => {} }) => {
     handleProductUpdate(products[0]);
   };
 
+  useEffect(() => {
+    if (!isModalOpen) {
+      inputRef.current?.focus(); 
+    }
+  }, [isModalOpen]);
+
   return (
     <>
       <input
+        ref={inputRef}
         type="text"
         placeholder="Barcode"
         onChange={handleBarcodeInput}
@@ -101,7 +117,7 @@ const AddByBarcode = ({ getValues = [], setValue = () => {} }) => {
               return (
                 <button
                   key={product._id}
-                  disabled={maxQuantityAdded} 
+                  disabled={maxQuantityAdded}
                   onClick={() => {
                     handleProductUpdate(product);
                     setIsModalOpen(false);

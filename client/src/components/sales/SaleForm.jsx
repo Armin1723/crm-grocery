@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import { IoCloseCircle } from "react-icons/io5";
 import { toast } from "react-toastify";
-import SaveReload from "../utils/SaveReload";
 import AddByBarcode from "./AddByBarcode";
 import SaleProductSuggestion from "./SaleProductSuggestion";
 import { formatDateIntl } from "../utils";
@@ -127,12 +126,6 @@ const SaleForm = ({ setRefetch = () => {}, closeModal = () => {} }) => {
       {/* Products Section */}
       <div className="title flex justify-between py-1">
         <p className="my-1 font-semibold text-lg max-sm:text-base">Products</p>
-
-        <SaveReload
-          products={getValues("products")}
-          setProducts={(products) => setValue("products", products)}
-          name="saleData"
-        />
       </div>
 
       {/* Add Product */}

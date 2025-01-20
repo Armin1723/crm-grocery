@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import CountUp from "react-countup";
 import ReportHeader from "./ReportHeader";
 import TaxTable from "./TaxTable";
+import { useReport } from "../../context/ReportContext";
 
 const TaxSummary = ({
   taxIn = 0,
@@ -76,13 +77,10 @@ const TaxReport = () => {
     taxInTransactions: [],
     taxOutTransactions: [],
   });
-  const [dateRange, setDateRange] = useState({
-    startDate: new Date().toISOString().slice(0, 10),
-    endDate: new Date().toISOString().slice(0, 10),
-  });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [activeIndex, setActiveIndex] = useState(null);
+
+  const {dateRange} = useReport();
 
   const printRef = useRef(null);
 
@@ -180,8 +178,6 @@ const TaxReport = () => {
       <div className="mx-auto space-y-3 rounded-lg p-2 ">
         <ReportHeader
           title="tax"
-          dateRange={dateRange}
-          setDateRange={setDateRange}
           printRef={printRef}
           handleDownload={handleDownload}
         />

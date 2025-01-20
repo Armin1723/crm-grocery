@@ -43,17 +43,14 @@ const InventoryCard = ({ upid = "", inventoryData = {}, editable = false }) => {
     fetchInventory();
   }, [upid, refetch]);
 
-  const handleMerge = async () => {
+  const handleHardMerge = async () => {
     try {
       const res = await fetch(
         `${
           import.meta.env.VITE_BACKEND_URL
-        }/api/v1/inventory/${upid}/batches/merge`,
+        }/api/v1/inventory/${upid}/batches/merge/hard`,
         {
           method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-          },
           credentials: "include",
         }
       );
@@ -63,6 +60,7 @@ const InventoryCard = ({ upid = "", inventoryData = {}, editable = false }) => {
       setRefetch((prev) => !prev);
       toast.success("Batches merged successfully");
     } catch (error) {
+      toast.error(error.message || "Failed to merge batches");
       console.error(error.message);
     }
   };
@@ -96,8 +94,8 @@ const InventoryCard = ({ upid = "", inventoryData = {}, editable = false }) => {
             </Link>
             {isMergable(inventory) && (
               <FaObjectGroup
-                title="Merge Batches"
-                onClick={handleMerge}
+                title="Hard Merge Batches"
+                onClick={handleHardMerge}
                 className="text-accent hover:text-accentDark cursor-pointer"
               />
             )}
@@ -113,18 +111,18 @@ const InventoryCard = ({ upid = "", inventoryData = {}, editable = false }) => {
 
       <Divider title={`Batches: ${inventory?.batches?.length || 0}`} />
 
-      <div className="batches flex max-w-full overflow-x-auto gap-4 snap-x snap-mandatory">
+      <div className="batches flex max-w-full overflow-x-auto gap-3 snap-x snap-mandatory">
         {inventory?.batches?.length ? (
           inventory?.batches?.map((batch, index) => {
             return (
               <div
                 key={index}
-                className="batch px-4 flex flex-col gap-2 snap-start w-full min-w-full md:w-1/2 md:min-w-[50%] lg:min-w-[33%] lg:w-1/3 "
+                className="batch px-4 flex flex-col gap-2 snap-start min-h-fit w-full min-w-full tab:w-1/2 tab:min-w-[50%] lg:min-w-[33%] lg:w-1/3 "
               >
-                <div className="batchCard bg-[var(--color-primary)] rounded-md flex items-center h-full w-full justify-center relative">
+                <div className="batchCard bg-[var(--color-primary)] max-sm:py-2 rounded-md flex items-center  h-full w-full justify-center relative">
                   {/* Batch details */}
-                  <div className="batch-left flex flex-col text-sm max-sm:text-xs p-4">
-                    <div className="text-lg max-sm:text-base font-bold flex items-center gap-2">
+                  <div className="batch-left flex flex-col text-sm max-sm:text-xs p-2 text-ellipsis truncate">
+                    <div className="text-xs md:text-md lg:text-lg max-sm:text-base font-bold flex items-center justify-between gap-1">
                       <p>Batch: {index + 1}</p>
                       <InventoryActions
                         batch={batch}
@@ -159,9 +157,9 @@ const InventoryCard = ({ upid = "", inventoryData = {}, editable = false }) => {
                   {/* Container image */}
                   {editable && (
                     <div
-                      className="container-image relative max-w-[60%] flex-1 min-h-[50%] aspect-square"
+                      className="container-image relative max-w-[70%] tab:max-w-[50%] flex-1 min-h-full tab:h-[50%] aspect-square"
                       style={{
-                        backgroundImage: "url('/inventory/clip-mask-4.webp')",
+                        backgroundImage: "url('/inventory/clip-mask.png')",
                         backgroundSize: "contain",
                         backgroundRepeat: "no-repeat",
                         backgroundPosition: "center",
@@ -179,11 +177,11 @@ const InventoryCard = ({ upid = "", inventoryData = {}, editable = false }) => {
                           width: "100%",
                           zIndex: 2,
                           display: "flex",
-                          maskImage: "url('/inventory/clip-mask-4.webp')",
+                          maskImage: "url('/inventory/clip-mask.png')",
                           maskSize: "contain",
                           maskRepeat: "no-repeat",
                           maskPosition: "center",
-                          WebkitMaskImage: "url('/inventory/clip-mask-4.webp')",
+                          WebkitMaskImage: "url('/inventory/clip-mask.png')",
                           WebkitMaskSize: "contain",
                           WebkitMaskRepeat: "no-repeat",
                           WebkitMaskPosition: "center",
@@ -196,8 +194,8 @@ const InventoryCard = ({ upid = "", inventoryData = {}, editable = false }) => {
                               inventory.secondaryUnit,
                               batch.quantity
                             ),
-                          amplitude: 20,
-                          speed: 0.05,
+                            amplitude: Math.random() * 10 + 15, 
+                            speed: Math.random() * 0.02 + 0.03,
                           points: 4,
                         }}
                       />

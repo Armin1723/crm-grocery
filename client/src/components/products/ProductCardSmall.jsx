@@ -1,15 +1,9 @@
-import React, { useState } from "react";
-import { MdEdit } from "react-icons/md";
-import Modal from "../utils/Modal";
-import ProductForm from "../products/ProductForm";
+import React from "react";
 import { Link } from "react-router-dom";
 
 const ProductCardSmall = ({
   product = {},
-  setRefetch = () => {},
-  editable = true,
 }) => {
-  const [editProductModalOpen, setEditProductModalOpen] = useState(false);
 
   return (
     <>
@@ -32,12 +26,6 @@ const ProductCardSmall = ({
             className="text-[var(--color-text)] text-lg text-wrap font-semibold truncate flex items-center gap-2 hover:underline"
           >
             {product?.name}
-            {editable && (
-              <MdEdit
-                className="cursor-pointer"
-                onClick={() => setEditProductModalOpen(true)}
-              />
-            )}
           </Link>
           <p className="text-[var(--color-text)] font-semibold">
             {product.mrp ? `₹${product.mrp}` : "MRP: Not Set"}
@@ -90,21 +78,6 @@ const ProductCardSmall = ({
           </p>
         )}
       </div>
-
-      {editProductModalOpen && (
-        <Modal
-          title="Edit Product"
-          onClose={() => setEditProductModalOpen(false)}
-          isOpen={editProductModalOpen}
-        >
-          <ProductForm
-            title="edit"
-            product={product}
-            setRefetch={setRefetch}
-            closeModal={() => setEditProductModalOpen(false)}
-          />
-        </Modal>
-      )}
     </>
   );
 };

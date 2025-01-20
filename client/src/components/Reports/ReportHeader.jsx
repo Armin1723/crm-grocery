@@ -1,15 +1,14 @@
-import { useState } from "react";
 import { FaPrint, FaFileDownload } from "react-icons/fa";
 import { formatDate } from "../utils";
+import { useReport } from "../../context/ReportContext";
 
 const ReportHeader = ({
   title = "",
-  dateRange = {},
   printRef = {},
-  setDateRange = () => {},
   handleDownload = () => {},
 }) => {
-  const [selectedRange, setSelectedRange] = useState("today");
+
+  const { dateRange, setDateRange, selectedRange, setSelectedRange } = useReport();
 
   const handleDropdownChange = (value) => {
     const today = new Date();

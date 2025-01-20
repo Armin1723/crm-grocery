@@ -20,7 +20,7 @@ export default {
         accentDark: '#4c1d95',
       },
       screens:{
-        tab: '500px'
+        tab: '520px'
       }
     },
   },

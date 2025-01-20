@@ -23,14 +23,14 @@ const getSales = async (req, res) => {
     query = { signedBy: user.id };
   };
 
-  const sales = await Sale.find()
+  const sales = await Sale.find(query)
     .populate("signedBy")
     .populate("customer")
     .limit(limit)
     .skip((page - 1) * limit)
     .sort({ [sort]: sortType });
 
-  const totalSales = await Sale.countDocuments();
+  const totalSales = await Sale.countDocuments(query);
 
   res.json({
     success: true,
@@ -61,6 +61,10 @@ const getSale = async (req, res) => {
   const sale = await Sale.findById(req.params.id).populate(
     "products.product customer signedBy"
   );
+
+  if(!sale){
+    return res.status(404).json({ success: false, message: "Sale not found." });
+  }
 
   const saleReturn = await SalesReturn.findOne({ saleId: sale._id })
     .populate("customer products.product signedBy")
@@ -102,6 +106,47 @@ const getSale = async (req, res) => {
     formattedSale.saleReturn = saleReturn;
   }
   res.json({ success: true, sale: formattedSale });
+};
+
+const deleteSale = async (req, res) => {
+  const sale = await Sale.findById(req.params.id);
+  if (!sale) {
+    return res.status(404).json({ success: false, message: "Sale not found." });
+  }
+
+  // Update Inventory
+  for (const product of sale.products) {
+    const inventory = await Inventory.findOne({
+      product: product.product,
+    }).populate("product");
+    
+    if(!inventory){
+      await Inventory.create({
+        product: product.product,
+        totalQuantity: product.quantity,
+        batches: [
+          {
+            quantity: product.quantity,
+            mrp: product.mrp,
+            sellingRate: product.sellingRate,
+            expiry: product.expiry,
+          },
+        ],
+      });
+    } else {
+      inventory.batches.push({
+        quantity: product.quantity,
+        mrp: product.mrp,
+        sellingRate: product.sellingRate,
+        expiry: product.expiry,
+      });
+      inventory.totalQuantity += product.quantity;
+      await inventory.save();
+    }
+  
+  }
+  await sale.deleteOne();
+  return res.json({ success: true, message: "Sale deleted successfully." });
 };
 
 const getSaleReturns = async (req, res) => {
@@ -381,6 +426,7 @@ module.exports = {
   getSales,
   getEmployeeSales,
   getSale,
+  deleteSale,
   getSaleReturns,
   addSale,
   addSaleReturn,

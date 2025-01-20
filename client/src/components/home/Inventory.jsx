@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import ChipNav from "../utils/ChipNav";
-import { FaClock } from "react-icons/fa";
+import { FaClock, FaList } from "react-icons/fa";
 import { BsInboxesFill } from "react-icons/bs";
 import { Outlet } from "react-router-dom";
 
@@ -8,9 +8,14 @@ const Inventory = () => {
   
   const chipData = [
     {
+      label: "Inventory List",
+      icon: FaList,
+      to: "/inventory",
+    },
+    {
       label: "Inventory Details",
       icon: BsInboxesFill,
-      to: "/inventory",
+      to: "/inventory/grid",
     },
     {
       label: "Expiring Soon",

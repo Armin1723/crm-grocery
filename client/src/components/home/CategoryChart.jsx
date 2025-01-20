@@ -78,10 +78,10 @@ const CategoryChart = () => {
             <PieChart>
               <Pie
                 data={data}
-                innerRadius={40}
+                innerRadius={30}
                 outerRadius={60}
                 fill="#8884d8"
-                paddingAngle={5}
+                paddingAngle={3}
                 dataKey="value"
                 onMouseEnter={onPieEnter}
               >

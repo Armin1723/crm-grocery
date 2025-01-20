@@ -87,7 +87,7 @@ const ExpenseTable = ({ title = "", data }) => {
           </table>
         </div>
       ) : (
-        <div className="text-center p-6 capitalize">No Expense found.</div>
+        <div className="text-center p-6 capitalize">No {title} found.</div>
       )}
     </div>
   );

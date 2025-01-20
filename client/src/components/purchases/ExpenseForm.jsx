@@ -85,6 +85,7 @@ const ExpenseForm = () => {
               errors && errors.amount && "border-red-500 focus:!border-red-500"
             }`}
             name="category"
+            defaultValue=""
             {...register("category", { required: "Category is required" })}
           >
             <option value="" className=" bg-[var(--color-card)]" disabled>

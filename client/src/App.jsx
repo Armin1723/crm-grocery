@@ -4,6 +4,8 @@ import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useSelector } from "react-redux";
 import Seller from "./pages/Seller";
+import TopLoadingBar from "./components/shared/TopLoadingBar";
+import SellerSales from "./components/seller/SellerSales";
 
 const Home = lazy(() => import("./pages/Home"));
 const Auth = lazy(() => import("./pages/Auth"));
@@ -14,8 +16,15 @@ const Products = lazy(() => import("./components/home/Products"));
 const Sales = lazy(() => import("./components/home/Sales"));
 const Purchases = lazy(() => import("./components/home/Purchases"));
 const Inventory = lazy(() => import("./components/home/Inventory"));
-const InventoryGrid = lazy(() => import("./components/inventory/InventoryGrid"));
-const ExpiringInventory = lazy(() => import("./components/inventory/ExpiringInventory"));
+const InventoryGrid = lazy(() =>
+  import("./components/inventory/InventoryGrid")
+);
+const InventoryList = lazy(() =>
+  import("./components/inventory/InventoryList")
+);
+const ExpiringInventory = lazy(() =>
+  import("./components/inventory/ExpiringInventory")
+);
 const Stats = lazy(() => import("./components/home/Stats"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const ViewProducts = lazy(() => import("./components/products/ViewProducts"));
@@ -91,12 +100,14 @@ const App = () => {
     <BrowserRouter>
       <ToastContainer
         theme={theme}
+        portal={document.body}
         toastStyle={{
           backgroundColor: "var(--color-sidebar)",
           color: "var(--color-text)",
           border: "1px solid var(--color-card)",
         }}
       />
+      <TopLoadingBar />
       <Suspense
         fallback={
           <div className="w-screen h-screen bg-[var(--color-primary)] flex flex-col items-center justify-center">
@@ -135,8 +146,9 @@ const App = () => {
             </Route>
 
             {/* Inventory Route */}
-            <Route path="inventory" element={<Inventory />} >
-              <Route path="" element={<InventoryGrid />} />
+            <Route path="inventory" element={<Inventory />}>
+              <Route path="" element={<InventoryList />} />
+              <Route path="grid" element={<InventoryGrid />} />
               <Route path="expiring" element={<ExpiringInventory />} />
             </Route>
 
@@ -165,7 +177,15 @@ const App = () => {
           </Route>
 
           {/* Seller Routes */}
-          <Route path="/seller" element={<Seller />} />
+          <Route path="/seller" element={<Seller />}>
+            <Route path='' element={<SellerSales />} />
+            <Route path="sales" element={<SellerSales />}>
+              <Route path="" element={<ViewSales />} />
+              <Route path="add" element={<AddSale />} />
+              <Route path=':id' element={<SaleDetails />} />
+            </Route>
+            <Route path="inventory" element={<InventoryList />} />
+          </Route>
 
           <Route path="*" element={<NotFound />} />
         </Routes>

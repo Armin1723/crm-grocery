@@ -8,7 +8,7 @@ const ExpiringInventory = () => {
   const [category, setCategory] = useState("");
   const [refetch, setRefetch] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [timePeriod, setTimePeriod] = useState("month");
+  const [timePeriod, setTimePeriod] = useState("");
   const [results, setResults] = useState({});
 
   useEffect(() => {

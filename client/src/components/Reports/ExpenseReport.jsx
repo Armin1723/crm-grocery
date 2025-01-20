@@ -14,13 +14,13 @@ import CountUp from "react-countup";
 import ExpenseTable from "./ExpenseTable";
 import ReportHeader from "./ReportHeader";
 import { FaChevronCircleDown } from "react-icons/fa";
+import { useReport } from "../../context/ReportContext";
 
 const ExpenseSummary = ({
   totalPurchases = 0,
   totalOtherExpenses = 0,
   totalReturns = 0,
 }) => {
-
   const [expanded, setExpanded] = useState(false);
 
   const totalExpenses = totalPurchases + totalOtherExpenses - totalReturns;
@@ -111,15 +111,14 @@ const ExpenseReport = () => {
     expensesBySupplier: [],
     expenseList: [],
   });
-  const [dateRange, setDateRange] = useState({
-    startDate: new Date().toISOString().slice(0, 10),
-    endDate: new Date().toISOString().slice(0, 10),
-  });
+
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   const [activeIndex, setActiveIndex] = useState(null);
 
   const printRef = useRef(null);
+
+  const { dateRange } = useReport();
 
   useEffect(() => {
     const fetchExpenseReport = async () => {
@@ -199,8 +198,6 @@ const ExpenseReport = () => {
       <div className="mx-auto space-y-3 rounded-lg p-2">
         <ReportHeader
           title="expense"
-          dateRange={dateRange}
-          setDateRange={setDateRange}
           printRef={printRef}
           handleDownload={handleDownload}
         />

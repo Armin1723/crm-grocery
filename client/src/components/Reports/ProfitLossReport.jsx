@@ -13,15 +13,14 @@ import Divider from "../utils/Divider";
 import PLData from "./PLData";
 import CountUp from "react-countup";
 import { getMonthName } from "../utils";
+import { useReport } from "../../context/ReportContext";
 
 const ProfitLossReport = () => {
   const printRef = useRef(null);
   const [reportData, setReportData] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [dateRange, setDateRange] = useState({
-    startDate: new Date().toISOString().slice(0, 10),
-    endDate: new Date().toISOString().slice(0, 10),
-  });
+
+  const { dateRange } = useReport();
 
   useEffect(() => {
     const fetchPLReport = async () => {
@@ -61,8 +60,6 @@ const ProfitLossReport = () => {
       <div className="mx-auto space-y-3 rounded-lg p-2">
         <ReportHeader
           title="P/L"
-          dateRange={dateRange}
-          setDateRange={setDateRange}
           printRef={printRef}
           handleDownload={null}
         />

@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import ExportButton from "../utils/ExportButton";
 import SortableLink from "../utils/SortableLink";
 import Pagination from "../utils/Pagination";
 import { formatDate } from "../utils";

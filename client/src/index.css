@@ -31,6 +31,10 @@ input.checkbox {
   accent-color: var(--color-accent);
 }
 
+#nprogress .bar {
+  background: var(--color-accent-dark) !important;
+}
+
 *::selection {
   background-color: var(--color-accent);
   color: var(--color-primary);

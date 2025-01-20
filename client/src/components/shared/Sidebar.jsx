@@ -61,9 +61,9 @@ const Sidebar = () => {
                 : pathname.startsWith(link.to);
 
             return (
-              <div key={index} className="link">
+              <div key={index} className={`link ${user.role !== "admin" && link.protected && "hidden"}`}>
                 <Link
-                  to={link.to}
+                  to={user.role == 'admin' ? link.to : `/seller${link.to}`}
                   title={link.title}
                   className={`link flex items-center gap-4 py-2 group hover:bg-accent/5 transition-all relative duration-300 ease-in group ${
                     !expanded && "justify-start gap-2 "
@@ -108,7 +108,7 @@ const Sidebar = () => {
           <p
             className={` ${
               expanded ? "max-w-full opacity-100" : "max-w-0 opacity-0"
-            } overflow-hidden transition-all duration-300 ease-in flex flex-col`}
+            } overflow-hidden transition-all duration-300 ease-in flex flex-col capitalize`}
           >
             <span className="font-semibold">{user?.name}</span>
             <span className="font-light text-xs">{user?.uuid}</span>

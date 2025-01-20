@@ -44,7 +44,7 @@ const InventoryActions = ({
   return (
     <div
       ref={menuRef}
-      className="relative flex items-center px-4 py-2 rounded-md gap-2 cursor-pointer font-normal"
+      className="relative flex items-center py-2 rounded-md gap-2 cursor-pointer font-normal z-[99]"
     >
       {/* Button */}
       <div
@@ -52,7 +52,7 @@ const InventoryActions = ({
         onKeyDown={(e) => {
           if (e.key === "Enter") toggleMenu();
         }}
-        className="button-title text-sm flex gap-2 items-center transition-all duration-300 ease-in rounded-md px-3 py-1.5"
+        className="button-title text-sm flex gap-2 items-center transition-all duration-300 ease-in rounded-md "
         tabIndex={0}
         role="button"
         aria-expanded={menuOpen}
@@ -65,7 +65,7 @@ const InventoryActions = ({
       <div
         className={`${
           menuOpen ? "max-h-screen opacity-100" : "max-h-0 opacity-0"
-        } absolute menu overflow-hidden top-full -left-1/2 !z-[999] bg-[var(--color-card)] transition-all duration-300 ease-in min-w-[120px] rounded-md py-1 flex flex-col border-neutral-500/50 border shadow-md`}
+        } absolute menu overflow-hidden top-full right-0 !z-[999] bg-[var(--color-card)] transition-all duration-300 ease-in min-w-[120px] rounded-md py-1 flex flex-col border-neutral-500/50 border shadow-md`}
         role="menu"
         aria-hidden={!menuOpen}
       >

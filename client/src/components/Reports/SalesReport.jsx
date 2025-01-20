@@ -14,6 +14,7 @@ import {
   YAxis,
 } from "recharts";
 import { FaChevronCircleDown } from "react-icons/fa";
+import { useReport } from "../../context/ReportContext";
 
 const COLORS = [
   "#4299E1", // Blue
@@ -113,10 +114,7 @@ const SalesReport = () => {
     salesList: [],
   });
 
-  const [dateRange, setDateRange] = useState({
-    startDate: new Date().toISOString().slice(0, 10),
-    endDate: new Date().toISOString().slice(0, 10),
-  });
+  const { dateRange } = useReport();
 
   const handleDownload = () => {
     const headers = [
@@ -210,8 +208,6 @@ const SalesReport = () => {
       <div className="mx-auto space-y-3 rounded-lg p-2 ">
         <ReportHeader
           title="sales"
-          dateRange={dateRange}
-          setDateRange={setDateRange}
           printRef={printRef}
           handleDownload={handleDownload}
         />

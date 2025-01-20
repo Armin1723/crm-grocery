@@ -264,6 +264,90 @@ const getProductsGroupedByCategory = async (req, res) => {
   }
 };
 
+const getInventoryListGroupedByCategory = async (req, res) => {
+  const { query = "", category } = req.query;
+
+  const pipeline = [
+    matchStage,
+    {
+      $lookup: {
+        from: "products",
+        localField: "product",
+        foreignField: "_id",
+        as: "details",
+      },
+    },
+
+    // Query filter in case of query
+    ...(query
+      ? [
+          {
+            $match: {
+              $or: [
+                { "details.name": { $regex: query, $options: "i" } },
+                { "details.category": { $regex: query, $options: "i" } },
+                { "details.subCategory": { $regex: query, $options: "i" } },
+                { "details.description": { $regex: query, $options: "i" } },
+                { "details.tags": { $regex: query, $options: "i" } },
+              ],
+            },
+          },
+        ]
+      : []),
+
+      // Filter products based on the category if provided
+    ...(category
+      ? [
+          {
+            $match: {
+              "details.category": { $regex: category, $options: "i" },
+            },
+          },
+        ]
+      : []),
+      
+    { $unwind: "$details" },
+    {
+      $project: {
+        upid: "$details.upid",
+        category: "$details.category",
+        name: "$details.name",
+        image: "$details.image",
+        totalQuantity: 1,
+        secondaryUnit: "$details.secondaryUnit",
+        noOfBatches: { $size: "$batches" },
+      },
+    },
+    {
+      $group: {
+        _id: "$category",
+        products: {
+          $push: {
+            upid: "$upid",
+            name: "$name",
+            image: "$image",
+            totalQuantity: "$totalQuantity",
+            noOfBatches: "$noOfBatches",
+            secondaryUnit: "$secondaryUnit",
+          },
+        },
+      },
+    },
+    {
+      $sort: {
+        _id: 1,
+      },
+    }
+  ];
+
+  const inventory = await Inventory.aggregate(pipeline);
+
+  res.status(200).json({
+    success: true,
+    inventory,
+  });
+};
+
 const getExpiringInventory = async (req, res) => {
   const { page = 1, limit = 10, query = '', category, time = 'day'} = req.query;
   const skip = (page - 1) * limit;
@@ -505,7 +589,7 @@ const hardMergeBatches = async (req, res) => {
 
   const { batches } = inventory;
 
-  if (batches.length > 2) {
+  if (batches.length >= 2) {
     // Merge batches with same MRP, sellingRate, and compatible expiry
     const mergedBatches = [];
     const visited = new Set();
@@ -525,7 +609,7 @@ const hardMergeBatches = async (req, res) => {
         // Check if MRP, sellingRate match, and expiry is compatible
         const canMerge =
           (!batch1.mrp || !batch2.mrp || batch1.mrp == batch2.mrp) &&
-          batch1.sellingRate == batch2.sellingRate &&
+          (batch1.sellingRate == batch2.sellingRate) &&
           (!batch1.expiry ||
             !batch2.expiry ||
             batch1.expiry.getTime() == batch2.expiry.getTime());
@@ -534,6 +618,7 @@ const hardMergeBatches = async (req, res) => {
           // Merge quantities and mark batch as visited
           mergedBatch.quantity += Number(batch2?.quantity) || 0;
           mergedBatch.expiry = mergedBatch.expiry || batch2.expiry;
+          mergedBatch.purchaseRate = Math.max(batch1.purchaseRate || 0, batch2.purchaseRate || 0);
           visited.add(j);
         }
       }
@@ -542,13 +627,20 @@ const hardMergeBatches = async (req, res) => {
     }
     inventory.batches = mergedBatches;
     await inventory.save();
+
   }
+  return res.status(200).json({
+    success: true,
+    message: "Batches merged successfully",
+    batches: inventory.batches,
+  });
 };
 
 module.exports = {
   getProductsFromInventory,
   getProductFromInventory,
   getProductsGroupedByCategory,
+  getInventoryListGroupedByCategory,
   getExpiringInventory,
   getRates,
   editBatch,

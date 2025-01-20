@@ -1,13 +1,12 @@
 import React, { useState } from "react";
 import { MdFullscreen, MdFullscreenExit } from "react-icons/md";
+import { toast } from "react-toastify";
 
-const FullScreenToggle = ({pageRef}) => {
+const FullScreenToggle = ({ pageRef }) => {
   const [isFullscreen, setIsFullscreen] = useState(false);
   const toggleFullscreen = () => {
     if (!isFullscreen) {
-      pageRef.current
-        ?.requestFullscreen()
-        .then(() => setIsFullscreen(true));
+      pageRef.current?.requestFullscreen().then(() => setIsFullscreen(true));
     } else {
       document.exitFullscreen().then(() => setIsFullscreen(false));
     }

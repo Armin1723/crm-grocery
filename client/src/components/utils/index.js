@@ -8,36 +8,43 @@ export const links = [
     icon: FaHome,
     title: "Home",
     to: "/",
+    protected : true,
   },
   {
     icon: FaChartLine,
     title: "Sales",
     to: "/sales",
+    protected : false,
   },
   {
     icon: FaShoppingCart,
     title: "Purchases",
     to: "/purchases",
+    protected : true,
   },
   {
     icon: AiFillProduct,
     title: "Products",
     to: "/products",
+    protected : true,
   },
   {
     icon: BsInboxesFill,
     title: "Inventory",
     to: "/inventory",
+    protected : false,
   },
   {
     icon: FaStore,
     title: "Suppliers",
     to: "/suppliers",
+    protected : true,
   },
   {
     icon: BiSolidReport,
     title: "Reports",
     to: "/reports",
+    protected : true,
   },
 ];
 
@@ -285,6 +292,10 @@ export const units = [
   "litre",
   "ml",
   "piece",
+  "carton",
+  "bottle",
+  "can",
+  "jar",
   "dozen",
   "box",
   "packet",
@@ -293,47 +304,47 @@ export const units = [
 
 export const taxSlabs = [
   {
-    id: 5,
+    id: 1,
     name: "GST 0%",
     rate: 0,
     description:
       "Exempt from tax, generally applies to export goods and essential items.",
   },
   {
-    id: 6,
+    id: 2,
     name: "GST 3%",
     rate: 3,
     description:
       "Special rate for certain items such as job work or agriculture products.",
   },
   {
-    id: 14,
+    id: 3,
     name: "GST 5% ",
     rate: 5,
     description: "Special rate for mobile phone products.",
   },
   {
-    id: 7,
+    id: 4,
     name: "GST 10%",
     rate: 10,
     description:
       "Special rate for specific services, including low-cost services.",
   },
   {
-    id: 12,
+    id: 5,
     name: "GST 12% ",
     rate: 12,
     description: "Special rate for hotel accommodation with a higher tariff.",
   },
   {
-    id: 9,
+    id: 6,
     name: "GST 18%",
     rate: 18,
     description:
       "Standard rate for most goods and services, including electronics.",
   },
   {
-    id: 8,
+    id: 7,
     name: "GST 20%",
     rate: 20,
     description:
@@ -341,24 +352,31 @@ export const taxSlabs = [
   },
 
   {
-    id: 13,
+    id: 8,
     name: "GST 28%",
     rate: 28,
     description: "Applicable on tobacco products and similar items.",
   },
+  {
+    id: 9,
+    name: "GST 40%",
+    rate: 40,
+    description: "Applicable on luxury cars and aerated drinks.",
+  }
 ];
 
 export const expenseTypes = [
+  "Electricity",
+  "Insurance",
+  "Internet",
+  "Legal",
+  "Logistics",
+  "Maintenance",
+  "Marketing",
+  "Office Supplies",
+  "Petty Expense",
   "Rent",
   "Salary",
-  "Electricity",
-  "Internet",
-  "Transport",
-  "Marketing",
-  "Maintenance",
-  "Insurance",
-  "Legal",
-  "Office Supplies",
   "Travel",
   "Miscellaneous"
 ];

@@ -1,9 +1,13 @@
 import React, { useState, useEffect, useRef } from "react";
 import { FaEye, FaFileInvoice } from "react-icons/fa";
 import { HiDotsVertical } from "react-icons/hi";
+import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 
 const SaleActionButton = ({ sale, setRefetch = () => {} }) => {
+  const user = useSelector((state) => state.user);
+  const isAdmin = user?.role === "admin";
+
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef(null);
 
@@ -75,7 +79,7 @@ const SaleActionButton = ({ sale, setRefetch = () => {} }) => {
         </div>
 
         <Link
-          to={`/sales/${sale?._id}`}
+          to={`${!isAdmin && '/seller'}/sales/${sale?._id}`}
           className="menu-item px-4 py-1 text-sm text-center hover:bg-accentDark/10 cursor-pointer transition-all duration-200 ease-in flex items-center gap-2"
           role="menuitem"
           tabIndex={0}
