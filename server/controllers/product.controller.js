@@ -62,19 +62,6 @@ const addProduct = async (req, res) => {
     }
   }
 
-  // const generateUPID = async () => {
-  //   let upid =
-  //     process.env.INITIALS +
-  //     Math.random().toString(36).substr(2, 6).toUpperCase();
-  //   const existingProduct = await Product.findOne({ upid });
-  //   if (existingProduct) {
-  //     return generateUPID();
-  //   } else {
-  //     return upid;
-  //   }
-  // };
-
-  // product.upid = await generateUPID();
   res.json({ success: true, product });
 };
 

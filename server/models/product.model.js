@@ -13,9 +13,9 @@ const productSchema = new mongoose.Schema(
       type: String,
       trim: true,
     },
-    location:{
-      shelf: {type: String},
-      row: {type: String},
+    location: {
+      shelf: { type: String },
+      row: { type: String },
     },
     image: {
       type: String,
@@ -35,7 +35,7 @@ const productSchema = new mongoose.Schema(
     mrp: {
       type: Number,
     },
-    rate:{
+    rate: {
       type: Number,
     },
     tax: {
@@ -79,18 +79,23 @@ const productSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-productSchema.index({upid: 1}, {unique: true});
+productSchema.index({ upid: 1 }, { unique: true });
 
 //Pre save hook to generate upid code from process.env.INITIALS
 productSchema.pre("save", async function (next) {
-    if (!this.upid) {
-        const timestamp = Date.now().toString(36).slice(-3); 
-        const random = Math.random().toString(36).substr(2, 3); 
-        const counter = await this.constructor
-          .countDocuments()
-          .then((count) => count.toString(36).padStart(3, "0")); 
-        this.upid = (process.env.INITIALS + timestamp + random + counter).toUpperCase(); 
-      }
+  if (!this.upid) {
+    const timestamp = Date.now().toString(36).slice(-3);
+    const random = Math.random().toString(36).substr(2, 3);
+    const counter = await this.constructor
+      .countDocuments()
+      .then((count) => count.toString(36).padStart(3, "0"));
+    this.upid = (
+      process.env.INITIALS +
+      timestamp +
+      random +
+      counter
+    ).toUpperCase();
+  }
   next();
 });
 

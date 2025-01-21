@@ -67,7 +67,7 @@ const Card = ({ data, index, chartData = {} }) => {
         opacity: 0,
         y: 50,
       }}
-      className="snap-start flex min-w-[25%] max-lg:min-w-[50%] max-sm:min-w-full "
+      className="snap-start flex min-w-full tab:min-w-[50%] md:min-w-[33%] lg:min-w-[25%]"
     >
       <div
         className="card-wrapper relative overflow-hidden mx-2 flex w-full aspect-[16/8] border rounded-md items-center bg-[var(--color-sidebar)] border-b-4 border-neutral-500/50 shadow-md"
@@ -77,16 +77,16 @@ const Card = ({ data, index, chartData = {} }) => {
       >
         <div className="left w-2/5 h-full flex flex-col items-start justify-center px-4 py-3">
           <div className="top-group flex flex-col gap-2">
-            <div className="title flex items-center gap-2 text-xl max-lg:text-lg max-sm:text-xl">
+            <div className="title flex items-center gap-2 text-xl max-lg:text-base max-sm:text-xl">
               <data.icon
                 className=""
                 style={{
                   color: data?.color,
                 }}
               />
-              <p className="text-lg font-bold">{data?.title}</p>
+              <p className="text-base lg:text-lg font-bold">{data?.title}</p>
             </div>
-            <p className="text-2xl max-lg:text-xl max-sm:text-lg font-bold ">
+            <p className="text-xl max-sm:text-lg font-bold ">
               <CountUp
                 end={
                   data.title === "Inventory"
@@ -99,7 +99,7 @@ const Card = ({ data, index, chartData = {} }) => {
           </div>
           <Link
             to={data?.to}
-            className="hover:opacity-75 transition-all duration-300 ease-in-out flex items-center p-2 rounded-full max-lg:text-sm max-sm:text-base"
+            className="hover:opacity-75 transition-all duration-300 ease-in-out flex items-center rounded-full text-sm"
             style={{
               color: data?.color,
             }}
@@ -107,9 +107,9 @@ const Card = ({ data, index, chartData = {} }) => {
             View all
           </Link>
         </div>
-        <div className="right flex flex-col flex-1 h-full w-full px-6 max-sm:px-4 py-2">
-          <div className="chart h-2/3 w-full ">
-            <ResponsiveContainer width="99%" height="100%">
+        <div className="right flex flex-col flex-1 overflow-hidden h-full w-full px-6 max-sm:px-4 py-2">
+          <div className="chart h-2/3 max-h-[66%] w-full flex items-center justify-center overflow-hidden">
+            <ResponsiveContainer width="99%" height="99%">
               <LineChart data={stats}>
                 <Tooltip content={<CustomTooltip />} />
                 <Line
@@ -122,7 +122,7 @@ const Card = ({ data, index, chartData = {} }) => {
               </LineChart>
             </ResponsiveContainer>
           </div>
-          <div className="inc-dec w-full flex flex-col items-end justify-center ">
+          <div className="inc-dec w-full flex flex-col items-end justify-center flex-1">
             <div className="flex flex-col items-end font-bold">
               <p
                 className={`${
@@ -131,7 +131,7 @@ const Card = ({ data, index, chartData = {} }) => {
                     : chartData.increase == 0
                     ? "text-accent"
                     : "text-[tomato]"
-                } text-xl`}
+                } text-base lg:text-xl`}
               >
                 {chartData?.increase?.toFixed(1) || 0}%
               </p>

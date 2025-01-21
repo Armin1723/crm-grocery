@@ -7,8 +7,8 @@ const ReportHeader = ({
   printRef = {},
   handleDownload = () => {},
 }) => {
-
-  const { dateRange, setDateRange, selectedRange, setSelectedRange } = useReport();
+  const { dateRange, setDateRange, selectedRange, setSelectedRange } =
+    useReport();
 
   const handleDropdownChange = (value) => {
     const today = new Date();
@@ -125,7 +125,7 @@ const ReportHeader = ({
                 page-break-inside: auto; /* Allows table to span multiple pages */
               }
 
-              /* Optional: Ensure that we add space between pages */
+              /* Space between pages */
               .page {
                 page-break-after: always;
                 margin-bottom: 1in;

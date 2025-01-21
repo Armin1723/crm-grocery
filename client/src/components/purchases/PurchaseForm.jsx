@@ -8,6 +8,7 @@ import AddProductModal from "./AddProductModal";
 import SaveReload from "../utils/SaveReload";
 import PurchaseProductSuggestion from "./PurchaseProductSuggestion";
 import HoverCard from "../shared/HoverCard";
+import InventoryCard from "../inventory/InventoryCard";
 
 const PurchaseForm = ({ setRefetch = () => {}, closeModal = () => {} }) => {
   const [products, setProducts] = useState([]);
@@ -268,7 +269,9 @@ const PurchaseForm = ({ setRefetch = () => {}, closeModal = () => {} }) => {
                       <IoCloseCircle />
                     </button>
                     <p className="w-1/5 min-w-[100px] flex-wrap flex-grow">
-                      {product.name}
+                      <HoverCard title={product?.name} otherClasses="max-w-3xl">
+                        <InventoryCard upid={product?.upid} />
+                      </HoverCard>
                     </p>
                     <div className="w-1/5 min-w-[120px]">
                       <input

@@ -21,8 +21,8 @@ const loginUser = async (req, res) => {
 
     const user = await User.findOne({
       $or: [
-        { email: email }, 
-        { uuid: email }
+      { email: email }, 
+      { uuid: { $regex: new RegExp(email, "i") } }
       ]
     }).select("+password");
     
@@ -30,7 +30,7 @@ const loginUser = async (req, res) => {
     if (!user) {
       return res.status(400).json({
         message: "User not found",
-        errors: { email: "Email not found." },
+        errors: { email: "Email/Emp Id not found." },
         success: false,
       });
     }

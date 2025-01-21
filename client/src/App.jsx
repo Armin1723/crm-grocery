@@ -54,6 +54,13 @@ const SaleReturn = lazy(() => import("./components/sales/SaleReturn"));
 const ViewSaleReturns = lazy(() =>
   import("./components/sales/ViewSaleReturns")
 );
+
+const Employees = lazy(() => import("./components/home/Employees"));
+const ViewEmployees = lazy(() => import("./components/employee/ViewEmployees"));
+const AddEmployee = lazy(() => import("./components/employee/AddEmployee"));
+const EmployeeDetails = lazy(() =>
+  import("./components/employee/EmployeeDetails")
+);
 const Reports = lazy(() => import("./components/home/Reports"));
 const ExpenseReport = lazy(() => import("./components/Reports/ExpenseReport"));
 const AddExpense = lazy(() => import("./components/purchases/AddExpense"));
@@ -153,7 +160,7 @@ const App = () => {
             </Route>
 
             {/* Suppliers Routes */}
-            <Route path="/suppliers" element={<Suppliers />}>
+            <Route path="suppliers" element={<Suppliers />}>
               <Route path="" element={<ViewSuppliers />} />
               <Route path="add" element={<AddSuppliers />} />
               <Route path=":id" element={<SupplierDetails />} />
@@ -167,6 +174,14 @@ const App = () => {
               <Route path="tax" element={<TaxReport />} />
               <Route path="profit-loss" element={<ProfitLossReport />} />
             </Route>
+
+            {/* Employee Routes */}
+            <Route path="employees" element={<Employees />}>
+              <Route path="" element={<ViewEmployees />} />
+              <Route path="view" element={<ViewEmployees />} />
+              <Route path="add" element={<AddEmployee />} />
+              <Route path=":id" element={<EmployeeDetails />} />
+            </Route>
           </Route>
 
           <Route path="/auth" element={<Auth />}>
@@ -178,11 +193,11 @@ const App = () => {
 
           {/* Seller Routes */}
           <Route path="/seller" element={<Seller />}>
-            <Route path='' element={<SellerSales />} />
+            <Route path="" element={<SellerSales />} />
             <Route path="sales" element={<SellerSales />}>
               <Route path="" element={<ViewSales />} />
               <Route path="add" element={<AddSale />} />
-              <Route path=':id' element={<SaleDetails />} />
+              <Route path=":id" element={<SaleDetails />} />
             </Route>
             <Route path="inventory" element={<InventoryList />} />
           </Route>

@@ -1,17 +1,15 @@
 import React, { useState, useEffect, useRef } from "react";
-import { FaEye, FaFileInvoice } from "react-icons/fa";
+import { FaEye, FaEdit } from "react-icons/fa";
 import { HiDotsVertical } from "react-icons/hi";
-import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
+import Modal from "../utils/Modal";
+import EmployeeForm from "./EmployeeForm";
 
-const SaleActionButton = ({ sale, setRefetch = () => {} }) => {
-  const user = useSelector((state) => state.user);
-  const isAdmin = user?.role === "admin";
-
+const EmployeeActions = ({ employee, setRefetch = () => {} }) => {
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef(null);
 
-  const [invoiceModalOpen, setInvoiceModalOpen] = useState(false);
+  const [editModalOpen, setEditModalOpen] = useState(false);
 
   // Close menu when clicking outside
   useEffect(() => {
@@ -71,21 +69,17 @@ const SaleActionButton = ({ sale, setRefetch = () => {} }) => {
           tabIndex={0}
           onClick={() => {
             setMenuOpen(false);
-            setInvoiceModalOpen(true);
+            setEditModalOpen(true);
           }}
         >
-          <FaFileInvoice />
-          <p className="capitalize">Invoice</p>
+          <FaEdit />
+          <p className="capitalize">Edit</p>
         </div>
 
         <Link
-          to={`/sales/${sale?._id}`}
+          to={`/employees/${employee?.uuid}`}
           className="menu-item px-4 py-1 text-sm text-center hover:bg-accentDark/10 cursor-pointer transition-all duration-200 ease-in flex items-center gap-2"
           role="menuitem"
-          tabIndex={0}
-          onClick={() => {
-            setMenuOpen(false);
-          }}
         >
           <FaEye />
           <p className="capitalize">View</p>
@@ -93,27 +87,19 @@ const SaleActionButton = ({ sale, setRefetch = () => {} }) => {
       </div>
 
       {/* Edit Modal */}
-      {invoiceModalOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-[1000]">
-          <div  className="bg-[var(--color-sidebar)] rounded-md p-6 w-1/2 max-sm:w-[90%] overflow-y-auto max-h-[90vh] max-sm:px-6">
-            <div className="flex items-center gap-2 w-full justify-between my-4">
-              <h2 className="text-lg font-bold ">View Invoice</h2>
-              <button
-                className="bg-red-500 text-white px-3 py-1 rounded-md"
-                onClick={() => setInvoiceModalOpen(false)}
-              >
-                Close
-              </button>
-            </div>
-            {/* Modal Content */}
-            <div>
-                <embed src={sale?.invoice} type="application/pdf" width="100%" height="500px" />
-            </div>
-          </div>
-        </div>
+      {editModalOpen && (
+        <Modal isOpen={editModalOpen} onClose={() => setEditModalOpen(false)} title={`Edit ${employee?.name}`}>
+            {/* Modal Content for editing employee */}
+            <EmployeeForm
+                employee={employee}
+                title="edit"
+                closeModal={() => setEditModalOpen(false)}
+                setRefetch={setRefetch}
+            />
+        </Modal>
       )}
     </div>
   );
 };
 
-export default SaleActionButton;
+export default EmployeeActions;

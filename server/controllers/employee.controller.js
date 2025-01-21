@@ -1,21 +1,24 @@
 const User = require("../models/user.model");
 const bcrypt = require("bcryptjs");
+const cloudinary = require("../config/cloudinary");
+const Sale = require("../models/sale.model");
 
 const getEmployees = async (req, res) => {
-  const { limit = 10, page = 1 } = req.query;
-  const employees = await User.find({ role: "employee" })
+  const { limit = 10, page = 1, sort = 'name', sortType = 'asc' } = req.query;
+  const employees = await User.find()
+    .sort({ [sort]: sortType })
     .limit(limit)
     .skip((page - 1) * limit);
 
-  const totalEmployees = await User.countDocuments({ role: "employee" });
+  const totalResults = await User.countDocuments();
 
-  const totalPages = Math.ceil(totalEmployees / limit) || 1;
+  const totalPages = Math.ceil(totalResults / limit) || 1;
 
-  res.json({ success: true, employees, page, totalEmployees, totalPages });
+  res.json({ success: true, employees, page, totalResults, totalPages });
 };
 
 const getEmployee = async (req, res) => {
-  const employee = await User.findById(req.params.id);
+  const employee = await User.findOne({ uuid: req.params.uuid });
   if (!employee) {
     return res.json({ success: false, message: "Employee not found" });
   }
@@ -45,9 +48,32 @@ const addEmployee = async (req, res) => {
   const salt = await bcrypt.genSalt(10);
   employee.password = await bcrypt.hash(tempPass, salt);
 
-  employee.avatar = `https://robohash.org/${employee.name
-    .split(" ")[0]
-    .toLowerCase()}.png?set=set4`;
+  // Upload Image if exists
+  if (req.files) {
+    const { avatar } = req.files;
+    if (avatar) {
+      try {
+        const cloudinaryResponse = await cloudinary.uploader.upload(
+          avatar[0].path,
+          { folder: "Employee_Images" }
+        );
+        if (!cloudinaryResponse || cloudinaryResponse.error) {
+          return res.status(500).json({
+            success: false,
+            message: "Failed to upload employee image to cloud.",
+            error: cloudinaryResponse.error,
+          });
+        }
+        employee.avatar = cloudinaryResponse.secure_url;
+      } catch (error) {
+        return res.status(500).json({
+          success: false,
+          message: "Failed to upload employee image to cloud.",
+          error: error.message,
+        });
+      }
+    }
+  }
 
   const newEmployee = await User.create(employee);
 
@@ -55,8 +81,8 @@ const addEmployee = async (req, res) => {
 };
 
 const editEmployee = async (req, res) => {
-  const { name, email, phone, address } = req.body;
-  const employee = await User.findById(req.params.id);
+  const { name, email, phone, address, uuid } = req.body;
+  const employee = await User.findOne({uuid : uuid});
   if (!employee) {
     return res.json({ success: false, message: "Employee not found" });
   }
@@ -64,12 +90,41 @@ const editEmployee = async (req, res) => {
   employee.email = email;
   employee.phone = phone;
   employee.address = address;
+
+  // Upload Image if exists
+    if (req.files) {
+      const { avatar } = req.files;
+      if (avatar) {
+        try {
+          const cloudinaryResponse = await cloudinary.uploader.upload(
+            avatar[0].path,
+            { folder: "Employee_Images" }
+          );
+          if (!cloudinaryResponse || cloudinaryResponse.error) {
+            return res.status(500).json({
+              success: false,
+              message: "Failed to upload employee image to cloud.",
+              error: cloudinaryResponse.error,
+            });
+          }
+          employee.avatar = cloudinaryResponse.secure_url;
+          await employee.save();
+        } catch (error) {
+          return res.status(500).json({
+            success: false,
+            message: "Failed to upload employee image to cloud.",
+            error: error.message,
+          });
+        }
+      }
+    }
+
   await employee.save();
   res.json({ success: true, employee });
 };
 
 const deleteEmployee = async (req, res) => {
-  const employee = await User.findById(req.params.id);
+  const employee = await User.findOne({uuid : req.params.uuid});
   if (!employee) {
     return res.json({ success: false, message: "Employee not found" });
   }
@@ -77,10 +132,28 @@ const deleteEmployee = async (req, res) => {
   res.json({ success: true, message: "Employee deleted" });
 };
 
+const getEmployeeSales = async (req, res) => {
+  const employee = await User.findOne({ uuid: req.params.uuid });
+  if (!employee) {
+    return res.json({ success: false, message: "Employee not found" });
+  }
+
+  //Sales with pagination 
+  const { limit = 5, page = 1, skip = 0 } = req.query;
+  const sales = await Sale.find({ employee: employee._id })
+    .limit(limit)
+    .skip(skip);
+  
+  const hasMore = await Sale.countDocuments() > skip + limit;
+
+  res.json({ success: true, sales, hasMore });
+}
+
 module.exports = {
   getEmployees,
   getEmployee,
   addEmployee,
   editEmployee,
+  getEmployeeSales,
   deleteEmployee,
 };

@@ -1,6 +1,6 @@
 import { AiFillProduct } from "react-icons/ai";
 import { BsInboxesFill } from "react-icons/bs";
-import { FaChartLine, FaHome, FaShoppingCart, FaStore } from "react-icons/fa";
+import { FaChartLine, FaHome, FaShoppingCart, FaStore, FaUser } from "react-icons/fa";
 import { BiSolidReport } from "react-icons/bi";
 
 export const links = [
@@ -46,6 +46,12 @@ export const links = [
     to: "/reports",
     protected : true,
   },
+  {
+    icon: FaUser,
+    title: "Employees",
+    to: "/employees",
+    protected : true,
+  }
 ];
 
 export const categories = [
