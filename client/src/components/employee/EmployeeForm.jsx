@@ -28,7 +28,7 @@ const EmployeeForm = ({
       name: employee.name || "",
       email: employee.email || "",
       phone: employee.phone || "",
-      age: employee.age || "",
+      dob: employee.dob || "",
       address: employee.address || "",
     },
   });
@@ -59,7 +59,7 @@ const EmployeeForm = ({
     formData.append("name", values.name);
     formData.append("email", values.email);
     formData.append("phone", values.phone);
-    formData.append("age", values.age);
+    formData.append("dob", values.dob);
     formData.append("address", values.address);
     formData.append("uuid", employee.uuid);
 
@@ -67,12 +67,6 @@ const EmployeeForm = ({
     if (values.avatar instanceof File) {
         formData.append("avatar", values.avatar);
     }
-    
-    for(let pair of formData.entries()) {
-        console.log(pair[0]+ ', '+ pair[1]); 
-    }
-    
-    // return;
 
     try {
       const response = await fetch(
@@ -236,29 +230,21 @@ const EmployeeForm = ({
           />
         </FormInput>
 
-        {/* Age Input */}
+        {/* dob Input */}
         <FormInput
-          label="Age"
-          error={errors && errors.age}
+          label="Date of Birth"
+          error={errors && errors.dob}
           otherClasses="w-1/2 max-sm:w-full"
           withAsterisk
         >
           <input
-            type="number"
-            placeholder="Age"
+            type="date"
+            placeholder="Date of Birth"
             className={`input peer ${
-              errors && errors.age && "!border-red-500 focus:!border-red-500"
+              errors && errors.dob && "!border-red-500 focus:!border-red-500"
             }`}
-            {...register("age", {
-              required: "Age is required",
-              min: {
-                value: 18,
-                message: "Age must be at least 18",
-              },
-              max: {
-                value: 100,
-                message: "Age must be less than 100",
-              },
+            {...register("dob", {
+              required: "DoB is required",
             })}
           />
         </FormInput>

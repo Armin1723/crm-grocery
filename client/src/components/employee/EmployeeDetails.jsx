@@ -2,11 +2,13 @@ import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import Divider from "../utils/Divider";
 import EmployeeCard from "./EmployeeCard";
+import EmployeeSales from "./EmployeeSales";
 
 const EmployeeDetails = () => {
   const { id } = useParams();
   const [employee, setEmployee] = useState(null);
   const [refetch, setRefetch] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchEmployee = async () => {
@@ -25,6 +27,8 @@ const EmployeeDetails = () => {
         }
       } catch (error) {
         console.error(error.message);
+      } finally {
+        setLoading(false);
       }
     };
     fetchEmployee();
@@ -32,19 +36,19 @@ const EmployeeDetails = () => {
 
   return (
     <div className="p-3 rounded-md flex h-full min-h-[70vh] flex-col gap-4 border border-neutral-500/50 bg-[var(--color-sidebar)] overflow-y-auto flex-1">
-      <div className="wrapper flex flex-col overflow-y-auto">
-        <Divider title="Employee Details" />
-        <EmployeeCard employee={employee} setRefetch={setRefetch} />
+      {employee && !loading ? (
+        <div className="wrapper flex flex-col overflow-y-auto gap-3">
+          <Divider title="Employee Details" />
+          <EmployeeCard employee={employee} setRefetch={setRefetch} />
 
-        {/* <Divider title="Performance Overview" />
-        <EmployeePerformance employee={employee} setRefetch={setRefetch}/> */}
-
-        <Divider title="Sales History" />
-        {/* <EmployeeSales employeeId={id} /> */}
-
-        {/* <Divider title="Attendance Records" />
-        <EmployeeAttendance employeeId={id} /> */}
-      </div>
+          <Divider title="Sales History" />
+          <EmployeeSales uuid={id} />
+        </div>
+      ) : (
+        <div className="w-full h-full flex items-center justify-center">
+          <div className="spinner"></div>
+        </div>
+      )}
     </div>
   );
 };

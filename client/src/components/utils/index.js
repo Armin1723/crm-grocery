@@ -414,6 +414,17 @@ export const formatHeight = (unit, value) => {
   }
 };
 
+export const getAge = (date) => {
+  const today = new Date();
+  const birthDate = new Date(date);
+  let age = today.getFullYear() - birthDate.getFullYear();
+  const m = today.getMonth() - birthDate.getMonth();
+  if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+    age--;
+  }
+  return age;
+};
+
 export const getColor = (height) => {
   if (height <= 20) return "#FF0000f1";
   if (height <= 40) return "#FF4500f1";

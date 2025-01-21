@@ -139,14 +139,18 @@ const getEmployeeSales = async (req, res) => {
   }
 
   //Sales with pagination 
-  const { limit = 5, page = 1, skip = 0 } = req.query;
-  const sales = await Sale.find({ employee: employee._id })
+  const { limit = 10, page = 1, sort = "createdAt", sortType = 'asc' } = req.query;
+  const sales = await Sale.find({ signedBy: employee._id })
     .limit(limit)
-    .skip(skip);
+    .skip(limit * (page - 1))
+    .sort({ [sort]: sortType })
+    .populate("signedBy");
   
-  const hasMore = await Sale.countDocuments() > skip + limit;
+  const totalResults = await Sale.countDocuments({ signedBy: employee._id });
 
-  res.json({ success: true, sales, hasMore });
+  const totalPages = Math.ceil(totalResults / limit) || 1;
+
+  res.json({ success: true, page, totalResults, totalPages, sales });
 }
 
 module.exports = {

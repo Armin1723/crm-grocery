@@ -1,6 +1,7 @@
 import React from "react";
 import Avatar from "../utils/Avatar";
 import { Link } from "react-router-dom";
+import { getAge } from "../utils";
 
 const EmployeeCard = ({ employee }) => {
   return (
@@ -78,7 +79,7 @@ const EmployeeCard = ({ employee }) => {
             <span className="font-semibold text-[var(--color-text-light)]">
               Age:
             </span>{" "}
-            {employee?.age || "N/A"}
+            {getAge(employee?.dob) || "N/A"}
           </p>
           <p className="mt-2">
             <span className="font-semibold text-[var(--color-text-light)]">
