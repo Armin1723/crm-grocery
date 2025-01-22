@@ -142,7 +142,7 @@ const EmployeeForm = ({
         if (title === "add") {
           reset();
           setAvatarPreview(null);
-          setIdentityCardPreview(null);
+          setIdentityProofPreview(null);
         } else {
           closeModal();
           setRefetch((prev) => !prev);
@@ -187,7 +187,10 @@ const EmployeeForm = ({
               </div>
             </div>
           ) : (
-            <div className="h-48 flex items-center justify-center bg-[var(--color-card)] rounded-lg">
+            <div
+              onClick={() => document.getElementById("avatar-upload").click()}
+              className="h-48 flex items-center justify-center bg-[var(--color-card)] rounded-lg cursor-pointer"
+            >
               <span className="text-gray-500">Click to upload avatar</span>
             </div>
           )}
@@ -357,7 +360,12 @@ const EmployeeForm = ({
               </div>
             </div>
           ) : (
-            <div className="h-48 flex items-center justify-center bg-[var(--color-card)] rounded-lg">
+            <div
+              onClick={() =>
+                document.getElementById("identityProof-upload").click()
+              }
+              className="h-48 flex items-center justify-center bg-[var(--color-card)] rounded-lg cursor-pointer"
+            >
               <span className="text-gray-500">
                 Click to upload identity card
               </span>
@@ -365,7 +373,7 @@ const EmployeeForm = ({
           )}
           <input
             type="file"
-            id="identityCard-upload"
+            id="identityProof-upload"
             accept=".jpg,.jpeg,.pdf"
             className="w-full py-2"
             onChange={handleIdentityProofChange}

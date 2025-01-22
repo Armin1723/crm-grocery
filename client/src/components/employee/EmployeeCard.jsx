@@ -2,8 +2,11 @@ import React from "react";
 import Avatar from "../utils/Avatar";
 import { Link } from "react-router-dom";
 import { formatDateIntl, getAge } from "../utils";
+import { useSelector } from "react-redux";
 
 const EmployeeCard = ({ employee }) => {
+  const user = useSelector((state) => state.user);
+  const isAdmin = user && user.role && user.role === "admin";
   return (
     <div
       className={` ${
@@ -21,7 +24,7 @@ const EmployeeCard = ({ employee }) => {
             <div className="title flex items-center gap-2">
               <h2 className="text-xl font-semibold capitalize">
                 <Link
-                  to={`/employees/${employee?.uuid}`}
+                  to={`${isAdmin ? '' : '/seller'}/employees/${employee?.uuid}`}
                   className="hover:underline"
                 >
                   {employee?.name || "Unknown"}

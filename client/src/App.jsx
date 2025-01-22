@@ -1,5 +1,5 @@
 import React, { useEffect, lazy, Suspense } from "react";
-import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { BrowserRouter, Outlet, Route, Routes } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useSelector } from "react-redux";
@@ -7,6 +7,7 @@ import Seller from "./pages/Seller";
 import TopLoadingBar from "./components/shared/TopLoadingBar";
 import SellerSales from "./components/seller/sales/SellerSales";
 import SellerInventory from "./components/seller/inventory/SellerInventory";
+import SellerEmployee from "./components/seller/employee/SellerEmployee";
 
 const Home = lazy(() => import("./pages/Home"));
 const Auth = lazy(() => import("./pages/Auth"));
@@ -203,6 +204,9 @@ const App = () => {
             <Route path="inventory" element={<SellerInventory />}>
               <Route path="" element={<InventoryList />} />
               <Route path="grid" element={<InventoryGrid />} />
+            </Route>
+            <Route path="employees" element={<SellerEmployee />}>
+              <Route path=":id" element={<EmployeeDetails />} />
             </Route>
           </Route>
 

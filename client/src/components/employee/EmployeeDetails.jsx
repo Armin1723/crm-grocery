@@ -4,15 +4,18 @@ import Divider from "../utils/Divider";
 import EmployeeCard from "./EmployeeCard";
 import EmployeeSales from "./EmployeeSales";
 import { useSelector } from "react-redux";
-import { MdFilePresent, MdImage } from "react-icons/md";
+import { MdChevronRight, MdFilePresent, MdImage } from "react-icons/md";
+import { FaChevronCircleDown } from "react-icons/fa";
 
 const EmployeeDetails = () => {
   const { id } = useParams();
   const user = useSelector((state) => state.user);
   const isAdmin = user && user.role && user.role === "admin";
+  const isSelf = user && (user.uuid == id);
   const [employee, setEmployee] = useState(null);
   const [refetch, setRefetch] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [showId, setShowId] = useState(false);
 
   useEffect(() => {
     const fetchEmployee = async () => {
@@ -45,24 +48,32 @@ const EmployeeDetails = () => {
           <Divider title="Employee Details" />
           <EmployeeCard employee={employee} setRefetch={setRefetch} />
 
-          {isAdmin && employee?.identityProof && (
+          {(isAdmin || isSelf) && employee?.identityProof && (
             <>
-              <Divider title="Identity Proof" />
-              <div className="w-full mx-auto overflow-hidden rounded-lg shadow-md bg-[var(--color-card)]">
+              <Divider title={<div className="flex items-center gap-3">
+                <span>Identity Proof</span>
+                <button
+                  onClick={() => setShowId((prev) => !prev)}
+                  className={`font-semibold cursor-pointer transition-all duration-200 ${showId && 'rotate-180'}`}
+                >
+                  <FaChevronCircleDown/>
+                </button>
+              </div>} />
+              <div className={`${showId ? 'max-h-full' : 'max-h-0'} transition-all duration-300 w-full mx-auto overflow-hidden rounded-lg shadow-md bg-[var(--color-card)]`}>
                 <div className="p-1">
-                  <div className="relative aspect-[4/3] w-full">
+                  <div className="relative w-full flex justify-center">
                     {employee?.identityProof.endsWith(".pdf") ? (
                       <embed
                         type="application/pdf"
                         src={`${employee?.identityProof}#toolbar=0&navpanes=0`}
-                        className="w-full h-full border-none rounded-lg"
+                        className="w-full md:w-4/5 h-[500px] border-none rounded-lg"
                         title="Identity Proof"
                       />
                     ) : (
                       <img
                         src={employee?.identityProof || "/placeholder.svg"}
                         alt="Identity Proof"
-                        className="w-full h-full object-cover rounded-lg"
+                        className="w-full h-[500px] aspect-video object-contain rounded-lg"
                       />
                     )}
                   </div>

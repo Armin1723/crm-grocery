@@ -60,7 +60,7 @@ const ViewEmployees = () => {
         </div>
       </div>
 
-      <div className="table-wrapper flex relative flex-1 my-2 overflow-x-scroll ">
+      <div className="table-wrapper flex relative flex-1 my-2 overflow-x-scroll text-xs md:text-sm ">
         <div
           className={`table-container w-full min-w-[700px] bg-[var(--bg-card)] h-full flex flex-col flex-nowrap overflow-x-auto shadow-md rounded-md max-sm:text-xs text-wrap relative px-2 ${
             loading && "overflow-hidden"
@@ -77,7 +77,7 @@ const ViewEmployees = () => {
                 setSortType={setSortType}
               />
             </div>
-            <div className="w-[10%] min-w-[50px] flex items-center  ">
+            <div className="w-[10%] min-w-[80px] flex items-center  ">
               <SortableLink
                 title="Role"
                 isActive={sort === "role"}
@@ -139,7 +139,7 @@ const ViewEmployees = () => {
                         <EmployeeCard employee={employee} />
                       </HoverCard>
                     </div>
-                    <div className="w-[10%] min-w-[50px] capitalize">
+                    <div className="w-[10%] min-w-[80px] capitalize truncate text-ellipsis">
                     <p
                         className={`px-3 w-fit rounded-lg border text-xs ${
                           employee?.role === "admin"
@@ -150,10 +150,10 @@ const ViewEmployees = () => {
                         {employee?.role}
                       </p>
                     </div>
-                    <div className="w-[15%] min-w-[50px] capitalize">
+                    <div className="w-[15%] min-w-[50px] capitalize truncate text-ellipsis">
                       {employee?.uuid}
                     </div>
-                    <div className="w-[15%] min-w-[50px] capitalize flex-wrap">
+                    <div className="w-[15%] min-w-[50px] capitalize flex-wrap truncate text-ellipsis">
                       {employee?.phone || "N/A"}
                     </div>
                     <div className="w-[15%] flex items-center flex-wrap gap-2 min-w-[50px]">

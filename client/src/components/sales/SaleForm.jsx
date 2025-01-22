@@ -11,10 +11,11 @@ import Divider from "../utils/Divider";
 const SaleForm = ({ setRefetch = () => {}, closeModal = () => {} }) => {
   const [suggestedProducts, setSuggestedProducts] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [customerLoading, setCustomerLoading] = useState(false);
   const [customerDetails, setCustomerDetails] = useState(null);
 
   const fetchCustomerDetails = async (e) => {
-    setLoading(true);
+    setCustomerLoading(true);
     try {
       if (e.target.value.length < 10) {
         setCustomerDetails(null);
@@ -37,7 +38,7 @@ const SaleForm = ({ setRefetch = () => {}, closeModal = () => {} }) => {
     } catch (error) {
       console.error("Error fetching customer details:", error.message);
     } finally {
-      setLoading(false);
+      setCustomerLoading(false);
     }
   };
 
@@ -414,7 +415,7 @@ const SaleForm = ({ setRefetch = () => {}, closeModal = () => {} }) => {
 
       {/* Customer Details */}
       {customerDetails &&
-        (loading ? (
+        (customerLoading ? (
           <div className="flex items-center justify-center w-full h-[20vh]">
             <div className="spinner"></div>
           </div>

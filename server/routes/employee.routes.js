@@ -6,7 +6,7 @@ const {
   deleteEmployee,
   getEmployeeSales,
 } = require("../controllers/employee.controller");
-const { isAdmin } = require("../middleware");
+const { isAdmin, isLoggedIn } = require("../middleware");
 const { asyncHandler } = require("../middleware/errorHandler");
 const multer = require("multer");
 
@@ -14,26 +14,27 @@ const upload = multer({ dest: "/tmp" });
 
 const router = require("express").Router();
 
-router.use(isAdmin);
 
-router.get("/", asyncHandler(getEmployees));
+router.get("/",isAdmin, asyncHandler(getEmployees));
 
 router.post(
   "/",
+  isAdmin,
   upload.fields([{ name: "avatar" }, { name: "identityProof" }]),
   asyncHandler(addEmployee)
 );
 
 router.put(
   "/",
+  isAdmin,
   upload.fields([{ name: "avatar" }, { name: "identityProof" }]),
   asyncHandler(editEmployee)
 );
 
-router.get("/:uuid", asyncHandler(getEmployee));
+router.get("/:uuid", isLoggedIn, asyncHandler(getEmployee));
 
-router.get("/:uuid/sales", asyncHandler(getEmployeeSales));
+router.get("/:uuid/sales", isLoggedIn, asyncHandler(getEmployeeSales));
 
-router.delete("/:uuid", asyncHandler(deleteEmployee));
+router.delete("/:uuid",  isAdmin, asyncHandler(deleteEmployee));
 
 module.exports = router;
