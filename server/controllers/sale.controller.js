@@ -270,6 +270,16 @@ const addSale = async (req, res) => {
   res.json({ success: true, sale });
 };
 
+const regenerateSaleInvoice = async (req, res) => {
+  const sale = await Sale.findById(req.params.id).select("_id invoice");
+  if (!sale) {
+    return res.status(404).json({ success: false, message: "Sale not found." });
+  }
+    sale.invoice = await generateSaleInvoice(sale._id);
+    await sale.save();
+    res.json({ success: true, sale });
+};
+
 const addSaleReturn = async (req, res) => {
   const { invoiceId, products = [] } = req.body;
   const sale = await Sale.findById(invoiceId).populate("customer").lean();
@@ -429,6 +439,7 @@ module.exports = {
   deleteSale,
   getSaleReturns,
   addSale,
+  regenerateSaleInvoice,
   addSaleReturn,
   getRecentSale,
 };

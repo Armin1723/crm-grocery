@@ -3,15 +3,17 @@ import { FaEye, FaFileInvoice } from "react-icons/fa";
 import { HiDotsVertical } from "react-icons/hi";
 import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
+import { toast } from "react-toastify";
 
 const SaleActionButton = ({ sale, setRefetch = () => {} }) => {
   const user = useSelector((state) => state.user);
-  const isAdmin = user?.role === "admin";
+  const isAdmin = user && user?.role === "admin";
 
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef(null);
 
   const [invoiceModalOpen, setInvoiceModalOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   // Close menu when clicking outside
   useEffect(() => {
@@ -36,6 +38,31 @@ const SaleActionButton = ({ sale, setRefetch = () => {} }) => {
 
   // Toggle menu visibility
   const toggleMenu = () => setMenuOpen((prev) => !prev);
+
+  const generateInvoice = async () => {
+    setLoading(true);
+    try {
+      const response = await fetch(
+        `${import.meta.env.VITE_BACKEND_URL}/api/v1/sales/${sale?._id}/invoice`,
+        {
+          method: "POST",
+          credentials: "include",
+        }
+      );
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.message || "Something went wrong");
+      }
+      setRefetch((prev) => !prev);
+      toast.success("Invoice generated successfully");
+    } catch (error) {
+      toast.error(error.message || "Failed to generate invoice");
+      console.error("Error generating invoice:", error.message);
+    } finally {
+      setInvoiceModalOpen(false);
+      setLoading(false);
+    }
+  };
 
   return (
     <div
@@ -78,24 +105,26 @@ const SaleActionButton = ({ sale, setRefetch = () => {} }) => {
           <p className="capitalize">Invoice</p>
         </div>
 
-        <Link
-          to={`/sales/${sale?._id}`}
-          className="menu-item px-4 py-1 text-sm text-center hover:bg-accentDark/10 cursor-pointer transition-all duration-200 ease-in flex items-center gap-2"
-          role="menuitem"
-          tabIndex={0}
-          onClick={() => {
-            setMenuOpen(false);
-          }}
-        >
-          <FaEye />
-          <p className="capitalize">View</p>
-        </Link>
+        {isAdmin && (
+          <Link
+            to={`/sales/${sale?._id}`}
+            className="menu-item px-4 py-1 text-sm text-center hover:bg-accentDark/10 cursor-pointer transition-all duration-200 ease-in flex items-center gap-2"
+            role="menuitem"
+            tabIndex={0}
+            onClick={() => {
+              setMenuOpen(false);
+            }}
+          >
+            <FaEye />
+            <p className="capitalize">View</p>
+          </Link>
+        )}
       </div>
 
       {/* Edit Modal */}
       {invoiceModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-[1000]">
-          <div  className="bg-[var(--color-sidebar)] rounded-md p-6 w-1/2 max-sm:w-[90%] overflow-y-auto max-h-[90vh] max-sm:px-6">
+          <div className="bg-[var(--color-sidebar)] rounded-md p-6 w-1/2 max-sm:w-[90%] overflow-y-auto max-h-[90vh] max-sm:px-6">
             <div className="flex items-center gap-2 w-full justify-between my-4">
               <h2 className="text-lg font-bold ">View Invoice</h2>
               <button
@@ -107,7 +136,22 @@ const SaleActionButton = ({ sale, setRefetch = () => {} }) => {
             </div>
             {/* Modal Content */}
             <div>
-                <embed src={sale?.invoice} type="application/pdf" width="100%" height="500px" />
+              {sale.invoice ? (
+                <embed
+                  src={sale?.invoice}
+                  type="application/pdf"
+                  width="100%"
+                  height="500px"
+                />
+              ) : (
+                <button
+                  onClick={generateInvoice}
+                  disabled={loading}
+                  className="bg-accent text-white px-3 py-1 rounded-md disabled:opacity-30 disabled:cursor-not-allowed"
+                >
+                  {loading ? "Generating..." : "Generate Invoice"}
+                </button>
+              )}
             </div>
           </div>
         </div>

@@ -3,7 +3,7 @@ import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
 
 const CustomerForm = ({
-  customer = null,
+  customer = {},
   setValue = () => {},
   closeModal = () => {},
   setRefetch = () => {},
@@ -95,7 +95,7 @@ const CustomerForm = ({
         e.preventDefault();
         handleSubmit(addCustomer)(e);
       }}
-      className="flex flex-col gap-2 w-full py-4"
+      className="flex flex-col gap-2 w-full py-4 text-[var(--color-text)]"
     >
       <div className="phone-email-group w-full flex flex-col lg:flex-row justify-center gap-4">
         <div className="phone-input w-full flex flex-col relative group my-2">
@@ -106,6 +106,7 @@ const CustomerForm = ({
               errors && errors.phone && "border-red-500 focus:!border-red-500"
             }`}
             name="phone"
+            readOnly
             {...register("phone", {
               required: "Phone Number is required",
               validate: {

@@ -406,6 +406,14 @@ export const formatDateIntl = (date) => {
   });
 };
 
+export const parseDate = (date) => {
+  const d = new Date(date);
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+};
+
 export const formatHeight = (unit, value) => {
   if (unit === "gm" || unit === "ml") {
     return value / 1000;

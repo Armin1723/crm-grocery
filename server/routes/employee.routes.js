@@ -1,4 +1,11 @@
-const { getEmployees, addEmployee, getEmployee, editEmployee, deleteEmployee, getEmployeeSales } = require("../controllers/employee.controller");
+const {
+  getEmployees,
+  addEmployee,
+  getEmployee,
+  editEmployee,
+  deleteEmployee,
+  getEmployeeSales,
+} = require("../controllers/employee.controller");
 const { isAdmin } = require("../middleware");
 const { asyncHandler } = require("../middleware/errorHandler");
 const multer = require("multer");
@@ -11,9 +18,17 @@ router.use(isAdmin);
 
 router.get("/", asyncHandler(getEmployees));
 
-router.post("/", upload.fields([{ name: 'avatar'}]), asyncHandler(addEmployee));
+router.post(
+  "/",
+  upload.fields([{ name: "avatar" }, { name: "identityProof" }]),
+  asyncHandler(addEmployee)
+);
 
-router.put("/", upload.fields([{ name: 'avatar'}]), asyncHandler(editEmployee));
+router.put(
+  "/",
+  upload.fields([{ name: "avatar" }, { name: "identityProof" }]),
+  asyncHandler(editEmployee)
+);
 
 router.get("/:uuid", asyncHandler(getEmployee));
 

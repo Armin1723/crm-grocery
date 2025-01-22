@@ -3,11 +3,11 @@ import { FaSearch } from "react-icons/fa";
 import { toast } from "react-toastify";
 
 const defaultExpiry = (shelfLife) => {
-  if(!shelfLife) return "";
-    const date = new Date();
-    date.setDate(date.getDate() + shelfLife);
-    return date.toISOString().split("T")[0];
-  }
+  if (!shelfLife) return "";
+  const date = new Date();
+  date.setDate(date.getDate() + shelfLife);
+  return date.toISOString().split("T")[0];
+};
 
 const PurchaseProductSuggestion = ({
   getValues = () => {},
@@ -43,8 +43,7 @@ const PurchaseProductSuggestion = ({
   };
 
   const handleAddProduct = (product) => {
-    const isMatch = getValues("products").some((p) => p.name === product.name)
-        
+    const isMatch = getValues("products").some((p) => p.name === product.name);
 
     if (isMatch) {
       toast.error("Product already added", { autoClose: 2000 });
@@ -61,7 +60,7 @@ const PurchaseProductSuggestion = ({
         quantity: 1,
         expiry: defaultExpiry(product.shelfLife),
       },
-    ])
+    ]);
 
     setSuggestedProducts([]);
     setSelectedIndex(-1);
@@ -98,15 +97,15 @@ const PurchaseProductSuggestion = ({
         type="text"
         placeholder="Search for product"
         title={disabled && "Please select a supplier first"}
-        className="bg-transparent outline-none rounded-md p-1 disabled:opacity-50 disabled:cursor-not-allowed "
+        className="bg-transparent outline-none !border-0 rounded-md p-1 disabled:opacity-50 disabled:cursor-not-allowed "
         onChange={fetchSuggestedProducts}
         disabled={disabled}
         ref={inputRef}
       />
 
-      <div className="suggested-products w-full absolute top-full left-0 z-[99] bg-[var(--color-card)] rounded-b-md shadow-md border border-neutral-500/50">
-        {suggestedProducts.length > 0 &&
-          suggestedProducts.map((product, index) => (
+      {suggestedProducts.length > 0 && (
+        <div className="suggested-products w-full absolute top-full left-0 z-[99] bg-[var(--color-card)] rounded-b-md shadow-md border border-neutral-500/50">
+          {suggestedProducts.map((product, index) => (
             <div
               key={product._id}
               className={`supplier-option px-3 py-2 w-full flex items-center justify-between text-sm hover:bg-accentDark/20 transition-all duration-300 ease-in cursor-pointer ${
@@ -118,7 +117,8 @@ const PurchaseProductSuggestion = ({
               <p>{product.name}</p>
             </div>
           ))}
-      </div>
+        </div>
+      )}
     </div>
   );
 };

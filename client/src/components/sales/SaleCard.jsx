@@ -37,14 +37,14 @@ const SaleCard = ({ sale }) => {
         </div>
 
         <div className="flex flex-col items-center justify-center p-4 rounded-lg bg-[var(--color-sidebar)]">
-          <span className="text-xl font-bold ">
+          <span className="text-xl font-bold capitalize">
             {sale?.customer?.name || sale?.customer?.phone || "N/A"}
           </span>
           <p className="text-sm text-[var(--color-text-light)]">Customer</p>
         </div>
 
         <div className="flex flex-col items-center justify-center p-4 rounded-lg bg-[var(--color-sidebar)]">
-          <span className="text-xl font-bold ">
+          <span className="text-xl font-bold capitalize">
             {sale?.signedBy?.name || "N/A"}
           </span>
           <p className="text-sm text-[var(--color-text-light)]">Biller</p>

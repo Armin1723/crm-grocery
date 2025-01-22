@@ -4,7 +4,7 @@ import { MdEdit } from "react-icons/md";
 import Modal from "../utils/Modal";
 import CustomerForm from "./CustomerForm";
 
-const AddCustomerModal = ({ setValue = () => {} }) => {
+const AddCustomerModal = ({ setValue = () => {}, customer = {} }) => {
   const [addCustomerModal, setAddCustomerModal] = useState(false);
 
   return (
@@ -24,6 +24,7 @@ const AddCustomerModal = ({ setValue = () => {} }) => {
           >
             <CustomerForm
               setValue={setValue}
+              customer={customer}
               closeModal={() => setAddCustomerModal(false)}
             />
           </Modal>,

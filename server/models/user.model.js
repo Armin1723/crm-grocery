@@ -23,6 +23,9 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    identityProof: {
+      type: String,
+    },
     dob:{
       type: Date,
       required: true,

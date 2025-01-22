@@ -13,11 +13,15 @@ import Wave from "react-wavify";
 import InventoryActions from "./InventoryActions";
 import { FaObjectGroup } from "react-icons/fa";
 import { toast } from "react-toastify";
+import { useSelector } from "react-redux";
 
 const InventoryCard = ({ upid = "", inventoryData = {}, editable = false }) => {
   const [inventory, setInventory] = useState({});
   const [refetch, setRefetch] = useState(false);
   const [loading, setLoading] = useState(true);
+
+  const user = useSelector((state) => state.user);
+  const isAdmin = user && user?.role === "admin";
 
   useEffect(() => {
     const fetchInventory = async () => {
@@ -121,15 +125,19 @@ const InventoryCard = ({ upid = "", inventoryData = {}, editable = false }) => {
               >
                 <div className="batchCard bg-[var(--color-primary)] max-sm:py-2 rounded-md flex items-center h-full w-full justify-center relative">
                   {/* Batch details */}
-                  <div className={`batch-left flex flex-col text-sm max-sm:text-xs p-2 text-ellipsis truncate }`}>
+                  <div
+                    className={`batch-left flex flex-col text-sm max-sm:text-xs p-2 text-ellipsis truncate }`}
+                  >
                     <div className="text-xs md:text-md lg:text-lg max-sm:text-base font-bold flex items-center justify-between gap-1">
                       <p>Batch: {index + 1}</p>
-                      <InventoryActions
-                        batch={batch}
-                        inventory={inventory}
-                        upid={inventory?.upid}
-                        setRefetch={setRefetch}
-                      />
+                      {isAdmin && (
+                        <InventoryActions
+                          batch={batch}
+                          inventory={inventory}
+                          upid={inventory?.upid}
+                          setRefetch={setRefetch}
+                        />
+                      )}
                     </div>
                     <p className="text-[var(--color-text-light)]">
                       Quantity: {batch?.quantity} {inventory?.secondaryUnit}
@@ -194,8 +202,8 @@ const InventoryCard = ({ upid = "", inventoryData = {}, editable = false }) => {
                               inventory.secondaryUnit,
                               batch.quantity
                             ),
-                            amplitude: Math.random() * 10 + 15, 
-                            speed: Math.random() * 0.02 + 0.03,
+                          amplitude: Math.random() * 10 + 15,
+                          speed: Math.random() * 0.02 + 0.03,
                           points: 4,
                         }}
                       />

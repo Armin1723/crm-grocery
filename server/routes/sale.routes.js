@@ -7,6 +7,7 @@ const {
   addSaleReturn,
   getSaleReturns,
   deleteSale,
+  regenerateSaleInvoice,
 } = require("../controllers/sale.controller");
 const { isLoggedIn } = require("../middleware");
 const { asyncHandler } = require("../middleware/errorHandler");
@@ -24,6 +25,8 @@ router.post("/return", asyncHandler(addSaleReturn));
 router.get("/return", asyncHandler(getSaleReturns));
 
 router.get("/:id", asyncHandler(getSale));
+
+router.post("/:id/invoice", asyncHandler(regenerateSaleInvoice));
 
 router.delete("/:id", asyncHandler(deleteSale));
 

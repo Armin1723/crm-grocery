@@ -54,7 +54,6 @@ const ViewSales = () => {
             onClick={() => setRefetch((p) => !p)}
           ></p>
         </div>
-        {/* <ExportButton title="Sales" /> */}
       </div>
 
       <div className="table-wrapper flex relative flex-1 my-2 overflow-x-scroll">
@@ -123,7 +122,7 @@ const ViewSales = () => {
                     {formatDate(sale?.createdAt) || "N/A"}
                   </div>
                   <div className="actions w-[10%] min-w-[50px] flex items-center justify-center gap-2">
-                    <SaleActionButton sale={sale}/>
+                    <SaleActionButton sale={sale} setRefetch={setRefetch}/>
                   </div>
                 </div>
               );

@@ -4,6 +4,7 @@ import { toast } from "react-toastify";
 import FormInput from "../utils/FormInput";
 import { MdClose } from "react-icons/md";
 import Divider from "../utils/Divider";
+import { parseDate } from "../utils";
 
 const EmployeeForm = ({
   employee = {},
@@ -12,7 +13,13 @@ const EmployeeForm = ({
   closeModal = () => {},
 }) => {
   const [avatarPreview, setAvatarPreview] = React.useState(
-    employee.avatar || null
+    employee?.avatar || null
+  );
+  const [identityProofPreview, setIdentityProofPreview] = React.useState(
+    employee?.identityProof || null
+  );
+  const [previewType, setPreviewType] = React.useState(
+    employee.identityProof?.endsWith?.(".pdf") ? "pdf" : "image"
   );
 
   const {
@@ -25,10 +32,11 @@ const EmployeeForm = ({
     mode: "onChange",
     defaultValues: {
       avatar: employee.avatar || undefined,
+      identityProof: employee.identityProof || undefined,
       name: employee.name || "",
       email: employee.email || "",
       phone: employee.phone || "",
-      dob: employee.dob || "",
+      dob: parseDate(employee.dob) || "",
       address: employee.address || "",
     },
   });
@@ -51,6 +59,37 @@ const EmployeeForm = ({
     }
   };
 
+  // Handle identity card file change
+  const handleIdentityProofChange = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      if (file.size > 500000) {
+        event.target.value = null;
+        toast.error("File size should be less than 500kb");
+        return;
+      }
+
+      const isValidFileType = [
+        "image/jpeg",
+        "image/jpg",
+        "application/pdf",
+      ].includes(file.type);
+      if (!isValidFileType) {
+        event.target.value = null;
+        toast.error("Only JPG and PDF files are allowed");
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setIdentityProofPreview(reader.result);
+        setPreviewType(file.type === "application/pdf" ? "pdf" : "image");
+      };
+      reader.readAsDataURL(file);
+      setValue("identityProof", file);
+    }
+  };
+
   const addEmployee = async (values) => {
     const id = toast.loading(
       `${title === "edit" ? "Updating" : "Adding"} employee...`
@@ -65,7 +104,12 @@ const EmployeeForm = ({
 
     // Append avatar photo to FormData object
     if (values.avatar instanceof File) {
-        formData.append("avatar", values.avatar);
+      formData.append("avatar", values.avatar);
+    }
+
+    // Append identity card to FormData object
+    if (values.identityProof instanceof File) {
+      formData.append("identityProof", values.identityProof);
     }
 
     try {
@@ -98,6 +142,7 @@ const EmployeeForm = ({
         if (title === "add") {
           reset();
           setAvatarPreview(null);
+          setIdentityCardPreview(null);
         } else {
           closeModal();
           setRefetch((prev) => !prev);
@@ -158,8 +203,8 @@ const EmployeeForm = ({
 
       <Divider title="Personal Information" />
 
+      {/* Personal Information */}
       <div className="name-email-group flex max-sm:flex-col gap-4 max-sm:gap-2 w-full">
-        {/* Name Input */}
         <FormInput
           label="Name"
           error={errors && errors.name}
@@ -182,7 +227,6 @@ const EmployeeForm = ({
           />
         </FormInput>
 
-        {/* Email Input */}
         <FormInput
           label="Email"
           error={errors && errors.email}
@@ -207,7 +251,6 @@ const EmployeeForm = ({
       </div>
 
       <div className="phone-age-group flex max-sm:flex-col gap-4 max-sm:gap-2 w-full">
-        {/* Phone Input */}
         <FormInput
           label="Phone"
           error={errors && errors.phone}
@@ -230,7 +273,6 @@ const EmployeeForm = ({
           />
         </FormInput>
 
-        {/* dob Input */}
         <FormInput
           label="Date of Birth"
           error={errors && errors.dob}
@@ -250,7 +292,6 @@ const EmployeeForm = ({
         </FormInput>
       </div>
 
-      {/* Address Input */}
       <div className="address-input w-full flex flex-col relative group my-2">
         <label
           htmlFor="address"
@@ -275,11 +316,63 @@ const EmployeeForm = ({
           })}
         />
         {errors?.address && (
-            <p className="text-red-500 text-xs mt-1">{errors.address.message}</p>
+          <p className="text-red-500 text-xs mt-1">{errors.address.message}</p>
         )}
       </div>
 
-      {/* Submit Button */}
+      {/* Identity Card Upload */}
+      <div className="space-y-2">
+        <label htmlFor="identityCard" className="my-2 font-semibold">
+          Identity Card (JPG or PDF, max 500kb)
+        </label>
+        <div className="border-2 border-dashed border-neutral-500/50 rounded-lg p-4 text-center relative">
+          {identityProofPreview ? (
+            <div className="relative">
+              {previewType === "pdf" ? (
+                <div className="h-96 w-full">
+                  <embed
+                    src={identityProofPreview}
+                    type="application/pdf"
+                    width="100%"
+                    height="100%"
+                    className="rounded-lg"
+                  />
+                </div>
+              ) : (
+                <img
+                  src={identityProofPreview}
+                  alt="Identity Card Preview"
+                  className="mx-auto h-48 w-96 object-contain"
+                />
+              )}
+              <div
+                className="absolute top-2 right-2 cursor-pointer hover:opacity-75 bg-[var(--color-card)] px-3 rounded-lg py-1"
+                onClick={() => {
+                  setIdentityProofPreview(null);
+                  setPreviewType(null);
+                  setValue("identityCard", null);
+                }}
+              >
+                <MdClose />
+              </div>
+            </div>
+          ) : (
+            <div className="h-48 flex items-center justify-center bg-[var(--color-card)] rounded-lg">
+              <span className="text-gray-500">
+                Click to upload identity card
+              </span>
+            </div>
+          )}
+          <input
+            type="file"
+            id="identityCard-upload"
+            accept=".jpg,.jpeg,.pdf"
+            className="w-full py-2"
+            onChange={handleIdentityProofChange}
+          />
+        </div>
+      </div>
+
       <button
         type="submit"
         disabled={Object.keys(errors).length > 0}

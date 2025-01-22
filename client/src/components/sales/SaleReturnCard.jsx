@@ -3,6 +3,7 @@ import { formatDate } from "../utils";
 import Avatar from "../utils/Avatar";
 import { FaFileInvoice } from "react-icons/fa";
 import Modal from "../utils/Modal";
+import { Link } from "react-router-dom";
 
 const SaleReturnCard = ({ saleReturn = {} }) => {
   const [invoiceModalOpen, setInvoiceModalOpen] = useState(false);
@@ -39,14 +40,14 @@ const SaleReturnCard = ({ saleReturn = {} }) => {
       {/* Biller Information */}
       <div className="flex items-center gap-3 mt-3 text-sm text-[var(--color-text-light)]">
         <span className="font-semibold">Returned By:</span>
-        <div className="flex items-center gap-2">
+        <Link to={`/employees/${saleReturn?.signedBy?.uuid}`} className="flex items-center gap-2 capitalize">
           <Avatar
             image={saleReturn?.signedBy?.avatar}
             withBorder={true}
             fallbackImage="github.com/shadcn.png"
           />
           <p>{saleReturn?.signedBy?.name || "Unknown"}</p>
-        </div>
+        </Link>
       </div>
 
       {/* Stats Grid */}

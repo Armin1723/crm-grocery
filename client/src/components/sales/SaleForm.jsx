@@ -6,10 +6,40 @@ import AddByBarcode from "./AddByBarcode";
 import SaleProductSuggestion from "./SaleProductSuggestion";
 import { formatDateIntl } from "../utils";
 import AddCustomerModal from "../customer/AddCustomerModal";
+import Divider from "../utils/Divider";
 
 const SaleForm = ({ setRefetch = () => {}, closeModal = () => {} }) => {
   const [suggestedProducts, setSuggestedProducts] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [customerDetails, setCustomerDetails] = useState(null);
+
+  const fetchCustomerDetails = async (e) => {
+    setLoading(true);
+    try {
+      if (e.target.value.length < 10) {
+        setCustomerDetails(null);
+        return;
+      }
+      const response = await fetch(
+        `${import.meta.env.VITE_BACKEND_URL}/api/v1/customers/${
+          e.target.value
+        }`,
+        {
+          credentials: "include",
+        }
+      );
+      const data = await response.json();
+      if (response.ok) {
+        setCustomerDetails(data.customer);
+      } else {
+        setCustomerDetails(null);
+      }
+    } catch (error) {
+      console.error("Error fetching customer details:", error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const {
     register,
@@ -237,8 +267,8 @@ const SaleForm = ({ setRefetch = () => {}, closeModal = () => {} }) => {
                         required: `Quantity is required`,
                         min: {
                           value:
-                            (watchedProducts[index]?.secondaryUnit === "kg" ||
-                            watchedProducts[index]?.secondaryUnit === "l")
+                            watchedProducts[index]?.secondaryUnit === "kg" ||
+                            watchedProducts[index]?.secondaryUnit === "l"
                               ? 0.25
                               : 1,
                           message: `Invalid Quantity`,
@@ -367,15 +397,56 @@ const SaleForm = ({ setRefetch = () => {}, closeModal = () => {} }) => {
           <p className="my-1 font-semibold text-lg max-sm:text-base">
             Customer
           </p>
-          <AddCustomerModal setValue={setValue} />
         </div>
         <input
           type="number"
           placeholder="Enter Customer Number"
-          className="outline-none border-b border-[var(--color-accent)] !z-[10] bg-transparent focus:border-[var(--color-accent-dark)] transition-all duration-300 peer "
-          {...register("customerMobile")}
+          className="outline-none border border-[var(--color-accent)] rounded-lg p-2 !z-[10] bg-transparent focus:border-[var(--color-accent-dark)] transition-all duration-300 peer "
+          {...register("customerMobile", {
+            pattern: {
+              value: /^[6-9]\d{9}$/,
+              message: "Invalid mobile number",
+            },
+          })}
+          onChange={fetchCustomerDetails}
         />
       </div>
+
+      {/* Customer Details */}
+      {customerDetails &&
+        (loading ? (
+          <div className="flex items-center justify-center w-full h-[20vh]">
+            <div className="spinner"></div>
+          </div>
+        ) : (
+          <div className="flex flex-col w-full py-2">
+            <Divider
+              title={
+                <div className="flex items-center gap-2">
+                  <p>Customer Details</p>{" "}
+                  <AddCustomerModal
+                    setValue={setValue}
+                    customer={customerDetails}
+                  />
+                </div>
+              }
+            />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-stretch">
+              <p className="w-full rounded-md border border-accent p-2">
+                {customerDetails?.name || "Name"}
+              </p>
+              <p className="w-full rounded-md border border-accent p-2">
+                {customerDetails?.email || "Email"}
+              </p>
+              <p className="w-full rounded-md border border-accent p-2">
+                {customerDetails?.phone || "Phone"}
+              </p>
+              <p className="w-full rounded-md border border-accent p-2">
+                {customerDetails?.address || "Address"}
+              </p>
+            </div>
+          </div>
+        ))}
 
       {/* Payment Details */}
       <div className="flex flex-col w-full py-2">
@@ -384,7 +455,7 @@ const SaleForm = ({ setRefetch = () => {}, closeModal = () => {} }) => {
         </p>
         <select
           {...register("paymentType")}
-          className="outline-none border-b border-[var(--color-accent)] !z-[10] bg-transparent focus:border-[var(--color-accent-dark)] transition-all duration-300 peer "
+          className="outline-none border border-[var(--color-accent)] rounded-lg p-2 !z-[10] bg-transparent focus:border-[var(--color-accent-dark)] transition-all duration-300 peer "
         >
           <option className="bg-[var(--color-card)]" value="cash">
             Cash

@@ -1,14 +1,14 @@
 import React, { useEffect, useState } from "react";
-import Avatar from "../utils/Avatar";
+import Avatar from "../../utils/Avatar";
 import { MdChevronRight } from "react-icons/md";
 import { Link, useLocation } from "react-router-dom";
 import { useSelector } from "react-redux";
-import LogoutButton from "../utils/LogoutButton";
-import { links } from "../utils";
-import HoverCard from "./HoverCard";
-import EmployeeCard from "../employee/EmployeeCard";
+import LogoutButton from "../../utils/LogoutButton";
+import { links } from "../../utils";
+import HoverCard from "../../shared/HoverCard";
+import EmployeeCard from "../../employee/EmployeeCard";
 
-const Sidebar = () => {
+const SellerSidebar = () => {
   const user = useSelector((state) => state.user);
   const [expanded, setExpanded] = useState(true);
   const pathname = useLocation().pathname;
@@ -56,14 +56,14 @@ const Sidebar = () => {
         <ul className="links min-h-[50px] max-h-[60vh] overflow-y-auto hide-scrollbar">
           {links.map((link, index) => {
             const isActive =
-              link.to === "/"
-                ? pathname === link.to
-                : pathname.startsWith(link.to);
+              link.to === "/sales"
+                ? pathname === ('/seller') || pathname.includes(link.to)
+                : pathname.includes(link.to);
 
             return (
-              <div key={index} className={`link ${user && user?.role !== "admin" && link.protected && "hidden"}`}>
+              <div key={index} className={`link ${link.protected && "hidden"}`}>
                 <Link
-                  to={user?.role == 'admin' ? link.to : `/seller${link.to}`}
+                  to={user.role == 'admin' ? link.to : `/seller${link.to}`}
                   title={link.title}
                   className={`link flex items-center gap-4 py-2 group hover:bg-accent/5 transition-all relative duration-300 ease-in group ${
                     !expanded && "justify-start gap-2 "
@@ -120,4 +120,4 @@ const Sidebar = () => {
   );
 };
 
-export default Sidebar;
+export default SellerSidebar;

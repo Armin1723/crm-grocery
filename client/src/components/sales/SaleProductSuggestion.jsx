@@ -18,9 +18,9 @@ const SaleProductSuggestion = ({
     if (value.length > 1) {
       try {
         const response = await fetch(
-          `${
-            import.meta.env.VITE_BACKEND_URL
-          }/api/v1/inventory/products${value &&  '?name='+value}`,
+          `${import.meta.env.VITE_BACKEND_URL}/api/v1/inventory/products${
+            value && "?name=" + value
+          }`,
           { credentials: "include" }
         );
         const data = await response.json();
@@ -47,7 +47,7 @@ const SaleProductSuggestion = ({
         p?.expiry === product?.expiry
     );
 
-    if (isMatch){
+    if (isMatch) {
       toast.error("Product already added", { autoClose: 2000 });
       inputRef.current.value = "";
       setSuggestedProducts([]);
@@ -60,9 +60,9 @@ const SaleProductSuggestion = ({
       {
         ...product,
         quantity: 1,
-        price: product.sellingRate ,
+        price: product.sellingRate,
       },
-    ])
+    ]);
 
     setSuggestedProducts([]);
     setSelectedIndex(-1);
@@ -105,29 +105,32 @@ const SaleProductSuggestion = ({
         ref={inputRef}
       />
 
-      <div className="suggested-products w-full absolute top-full left-0 z-[999] bg-[var(--color-card)] rounded-b-md shadow-md border border-neutral-500/50">
-        {suggestedProducts.length > 0 &&
-          suggestedProducts && suggestedProducts.map((product, index) => (
-            <div
-              key={index}
-              className={`supplier-option px-3 py-2 w-full flex items-center justify-between gap-4 text-sm hover:bg-accentDark/20 transition-all duration-300 ease-in cursor-pointer ${
-                index === selectedIndex ? "bg-accentDark/20" : ""
-              }`}
-              onMouseEnter={() => setSelectedIndex(index)}
-              onClick={() => handleAddProduct(product)}
-            >
-              <p>{product.name}</p>
-              <p
-                className=""
-                title={
-                  product.expiry && `Expiry: ${formatDateIntl(product?.expiry)}`
-                }
+      {suggestedProducts.length > 0 && (
+        <div className="suggested-products w-full absolute top-full left-0 z-[999] bg-[var(--color-card)] rounded-b-md shadow-md border border-neutral-500/50">
+          {suggestedProducts &&
+            suggestedProducts.map((product, index) => (
+              <div
+                key={index}
+                className={`supplier-option px-3 py-2 w-full flex items-center justify-between gap-4 text-sm hover:bg-accentDark/20 transition-all duration-300 ease-in cursor-pointer ${
+                  index === selectedIndex ? "bg-accentDark/20" : ""
+                }`}
+                onMouseEnter={() => setSelectedIndex(index)}
+                onClick={() => handleAddProduct(product)}
               >
-                {product.sellingRate}₹
-              </p>
-            </div>
-          ))}
-      </div>
+                <p>{product.name}</p>
+                <p
+                  className=""
+                  title={
+                    product.expiry &&
+                    `Expiry: ${formatDateIntl(product?.expiry)}`
+                  }
+                >
+                  {product.sellingRate}₹
+                </p>
+              </div>
+            ))}
+        </div>
+      )}
     </div>
   );
 };

@@ -1,7 +1,6 @@
 import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { toast } from 'react-toastify';
 import { setUser } from '../redux/features/user/userSlice';
 
 const useAuthStatus = () => {
@@ -12,8 +11,8 @@ const useAuthStatus = () => {
   useEffect(() => {
     const checkAuthStatus = async () => {
       if (user && user?.avatar) {
-        if(user.role === 'employee') {
-          navigate('/seller');
+        if(user?.role === 'employee') {
+          navigate('/seller/sales');
         }
         try {
           const response = await fetch(

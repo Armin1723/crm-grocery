@@ -4,7 +4,7 @@ const cloudinary = require("../config/cloudinary");
 const Sale = require("../models/sale.model");
 
 const getEmployees = async (req, res) => {
-  const { limit = 10, page = 1, sort = 'name', sortType = 'asc' } = req.query;
+  const { limit = 10, page = 1, sort = "name", sortType = "asc" } = req.query;
   const employees = await User.find()
     .sort({ [sort]: sortType })
     .limit(limit)
@@ -50,7 +50,7 @@ const addEmployee = async (req, res) => {
 
   // Upload Image if exists
   if (req.files) {
-    const { avatar } = req.files;
+    const { avatar, identityProof } = req.files;
     if (avatar) {
       try {
         const cloudinaryResponse = await cloudinary.uploader.upload(
@@ -73,6 +73,28 @@ const addEmployee = async (req, res) => {
         });
       }
     }
+    if (identityProof) {
+      try {
+        const cloudinaryResponse = await cloudinary.uploader.upload(
+          identityProof[0].path,
+          { folder: "Employee_Identity_Proofs" }
+        );
+        if (!cloudinaryResponse || cloudinaryResponse.error) {
+          return res.status(500).json({
+            success: false,
+            message: "Failed to upload employee identity proof to cloud.",
+            error: cloudinaryResponse.error,
+          });
+        }
+        employee.identityProof = cloudinaryResponse.secure_url;
+      } catch (error) {
+        return res.status(500).json({
+          success: false,
+          message: "Failed to upload employee identity proof to cloud.",
+          error: error.message,
+        });
+      }
+    }
   }
 
   const newEmployee = await User.create(employee);
@@ -82,7 +104,7 @@ const addEmployee = async (req, res) => {
 
 const editEmployee = async (req, res) => {
   const { name, email, phone, address, uuid } = req.body;
-  const employee = await User.findOne({uuid : uuid});
+  const employee = await User.findOne({ uuid: uuid });
   if (!employee) {
     return res.json({ success: false, message: "Employee not found" });
   }
@@ -92,39 +114,60 @@ const editEmployee = async (req, res) => {
   employee.address = address;
 
   // Upload Image if exists
-    if (req.files) {
-      const { avatar } = req.files;
-      if (avatar) {
-        try {
-          const cloudinaryResponse = await cloudinary.uploader.upload(
-            avatar[0].path,
-            { folder: "Employee_Images" }
-          );
-          if (!cloudinaryResponse || cloudinaryResponse.error) {
-            return res.status(500).json({
-              success: false,
-              message: "Failed to upload employee image to cloud.",
-              error: cloudinaryResponse.error,
-            });
-          }
-          employee.avatar = cloudinaryResponse.secure_url;
-          await employee.save();
-        } catch (error) {
+  if (req.files) {
+    const { avatar, identityProof } = req.files;
+    if (avatar) {
+      try {
+        const cloudinaryResponse = await cloudinary.uploader.upload(
+          avatar[0].path,
+          { folder: "Employee_Images" }
+        );
+        if (!cloudinaryResponse || cloudinaryResponse.error) {
           return res.status(500).json({
             success: false,
             message: "Failed to upload employee image to cloud.",
-            error: error.message,
+            error: cloudinaryResponse.error,
           });
         }
+        employee.avatar = cloudinaryResponse.secure_url;
+      } catch (error) {
+        return res.status(500).json({
+          success: false,
+          message: "Failed to upload employee image to cloud.",
+          error: error.message,
+        });
       }
     }
+    if (identityProof) {
+      try {
+        const cloudinaryResponse = await cloudinary.uploader.upload(
+          identityProof[0].path,
+          { folder: "Employee_Identity_Proofs" }
+        );
+        if (!cloudinaryResponse || cloudinaryResponse.error) {
+          return res.status(500).json({
+            success: false,
+            message: "Failed to upload employee identity proof to cloud.",
+            error: cloudinaryResponse.error,
+          });
+        }
+        employee.identityProof = cloudinaryResponse.secure_url;
+      } catch (error) {
+        return res.status(500).json({
+          success: false,
+          message: "Failed to upload employee identity proof to cloud.",
+          error: error.message,
+        });
+      }
+    }
+  }
 
   await employee.save();
   res.json({ success: true, employee });
 };
 
 const deleteEmployee = async (req, res) => {
-  const employee = await User.findOne({uuid : req.params.uuid});
+  const employee = await User.findOne({ uuid: req.params.uuid });
   if (!employee) {
     return res.json({ success: false, message: "Employee not found" });
   }
@@ -138,20 +181,25 @@ const getEmployeeSales = async (req, res) => {
     return res.json({ success: false, message: "Employee not found" });
   }
 
-  //Sales with pagination 
-  const { limit = 10, page = 1, sort = "createdAt", sortType = 'asc' } = req.query;
+  //Sales with pagination
+  const {
+    limit = 10,
+    page = 1,
+    sort = "createdAt",
+    sortType = "asc",
+  } = req.query;
   const sales = await Sale.find({ signedBy: employee._id })
     .limit(limit)
     .skip(limit * (page - 1))
     .sort({ [sort]: sortType })
     .populate("signedBy");
-  
+
   const totalResults = await Sale.countDocuments({ signedBy: employee._id });
 
   const totalPages = Math.ceil(totalResults / limit) || 1;
 
   res.json({ success: true, page, totalResults, totalPages, sales });
-}
+};
 
 module.exports = {
   getEmployees,

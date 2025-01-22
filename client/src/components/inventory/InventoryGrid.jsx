@@ -82,7 +82,7 @@ const InventoryGrid = () => {
 
   return (
     <>
-      <div className="title flex items-center justify-between w-full space-x-2 flex-wrap">
+      <div className="title flex items-center justify-between w-full space-x-2 flex-wrap sticky top-0 bg-[var(--color-sidebar)] z-10">
         <div className="title-left flex items-center gap-3">
           <p className="md:my-2 text-xl max-lg:text-lg font-bold pl-2">
             Inventory Details

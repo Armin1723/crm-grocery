@@ -1,7 +1,7 @@
 import React from "react";
 import Avatar from "../utils/Avatar";
 import { Link } from "react-router-dom";
-import { getAge } from "../utils";
+import { formatDateIntl, getAge } from "../utils";
 
 const EmployeeCard = ({ employee }) => {
   return (
@@ -38,6 +38,7 @@ const EmployeeCard = ({ employee }) => {
               </p>
             </div>
             <p className="text-sm">{employee?.uuid}</p>
+            <p className="text-xs">DoB: {formatDateIntl(employee?.dob)}</p>
           </div>
         </div>
 
