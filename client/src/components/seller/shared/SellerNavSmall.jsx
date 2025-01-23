@@ -51,7 +51,7 @@ const SellerNavSmall = () => {
       <div
         ref={hamRef}
         onClick={() => setNavOpen((prev) => !prev)}
-        className="flex hamburger w-6 flex-col gap-1 mx-2 cursor-pointer transition-all duration-300 ease-in"
+        className="flex hamburger w-10 flex-col gap-1 px-2 cursor-pointer transition-all duration-300 ease-in"
       >
         <div
           className={`line w-full border transition-all duration-300 
