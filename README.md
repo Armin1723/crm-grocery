@@ -102,9 +102,10 @@ CRM Grocery is your one-stop solution for managing grocery store operations effi
 Visit our [live demo](https://crm-grocery.netlify.app) to explore the features.
 
 > Add screenshots here showcasing key features of your application
-> ![Dashboard](path_to_dashboard_screenshot)
-> ![Inventory](path_to_inventory_screenshot)
-> ![Sales](path_to_sales_screenshot)
+> ![Dashboard](./img/dashboard.png)
+> ![Dashboard Dark Mode](./img/dashboard-dark.png)
+> ![Inventory](./img/inventory.png)
+> ![Sales](./img/sales.png)
 
 ## 🛠️ Tech Stack
 
