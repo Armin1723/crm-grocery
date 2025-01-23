@@ -1,6 +1,6 @@
 import { AiFillProduct } from "react-icons/ai";
 import { BsInboxesFill } from "react-icons/bs";
-import { FaChartLine, FaHome, FaShoppingCart, FaStore, FaUser } from "react-icons/fa";
+import { FaChartLine, FaHome, FaList, FaPlus, FaShoppingCart, FaStore, FaUser } from "react-icons/fa";
 import { BiSolidReport } from "react-icons/bi";
 
 export const links = [
@@ -15,6 +15,18 @@ export const links = [
     title: "Sales",
     to: "/sales",
     protected : false,
+    sublinks: [
+      {
+        title: "Add Sale",
+        to: "/sales/add",
+        icon: FaPlus,
+      },
+      {
+        title: "View Sales",
+        to: "/sales",
+        icon: FaChartLine,
+      },
+    ],
   },
   {
     icon: FaShoppingCart,
@@ -33,6 +45,18 @@ export const links = [
     title: "Inventory",
     to: "/inventory",
     protected : false,
+    sublinks: [
+      {
+        title: "Inventory List",
+        to: "/inventory",
+        icon: FaList,
+      },
+      {
+        title: "Inventory Grid",
+        to: "/inventory/grid",
+        icon: BsInboxesFill,
+      },
+    ],
   },
   {
     icon: FaStore,

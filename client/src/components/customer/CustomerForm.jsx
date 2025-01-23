@@ -3,6 +3,7 @@ import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
 
 const CustomerForm = ({
+  title = "add",
   customer = {},
   setValue = () => {},
   closeModal = () => {},
@@ -76,7 +77,7 @@ const CustomerForm = ({
       );
       if(!res.ok) {
         const data = await res.json();
-        throw new Error(data.message || "Failed to add customer");
+        throw new Error(data.message || "Failed to add/edit customer");
         }
         toast.success("Customer added successfully");
         setValue("customerMobile", values.phone);
@@ -106,7 +107,6 @@ const CustomerForm = ({
               errors && errors.phone && "border-red-500 focus:!border-red-500"
             }`}
             name="phone"
-            readOnly
             {...register("phone", {
               required: "Phone Number is required",
               validate: {
@@ -216,9 +216,9 @@ const CustomerForm = ({
         type="button"
         onClick={(e) => addCustomer(getValues(), e)}
         disabled={Object.keys(errors).length > 0}
-        className="rounded-md bg-accent hover:bg-accentDark disabled:opacity-30 disabled:hover:bg-gray-300 disabled:cursor-not-allowed text-white cursor-pointer px-3 py-1 w-full"
+        className="rounded-md bg-accent hover:bg-accentDark disabled:opacity-30 disabled:hover:bg-gray-300 disabled:cursor-not-allowed text-white cursor-pointer px-3 py-1 w-full capitalize"
       >
-        Save Customer
+        {title} Customer
       </button>
     </form>
   );

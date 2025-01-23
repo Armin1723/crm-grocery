@@ -152,7 +152,7 @@ const SaleForm = ({ setRefetch = () => {}, closeModal = () => {} }) => {
     <form
       onSubmit={handleSubmit(addSale)}
       onKeyDown={handleKeyDown}
-      className="flex flex-col w-full flex-1 h-full overflow-y-auto px-2"
+      className="flex flex-col w-full flex-1 h-full overflow-y-auto  px-2"
     >
       {/* Products Section */}
       <div className="title flex justify-between py-1">
@@ -160,7 +160,7 @@ const SaleForm = ({ setRefetch = () => {}, closeModal = () => {} }) => {
       </div>
 
       {/* Add Product */}
-      <div className="add-product flex items-center max-sm:space-y-2 py-2 w-full pr-2 flex-wrap relative justify-between">
+      <div className="add-product  flex items-center max-sm:space-y-2 py-2 w-full pr-2 flex-wrap relative justify-between">
         <SaleProductSuggestion
           getValues={getValues}
           setValue={setValue}
@@ -171,12 +171,12 @@ const SaleForm = ({ setRefetch = () => {}, closeModal = () => {} }) => {
       </div>
       {watchedProducts.length > 0 ? (
         <>
-          <div className="table-wrapper flex relative flex-1 mt-2 border border-b-0 border-neutral-500/50 rounded-md rounded-b-none">
-            <div className="products-container overflow-x-scroll overflow-y-auto min-h-[30vh] table flex-col w-fit max-w-full max-sm:text-sm flex-1">
+          <div className="table-wrapper overflow-x-auto min-h-[40vh] max-h-[50vh] flex relative flex-1 mt-2 border border-b-0 border-neutral-500/50 rounded-md rounded-b-none">
+            <div className="products-container overflow-x-auto overflow-y- table flex-col w-fit max-w-full max-sm:text-sm flex-1">
               <div className="th flex w-fit min-w-full flex-1 z-[99] justify-between items-center gap-2 border border-neutral-500/50 bg-[var(--color-card)] rounded-t-md px-2 py-1 sticky top-0 ">
                 <p className="w-[5%] min-w-[30px]">*</p>
-                <p className="w-1/5 min-w-[150px]">Name</p>
-                <p className="w-1/5 min-w-[100px]">Expiry</p>
+                <p className="w-1/4 min-w-[200px]">Name</p>
+                <p className="w-1/5 min-w-[80px]">Expiry</p>
                 <p className="w-1/5 min-w-[100px]">MRP</p>
                 <p className="w-1/5 min-w-[100px]">Rate</p>
                 <p className="w-1/5 min-w-[120px]">Quantity</p>
@@ -198,10 +198,10 @@ const SaleForm = ({ setRefetch = () => {}, closeModal = () => {} }) => {
                   >
                     <IoCloseCircle />
                   </button>
-                  <p className="w-1/5 min-w-[150px] flex-wrap flex-grow">
+                  <p className="w-1/4 min-w-[200px] flex-wrap flex-grow">
                     {product.name}
                   </p>
-                  <p className="w-1/5 min-w-[100px]">
+                  <p className="w-1/5 min-w-[80px]">
                     {formatDateIntl(product?.expiry) || "N/A"}
                   </p>
                   <p className="w-1/5 min-w-[100px]">
@@ -398,6 +398,7 @@ const SaleForm = ({ setRefetch = () => {}, closeModal = () => {} }) => {
           <p className="my-1 font-semibold text-lg max-sm:text-base">
             Customer
           </p>
+          <AddCustomerModal title='add' setValue={setValue} customer={customerDetails} />
         </div>
         <input
           type="number"
@@ -424,8 +425,9 @@ const SaleForm = ({ setRefetch = () => {}, closeModal = () => {} }) => {
             <Divider
               title={
                 <div className="flex items-center gap-2">
-                  <p>Customer Details</p>{" "}
+                  <p>Customer Details</p>
                   <AddCustomerModal
+                  title='edit'
                     setValue={setValue}
                     customer={customerDetails}
                   />

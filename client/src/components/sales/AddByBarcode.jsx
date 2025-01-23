@@ -24,7 +24,8 @@ const AddByBarcode = ({ getValues = [], setValue = () => {} }) => {
       const updatedProducts = products.map((p) =>
         p._id === product._id &&
         p.sellingRate === product.sellingRate &&
-        (!p.expiry || !product.expiry || p.expiry === product?.expiry)
+        (!p.expiry || !product.expiry || p.expiry === product?.expiry) &&
+        (existingProduct.maxQuantity > p.quantity)
           ? {
               ...p,
               quantity: p.quantity + 1,
