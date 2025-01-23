@@ -55,7 +55,6 @@ CRM Grocery is your one-stop solution for managing grocery store operations effi
 - **Purchase Orders**
   - Digital PO creation
   - Order tracking system
-  - Bulk order management
 - **Payment Tracking**
   - Payment schedule management
   - Payment history records
@@ -82,20 +81,14 @@ CRM Grocery is your one-stop solution for managing grocery store operations effi
   - Sales trend analysis
   - Revenue reports
   - Product performance metrics
+  - Tax Report
+  - Profit/Loss Report
 
 ### 👥 Customer Management
 - **Customer Database**
   - Detailed customer profiles
   - Contact information management
   - Purchase history tracking
-- **Loyalty System**
-  - Points management
-  - Reward tracking
-  - Special offers handling
-- **Feedback System**
-  - Customer feedback collection
-  - Rating system
-  - Feedback analysis tools
 
 ## 🖥️ Demo
 
@@ -172,7 +165,7 @@ PORT=3000
 ```
 crm-grocery/
 ├── src/
-│   ├── components/     # Reusable UI components
+│   ├── components/    # Reusable UI components
 │   ├── pages/         # Page components
 │   ├── context/       # Context providers
 │   ├── utils/         # Utility functions
@@ -204,8 +197,7 @@ crm-grocery/
 
 5. **Customer Management**
    - Add customers
-   - Track loyalty points
-   - Manage feedback
+   - View customer metrics
 
 ## 🤝 Contributing
 
