@@ -77,13 +77,13 @@ const SellerNavSmall = () => {
           h-dvh flex border-r border-neutral-500/50 flex-col 
           py-6 bg-[var(--color-sidebar)] text-[var(--color-text)] 
           transition-all duration-300 ease-in-out overflow-hidden
-          ${navOpen ? "w-4/5 md:w-1/3 lg:w-1/5" : "w-0"} `}
+          ${navOpen ? "w-4/5 tab:w-2/5 md:w-1/3 lg:w-1/5" : "w-0"} `}
         >
           {/* Top Section */}
           <div className="top flex w-full justify-between px-4 relative pb-2 border-b border-neutral-500/50">
             <div className="top-sub flex items-center justify-between w-full gap-2">
               <div className="logo flex items-center gap-2">
-                <p className="text-2xl font-bold">CRM - Grocery</p>
+                <p className="text-2xl font-bold">Logo</p>
               </div>
               <div
                 className="close cursor-pointer text-xl"
@@ -99,9 +99,9 @@ const SellerNavSmall = () => {
             <ul className="links min-h-[50px] max-h-[60vh] overflow-y-auto hide-scrollbar flex flex-col w-full">
               {links.map((link, index) => {
                 const isActive =
-                  link.to === "/sales"
-                    ? pathname === "/seller" || pathname.includes(link.to)
-                    : pathname.includes(link.to);
+                link.to === "/"
+                ? pathname === '/seller/'
+                : pathname.startsWith(`/seller${link.to}`)
 
                 const hasSublinks = link.sublinks && link.sublinks.length > 0;
                 const isSubmenuOpen = openSubmenus[link.title];

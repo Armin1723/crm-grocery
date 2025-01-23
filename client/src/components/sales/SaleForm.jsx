@@ -33,7 +33,9 @@ const SaleForm = ({ setRefetch = () => {}, closeModal = () => {} }) => {
       if (response.ok) {
         setCustomerDetails(data.customer);
       } else {
-        setCustomerDetails(null);
+        setCustomerDetails({
+          name: "Customer not found",
+        });
       }
     } catch (error) {
       console.error("Error fetching customer details:", error.message);
@@ -173,7 +175,7 @@ const SaleForm = ({ setRefetch = () => {}, closeModal = () => {} }) => {
         <>
           <div className="table-wrapper overflow-x-auto min-h-[40vh] max-h-[50vh] flex relative flex-1 mt-2 border border-b-0 border-neutral-500/50 rounded-md rounded-b-none">
             <div className="products-container overflow-x-auto overflow-y- table flex-col w-fit max-w-full max-sm:text-sm flex-1">
-              <div className="th flex w-fit min-w-full flex-1 z-[99] justify-between items-center gap-2 border border-neutral-500/50 bg-[var(--color-card)] rounded-t-md px-2 py-1 sticky top-0 ">
+              <div className="th flex w-fit min-w-full flex-1 z-[99] justify-between items-center gap-2 border-b border-neutral-500/50 bg-[var(--color-card)] rounded-t-md px-2 py-1 sticky top-0 ">
                 <p className="w-[5%] min-w-[30px]">*</p>
                 <p className="w-1/4 min-w-[200px]">Name</p>
                 <p className="w-1/5 min-w-[80px]">Expiry</p>
@@ -398,7 +400,11 @@ const SaleForm = ({ setRefetch = () => {}, closeModal = () => {} }) => {
           <p className="my-1 font-semibold text-lg max-sm:text-base">
             Customer
           </p>
-          <AddCustomerModal title='add' setValue={setValue} customer={customerDetails} />
+          <AddCustomerModal
+            title="add"
+            setValue={setValue}
+            customer={customerDetails}
+          />
         </div>
         <input
           type="number"
@@ -415,41 +421,42 @@ const SaleForm = ({ setRefetch = () => {}, closeModal = () => {} }) => {
       </div>
 
       {/* Customer Details */}
-      {customerDetails &&
-        (customerLoading ? (
-          <div className="flex items-center justify-center w-full h-[20vh]">
-            <div className="spinner"></div>
+      {customerLoading ? (
+        <div className="flex items-center justify-center w-full h-[20vh]">
+          <div className="spinner"></div>
+        </div>
+      ) : (
+        <div
+          className={`flex flex-col w-full ${!customerDetails && 'hidden'} `}
+        >
+          <Divider
+            title={
+              <div className="flex items-center gap-2">
+                <p>Customer Details</p>
+                <AddCustomerModal
+                  title="edit"
+                  setValue={setValue}
+                  customer={customerDetails}
+                />
+              </div>
+            }
+          />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-stretch">
+            <p className="w-full rounded-md border border-accent p-2">
+              {customerDetails?.name || "Name"}
+            </p>
+            <p className="w-full rounded-md border border-accent p-2">
+              {customerDetails?.email || "Email"}
+            </p>
+            <p className="w-full rounded-md border border-accent p-2">
+              {customerDetails?.phone || "Phone"}
+            </p>
+            <p className="w-full rounded-md border border-accent p-2">
+              {customerDetails?.address || "Address"}
+            </p>
           </div>
-        ) : (
-          <div className="flex flex-col w-full py-2">
-            <Divider
-              title={
-                <div className="flex items-center gap-2">
-                  <p>Customer Details</p>
-                  <AddCustomerModal
-                  title='edit'
-                    setValue={setValue}
-                    customer={customerDetails}
-                  />
-                </div>
-              }
-            />
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-stretch">
-              <p className="w-full rounded-md border border-accent p-2">
-                {customerDetails?.name || "Name"}
-              </p>
-              <p className="w-full rounded-md border border-accent p-2">
-                {customerDetails?.email || "Email"}
-              </p>
-              <p className="w-full rounded-md border border-accent p-2">
-                {customerDetails?.phone || "Phone"}
-              </p>
-              <p className="w-full rounded-md border border-accent p-2">
-                {customerDetails?.address || "Address"}
-              </p>
-            </div>
-          </div>
-        ))}
+        </div>
+      )}
 
       {/* Payment Details */}
       <div className="flex flex-col w-full py-2">

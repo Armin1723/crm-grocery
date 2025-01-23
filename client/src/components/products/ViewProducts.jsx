@@ -50,7 +50,7 @@ const ViewProducts = () => {
   }, [refetch, limit, page, sort, sortType, category, query]);
 
   return (
-    <div className="p-3 rounded-md flex h-full flex-1 flex-col gap-2 border border-neutral-500/50 bg-[var(--color-sidebar)]">
+    <div className="p-3 rounded-md flex h-full min-h-fit flex-1 flex-col gap-2 border border-neutral-500/50 bg-[var(--color-sidebar)]">
       <div className="top flex w-full justify-between items-center flex-wrap my-2">
         <div className="title flex items-center gap-2 flex-wrap ">
           <p className="text-xl max-lg:text-lg font-bold ">View Products</p>
@@ -65,7 +65,7 @@ const ViewProducts = () => {
         <SearchBar query={query} setQuery={setQuery} />
       </div>
 
-      <div className="table-wrapper flex relative flex-1 my-2 overflow-x-scroll ">
+      <div className="table-wrapper flex relative flex-1 my-2 overflow-x-scroll">
         <div
           className={`table-container w-full min-w-[700px] bg-[var(--bg-card)] h-full flex flex-col flex-nowrap overflow-x-auto shadow-md rounded-md max-sm:text-xs text-wrap relative px-2 ${
             loading && "overflow-hidden"

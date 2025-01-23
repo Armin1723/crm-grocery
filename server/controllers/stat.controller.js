@@ -2,6 +2,7 @@ const Inventory = require("../models/inventory.model");
 const Product = require("../models/product.model");
 const Purchase = require("../models/purchase.model");
 const Sale = require("../models/sale.model");
+const User = require("../models/user.model");
 
 const matchStage = {
   $match: {
@@ -426,83 +427,137 @@ const getInventoryGroupedByCategory = async (req, res) => {
 };
 
 const salesPurchaseChart = async (req, res) => {
-  // Sales/Purchase chart data
-  const { groupBy = "daily" } = req.query; // 'daily', 'weekly', or 'monthly'
+  try {
+    // Fetch user details
+    const user = await User.findById(req.user.id);
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
 
-  if (!groupBy || !["daily", "weekly", "monthly"].includes(groupBy)) {
-    return res.status(400).json({ error: "Invalid 'groupBy' parameter" });
+    // Sales/Purchase chart data
+    const { groupBy = "daily" } = req.query; // 'daily', 'weekly', or 'monthly'
+
+    if (!groupBy || !["daily", "weekly", "monthly"].includes(groupBy)) {
+      return res.status(400).json({ error: "Invalid 'groupBy' parameter" });
+    }
+
+    // Set the grouping format based on the query param
+    let groupFormat;
+    switch (groupBy) {
+      case "daily":
+        groupFormat = {
+          $dateToString: { format: "%Y-%m-%d", date: "$createdAt" },
+        };
+        break;
+      case "weekly":
+        groupFormat = {
+          $concat: [
+            { $toString: { $isoWeekYear: "$createdAt" } }, // Year of the ISO week
+            "-",
+            { $toString: { $isoWeek: "$createdAt" } }, // ISO week number
+          ],
+        };
+        break;
+      case "monthly":
+        groupFormat = {
+          $dateToString: { format: "%Y-%m", date: "$createdAt" },
+        };
+        break;
+    }
+
+    // Build the Sales Aggregation Pipeline
+    const salesPipeline = [];
+    if (user.role !== "admin") {
+      salesPipeline.push({ $match: { signedBy: user._id } });
+    }
+    salesPipeline.push(
+      {
+        $group: {
+          _id: groupFormat,
+          totalSales: { $sum: "$totalAmount" },
+        },
+      },
+      { $sort: { _id: 1 } } // Sort by date ascending
+    );
+
+    // Fetch Sales Data
+    const salesData = await Sale.aggregate(salesPipeline);
+
+    // Build the Purchase Aggregation Pipeline
+    let purchaseData = [];
+    if (user.role === "admin") {
+      purchaseData = await Purchase.aggregate([
+        {
+          $group: {
+            _id: groupFormat,
+            totalPurchases: { $sum: "$totalAmount" },
+          },
+        },
+        { $sort: { _id: 1 } },
+      ]);
+    }
+
+    // Format the Response
+    let formattedData = [];
+    if (salesData.length > purchaseData.length) {
+      formattedData = salesData.map((salesItem) => {
+        const purchaseItem = purchaseData.find(
+          (item) => item._id === salesItem._id
+        );
+        return {
+          name: salesItem._id,
+          sales: salesItem.totalSales,
+          purchases: purchaseItem ? purchaseItem.totalPurchases : 0,
+        };
+      });
+    } else {
+      formattedData = purchaseData.map((purchaseItem) => {
+        const salesItem = salesData.find(
+          (item) => item._id === purchaseItem._id
+        );
+        return {
+          name: purchaseItem._id,
+          sales: salesItem ? salesItem.totalSales : 0,
+          purchases: purchaseItem.totalPurchases,
+        };
+      });
+    }
+
+    res.json({ success: true, stats: formattedData });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Server error" });
   }
+};
 
-  // Set the grouping format based on the query param
-  let groupFormat;
-  switch (groupBy) {
-    case "daily":
-      groupFormat = {
-        $dateToString: { format: "%Y-%m-%d", date: "$createdAt" },
-      };
-      break;
-    case "weekly":
-      groupFormat = {
-        $concat: [
-          { $toString: { $isoWeekYear: "$createdAt" } }, // Year of the ISO week
-          "-",
-          { $toString: { $isoWeek: "$createdAt" } }, // ISO week number
-        ],
-      };
-      break;
-    case "monthly":
-      groupFormat = { $dateToString: { format: "%Y-%m", date: "$createdAt" } };
-      break;
-  }
+const getSellerStats = async (req, res) => {
 
-  const salesData = await Sale.aggregate([
+  const user = await User.findById(req.user.id);
+  const totalUserMonthlySales = await Sale.aggregate([
     {
-      $group: {
-        _id: groupFormat,
-        totalSales: { $sum: "$totalAmount" },
+      $match: {
+        signedBy: user._id,
+        createdAt: { $gte: new Date(new Date().setHours(0, 0, 0, 0)) },
       },
     },
     {
-      $sort: { _id: 1 }, // Sort by date ascending
-    },
-  ]);
-  const purchaseData = await Purchase.aggregate([
-    {
       $group: {
-        _id: groupFormat,
-        totalPurchases: { $sum: "$totalAmount" },
+        _id: { $month: "$createdAt" },
+        totalAmount: { $sum: "$totalAmount" },
       },
     },
-    {
-      $sort: { _id: 1 }, // Sort by date ascending
-    },
   ]);
+  const totalInventoryItems = await Inventory.countDocuments({
+    totalQuantity: { $gt: 0 },
+  });
 
-  // Format the response
-  let formattedData;
-  if (salesData.length > purchaseData.length) {
-    formattedData = salesData.map((salesItem) => {
-      const purchaseItem = purchaseData.find(
-        (item) => item._id === salesItem._id
-      );
-      return {
-        name: salesItem._id,
-        sales: salesItem.totalSales,
-        purchases: purchaseItem ? purchaseItem.totalPurchases : 0,
-      };
-    });
-  } else {
-    formattedData = purchaseData.map((purchaseItem) => {
-      const salesItem = salesData.find((item) => item._id === purchaseItem._id);
-      return {
-        name: purchaseItem._id,
-        sales: salesItem ? salesItem.totalSales : 0,
-        purchases: purchaseItem.totalPurchases,
-      };
-    });
-  }
-
-  res.json({ success: true, stats: formattedData });
+  return res.status(200).json({
+    success: true,
+    stats: {
+      totalSales: totalUserMonthlySales.reduce((acc, curr) => acc + curr.totalAmount, 0),
+      totalInventory: totalInventoryItems,
+    },
+  });
 };
 
 module.exports = {
@@ -513,4 +568,5 @@ module.exports = {
   salesPurchaseChart,
   getInventoryGroupedByCategory,
   getProductsGroupedByCategory,
+  getSellerStats,
 };

@@ -4,6 +4,7 @@ import SearchBar from "../utils/SearchBar";
 import Divider from "../utils/Divider";
 import Avatar from "../utils/Avatar";
 import { Link } from "react-router-dom";
+import { useSelector } from "react-redux";
 
 const InventoryList = () => {
   const [category, setCategory] = React.useState("");
@@ -11,6 +12,9 @@ const InventoryList = () => {
   const [refetch, setRefetch] = React.useState(false);
   const [loading, setLoading] = React.useState(false);
   const [results, setResults] = React.useState([]);
+
+  const user = useSelector((state) => state.user);
+  const isAdmin = user && user.role && user?.role === "admin";
 
   useEffect(() => {
     setLoading(true);
@@ -40,9 +44,9 @@ const InventoryList = () => {
 
   return (
     <>
-      <div className="title flex items-center justify-between w-full space-x-2 flex-wrap sticky top-0 bg-[var(--color-sidebar)] z-10">
-        <div className="title-left flex items-center md:gap-3 flex-wrap">
-          <div className="main-title flex items-center gap-2">
+      <div className="title flex items-center justify-between w-full flex-wrap sticky top-0 bg-[var(--color-sidebar)] pb-2 z-10 ">
+        <div className="title-left flex items-center md:gap-3 gap-1 flex-wrap">
+          <div className="main-title flex items-center gap-2 flex-wrap">
             <p className="md:my-2 text-xl max-lg:text-lg font-bold pl-2">
               Inventory List
             </p>
@@ -58,8 +62,11 @@ const InventoryList = () => {
         <SearchBar query={query} setQuery={setQuery} />
       </div>
       <div className="flex flex-col flex-1 w-full overflow-y-auto px-2">
-        {results.length > 0 &&
-          !loading &&
+        {results.length > 0 && loading ? (
+          <div className="flex items-center justify-center w-full h-full">
+            <div className="spinner" />
+          </div>
+        ) : (
           results.map((category, index) => {
             return (
               <div
@@ -74,7 +81,9 @@ const InventoryList = () => {
                     <thead className="bg-[var(--color-primary)] text-neutral-600">
                       <tr>
                         <th className="py-2 text-left pl-4 w-[10%]">Image</th>
-                        <th className="py-2 text-left pl-4 w-1/4">Product</th>
+                        <th className="py-2 text-left pl-4 w-1/4 min-w-[150px]">
+                          Product
+                        </th>
                         <th className="py-2 text-left pl-4 w-1/6">UPID</th>
                         <th className="py-2 text-left pl-4">Stock</th>
                         <th className="py-2 text-left pl-4">Batches</th>
@@ -94,8 +103,12 @@ const InventoryList = () => {
                               fallbackImage="/utils/product-placeholder.png"
                             />
                           </td>
-                          <td className="py-2 pl-4 w-1/4">
-                            <Link to={`/products/${product?.upid}`}>
+                          <td className="py-2 pl-4 w-1/4 min-w-[150px]">
+                            <Link
+                              to={`${
+                                isAdmin ? `/products/${product?.upid}` : ""
+                              }`}
+                            >
                               {product?.name}
                             </Link>
                           </td>
@@ -113,16 +126,11 @@ const InventoryList = () => {
                 </div>
               </div>
             );
-          })}
-
-        {loading && (
-          <div className="flex items-center justify-center w-full h-full">
-            <div className="spinner" />
-          </div>
+          })
         )}
 
         {results.length === 0 && !loading && (
-            <div className="w-full my-2 h-full">No such inventory found.</div>
+          <div className="w-full my-2 h-full">No such inventory found.</div>
         )}
       </div>
     </>

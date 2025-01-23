@@ -8,6 +8,7 @@ import TopLoadingBar from "./components/shared/TopLoadingBar";
 import SellerSales from "./components/seller/sales/SellerSales";
 import SellerInventory from "./components/seller/inventory/SellerInventory";
 import SellerEmployee from "./components/seller/employee/SellerEmployee";
+import SellerHome from "./components/seller/home/SellerHome";
 
 const Home = lazy(() => import("./pages/Home"));
 const Auth = lazy(() => import("./pages/Auth"));
@@ -195,7 +196,7 @@ const App = () => {
 
           {/* Seller Routes */}
           <Route path="/seller" element={<Seller />}>
-            <Route path="" element={<SellerSales />} />
+            <Route path="" element={<SellerHome />} />
             <Route path="sales" element={<SellerSales />}>
               <Route path="" element={<ViewSales />} />
               <Route path="add" element={<AddSale />} />

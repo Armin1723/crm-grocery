@@ -48,7 +48,9 @@ const Cards = () => {
   useEffect(() => {
     const fetchStats = async () =>{
     try{
-      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/v1/stats`);
+      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/v1/stats`,{
+        credentials: 'include',
+      });
       if(response.ok){
         const data = await response.json();
         setStats(data.stats);

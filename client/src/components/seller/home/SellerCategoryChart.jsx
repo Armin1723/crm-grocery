@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
 
-const CategoryChart = () => {
+const SellerCategoryChart = () => {
   const CustomTooltip = ({ active, payload }) => {
     if (active && payload && payload.length) {
       // Show only the value
@@ -69,10 +69,10 @@ const CategoryChart = () => {
   ];
 
   return (
-    <div className="w-full h-2/3 min-h-[40vh] md:min-h-fit relative flex flex-col justify-center py-3 px-4 bg-[var(--color-sidebar)] border border-neutral-500/50 rounded-md">
-        <div className="title px-3 py-2 ">
-          <p className="text-xl font-bold">Stocks</p>
-          <p className="text-xs text-neutral-500">by category</p>
+    <div className="w-full h-full min-h-[50vh] md:min-h-fit relative flex flex-col justify-center py-3 px-4 bg-[var(--color-sidebar)] border border-neutral-500/50 rounded-md">
+        <div className="title flex items-center gap-2 px-3 py-2 ">
+          <p className="text-lg md:text-2xl font-bold">Stocks</p>
+          <p className="text-xs md:text-sm text-neutral-500">(by category)</p>
         </div>
 
         <div className="chart w-full relative cursor-pointer flex-1 flex text-xs md:text-sm">
@@ -80,12 +80,15 @@ const CategoryChart = () => {
             <PieChart>
               <Pie
                 data={data}
-                innerRadius={30}
-                outerRadius={60}
+                innerRadius={40}
+                outerRadius={70}
                 fill="#8884d8"
                 paddingAngle={3}
                 dataKey="value"
                 onMouseEnter={onPieEnter}
+                label={
+                    (value) => `${value._id} (${value.value})`
+                }
               >
                 {data?.map((entry, index) => (
                   <Cell
@@ -127,4 +130,4 @@ const CategoryChart = () => {
   );
 };
 
-export default CategoryChart;
+export default SellerCategoryChart;

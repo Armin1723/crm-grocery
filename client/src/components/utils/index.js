@@ -8,7 +8,7 @@ export const links = [
     icon: FaHome,
     title: "Home",
     to: "/",
-    protected : true,
+    protected : false,
   },
   {
     icon: FaChartLine,

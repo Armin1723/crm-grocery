@@ -17,14 +17,14 @@ const SearchBar = ({ query = "", setQuery = () => {} }) => {
   }, [debouncedQuery, setQuery]);
 
   return (
-    <div className="flex items-center gap-1 border-b h-fit py-1 my-1 border-neutral-500/50 relative">
+    <div className="max-sm:text-xs text-sm w-fit flex items-center border h-fit p-2 md:mx-2 gap-2 rounded-md border-neutral-500/50 relative">
       <FaSearch className="text-neutral-500 flex " />
       <input
         type="text"
         placeholder="Search"
         value={debouncedQuery}
         onChange={(e) => setDebouncedQuery(e.target.value)}
-        className="bg-transparent outline-none p-1 "
+        className="bg-transparent outline-none "
       />
 
       {debouncedQuery && (

@@ -7,7 +7,7 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
-import SelectionDropDown from "./SelectionDropDown";
+import SelectionDropDown from "../../home/SelectionDropDown";
 
 const dataCopy = [
   {
@@ -54,7 +54,7 @@ const dataCopy = [
   },
 ];
 
-const SalesChart = () => {
+const SellerSalesChart = () => {
   const [data, setData] = useState(dataCopy);
   const [groupBy, setGroupBy] = useState("daily");
 
@@ -65,12 +65,12 @@ const SalesChart = () => {
           `${
             import.meta.env.VITE_BACKEND_URL
           }/api/v1/stats/sales-chart?groupBy=${groupBy}`,{
-          credentials: "include",
+            credentials: 'include',
           }
         );
         const data = await response.json();
         if (response.ok) {
-          setData(data.stats);
+          setData(data?.stats);
         } else {
           throw new Error(data.message || "Something went wrong");
         }
@@ -81,10 +81,10 @@ const SalesChart = () => {
     fetchData();
   }, [groupBy]);
   return (
-    <div className="flex-1 flex flex-col rounded-md border border-neutral-500/50 bg-[var(--color-sidebar)]">
+    <div className="h-full flex flex-col rounded-md border border-neutral-500/50 bg-[var(--color-sidebar)]">
       <div className="header px-3 py-4 flex items-center justify-between gap-4 flex-wrap">
         <div className="title flex items-center gap-2 flex-wrap">
-          <p className="font-bold text-xl max-lg:text-lg ">Sales/Purchases</p>
+          <p className="font-bold text-lg md:text-2xl md:px-2">Your Sales</p>
           <SelectionDropDown groupBy={groupBy} setGroupBy={setGroupBy} />
         </div>
 
@@ -94,17 +94,11 @@ const SalesChart = () => {
             <div className="w-3 h-3 bg-purple-500 rounded-full"></div>
             <span className="text-sm font-medium text-neutral-700">Sales</span>
           </div>
-          <div className="flex items-center space-x-2">
-            <div className="w-3 h-3 bg-green-400 rounded-full"></div>
-            <span className="text-sm font-medium text-neutral-700">
-              Purchases
-            </span>
-          </div>
         </div>
       </div>
 
       <div className="px-2 flex-1 min-h-[40vh] text-xs md:text-sm">
-        <ResponsiveContainer width="100%" height="100%">
+        <ResponsiveContainer width="99%" height="99%">
           <AreaChart
             data={data}
             margin={{
@@ -118,10 +112,6 @@ const SalesChart = () => {
               <linearGradient id="colorUv" x1="0" y1="0" x2="0" y2="1">
                 <stop offset="5%" stopColor="#8884d8" stopOpacity={0.8} />
                 <stop offset="95%" stopColor="#8884d8" stopOpacity={0} />
-              </linearGradient>
-              <linearGradient id="colorPv" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#82ca9d" stopOpacity={0.8} />
-                <stop offset="95%" stopColor="#82ca9d" stopOpacity={0} />
               </linearGradient>
             </defs>
             <XAxis
@@ -156,14 +146,6 @@ const SalesChart = () => {
               fillOpacity={1}
               fill="url(#colorUv)"
             />
-            <Area
-              type="monotone"
-              dataKey="purchases"
-              stackId="1"
-              stroke="seaGreen"
-              fillOpacity={1}
-              fill="url(#colorPv)"
-            />
           </AreaChart>
         </ResponsiveContainer>
       </div>
@@ -171,4 +153,4 @@ const SalesChart = () => {
   );
 };
 
-export default SalesChart;
+export default SellerSalesChart;

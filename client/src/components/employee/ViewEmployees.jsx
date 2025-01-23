@@ -128,7 +128,7 @@ const ViewEmployees = () => {
                   >
                     <div className="w-[10%] min-w-[100px]">
                       <Avatar
-                        image={employee.avatar}
+                        image={employee?.avatar.replace('/uploads/', '/uploads/w_100,h_100,c_thumb/')}
                         alt={employee.name}
                         width={42}
                         withBorder={false}
