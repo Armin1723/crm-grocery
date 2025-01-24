@@ -3,7 +3,31 @@ const PDFDocument = require("pdfkit");
 const fs = require("fs");
 const cloudinary = require("../../config/cloudinary");
 
-const formatCurrency = (value) => `₹${value.toFixed(2)}`;
+// Helper function to split text into multiple lines based on max line length
+const splitTextToLines = (text, maxLength) => {
+  const lines = [];
+  let currentLine = "";
+
+  text.split(" ").forEach((word) => {
+    if (currentLine.length + word.length + 1 <= maxLength) {
+      currentLine = currentLine ? `${currentLine} ${word}` : word;
+    } else {
+      lines.push(currentLine);
+      currentLine = word;
+    }
+  });
+
+  if (currentLine) {
+    lines.push(currentLine);
+  }
+
+  return lines;
+};
+
+const formatCurrency = (value) => {
+  const rupeeSymbol = "₹";
+  return `${rupeeSymbol}${value.toFixed(2)}`;
+};
 const formatDate = (date) => date.toLocaleDateString("en-IN");
 
 const generateSaleInvoice = async (saleId) => {
@@ -90,17 +114,16 @@ const addCustomerDetails = (doc, customer) => {
 };
 
 const addProductTable = (doc, products) => {
+  const lineHeight = 12; // Adjust this value to control the space between lines
+  const maxProductNameLength = 15; // Maximum length for product names before wrapping
+
   doc
     .fontSize(8)
     .text("Items:", { underline: true })
     .moveDown(0.2)
-    .text("------------------------------------------------", {
-      align: "center",
-    })
+    .text("------------------------------------------------", { align: "center" })
     .text("S.No  Product        Qty   Rate    Total", { align: "left" })
-    .text("------------------------------------------------", {
-      align: "center",
-    })
+    .text("------------------------------------------------", { align: "center" })
     .moveDown(0.2);
 
   products.forEach((item, index) => {
@@ -109,21 +132,29 @@ const addProductTable = (doc, products) => {
     const price = item.sellingRate || 0;
     const total = quantity * price;
 
+    // Split product name into multiple lines if it exceeds the maximum length
+    const productNameLines = splitTextToLines(productName, maxProductNameLength);
+
+    // Render the first line with all details
     doc.text(
-      `${(index + 1).toString().padEnd(5)}${productName
-        .substring(0, 15)
-        .padEnd(15)}${quantity.toString().padStart(3)}${formatCurrency(
-        price
-      ).padStart(8)}${formatCurrency(total).padStart(7)}`,
+      `${(index + 1).toString().padEnd(5)}${productNameLines[0].padEnd(15)}${quantity.toString().padStart(3)}${formatCurrency(price).padStart(8)}${formatCurrency(total).padStart(7)}`,
       { align: "left" }
     );
+
+    // Render subsequent lines with only the product name
+    for (let i = 1; i < productNameLines.length; i++) {
+      doc.text(
+        `${" ".padEnd(5)}${productNameLines[i].padEnd(15)}${" ".padEnd(3)}${" ".padEnd(8)}${" ".padEnd(7)}`,
+        { align: "left" }
+      );
+      doc.moveDown(lineHeight / 72); // Convert lineHeight from points to inches
+    }
+
+    doc.moveDown(0.2);
   });
 
   doc
-    .moveDown(0.2)
-    .text("------------------------------------------------", {
-      align: "center",
-    })
+    .text("------------------------------------------------", { align: "center" })
     .moveDown(1);
 };
 
@@ -163,7 +194,7 @@ const addFooter = (doc, discount = 0) => {
     .text("Thank you for shopping with us!", { align: "center" })
     .moveDown(0.5)
     .text("This is a computer-generated receipt.", { align: "center" })
-    .text(`Generated on ${new Date().toLocaleString("en-IN")}`, {
+    .text(`Generated on ${new Date().toLocaleString('en-IN')}`, {
       align: "center",
     });
 };

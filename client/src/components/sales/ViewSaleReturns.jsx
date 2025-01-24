@@ -179,8 +179,8 @@ const ViewSaleReturns = () => {
             <div className="flex items-center">
               <span>
                 Showing {(page - 1) * limit + 1} -{" "}
-                {Math.min(page * limit, results?.totalSales) || 1} of{" "}
-                {results?.totalSales} results.
+                {Math.min(page * limit, results?.totalResults) || 1} of{" "}
+                {results?.totalResults} results.
               </span>
               <div className="flex items-center gap-2 mx-2">
                 <button
@@ -212,7 +212,7 @@ const ViewSaleReturns = () => {
                       return prev;
                     });
                   }}
-                  disabled={limit === steps[steps.length - 1]}
+                  disabled={limit === steps[steps.length - 1] || limit >= results.totalResults}
                   className="px-3 flex items-center justify-center rounded-md bg-[var(--color-primary)] w-6 aspect-square border border-neutral-500/50 hover:opacity-75 disabled:opacity-50 disabled:cursor-not-allowed disabled:border-neutral-500/20"
                 >
                   +

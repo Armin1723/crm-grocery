@@ -116,11 +116,11 @@ const ProductBarcode = ({ product, setRefetch = () => {} }) => {
         </h2>
         <p className="flex items-center gap-1">
           <span className="">{product?.name}</span>
-          <span className="text-xs italic"> ({product.category})</span>
+          <span className="text-xs italic"> ({product?.category})</span>
         </p>
         {/* Barcode Preview */}
         <div className="px-4">
-          {product.upc || product.upid ? (
+          {product?.upc || product?.upid ? (
             <Barcode value={product.upc || product.upid} />
           ) : (
             <span className="text-sm text-red-500">No barcode available</span>

@@ -5,9 +5,11 @@ import Divider from "../utils/Divider";
 import ProductPurchases from "./ProductPurchases";
 import ProductBarcode from "./ProductBarcode";
 import InventoryCard from "../inventory/InventoryCard";
+import ProductSales from "./ProductSales";
 
-const ProductDetails = () => {
-  const { id } = useParams();
+const ProductDetails = ({idBackup = ''}) => {
+  let { id } = useParams();
+  if(!id) id = idBackup;
   const [product, setProduct] = useState([]);
   const [refetch, setRefetch] = useState(false);
 
@@ -41,6 +43,9 @@ const ProductDetails = () => {
 
         <Divider title="Past Purchases" />
         <ProductPurchases />
+
+        <Divider title="Recent Sales" />
+        <ProductSales />
 
         <Divider title="Inventory Details" />
         <InventoryCard upid={product?.upid} />

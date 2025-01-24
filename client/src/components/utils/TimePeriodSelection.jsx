@@ -24,7 +24,7 @@ const TimePeriodSelection = ({ timePeriod, setTimePeriod }) => {
     <div className="my-2">
       <select
         name="timePeriod"
-        className={`w-fit max-w-[200px] border border-neutral-500/50 text-[var(--color-text-light)] rounded-md bg-transparent outline-none p-2 px-3 cursor-pointer`}
+        className={`w-fit max-sm:text-xs text-sm max-w-[200px] border border-neutral-500/50 text-[var(--color-text-light)] rounded-md bg-transparent outline-none p-2 px-3 cursor-pointer`}
         onChange={(e) => setTimePeriod(e.target.value)}
       >
         <option value="" className="!bg-[var(--color-card)]">

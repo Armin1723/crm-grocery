@@ -1,6 +1,14 @@
 import { AiFillProduct } from "react-icons/ai";
 import { BsInboxesFill } from "react-icons/bs";
-import { FaChartLine, FaHome, FaList, FaPlus, FaShoppingCart, FaStore, FaUser } from "react-icons/fa";
+import {
+  FaChartLine,
+  FaHome,
+  FaList,
+  FaPlus,
+  FaShoppingCart,
+  FaStore,
+  FaUser,
+} from "react-icons/fa";
 import { BiSolidReport } from "react-icons/bi";
 
 export const links = [
@@ -8,13 +16,13 @@ export const links = [
     icon: FaHome,
     title: "Home",
     to: "/",
-    protected : false,
+    protected: false,
   },
   {
     icon: FaChartLine,
     title: "Sales",
     to: "/sales",
-    protected : false,
+    protected: false,
     sublinks: [
       {
         title: "Add Sale",
@@ -32,19 +40,19 @@ export const links = [
     icon: FaShoppingCart,
     title: "Purchases",
     to: "/purchases",
-    protected : true,
+    protected: true,
   },
   {
     icon: AiFillProduct,
     title: "Products",
     to: "/products",
-    protected : true,
+    protected: true,
   },
   {
     icon: BsInboxesFill,
     title: "Inventory",
     to: "/inventory",
-    protected : false,
+    protected: false,
     sublinks: [
       {
         title: "Inventory List",
@@ -62,20 +70,20 @@ export const links = [
     icon: FaStore,
     title: "Suppliers",
     to: "/suppliers",
-    protected : true,
+    protected: true,
   },
   {
     icon: BiSolidReport,
     title: "Reports",
     to: "/reports",
-    protected : true,
+    protected: true,
   },
   {
     icon: FaUser,
     title: "Employees",
     to: "/employees",
-    protected : true,
-  }
+    protected: true,
+  },
 ];
 
 export const categories = [
@@ -314,6 +322,35 @@ export const categories = [
       "Summer Essentials (Juices, Ice Creams, etc.)",
     ],
   },
+  {
+    category: "Toys & Games",
+    subCategories: [
+      "Action Figures",
+      "Board Games",
+      "Puzzles",
+      "Educational Toys",
+      "Outdoor Toys",
+      "Soft Toys",
+      "Remote Control Toys",
+      "Building Blocks",
+      "Dolls & Dollhouses",
+      "Vehicle Toys",
+    ],
+  },
+  {
+    category: "Stationery",
+    subCategories: [
+      "Notebooks & Diaries",
+      "Pens & Pencils",
+      "Art Supplies",
+      "Office Supplies",
+      "School Supplies",
+      "Craft Supplies",
+      "Files & Folders",
+      "Calculators",
+      "Desk Organizers",
+    ],
+  },
 ];
 
 export const units = [
@@ -392,7 +429,7 @@ export const taxSlabs = [
     name: "GST 40%",
     rate: 40,
     description: "Applicable on luxury cars and aerated drinks.",
-  }
+  },
 ];
 
 export const expenseTypes = [
@@ -408,8 +445,31 @@ export const expenseTypes = [
   "Rent",
   "Salary",
   "Travel",
-  "Miscellaneous"
+  "Miscellaneous",
 ];
+
+export const pluralizeWord = (count, word) => {
+  // Handle words ending in "y"
+  if (word.endsWith("y") && !/[aeiou]y$/i.test(word)) {
+    return count === 1 ? word : word.slice(0, -1) + "ies";
+  }
+  // Handle words ending in "s", "sh", "ch", "x", "z"
+  else if (/(s|ss|sh|ch|x|z)$/i.test(word)) {
+    return count === 1 ? word : word + "es";
+  }
+  // Handle words ending in "f" or "fe"
+  else if (/(f|fe)$/i.test(word)) {
+    return count === 1 ? word : word.replace(/f(e)?$/, "ves");
+  }
+  // Handle words ending in "o"
+  else if (/o$/i.test(word)) {
+    return count === 1
+      ? word
+      : word + (/(photo|piano|zero)$/i.test(word) ? "s" : "es");
+  }
+  // Default case: just add "s"
+  return count === 1 ? word : word + "s";
+};
 
 export const formatDate = (date) => {
   return new Date(date).toLocaleString("en-IN", {
@@ -538,5 +598,5 @@ export const getMonthName = (date) => {
     "Nov",
     "Dec",
   ];
-  return `${months[monthNumber - 1]}-${date.split("-")[1]}`;  
+  return `${months[monthNumber - 1]}-${date.split("-")[1]}`;
 };

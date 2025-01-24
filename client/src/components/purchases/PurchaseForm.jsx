@@ -8,10 +8,10 @@ import AddProductModal from "./AddProductModal";
 import SaveReload from "../utils/SaveReload";
 import PurchaseProductSuggestion from "./PurchaseProductSuggestion";
 import HoverCard from "../shared/HoverCard";
+import AddPurchaseByBarcode from "./AddPurchaseByBarcode";
 import InventoryCard from "../inventory/InventoryCard";
 
 const PurchaseForm = ({ setRefetch = () => {}, closeModal = () => {} }) => {
-  const [products, setProducts] = useState([]);
   const [supplierId, setSupplierId] = useState("");
   const [suggestedSuppliers, setSuggestedSuppliers] = useState([]);
   const [suggestedProducts, setSuggestedProducts] = useState([]);
@@ -155,7 +155,6 @@ const PurchaseForm = ({ setRefetch = () => {}, closeModal = () => {} }) => {
           autoClose: 2000,
         });
         reset();
-        setProducts([]);
         setRefetch((prev) => !prev);
         navigate("/purchases");
       }
@@ -225,16 +224,22 @@ const PurchaseForm = ({ setRefetch = () => {}, closeModal = () => {} }) => {
         />
       </div>
 
-      {/* Add Product */}
-      <div className="add-product flex items-end w-fit relative">
-        <PurchaseProductSuggestion
+      <div className="add-product w-full relative flex items-center justify-between flex-wrap gap-2 ">
+        <div className="left flex items-center flex-wrap gap-2">
+          <PurchaseProductSuggestion
+            getValues={getValues}
+            setValue={setValue}
+            suggestedProducts={suggestedProducts}
+            setSuggestedProducts={setSuggestedProducts}
+            disabled={getValues("supplier") === ""}
+          />
+          <AddProductModal />
+        </div>
+        <AddPurchaseByBarcode
           getValues={getValues}
           setValue={setValue}
-          suggestedProducts={suggestedProducts}
-          setSuggestedProducts={setSuggestedProducts}
           disabled={getValues("supplier") === ""}
         />
-        <AddProductModal />
       </div>
 
       <div className="table-wrapper flex relative max-h-[55vh] min-h-fit flex-1 my-2 overflow-x-scroll">
@@ -268,7 +273,10 @@ const PurchaseForm = ({ setRefetch = () => {}, closeModal = () => {} }) => {
                     >
                       <IoCloseCircle />
                     </button>
-                    <p className="w-1/5 min-w-[100px] flex-wrap flex-grow">
+                    <p
+                      onClick={() => setProductPreviewModal(true)}
+                      className="w-1/5 min-w-[100px] flex-wrap flex-grow"
+                    >
                       <HoverCard title={product?.name} otherClasses="max-w-3xl">
                         <InventoryCard upid={product?.upid} />
                       </HoverCard>

@@ -89,7 +89,7 @@ function generateHeader(doc, purchaseReturnId) {
     .moveDown();
 }
 
-function generateSupplierInformation(doc, purchaseReturn) {
+function generateSupplierInformation(doc, purchase) {
   doc.fillColor("#444444").fontSize(12).text("Supplier Details", 50, 160);
 
   generateHr(doc, 185);
@@ -99,23 +99,17 @@ function generateSupplierInformation(doc, purchaseReturn) {
     .fontSize(10)
     .text("Supplier Name:", 50, supplierInformationTop)
     .font("Helvetica-Bold")
-    .text(purchaseReturn.supplier?.name || "N/A", 150, supplierInformationTop)
+    .text(purchase.supplier?.name || "N/A", 150, supplierInformationTop)
     .font("Helvetica")
     .text("Contact:", 50, supplierInformationTop + 15)
-    .text(
-      purchaseReturn.supplier?.phone || "N/A",
-      150,
-      supplierInformationTop + 15
-    )
+    .text(purchase.supplier?.phone || "N/A", 150, supplierInformationTop + 15)
     .text("Email:", 50, supplierInformationTop + 30)
-    .text(
-      purchaseReturn.supplier?.email || "N/A",
-      150,
-      supplierInformationTop + 30
-    )
+    .text(purchase.supplier?.email || "N/A", 150, supplierInformationTop + 30)
+    .text("Address:", 50, supplierInformationTop + 45)
+    .text(purchase.supplier?.address || "N/A", 150, supplierInformationTop + 45)
     .moveDown();
 
-  generateHr(doc, 252);
+  generateHr(doc, 262);
 }
 
 function generateInvoiceTable(doc, purchaseReturn) {

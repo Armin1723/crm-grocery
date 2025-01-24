@@ -59,6 +59,8 @@ const PurchaseProductSuggestion = ({
         ...product,
         quantity: 1,
         expiry: defaultExpiry(product.shelfLife),
+        purchaseRate: product?.rate,
+        price: product?.rate,
       },
     ]);
 

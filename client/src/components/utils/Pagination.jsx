@@ -40,9 +40,9 @@ const Pagination = ({ page= 1, setPage=()=>{}, totalPages = 10 }) => {
         <button
           key={index}
           onClick={() => handlePageChange(pageNumber)}
-          className={`px-3 py-1 mx-1 rounded ${
+          className={`px-3 py-1 mx-1 rounded  ${
             Math.ceil(pageNumber) === page
-              ? "bg-[var(--bg-primary)] text-[var(--text-primary)]"
+              ? "bg-[var(--color-primary)]"
               : " hover:bg-accent/20"
           }`}
         >

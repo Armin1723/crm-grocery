@@ -3,8 +3,29 @@ const fs = require("fs");
 const path = require("path");
 const cloudinary = require("../../config/cloudinary");
 
+// Helper function to split text into multiple lines based on max line length
+const splitTextToLines = (text, maxLength) => {
+  const lines = [];
+  let currentLine = "";
+
+  text.split(" ").forEach((word) => {
+    if (currentLine.length + word.length + 1 <= maxLength) {
+      currentLine = currentLine ? `${currentLine} ${word}` : word;
+    } else {
+      lines.push(currentLine);
+      currentLine = word;
+    }
+  });
+
+  if (currentLine) {
+    lines.push(currentLine);
+  }
+
+  return lines;
+};
+
 const formatCurrency = (value) => `₹${value.toFixed(2)}`;
-const formatDate = (date) => date.toLocaleDateString("en-IN");
+const formatDate = (date) => new Date(date).toLocaleDateString("en-IN");
 
 const generateSalesReturnInvoice = async (salesReturn) => {
   try {
@@ -73,7 +94,7 @@ const addHeader = (doc, salesReturn) => {
     .text("SALES RETURN INVOICE", { align: "center", underline: true })
     .moveDown(0.5)
     .text(`Return ID: ${salesReturn._id}`, { align: "center" })
-    .text(`Date: ${formatDate(salesReturn.returnDate)}`, { align: "center" })
+    .text(`Date: ${formatDate(salesReturn.createdAt)}`, { align: "center" })
     .moveDown();
 };
 
@@ -87,6 +108,9 @@ const addCustomerDetails = (doc, customer) => {
 };
 
 const addProductTable = (doc, products) => {
+  const lineHeight = 12;
+  const maxProductNameLength = 15;
+
   doc
     .fontSize(8)
     .text("Items:", { underline: true })
@@ -106,18 +130,37 @@ const addProductTable = (doc, products) => {
     const price = item.sellingRate || 0;
     const total = quantity * price;
 
+    // Split product name into multiple lines if it exceeds the maximum length
+    const productNameLines = splitTextToLines(
+      productName,
+      maxProductNameLength
+    );
+
+    // Render the first line with all details
     doc.text(
-      `${(index + 1).toString().padEnd(5)}${productName
-        .substring(0, 15)
-        .padEnd(15)}${quantity.toString().padStart(3)}${formatCurrency(
-        price
-      ).padStart(8)}${formatCurrency(total).padStart(7)}`,
+      `${(index + 1).toString().padEnd(5)}${productNameLines[0].padEnd(
+        15
+      )}${quantity.toString().padStart(3)}${formatCurrency(price).padStart(
+        8
+      )}${formatCurrency(total).padStart(7)}`,
       { align: "left" }
     );
+
+    // Render subsequent lines with only the product name
+    for (let i = 1; i < productNameLines.length; i++) {
+      doc.text(
+        `${" ".padEnd(5)}${productNameLines[i].padEnd(15)}${" ".padEnd(
+          3
+        )}${" ".padEnd(8)}${" ".padEnd(7)}`,
+        { align: "left" }
+      );
+      doc.moveDown(lineHeight / 72); // Convert lineHeight from points to inches
+    }
+
+    doc.moveDown(0.2);
   });
 
   doc
-    .moveDown(0.2)
     .text("------------------------------------------------", {
       align: "center",
     })
@@ -155,7 +198,9 @@ const addReasonForReturn = (doc, reason) => {
 const addFooter = (doc) => {
   doc
     .fontSize(8)
-    .text("------------------------------------------------", { align: "center" })
+    .text("------------------------------------------------", {
+      align: "center",
+    })
     .moveDown(0.2)
     .text("Thank you for your cooperation!", { align: "center" })
     .moveDown(0.5)

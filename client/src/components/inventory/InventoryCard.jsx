@@ -72,7 +72,7 @@ const InventoryCard = ({ upid = "", inventoryData = {}, editable = false }) => {
   if (!inventory && !loading)
     return (
       <div className="flex flex-col min-w-full w-full md:w-1/2 md:min-w-[50%] lg:w-1/3 lg:min-w-[33%] rounded-md px-4 py-2 snap-start h-fit">
-        <p className="text-lg max-sm:text-base text-[var(--color-text-light)]">
+        <p className="text-sm text-[var(--color-text-light)]">
           Not in inventory.
         </p>
       </div>
@@ -128,9 +128,9 @@ const InventoryCard = ({ upid = "", inventoryData = {}, editable = false }) => {
                   <div
                     className={`batch-left flex flex-col text-sm max-sm:text-xs p-2 text-ellipsis truncate }`}
                   >
-                    <div className="text-xs md:text-md lg:text-lg max-sm:text-base font-bold flex items-center justify-between gap-1">
+                    <div className="text-xs md:text-sm font-bold flex items-center justify-between gap-1">
                       <p>Batch: {index + 1}</p>
-                      {isAdmin && (
+                      {isAdmin && editable && (
                         <InventoryActions
                           batch={batch}
                           inventory={inventory}
@@ -215,7 +215,7 @@ const InventoryCard = ({ upid = "", inventoryData = {}, editable = false }) => {
           })
         ) : (
           <div className="flex flex-col min-w-full w-full md:w-1/2 md:min-w-[50%] lg:w-1/3 lg:min-w-[33%] rounded-md px-4 py-2 snap-start h-fit">
-            <p className="text-lg max-sm:text-base text-[var(--color-text-light)]">
+            <p className="text-sm text-[var(--color-text-light)]">
               Not in inventory.
             </p>
           </div>

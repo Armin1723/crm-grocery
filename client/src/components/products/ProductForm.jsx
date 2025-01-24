@@ -57,17 +57,6 @@ const ProductForm = ({
     },
   });
 
-  //Use effect for auto conversion-factor calculation
-  React.useEffect(() => {
-    if (watch("primaryUnit") && watch("secondaryUnit") && !getValues("conversionFactor")) {
-      const factor = autoSetConversionFactor(
-        watch("primaryUnit"),
-        watch("secondaryUnit")
-      );
-      setValue("conversionFactor", factor);
-    }
-  }, [watch("primaryUnit"), watch("secondaryUnit")]);
-
   // Handle image change
   const handleImageChange = (event) => {
     const file = event.target.files[0];
@@ -206,7 +195,7 @@ const ProductForm = ({
               </div>
             </div>
           ) : (
-            <div className="h-48 flex items-center justify-center bg-[var(--color-card)] rounded-lg">
+            <div onClick={()=> document.querySelector('#image-upload').click()} className="h-48 cursor-pointer flex items-center justify-center bg-[var(--color-card)] rounded-lg">
               <span className="text-gray-500">Click to upload image</span>
             </div>
           )}
@@ -300,6 +289,11 @@ const ProductForm = ({
             }`}
             {...register("primaryUnit", {
               required: "Primary Unit is required",
+              onChange: (e) => {
+                setValue("primaryUnit", e.target.value);
+                setValue("secondaryUnit", e.target.value);
+                setValue("conversionFactor", 1);
+              },
             })}
           >
             <option
@@ -336,6 +330,10 @@ const ProductForm = ({
             }`}
             {...register("secondaryUnit", {
               required: "Secondary Unit is required",
+              onChange: (e) => {
+                setValue("secondaryUnit", e.target.value);
+                setValue("conversionFactor", autoSetConversionFactor(watch("primaryUnit"), e.target.value));
+              },
             })}
           >
             <option

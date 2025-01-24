@@ -7,6 +7,7 @@ import SaleDetailActions from "./SaleDetailActions";
 import SaleCard from "./SaleCard";
 import EmployeeCard from "../employee/EmployeeCard";
 import SaleReturnCard from "./SaleReturnCard";
+import { pluralizeWord } from "../utils";
 
 const SaleDetails = ({ idBackup = "" }) => {
   let { id } = useParams();
@@ -90,7 +91,7 @@ const SaleDetails = ({ idBackup = "" }) => {
                   </td>
                   <td className="py-2 pl-4">{product.name}</td>
                   <td className="py-2 pl-4">
-                    {product.quantity} {product.secondaryUnit}
+                    {product.quantity} {pluralizeWord(product.quantity,product.secondaryUnit)}
                   </td>
                   <td className="py-2 pl-4">₹{product.sellingRate}</td>
                   <td className="py-2 pl-4">

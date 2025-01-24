@@ -119,7 +119,9 @@ const ViewProducts = () => {
                 return (
                   <div
                     key={index}
-                    className="tr flex w-full justify-between items-center py-2 px-4 max-sm:px-1 gap-2 hover:bg-accent/10"
+                    className={`tr flex w-full justify-between items-center py-2 px-4 max-sm:px-1 gap-2 hover:bg-accent/10 ${
+                      index % 2 === 0 && "bg-[var(--color-primary)]"
+                    }`}
                   >
                     <div className="w-[10%] min-w-[100px] py-1">
                       <Link to={`/products/${product.upid}`}>
@@ -144,8 +146,14 @@ const ViewProducts = () => {
                       {product?.category || "N/A"}
                     </div>
                     <div className="w-[15%] min-w-[50px] px-2 capitalize flex-wrap">
-                      <p>{product?.primaryUnit || "N/A"},</p>
-                      <p>{product?.secondaryUnit || "N/A"}</p>
+                      {product?.primaryUnit === product?.secondaryUnit ? (
+                        product?.primaryUnit
+                      ) : (
+                        <>
+                          <p>{product?.primaryUnit || "N/A"},</p>
+                          <p>{product?.secondaryUnit || "N/A"}</p>
+                        </>
+                      )}
                     </div>
                     <div className="flex items-center flex-wrap gap-2 w-1/5 min-w-[50px]">
                       {product?.tags?.length
@@ -154,7 +162,7 @@ const ViewProducts = () => {
                               <span
                                 key={index}
                                 onClick={() => setQuery(tag)}
-                                className="cursor-pointer px-2 py-0.5 bg-accent/10 rounded-xl border border-neutral-500/50 gap-3 capitalize flex text-sm max-sm:text-xs"
+                                className="cursor-pointer px-2 py-0.5 border bg-accentDark/10 border-accentDark rounded-xl text-[var(--color-text-light)] gap-3 capitalize flex text-xs"
                               >
                                 {tag}
                               </span>

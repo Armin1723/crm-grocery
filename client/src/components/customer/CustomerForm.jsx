@@ -75,12 +75,12 @@ const CustomerForm = ({
           body: JSON.stringify(values),
         }
       );
-      if(!res.ok) {
+      if (!res.ok) {
         const data = await res.json();
         throw new Error(data.message || "Failed to add/edit customer");
-        }
-        toast.success("Customer added successfully");
-        setValue("customerMobile", values.phone);
+      }
+      toast.success("Customer added successfully");
+      setValue("customerMobile", values.phone);
     } catch (error) {
       console.error("Error adding customer:", error.message);
     } finally {
@@ -103,6 +103,7 @@ const CustomerForm = ({
           <input
             type="number"
             placeholder=" "
+            raadOnly={title == "edit"}
             className={`input peer ${
               errors && errors.phone && "border-red-500 focus:!border-red-500"
             }`}
@@ -119,13 +120,15 @@ const CustomerForm = ({
             })}
           />
           <div
-            className="absolute right-0 top-1/2 -translate-y-1/2 flex items-center pr-3 z-[50]"
+            className={`absolute right-0 top-1/2 -translate-y-1/2 flex items-center justify-center pr-3 z-[50] ${
+              errors?.phone && "-translate-y-[133%]"
+            }`}
             onClick={fetchCustomer}
           >
             <span
               className={`w-3 h-3 cursor-pointer rounded-full border-b-2 border-t-2 border-accent ${
-                loading && "animate-spin"
-              }`}
+                errors?.phone && "border-red-500"
+              } ${loading && "animate-spin"}`}
             ></span>
           </div>
           <label
