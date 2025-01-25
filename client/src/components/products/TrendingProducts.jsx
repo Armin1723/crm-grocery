@@ -10,7 +10,10 @@ import {
 
 const TrendingProducts = () => {
   const [trendingProducts, setTrendingProducts] = useState([]);
+  const [filteredProducts, setFilteredProducts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [selectedCategory, setSelectedCategory] = useState("All");
+  const [error, setError] = useState("");
 
   useEffect(() => {
     const fetchTrendingProducts = async () => {
@@ -20,21 +23,19 @@ const TrendingProducts = () => {
         );
         if (response.ok) {
           const data = await response.json();
-
-          // Format data to include product name, category, and other details for the chart
           const formattedData = data.trendingProducts.map((item) => ({
             name: item.product.name,
             category: item.product.category,
             totalSales: item.totalSales,
             secondaryUnit: item.secondaryUnit,
           }));
-
           setTrendingProducts(formattedData);
+          setFilteredProducts(formattedData); // Initialize with all products
         } else {
           throw new Error("Failed to fetch trending products.");
         }
       } catch (error) {
-        console.error(error.message);
+        setError(error.message);
       } finally {
         setLoading(false);
       }
@@ -42,15 +43,31 @@ const TrendingProducts = () => {
     fetchTrendingProducts();
   }, []);
 
-  // Extract unique categories from the trending products
   const categories = [
+    "All",
     ...new Set(trendingProducts.map((product) => product.category)),
   ];
+
+  const handleCategoryFilter = (category) => {
+    setSelectedCategory(category);
+    setFilteredProducts(
+      category === "All"
+        ? trendingProducts
+        : trendingProducts.filter((product) => product.category === category)
+    );
+  };
 
   if (loading)
     return (
       <div className="bg-[var(--color-sidebar)] p-4 rounded-md border border-neutral-500/50 w-full md:hidden lg:flex md:w-[30%] h-full flex flex-col items-center justify-center">
         <div className="spinner" />
+      </div>
+    );
+
+  if (error)
+    return (
+      <div className="bg-[var(--color-sidebar)] p-4 rounded-md border border-red-500 w-full h-full flex flex-col items-center justify-center">
+        <p className="text-red-500 text-sm">{error}</p>
       </div>
     );
 
@@ -60,11 +77,31 @@ const TrendingProducts = () => {
         Trending Products
       </p>
 
-      <div className="bg-[var(--color-card)] flex-1 overflow-y-scroll rounded-md p-4">
-        {trendingProducts.length > 0 ? (
-          <ResponsiveContainer width="100%" height={280}>
+      <div className="bg-[var(--color-card)] flex-1 overflow-y-auto rounded-md p-4">
+        {categories.length > 1 && (
+          <div className="mb-2">
+            <p className="font-semibold mb-2">Filter Trending Categories:</p>
+            <select
+              className="w-full bg-[var(--color-sidebar)] text-[var(--color-text)] p-2 rounded-md border border-neutral-500/50 outline-none"
+              value={selectedCategory}
+              onChange={(e) => handleCategoryFilter(e.target.value)}
+            >
+              {categories.map((category, index) => (
+                <option key={index} value={category}>
+                  {category}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
+
+        {filteredProducts.length > 0 ? (
+          <ResponsiveContainer
+            width="100%"
+            height={Math.max(280, filteredProducts.length * 50)}
+          >
             <BarChart
-              data={trendingProducts}
+              data={filteredProducts}
               layout="vertical"
               margin={{ top: 20, right: 3, left: 10, bottom: 10 }}
             >
@@ -116,28 +153,13 @@ const TrendingProducts = () => {
           </ResponsiveContainer>
         ) : (
           <p className="text-neutral-500 text-center">
-            No trending products available.
+            No trending products available in this category.
           </p>
         )}
 
-        {/* Display unique categories */}
-        {categories.length > 0 && (
-          <div className="my-2">
-            <p className="font-semibold text-lg py-1">Categories:</p>
-            <ul className="list-disc pl-5 grid grid-cols-2 gap-2">
-              {categories.map((category, index) => (
-                <li
-                  key={index}
-                  className="text-sm text-[var(--color-text-light)]"
-                >
-                  {category}
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
-
-        <div className="text-xs text-[var(--color-text-light)] italic">*Data for {new Date().getFullYear()}</div>
+        <div className="text-xs text-[var(--color-text-light)] italic mt-4">
+          *Data for {new Date().getFullYear()}
+        </div>
       </div>
     </div>
   );
