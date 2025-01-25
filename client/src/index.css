@@ -35,6 +35,10 @@ input.checkbox {
   @apply text-xs md:text-sm;
 }
 
+.table-footer, input, table{
+  @apply text-xs md:text-sm placeholder:text-xs md:placeholder:text-sm;
+}
+
 #nprogress .bar {
   background: var(--color-accent-dark) !important;
 }

@@ -10,7 +10,7 @@ const EmployeeCard = ({ employee }) => {
   return (
     <div
       className={` ${
-        employee?.role == "admin" ? "bg-red-500/10" : "bg-blue-500/10"
+        employee?.role == "admin" ? "bg-red-500/10" : "bg-green-500/10"
       } p-6 w-full rounded-lg shadow-lg bg-[var(--color-card)] text-[var(--color-text)] mx-auto`}
     >
       {/* Card Layout */}
@@ -89,7 +89,7 @@ const EmployeeCard = ({ employee }) => {
             <span className="font-semibold text-[var(--color-text-light)]">
               Address:
             </span>{" "}
-            {employee?.address || "Not available"}
+            <span className="truncate text-ellipsis">{employee?.address?.slice(0,20) || "N/A"}</span>
           </p>
         </div>
       </div>

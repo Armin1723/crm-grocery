@@ -105,9 +105,8 @@ const SaleActionButton = ({ sale, setRefetch = () => {} }) => {
           <p className="capitalize">Invoice</p>
         </div>
 
-        {isAdmin && (
           <Link
-            to={`/sales/${sale?._id}`}
+            to={isAdmin ? `/sales/${sale?._id}` : `/seller/sales/${sale?._id}`}
             className="menu-item px-4 py-1 text-sm text-center hover:bg-accentDark/10 cursor-pointer transition-all duration-200 ease-in flex items-center gap-2"
             role="menuitem"
             tabIndex={0}
@@ -118,7 +117,6 @@ const SaleActionButton = ({ sale, setRefetch = () => {} }) => {
             <FaEye />
             <p className="capitalize">View</p>
           </Link>
-        )}
       </div>
 
       {/* Edit Modal */}

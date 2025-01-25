@@ -27,7 +27,7 @@ const Sidebar = () => {
 
   return (
     <div
-      className={`nav max-sm:hidden sticky top-0 z-[90] select-none ${
+      className={`nav text-sm max-sm:hidden sticky top-0 z-[90] select-none ${
         expanded
           ? "min-w-[17%] max-w-[20%]"
           : "min-w-[5%] max-lg:min-w-[8%] max-w-[5%]"

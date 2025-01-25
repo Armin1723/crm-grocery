@@ -4,7 +4,7 @@ import { useForm, useWatch } from "react-hook-form";
 import { formatDateIntl } from "../utils";
 import Divider from "../utils/Divider";
 import { toast } from "react-toastify";
-import Modal from "../utils/Modal"; 
+import Modal from "../utils/Modal";
 import { useNavigate } from "react-router-dom";
 
 const SaleReturnForm = ({ sale = {}, setSale = () => {}, loading = false }) => {
@@ -56,29 +56,29 @@ const SaleReturnForm = ({ sale = {}, setSale = () => {}, loading = false }) => {
       } else {
         clearErrors(`products.${index}.expiry`);
       }
-      return(() => {
+      return () => {
         clearErrors(`products.${index}.expiry`);
-      })
+      };
     });
   }, [getValues("products"), setError]);
 
   const watchedProducts = useWatch({ name: "products", control });
 
   useEffect(() => {
-      const calculatedSubTotal = watchedProducts.reduce(
-        (acc, curr) =>
-          acc + ((curr.mrp || curr.sellingRate) * curr.quantity || 0),
-        0
-      );
-      const calculatedDiscount = watchedProducts.reduce(
-        (acc, curr) =>
-          acc + (curr.mrp ? curr.mrp - curr.sellingRate : 0) * curr.quantity,
-        0
-      );
-      setValue("subTotal", calculatedSubTotal);
-      setValue("discount", calculatedDiscount);
-      setValue("totalAmount", calculatedSubTotal - calculatedDiscount);
-    }, [watchedProducts, setValue]);
+    const calculatedSubTotal = watchedProducts.reduce(
+      (acc, curr) =>
+        acc + ((curr.mrp || curr.sellingRate) * curr.quantity || 0),
+      0
+    );
+    const calculatedDiscount = watchedProducts.reduce(
+      (acc, curr) =>
+        acc + (curr.mrp ? curr.mrp - curr.sellingRate : 0) * curr.quantity,
+      0
+    );
+    setValue("subTotal", calculatedSubTotal);
+    setValue("discount", calculatedDiscount);
+    setValue("totalAmount", calculatedSubTotal - calculatedDiscount);
+  }, [watchedProducts, setValue]);
 
   const removeProduct = (index) => {
     const updatedProducts = [...watchedProducts];
@@ -125,7 +125,7 @@ const SaleReturnForm = ({ sale = {}, setSale = () => {}, loading = false }) => {
   };
 
   const TableHeader = () => (
-    <div className="th flex w-fit min-w-full flex-1 z-[99] justify-between items-center gap-2 border border-neutral-500/50 bg-[var(--color-card)] rounded-t-md px-2 py-1 sticky top-0">
+    <div className="th flex w-fit min-w-full flex-1 z-[99] justify-between items-center gap-2 border-b border-neutral-500/50 bg-[var(--color-card)] rounded-t-md px-2 py-1 sticky top-0">
       <div className="w-[8%] min-w-[40px]">*</div>
       <div className="w-1/5 min-w-[150px]">Name</div>
       <div className="w-1/5 min-w-[100px]">Expiry</div>
@@ -133,101 +133,6 @@ const SaleReturnForm = ({ sale = {}, setSale = () => {}, loading = false }) => {
       <div className="w-1/5 min-w-[100px]">Rate</div>
       <div className="w-1/5 min-w-[120px]">Quantity</div>
       <div className="w-1/5 min-w-[80px] flex justify-center">Price</div>
-    </div>
-  );
-
-  const ProductRow = ({ product, index }) => (
-    <div className="tr min-w-full w-fit flex-1 px-2 py-3 gap-2 product-item flex justify-between items-center">
-      <div className="w-[8%] flex items-center gap-1 min-w-[40px] ">
-        <IoCloseCircle
-          onClick={() => removeProduct(index)}
-          title="Remove Product"
-          className="text-red-500 hover:text-red-600 transition-all duration-300 ease-in cursor-pointer"
-        />
-      </div>
-      <div className="w-1/5 min-w-[150px] flex-wrap flex-grow">
-        {product.name}
-      </div>
-      <div
-        className={`w-1/5 min-w-[100px] ${
-          errors?.products?.[index]?.expiry ? "text-red-500" : ""
-        }`}
-      >
-        {formatDateIntl(product.expiry)}
-        {errors?.products?.[index]?.expiry && (
-          <p className="text-red-500 text-xs">
-            {errors.products[index].expiry.message}
-          </p>
-        )}
-      </div>
-      <div className="w-1/5 min-w-[100px]">
-        {product.mrp}₹/{product.secondaryUnit}
-      </div>
-      <div className="w-1/5 min-w-[100px] flex items-center pr-2 relative">
-        <input
-          type="number"
-          readOnly
-          className={`w-full ${
-            product.sellingRate < product.purchaseRate ? "text-red-500" : ""
-          } outline-none border-b placeholder:text-sm bg-transparent border-[var(--color-accent)] p-1`}
-          {...register(`products.${index}.sellingRate`, {
-            required: "Selling Rate is required",
-          })}
-        />
-        <span className="text-xs absolute top-1/2 -translate-y-1/2 right-2 rounded-lg bg-[var(--color-accent)] text-white px-2">
-          ₹/{product.secondaryUnit}
-        </span>
-      </div>
-      <div className="w-1/5 min-w-[120px] relative">
-        <input
-          type="number"
-          className={`${
-            errors?.products?.[index]?.quantity
-              ? "border-red-500 text-red-500"
-              : ""
-          } border-b placeholder:text-sm bg-transparent border-[var(--color-accent)] outline-none p-1 w-full`}
-          {...register(`products.${index}.quantity`, {
-            valueAsNumber: true,
-            onChange: (e) => {
-              setValue(
-                `products.${index}.price`,
-                e.target.value * product.sellingRate
-              );
-            },
-            min: { value: 1, message: "Minimum quantity is 1" },
-            max: {
-              value: sale?.products[index].quantity || 1,
-              message: `Maximum quantity is ${sale?.products[index].quantity}`,
-            },
-          })}
-        />
-        <span className="text-xs absolute top-1/2 -translate-y-1/2 right-2 rounded-lg bg-[var(--color-accent)] text-white px-2">
-          {product.secondaryUnit}
-        </span>
-        {errors?.products?.[index]?.quantity && (
-          <p className="text-red-500 text-xs absolute bottom-[-1.5em]">
-            {errors.products[index].quantity.message}
-          </p>
-        )}
-      </div>
-      <div className="w-1/5 min-w-[80px] flex justify-end items-center relative">
-        <input
-          type="number"
-          min="0"
-          readOnly
-          className="border-b placeholder:text-sm bg-transparent border-[var(--color-accent)] outline-none p-1 w-20 text-right"
-          {...register(`products.${index}.price`, {
-            valueAsNumber: true,
-            min: { value: 0, message: "Price cannot be negative" },
-          })}
-        />
-        ₹
-        {errors?.products?.[index]?.price && (
-          <p className="text-red-500 text-xs absolute bottom-[-1.5em]">
-            {errors.products[index].price.message}
-          </p>
-        )}
-      </div>
     </div>
   );
 
@@ -241,9 +146,109 @@ const SaleReturnForm = ({ sale = {}, setSale = () => {}, loading = false }) => {
           <div className="table-wrapper flex relative flex-1 mt-2 border border-b-0 border-neutral-500/50 rounded-md rounded-b-none overflow-x-auto">
             <div className="products-container overflow-x-auto overflow-y-auto max-sm:px-2 table flex-col w-fit min-w-full max-sm:text-sm flex-1">
               <TableHeader />
-              {watchedProducts && watchedProducts.map((product, index) => (
-                <ProductRow key={index} product={product} index={index} />
-              ))}
+              {watchedProducts &&
+                watchedProducts.map((product, index) => (
+                  <div
+                    key={index}
+                    className="tr min-w-full w-fit flex-1 px-2 py-3 gap-2 product-item flex justify-between items-center"
+                  >
+                    <div className="w-[8%] flex items-center gap-1 min-w-[40px] ">
+                      <IoCloseCircle
+                        onClick={() => removeProduct(index)}
+                        title="Remove Product"
+                        className="text-red-500 hover:text-red-600 transition-all duration-300 ease-in cursor-pointer"
+                      />
+                    </div>
+                    <div className="w-1/5 min-w-[150px] flex-wrap flex-grow">
+                      {product.name}
+                    </div>
+                    <div
+                      className={`w-1/5 min-w-[100px] ${
+                        errors?.products?.[index]?.expiry ? "text-red-500" : ""
+                      }`}
+                    >
+                      {formatDateIntl(product.expiry)}
+                      {errors?.products?.[index]?.expiry && (
+                        <p className="text-red-500 text-xs">
+                          {errors.products[index].expiry.message}
+                        </p>
+                      )}
+                    </div>
+                    <div className="w-1/5 min-w-[100px]">
+                      {product.mrp}₹/{product.secondaryUnit}
+                    </div>
+                    <div className="w-1/5 min-w-[100px] flex items-center pr-2 relative">
+                      <input
+                        type="number"
+                        readOnly
+                        className={`w-full ${
+                          product.sellingRate < product.purchaseRate
+                            ? "text-red-500"
+                            : ""
+                        } outline-none border-b placeholder:text-sm bg-transparent border-[var(--color-accent)] p-1`}
+                        {...register(`products.${index}.sellingRate`, {
+                          required: "Selling Rate is required",
+                        })}
+                      />
+                      <span className="text-xs absolute top-1/2 -translate-y-1/2 right-2 rounded-lg bg-[var(--color-accent)] text-white px-2">
+                        ₹/{product.secondaryUnit}
+                      </span>
+                    </div>
+                    <div className="w-1/5 min-w-[120px] relative">
+                      <input
+                        type="number"
+                        className={`${
+                          errors?.products?.[index]?.quantity
+                            ? "border-red-500 text-red-500"
+                            : ""
+                        } border-b placeholder:text-sm bg-transparent border-[var(--color-accent)] outline-none p-1 w-full`}
+                        {...register(`products.${index}.quantity`, {
+                          valueAsNumber: true,
+                          onChange: (e) => {
+                            setValue(
+                              `products.${index}.price`,
+                              e.target.value * product.sellingRate
+                            );
+                          },
+                          min: { value: 1, message: "Minimum quantity is 1" },
+                          max: {
+                            value: sale?.products[index].quantity || 1,
+                            message: `Maximum quantity is ${sale?.products[index].quantity}`,
+                          },
+                        })}
+                      />
+                      <span className="text-xs absolute top-1/2 -translate-y-1/2 right-2 rounded-lg bg-[var(--color-accent)] text-white px-2">
+                        {product.secondaryUnit}
+                      </span>
+                      {errors?.products?.[index]?.quantity && (
+                        <p className="text-red-500 text-xs absolute bottom-[-1.5em]">
+                          {errors.products[index].quantity.message}
+                        </p>
+                      )}
+                    </div>
+                    <div className="w-1/5 min-w-[80px] flex justify-end items-center relative">
+                      <input
+                        type="number"
+                        min="0"
+                        readOnly
+                        className="border-b placeholder:text-sm bg-transparent border-[var(--color-accent)] outline-none p-1 w-20 text-right"
+                        {...register(`products.${index}.price`, {
+                          valueAsNumber: true,
+                          min: {
+                            value: 0,
+                            message: "Price cannot be negative",
+                          },
+                        })}
+                      />
+                      ₹
+                      {errors?.products?.[index]?.price && (
+                        <p className="text-red-500 text-xs absolute bottom-[-1.5em]">
+                          {errors.products[index].price.message}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                ))}
             </div>
           </div>
 

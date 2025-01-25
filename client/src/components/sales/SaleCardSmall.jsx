@@ -1,7 +1,7 @@
 import React from "react";
 import Avatar from "../utils/Avatar";
 import Divider from "../utils/Divider";
-import { FaStore, FaUser } from "react-icons/fa";
+import { FaUser } from "react-icons/fa";
 
 const SaleCardSmall = ({ sale }) => {
   const {
@@ -61,14 +61,14 @@ const SaleCardSmall = ({ sale }) => {
           <p className="text-[var(--color-text)] font-medium capitalize">
             {signedBy?.name}
           </p>
-          <p className="text-[var(--color-text-light)] text-sm">
+          <p className="text-[var(--color-text-light)]">
             Role:{" "}
             <span
               className={`${
                 signedBy?.role === "admin"
                   ? "bg-accent text-white"
                   : "bg-green-600 text-white"
-              } px-2 rounded-lg capitalize`}
+              } px-2 rounded-lg capitalize text-xs py-0.5`}
             >
               {signedBy?.role}
             </span>

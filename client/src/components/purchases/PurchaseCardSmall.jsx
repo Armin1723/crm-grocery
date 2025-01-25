@@ -65,14 +65,14 @@ const PurchaseCardSmall = ({ purchase }) => {
           <p className="text-[var(--color-text)] font-medium capitalize">
             {signedBy?.name}
           </p>
-          <p className="text-[var(--color-text-light)] text-sm">
+          <p className="text-[var(--color-text-light)]">
             Role:{" "}
             <span
               className={`${
                 signedBy?.role === "admin"
                   ? "bg-accent text-white"
                   : "bg-green-600 text-white"
-              } px-2 rounded-lg capitalize`}
+              } px-2 py-0.5 text-xs rounded-lg capitalize`}
             >
               {signedBy?.role}
             </span>

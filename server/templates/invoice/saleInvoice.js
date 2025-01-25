@@ -131,6 +131,7 @@ const addProductTable = (doc, products) => {
     const quantity = item.quantity || 0;
     const price = item.sellingRate || 0;
     const total = quantity * price;
+    const mrp = item.mrp;
 
     // Split product name into multiple lines if it exceeds the maximum length
     const productNameLines = splitTextToLines(productName, maxProductNameLength);
@@ -150,6 +151,15 @@ const addProductTable = (doc, products) => {
       doc.moveDown(lineHeight / 72); // Convert lineHeight from points to inches
     }
 
+    // Render Product Mrp
+    if(mrp){
+      doc.text(
+        `${" ".padEnd(5)}${`MRP: ${item?.mrp}`.padEnd(15)}${" ".padEnd(3)}${" ".padEnd(8)}${" ".padEnd(7)}`,
+        { align: "left" }
+      );
+      doc.moveDown(lineHeight / 72); // Convert lineHeight from points to inches
+    }
+    
     doc.moveDown(0.2);
   });
 

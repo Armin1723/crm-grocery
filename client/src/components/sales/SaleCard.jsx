@@ -3,10 +3,9 @@ import { formatDate } from "../utils";
 
 const SaleCard = ({ sale }) => {
   return (
-    <div className="p-6 w-full rounded-lg shadow-lg bg-[var(--color-card)] text-[var(--color-text)]">
+    <div className="p-6 w-full rounded-lg shadow- bg-[var(--color-card)] text-[var(--color-text)]">
       {/* Header */}
-      <div className="flex justify-between items-center flex-wrap space-y-2 text-xs">
-        <h2 className="text-lg font-semibold">Sales Summary</h2>
+      <div className="flex justify-end items-center flex-wrap space-y-2 text-xs">
         <div className="div flex items-center gap-2">
           <div className="px-3 py-1 rounded-full bg-[var(--color-accent)] text-white ">
             {formatDate(sale?.createdAt) || "Today"}

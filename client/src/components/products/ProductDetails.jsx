@@ -41,11 +41,11 @@ const ProductDetails = ({idBackup = ''}) => {
         <Divider title="Barcode Details" />
         <ProductBarcode product={product} setRefetch={setRefetch}/>
 
-        <Divider title="Past Purchases" />
-        <ProductPurchases />
-
         <Divider title="Recent Sales" />
         <ProductSales />
+
+        <Divider title="Past Purchases" />
+        <ProductPurchases />
 
         <Divider title="Inventory Details" />
         <InventoryCard upid={product?.upid} />

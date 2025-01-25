@@ -9,6 +9,7 @@ import SellerSales from "./components/seller/sales/SellerSales";
 import SellerInventory from "./components/seller/inventory/SellerInventory";
 import SellerEmployee from "./components/seller/employee/SellerEmployee";
 import SellerHome from "./components/seller/home/SellerHome";
+import SaleInvoice from "./components/sales/SaleInvoice";
 
 const Home = lazy(() => import("./pages/Home"));
 const Auth = lazy(() => import("./pages/Auth"));
@@ -151,6 +152,7 @@ const App = () => {
               <Route path="" element={<ViewSales />} />
               <Route path="add" element={<AddSale />} />
               <Route path=":id" element={<SaleDetails />} />
+              <Route path=":id/invoice" element={<SaleInvoice />} />
               <Route path="returns" element={<ViewSaleReturns />} />
               <Route path="returns/add" element={<SaleReturn />} />
             </Route>

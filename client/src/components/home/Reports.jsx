@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import ChipNav from "../utils/ChipNav";
 import { Outlet } from "react-router-dom";
 import { BiReceipt } from "react-icons/bi";
@@ -32,11 +32,12 @@ const Reports = () => {
       to: "/reports/profit-loss",
     },
   ];
+
   return (
     <ReportProvider>
       <div className="flex-1 max-sm:overflow-y-auto flex flex-col p-3 w-full">
         <ChipNav chips={navData} baseUrl="/reports" />
-        <div className="flex-1 flex w-full max-lg:flex-col gap-3 ">
+        <div className="flex-1 flex w-full max-lg:flex-col gap-3 border border-neutral-500/50 rounded-md overflow-y-auto">
           <Outlet />
         </div>
       </div>

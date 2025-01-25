@@ -9,7 +9,7 @@ const AddProductModal = () => {
       <button
         type="button"
         onClick={() => setAddProductModalOpen(true)}
-        className="h-full px-3 py-1 max-sm:py-2 flex items-center gap-2 border border-accent bg-accent/10 hover:bg-accentDark/20 rounded-md transition-all duration-300"
+        className="h-full text-xs md:text-sm px-3 py-1 max-sm:py-2 flex items-center gap-2 border border-accent bg-accent/10 hover:bg-accentDark/20 rounded-md transition-all duration-300"
       >
         <FaPlus className="text-sm"/>
         <span className="max-sm:hidden">New Product</span>

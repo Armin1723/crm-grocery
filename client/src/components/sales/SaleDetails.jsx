@@ -61,12 +61,9 @@ const SaleDetails = ({ idBackup = "" }) => {
         <SaleDetailActions sale={sale} />
       </div>
 
-      <div className="wrapper flex-1 max-h-[58vh] overflow-y-auto px-2">
-        {/* Sale Information */}
-        <Divider title="Sale Information" />
-        <SaleCard sale={sale} />
+      <div className="wrapper flex-1 overflow-y-auto px-2">
 
-        {/* Purchase Products */}
+        {/* Sale Products */}
         <Divider title="Sale Products" />
         <div className="saleProducts flex flex-col gap-2 w-full rounded-md p-3 bg-[var(--color-card)] overflow-x-auto">
           <table className="w-full text-sm">
@@ -106,6 +103,10 @@ const SaleDetails = ({ idBackup = "" }) => {
             <p className="">₹{sale?.totalAmount}</p>
           </div>
         </div>
+
+        {/* Sale Information */}
+        <Divider title="Sale Summary" />
+        <SaleCard sale={sale} />
 
         {/* Supplier Information */}
         <Divider title="Biller Information" />
