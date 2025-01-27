@@ -92,7 +92,6 @@ const scheduleProductExpiryNotifications = () => {
       // First day of month
       productsExpiringThisMonth = await getExpiringProducts("month");
         }
-      console.log("Fetched Products");
       // Only send email if there are expiring products
       if (
         productsExpiringToday.length ||
@@ -104,8 +103,6 @@ const scheduleProductExpiryNotifications = () => {
           productsExpiringThisWeek,
           productsExpiringThisMonth
         );
-
-        console.log("Sending Email");
         await sendMail(
           process.env.ADMIN_EMAIL,
           (subject = "Products Expiry Notification"),

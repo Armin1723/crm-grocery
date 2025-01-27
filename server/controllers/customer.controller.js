@@ -1,5 +1,9 @@
 const Customer = require("../models/customer.model");
 
+const escapeRegExp = (string) => {
+  return string.replace(/[.*+?^=!:${}()|\[\]\/\\]/g, '\\$&'); // Escapes special regex characters
+};
+
 const getCustomer = async (req, res) => {
   const { phone } = req.params;
 
@@ -11,9 +15,16 @@ const getCustomer = async (req, res) => {
 };
 
 const getCustomersByName = async (req, res) => {
-  const { name } = req.query;
+  const { query } = req.query;
+
+  // Escape the query to avoid special character issues
+  const escapedQuery = escapeRegExp(query);
+
   const customers = await Customer.find({
-    name: { $regex: new RegExp(name, "i") },
+    $or: [
+      { name: { $regex: escapedQuery, $options: "i" } },
+      { phone: { $regex: escapedQuery, $options: "i" } },
+    ],
   }).limit(5);
   res.json({ success: true, customers });
 };

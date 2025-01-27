@@ -1,5 +1,11 @@
 import React, { useEffect, lazy, Suspense } from "react";
-import { BrowserRouter, Outlet, Route, Routes } from "react-router-dom";
+import {
+  BrowserRouter,
+  Navigate,
+  Route,
+  Routes,
+  useLocation,
+} from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useSelector } from "react-redux";
@@ -80,6 +86,18 @@ const AddPurchaseReturn = lazy(() =>
 );
 const TaxReport = lazy(() => import("./components/Reports/TaxReport"));
 
+const ProtectedRoute = ({ children }) => {
+  const user = useSelector((state) => state.user);
+  const isAuthenticated = user && user?.avatar;
+  const location = useLocation();
+
+  if (!isAuthenticated) {
+    return <Navigate to="/auth/login" state={{ from: location }} replace />;
+  }
+
+  return children;
+};
+
 const App = () => {
   const theme = useSelector((state) => state.theme.value);
 
@@ -127,7 +145,14 @@ const App = () => {
         }
       >
         <Routes>
-          <Route path="/" element={<Home />}>
+          <Route
+            path="/"
+            element={
+              <ProtectedRoute>
+                <Home />
+              </ProtectedRoute>
+            }
+          >
             <Route path="" element={<Stats />} />
 
             {/* Product Routes */}
@@ -197,7 +222,14 @@ const App = () => {
           </Route>
 
           {/* Seller Routes */}
-          <Route path="/seller" element={<Seller />}>
+          <Route
+            path="/seller"
+            element={
+              <ProtectedRoute>
+                <Seller />
+              </ProtectedRoute>
+            }
+          >
             <Route path="" element={<SellerHome />} />
             <Route path="sales" element={<SellerSales />}>
               <Route path="" element={<ViewSales />} />

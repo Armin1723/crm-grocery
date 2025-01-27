@@ -1,5 +1,5 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { FaArrowLeft } from "react-icons/fa";
 import { AiOutlineSend } from "react-icons/ai";
@@ -9,37 +9,43 @@ const ForgotPassword = () => {
   const [error, setError] = React.useState(null);
   const [email, setEmail] = React.useState("");
 
-  const handlePasswordReset = async(e) => {
+  const navigate = useNavigate();
+
+  const handlePasswordReset = async (e) => {
     e.preventDefault();
     const id = toast.loading("Sending password reset email...");
-    try{
-    const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/v1/auth/forgot-password`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ email }),
-    })
-    if(!response.ok) {
-      const data = await response.json();
-      setError(data.message || "Password reset failed");
-      throw new Error(data.message || "Password reset failed");
-    }else{
+    try {
+      const response = await fetch(
+        `${import.meta.env.VITE_BACKEND_URL}/api/v1/auth/forgot-password`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ email }),
+        }
+      );
+      if (!response.ok) {
+        const data = await response.json();
+        setError(data.message || "Password reset failed");
+        throw new Error(data.message || "Password reset failed");
+      } else {
+        toast.update(id, {
+          render: "Password reset email sent successfully",
+          type: "success",
+          isLoading: false,
+          autoClose: 3000,
+        });
+        navigate("/auth/reset-password");
+      }
+    } catch (error) {
       toast.update(id, {
-        render: "Password reset email sent successfully",
-        type: "success",
+        render: error.message,
+        type: "error",
         isLoading: false,
-        autoClose: 3000,
-      })
+        autoClose: 2000,
+      });
     }
-  }catch(error){
-    toast.update(id, {
-      render: error.message,
-      type: "error",
-      isLoading: false,
-      autoClose: 2000,
-    });
-  }
   };
 
   return (
@@ -75,18 +81,24 @@ const ForgotPassword = () => {
         >
           Email
         </label>
-        {error && (
-          <span className="text-red-500 text-sm">{error}</span>
-        )}
+        {error && <span className="text-red-500 text-sm">{error}</span>}
       </div>
 
-      <Link
-        to="/auth"
-        className="back-button text-[var(--color-text-light)] hover:text-neutral-700 transition-all duration-300 ease-in text-sm text-left flex items-center gap-1"
-      >
-        <FaArrowLeft />
-        <p>Back to Login</p>
-      </Link>
+      <div className="flex items-center justify-between">
+        <Link
+          to="/auth"
+          className="back-button text-[var(--color-text-light)] hover:text-neutral-700 transition-all duration-300 ease-in text-sm text-left flex items-center gap-1"
+        >
+          <FaArrowLeft />
+          <p>Back to Login</p>
+        </Link>
+        {error && <Link
+          to="/auth/reset-password"
+          className="text-[var(--color-accent-dark)] text-sm text-left flex items-center gap-1"
+        >
+          <p>Reset Password</p>
+        </Link>}
+      </div>
 
       <button
         type="submit"

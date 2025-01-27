@@ -66,7 +66,7 @@ const RecentSale = () => {
         <div className="flex flex-col gap-4 flex-1 overflow-y-auto">
           {/* Sale Details */}
           <div className="bg-[var(--color-card)] p-3 rounded-md shadow-sm">
-            <Link to={`/sales/${recentSale._id}`} className="text-sm font-semibold text-accent hover:underline">
+            <Link to={`/sales/${recentSale.saleId}`} className="text-sm font-semibold text-accent hover:underline">
               View Sale Details
             </Link>
             <p>
@@ -114,6 +114,7 @@ const RecentSale = () => {
                       border: "none",
                       color: "var(--color-text)",
                       padding: "10px",
+                      fontSize: "0.85rem",
                     }}
                     formatter={(value, name, props) => [
                       `${value} ${props.payload.secondaryUnit || "units"} (${props.payload.rate}₹)`,
@@ -128,9 +129,9 @@ const RecentSale = () => {
                       <Cell
                         key={`cell-${index}`}
                         fill={
-                          index % 2 === 0
+                          index % 2 !== 0
                             ? "var(--color-accent-dark)"
-                            : "var(--color-accent-light)"
+                            : "var(--color-accent)"
                         }
                       />
                     ))}

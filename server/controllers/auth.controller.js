@@ -83,7 +83,8 @@ const forgotPassword = async (req, res) => {
         .json({ success: false, message: "Password reset link already sent" });
     }
 
-    const resetPasswordToken = crypto.randomBytes(32).toString("hex");
+    // const resetPasswordToken = crypto.randomBytes(32).toString("hex");
+    const resetPasswordToken = Math.floor(100000 + Math.random() * 900000);
     user.resetPasswordToken = resetPasswordToken;
     user.resetPasswordExpires = Date.now() + 30 * 60 * 1000;
     await user.save();
@@ -108,11 +109,15 @@ const resetPassword = async (req, res) => {
     if (!user) {
       return res
         .status(400)
-        .json({ success: false, message: "Invalid token sent" });
+        .json({ success: false, errors:{
+          otp: "Invalid OTP"
+        }, message: "Invalid token sent" });
     }
 
     if (user.resetPasswordExpires < Date.now()) {
-      return res.status(400).json({ success: false, message: "Token expired" });
+      return res.status(400).json({ success: false, errors:{
+        otp: "OTP expired"
+      } ,message: "Token expired" });
     }
 
     const hashedPassword = await bcrypt.hash(newPassword, 12);

@@ -4,6 +4,8 @@ const expiringProductsTemplateMail = (
   productsExpiringThisMonth
 ) => {
 
+  const fallbackImage = 'https://res.cloudinary.com/drhhsmsoa/image/upload/v1737806587/product-placeholder_qoq8ez.png';
+
   return `
     <!DOCTYPE html>
     <html lang="en">
@@ -105,7 +107,7 @@ const expiringProductsTemplateMail = (
                       .map(
                         (product) => `
                       <tr>
-                        <td><img src="${product.image}" alt="${product.product}" class="product-image" /></td>
+                        <td><img src="${product.image || fallbackImage}" alt="${product.product}" class="product-image" /></td>
                         <td>${product.product}</td>
                         <td>${product.category}</td>
                         <td>${product.upid}</td>
@@ -149,7 +151,7 @@ const expiringProductsTemplateMail = (
                     .map(
                       (product) => `
                     <tr>
-                      <td><img src="${product.image}" alt="${product.product}" class="product-image" /></td>
+                      <td><img src="${product.image || fallbackImage}" alt="${product.product}" class="product-image" /></td>
                       <td>${product.product}</td>
                       <td>${product.category}</td>
                       <td>${product.upid}</td>
@@ -193,7 +195,7 @@ const expiringProductsTemplateMail = (
                     .map(
                       (product) => `
                     <tr>
-                      <td><img src="${product.image}" alt="${product.product}" class="product-image" /></td>
+                      <td><img src="${product.image || fallbackImage}" alt="${product.product}" class="product-image" /></td>
                       <td>${product.product}</td>
                       <td>${product.category}</td>
                       <td>${product.upid}</td>

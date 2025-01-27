@@ -42,14 +42,15 @@ const passwordResetMailTemplate = (name, resetPasswordToken) => {
           display: inline-block;
           padding: 10px 20px;
           margin-top: 20px;
-          background-color: #5d3fd33;
+          background-color: #5d3fd3;
           border: 1px solid #5d3fd3;
           text-decoration: none;
           border-radius: 5px;
           font-weight: bold;
+          color: #fff;
         }
         .button:hover {
-          background-color: #5d3fd355;
+          background-color: #5d3fd3b0;
         }
         .footer {
           margin-top: 20px;
@@ -61,15 +62,12 @@ const passwordResetMailTemplate = (name, resetPasswordToken) => {
     <body>
       <div class="container">
         <h2>Password Reset Request</h2>
-        <p style={{
-        textTransform: 'capitalize'
-        }}>Hi <span style={{
-        fontWeight: 'bold'}}>${name}</span>,</p>
+        <p style="text-transform: capitalize;">Hi <span style="font-weight: bold;">${name}</span>,</p>
         <p>We received a request to reset your password. If you didn’t make this request, you can safely ignore this email.</p>
-        <p>To reset your password, click the button below:</p>
-        <a href="${process.env.FRONTEND_URL}/auth/reset-password?token=${resetPasswordToken}" class="button" target="_blank">Reset Password</a>
-        <p>If the button above doesn’t work, copy and paste the following link into your browser:</p>
-        <p><a href="${process.env.FRONTEND_URL}/reset-password/${resetPasswordToken}" target="_blank">${process.env.FRONTEND_URL}/reset-password/${resetPasswordToken}</a></p>
+        <p>To reset your password, use the OTP below:</p>
+        <p style="text-align: center; font-size: 20px;">
+          Your OTP to reset password is: <strong>${resetPasswordToken}</strong>
+        </p>
         <p class="footer">
           Regards, <br>
           <strong>The Team</strong>

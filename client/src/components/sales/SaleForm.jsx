@@ -9,7 +9,7 @@ import AddCustomerModal from "../customer/AddCustomerModal";
 import Divider from "../utils/Divider";
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
-import CustomerSuggestionByName from "../utils/CustomerSuggestionByName";
+import CustomerSuggestion from "../utils/CustomerSuggestion";
 
 const SaleForm = ({ setRefetch = () => {}, closeModal = () => {} }) => {
   const [suggestedProducts, setSuggestedProducts] = useState([]);
@@ -71,6 +71,13 @@ const SaleForm = ({ setRefetch = () => {}, closeModal = () => {} }) => {
       paymentType: "cash",
     },
   });
+
+  useEffect(() => {
+    if (customerDetails?.phone) {
+      setCustomerLoading(false);
+      setValue("customerMobile", customerDetails.phone);
+    }
+  }, [customerDetails]);
 
   const subTotal = useWatch({ name: "subTotal", control });
   const discount = useWatch({ name: "discount", control });
@@ -437,28 +444,15 @@ const SaleForm = ({ setRefetch = () => {}, closeModal = () => {} }) => {
           />
         </div>
         <div className="w-full flex flex-col md:flex-row gap-2">
-          <input
+          {/* <input
             type="number"
             placeholder="Search by number"
             className="outline-none border border-[var(--color-accent)] rounded-lg p-2 !z-[10] bg-transparent focus:border-[var(--color-accent-dark)] transition-all duration-300 peer w-full"
-            {...register("customerMobile", {
-              required: "Customer number is required",
-              minLength: {
-                value: 10,
-                message: "Invalid number",
-              },
-              maxLength: {
-                value: 10,
-                message: "Invalid number",
-              },
-              pattern: {
-                value: /^[0-9]*$/,
-                message: "Invalid number",
-              },
-            })}
+            {...register("customerMobile")}
             onChange={fetchCustomerDetails}
-          />
-          <CustomerSuggestionByName setCustomerDetails={setCustomerDetails} />
+          /> */}
+          <CustomerSuggestion setCustomerDetails={setCustomerDetails} type='phone' />
+          <CustomerSuggestion setCustomerDetails={setCustomerDetails} type='name' />
           
         </div>
       </div>)}
@@ -496,27 +490,6 @@ const SaleForm = ({ setRefetch = () => {}, closeModal = () => {} }) => {
           </div>
         </div>
       )}
-
-      {/* Payment Details */}
-      {/* <div className="flex flex-col w-full py-2">
-        <p className="my-1 font-semibold text-lg max-sm:text-base">
-          Payment details
-        </p>
-        <select
-          {...register("paymentType")}
-          className="outline-none border border-[var(--color-accent)] rounded-lg p-2 !z-[10] bg-transparent focus:border-[var(--color-accent-dark)] transition-all duration-300 peer "
-        >
-          <option className="bg-[var(--color-card)]" value="cash">
-            Cash
-          </option>
-          <option className="bg-[var(--color-card)]" value="card">
-            Card
-          </option>
-          <option className="bg-[var(--color-card)]" value="upi">
-            UPI
-          </option>
-        </select>
-      </div> */}
 
       {/* Submit Button */}
       <button

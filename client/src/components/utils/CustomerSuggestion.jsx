@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 
-const CustomerSuggestionByName = ({ setCustomerDetails = () => {} }) => {
+const CustomerSuggestion = ({ setCustomerDetails = () => {}, type = "name" }) => {
   const [suggestedCustomers, setSuggestedCustomers] = useState([]);
   const [inputValue, setInputValue] = useState("");
   const [isDropdownVisible, setDropdownVisible] = useState(false);
@@ -19,7 +19,7 @@ const CustomerSuggestionByName = ({ setCustomerDetails = () => {} }) => {
 
     try {
       const response = await fetch(
-        `${import.meta.env.VITE_BACKEND_URL}/api/v1/customers?name=${value}`,
+        `${import.meta.env.VITE_BACKEND_URL}/api/v1/customers?query=${value}`,
         {
           credentials: "include",
         }
@@ -28,7 +28,7 @@ const CustomerSuggestionByName = ({ setCustomerDetails = () => {} }) => {
       if (response.ok && data.customers.length > 0) {
         setSuggestedCustomers(data.customers);
         setDropdownVisible(true);
-        setActiveIndex(-1); 
+        setActiveIndex(-1);
       } else {
         setSuggestedCustomers([]);
         setDropdownVisible(false);
@@ -40,25 +40,38 @@ const CustomerSuggestionByName = ({ setCustomerDetails = () => {} }) => {
   };
 
   const handleSelectCustomer = (customer) => {
-    setInputValue(customer.name);
+    setInputValue(customer[type] || "");
     setCustomerDetails(customer);
     setDropdownVisible(false);
-    setActiveIndex(-1); 
+    setActiveIndex(-1);
   };
 
-  const highlightQuery = (name, query) => {
-    if (!query) return name;
-    const regex = new RegExp(`(${query})`, "i");
-    const parts = name.split(regex);
-    return parts.map((part, index) =>
-      regex.test(part) ? (
-        <span key={index} className="text-[var(--color-accent-dark)] bg-yellow-500 font-semibold">
-          {part}
-        </span>
-      ) : (
-        part
-      )
-    );
+  const highlightQuery = (text, query) => {
+    if (!query || !text) return text;
+    
+    // Escape special regex characters in the query
+    const escapedQuery = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    
+    // Create a regular expression that matches the query
+    const regex = new RegExp(`(${escapedQuery})`, 'gi');
+    
+    // Split the text into parts: matching and non-matching
+    const parts = text.split(regex);
+    
+    return parts.map((part, index) => {
+      // If the part matches the query (case-insensitive), highlight it
+      if (part.toLowerCase() === query.toLowerCase()) {
+        return (
+          <span 
+            key={index} 
+            className="bg-yellow-500 text-black font-semibold"
+          >
+            {part}
+          </span>
+        );
+      }
+      return part;
+    });
   };
 
   const handleKeyDown = (e) => {
@@ -69,7 +82,9 @@ const CustomerSuggestionByName = ({ setCustomerDetails = () => {} }) => {
       setActiveIndex((prevIndex) => (prevIndex + 1) % suggestedCustomers.length);
     } else if (e.key === "ArrowUp") {
       e.preventDefault();
-      setActiveIndex((prevIndex) => (prevIndex - 1 + suggestedCustomers.length) % suggestedCustomers.length);
+      setActiveIndex((prevIndex) =>
+        (prevIndex - 1 + suggestedCustomers.length) % suggestedCustomers.length
+      );
     } else if (e.key === "Enter" && activeIndex >= 0) {
       e.preventDefault();
       handleSelectCustomer(suggestedCustomers[activeIndex]);
@@ -78,22 +93,20 @@ const CustomerSuggestionByName = ({ setCustomerDetails = () => {} }) => {
 
   return (
     <div className="relative w-full">
-      {/* Input Field */}
       <input
-        type="text"
-        placeholder="Search by name"
+        type={type === "phone" ? "number" : "text"}
+        placeholder={`Search by ${type === "phone" ? "Phone" : "Name"}`}
         value={inputValue}
         onChange={fetchCustomerByName}
         onFocus={() => setDropdownVisible(suggestedCustomers.length > 0)}
-        onBlur={() => setTimeout(() => setDropdownVisible(false), 200)} 
+        onBlur={() => setTimeout(() => setDropdownVisible(false), 200)}
         onKeyDown={handleKeyDown}
         className="outline-none border border-[var(--color-accent)] rounded-lg p-2 !z-[10] bg-transparent focus:border-[var(--color-accent-dark)] transition-all duration-300 peer w-full"
       />
 
-      {/* Dropdown Suggestions */}
       {isDropdownVisible && (
-        <ul className="absolute w-full bg-[var(--color-card)] border border-neutral-500/40 rounded-b-lg shadow-md z-20">
-          {suggestedCustomers.map((customer, index) => (
+        <ul className="absolute w-full bg-[var(--color-card)] border border-neutral-500/40 rounded-b-lg shadow-md">
+          {suggestedCustomers?.map((customer, index) => (
             <li
               key={customer._id}
               className={`p-2 cursor-pointer hover:bg-[var(--color-accent-light)] ${
@@ -101,7 +114,7 @@ const CustomerSuggestionByName = ({ setCustomerDetails = () => {} }) => {
               }`}
               onClick={() => handleSelectCustomer(customer)}
             >
-              {highlightQuery(customer.name, inputValue)}
+              {highlightQuery(customer[type], inputValue)}
             </li>
           ))}
           {suggestedCustomers.length === 0 && (
@@ -113,4 +126,4 @@ const CustomerSuggestionByName = ({ setCustomerDetails = () => {} }) => {
   );
 };
 
-export default CustomerSuggestionByName;
+export default CustomerSuggestion;

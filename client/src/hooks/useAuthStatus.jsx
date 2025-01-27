@@ -12,7 +12,7 @@ const useAuthStatus = () => {
     const checkAuthStatus = async () => {
       if (user && user?.avatar) {
         if(user?.role === 'employee') {
-          navigate('/seller/sales');
+          navigate('/seller');
         }
         try {
           const response = await fetch(
