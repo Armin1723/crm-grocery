@@ -17,12 +17,10 @@ const Employees = () => {
     },
   ];
   return (
-    <div className="flex-1 overflow-y-scroll flex flex-col p-3 w-full">
+    <div className="flex-1 flex flex-col p-3 w-full">
       <ChipNav chips={navData} baseUrl="/employees" />
-      <div className="flex-1 flex w-full max-lg:flex-col gap-3 ">
-        <div className="flex-1 max-sm:min-h-fit overflow-y-scroll">
-          <Outlet />
-        </div>
+      <div className="flex-1 overflow-y-auto flex w-full max-lg:flex-col gap-3 ">
+        <Outlet />
       </div>
     </div>
   );

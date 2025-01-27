@@ -1,6 +1,9 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
-const CustomerSuggestion = ({ setCustomerDetails = () => {}, type = "name" }) => {
+const CustomerSuggestion = ({
+  setCustomerDetails = () => {},
+  type = "name",
+}) => {
   const [suggestedCustomers, setSuggestedCustomers] = useState([]);
   const [inputValue, setInputValue] = useState("");
   const [isDropdownVisible, setDropdownVisible] = useState(false);
@@ -48,24 +51,21 @@ const CustomerSuggestion = ({ setCustomerDetails = () => {}, type = "name" }) =>
 
   const highlightQuery = (text, query) => {
     if (!query || !text) return text;
-    
+
     // Escape special regex characters in the query
-    const escapedQuery = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-    
+    const escapedQuery = query.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
     // Create a regular expression that matches the query
-    const regex = new RegExp(`(${escapedQuery})`, 'gi');
-    
+    const regex = new RegExp(`(${escapedQuery})`, "gi");
+
     // Split the text into parts: matching and non-matching
     const parts = text.split(regex);
-    
+
     return parts.map((part, index) => {
       // If the part matches the query (case-insensitive), highlight it
       if (part.toLowerCase() === query.toLowerCase()) {
         return (
-          <span 
-            key={index} 
-            className="bg-yellow-500 text-black font-semibold"
-          >
+          <span key={index} className="bg-yellow-500 text-black font-semibold">
             {part}
           </span>
         );
@@ -79,11 +79,15 @@ const CustomerSuggestion = ({ setCustomerDetails = () => {}, type = "name" }) =>
 
     if (e.key === "ArrowDown") {
       e.preventDefault();
-      setActiveIndex((prevIndex) => (prevIndex + 1) % suggestedCustomers.length);
+      setActiveIndex(
+        (prevIndex) => (prevIndex + 1) % suggestedCustomers.length
+      );
     } else if (e.key === "ArrowUp") {
       e.preventDefault();
-      setActiveIndex((prevIndex) =>
-        (prevIndex - 1 + suggestedCustomers.length) % suggestedCustomers.length
+      setActiveIndex(
+        (prevIndex) =>
+          (prevIndex - 1 + suggestedCustomers.length) %
+          suggestedCustomers.length
       );
     } else if (e.key === "Enter" && activeIndex >= 0) {
       e.preventDefault();
@@ -118,7 +122,9 @@ const CustomerSuggestion = ({ setCustomerDetails = () => {}, type = "name" }) =>
             </li>
           ))}
           {suggestedCustomers.length === 0 && (
-            <li className="p-2 text-[var(--color-text-light)]">No customers found</li>
+            <li className="p-2 text-[var(--color-text-light)]">
+              No customers found
+            </li>
           )}
         </ul>
       )}

@@ -65,8 +65,8 @@ const passwordResetMailTemplate = (name, resetPasswordToken) => {
         <p style="text-transform: capitalize;">Hi <span style="font-weight: bold;">${name}</span>,</p>
         <p>We received a request to reset your password. If you didn’t make this request, you can safely ignore this email.</p>
         <p>To reset your password, use the OTP below:</p>
-        <p style="text-align: center; font-size: 20px;">
-          Your OTP to reset password is: <strong>${resetPasswordToken}</strong>
+        <p style="font-size: 20px;">
+          <strong>${resetPasswordToken}</strong>
         </p>
         <p class="footer">
           Regards, <br>

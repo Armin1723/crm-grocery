@@ -9,13 +9,14 @@ import {
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useSelector } from "react-redux";
-import Seller from "./pages/Seller";
-import TopLoadingBar from "./components/shared/TopLoadingBar";
-import SellerSales from "./components/seller/sales/SellerSales";
-import SellerInventory from "./components/seller/inventory/SellerInventory";
-import SellerEmployee from "./components/seller/employee/SellerEmployee";
-import SellerHome from "./components/seller/home/SellerHome";
-import SaleInvoice from "./components/sales/SaleInvoice";
+import ViewExpenses from "./components/purchases/ViewExpenses";
+const Seller = lazy(() => import("./pages/Seller"));
+const TopLoadingBar = lazy(() => import("./components/shared/TopLoadingBar"));
+const SellerSales = lazy(() => import("./components/seller/sales/SellerSales"));
+const SellerInventory = lazy(() => import("./components/seller/inventory/SellerInventory"));
+const SellerEmployee = lazy(() => import("./components/seller/employee/SellerEmployee"));
+const SellerHome = lazy(() => import("./components/seller/home/SellerHome"));
+const SaleInvoice = lazy(() => import("./components/sales/SaleInvoice"));
 
 const Home = lazy(() => import("./pages/Home"));
 const Auth = lazy(() => import("./pages/Auth"));
@@ -167,7 +168,8 @@ const App = () => {
               <Route path="" element={<ViewPurchases />} />
               <Route path="add" element={<AddPurchase />} />
               <Route path=":id" element={<PurchaseDetails />} />
-              <Route path="expense" element={<AddExpense />} />
+              <Route path="expenses" element={<ViewExpenses />} />
+              <Route path="expenses/add" element={<AddExpense />} />
               <Route path="returns" element={<ViewPurchaseReturns />} />
               <Route path="returns/add" element={<AddPurchaseReturn />} />
             </Route>

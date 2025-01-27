@@ -28,9 +28,14 @@ const Purchases = () => {
       to: "/purchases/returns/add",
     },
     {
-      label: "Add Expense",
+      label: "View Expenses",
       icon: FaWallet,
-      to: "/purchases/expense",
+      to: "/purchases/expenses",
+    },
+    {
+      label: "Add Expense",
+      icon: FaPlus,
+      to: "/purchases/expenses/add",
     },
   ];
   return (

@@ -21,36 +21,6 @@ const SaleForm = ({ setRefetch = () => {}, closeModal = () => {} }) => {
   const user = useSelector((state) => state.user);
   const isAdmin = user && user?.role === "admin";
 
-  const fetchCustomerDetails = async (e) => {
-    setCustomerLoading(true);
-    try {
-      if (e.target.value.length < 10) {
-        setCustomerDetails(null);
-        return;
-      }
-      const response = await fetch(
-        `${import.meta.env.VITE_BACKEND_URL}/api/v1/customers/${
-          e.target.value
-        }`,
-        {
-          credentials: "include",
-        }
-      );
-      const data = await response.json();
-      if (response.ok) {
-        setCustomerDetails(data.customer);
-      } else {
-        setCustomerDetails({
-          name: "Customer not found",
-        });
-      }
-    } catch (error) {
-      console.error("Error fetching customer details:", error.message);
-    } finally {
-      setCustomerLoading(false);
-    }
-  };
-
   const {
     register,
     control,
@@ -112,6 +82,8 @@ const SaleForm = ({ setRefetch = () => {}, closeModal = () => {} }) => {
   };
 
   const addSale = async (values) => {
+    console.log(values);
+    return;
     const id = toast.loading("Adding sale...");
     setLoading(true);
     try {
@@ -432,30 +404,29 @@ const SaleForm = ({ setRefetch = () => {}, closeModal = () => {} }) => {
 
       {/* Customer Section */}
       {watchedProducts.length > 0 && (
-      <div className="flex flex-col w-full py-2">
-        <div className="flex items-center gap-2">
-          <p className="my-1 font-semibold text-lg max-sm:text-base">
-            Customer
-          </p>
-          <AddCustomerModal
-            title="add"
-            setValue={setValue}
-            customer={customerDetails}
-          />
+        <div className="flex flex-col w-full py-2">
+          <div className="flex items-center gap-2">
+            <p className="my-1 font-semibold text-lg max-sm:text-base">
+              Customer
+            </p>
+            <AddCustomerModal
+              title="add"
+              setValue={setValue}
+              customer={customerDetails}
+            />
+          </div>
+          <div className="w-full flex flex-col md:flex-row gap-2">
+            <CustomerSuggestion
+              setCustomerDetails={setCustomerDetails}
+              type="phone"
+            />
+            <CustomerSuggestion
+              setCustomerDetails={setCustomerDetails}
+              type="name"
+            />
+          </div>
         </div>
-        <div className="w-full flex flex-col md:flex-row gap-2">
-          {/* <input
-            type="number"
-            placeholder="Search by number"
-            className="outline-none border border-[var(--color-accent)] rounded-lg p-2 !z-[10] bg-transparent focus:border-[var(--color-accent-dark)] transition-all duration-300 peer w-full"
-            {...register("customerMobile")}
-            onChange={fetchCustomerDetails}
-          /> */}
-          <CustomerSuggestion setCustomerDetails={setCustomerDetails} type='phone' />
-          <CustomerSuggestion setCustomerDetails={setCustomerDetails} type='name' />
-          
-        </div>
-      </div>)}
+      )}
 
       {/* Customer Details */}
       {!customerLoading && (
