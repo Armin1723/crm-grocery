@@ -59,7 +59,7 @@ const TrendingProducts = () => {
 
   if (loading)
     return (
-      <div className="bg-[var(--color-sidebar)] p-4 rounded-md border border-neutral-500/50 w-full md:hidden lg:flex md:w-[30%] h-full flex flex-col items-center justify-center">
+      <div className="bg-[var(--color-sidebar)] p-4 rounded-md border border-neutral-500/50 w-full md:hidden lg:flex h-full flex flex-col items-center justify-center">
         <div className="spinner" />
       </div>
     );
@@ -72,7 +72,7 @@ const TrendingProducts = () => {
     );
 
   return (
-    <div className="bg-[var(--color-sidebar)] p-4 rounded-md border border-neutral-500/50 w-full md:hidden lg:flex md:w-[30%] h-full flex flex-col justify-between">
+    <div className="bg-[var(--color-sidebar)] p-4 rounded-md border border-neutral-500/50 w-[30%] max-sm:w-full md:hidden lg:flex h-full flex flex-col justify-between">
       <p className="text-2xl max-lg:text-xl font-bold mb-4">
         Trending Products
       </p>

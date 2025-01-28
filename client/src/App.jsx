@@ -10,6 +10,7 @@ import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useSelector } from "react-redux";
 import ViewExpenses from "./components/purchases/ViewExpenses";
+import TitleBar from "./components/shared/TitleBar";
 const Seller = lazy(() => import("./pages/Seller"));
 const TopLoadingBar = lazy(() => import("./components/shared/TopLoadingBar"));
 const SellerSales = lazy(() => import("./components/seller/sales/SellerSales"));
@@ -138,6 +139,8 @@ const App = () => {
         }}
       />
       <TopLoadingBar />
+      <div className="w-screen h-screen flex flex-col">
+      <TitleBar />
       <Suspense
         fallback={
           <div className="w-screen h-screen bg-[var(--color-primary)] flex flex-col items-center justify-center">
@@ -250,6 +253,7 @@ const App = () => {
           <Route path="*" element={<NotFound />} />
         </Routes>
       </Suspense>
+      </div>
     </HashRouter>
   );
 };

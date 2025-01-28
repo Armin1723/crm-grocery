@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain } = require("electron");
+const { app, BrowserWindow, ipcMain, shell } = require("electron");
 const { autoUpdater } = require("electron-updater");
 const path = require("path");
 
@@ -9,8 +9,10 @@ function createWindow() {
   mainWindow = new BrowserWindow({
     width: 1200,
     height: 800,
-    // frame: false,
-    // titleBarStyle: "hidden",
+    minWidth: 600,
+    minHeight: 600,
+    titleBarStyle: "hiddenInset",
+    frame: false,
     webPreferences: {
       preload: path.join(__dirname, "preload.js"),
       nodeIntegration: false,
@@ -20,14 +22,41 @@ function createWindow() {
   });
 
   // const startURL = `file://${path.join(__dirname, "./client/dist/index.html")}`;
-  const startURL = 'http://localhost:5173';
+  const startURL = "http://localhost:5173";
 
   mainWindow.loadURL(startURL);
+
+  // Handle custom window controls
+  ipcMain.on("minimize-window", () => {
+    mainWindow.minimize();
+  });
+
+  ipcMain.on("maximize-window", () => {
+    if (mainWindow.isMaximized()) {
+      mainWindow.unmaximize();
+    } else {
+      mainWindow.maximize();
+    }
+  });
+
+  // Send app version to frontend
+  ipcMain.on("get-app-version", (event) => {
+    event.returnValue = app.getVersion();
+  });
+
+  ipcMain.on("close-window", () => {
+    mainWindow.close();
+  });
 
   mainWindow.on("closed", () => {
     mainWindow = null;
   });
 }
+
+// Open in browser
+ipcMain.on("open-in-browser", (event, url) => {
+  shell.openExternal(url);
+});
 
 // Initialize app
 app.whenReady().then(async () => {

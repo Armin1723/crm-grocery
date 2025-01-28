@@ -7,5 +7,6 @@ contextBridge.exposeInMainWorld("electron", {
       ipcRenderer.on(channel, (event, ...args) => func(...args)),
     once: (channel, func) =>
       ipcRenderer.once(channel, (event, ...args) => func(...args)),
+    sendSync: (channel, data) => ipcRenderer.sendSync(channel, data), 
   },
 });

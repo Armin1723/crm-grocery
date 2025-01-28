@@ -5,12 +5,11 @@ import { Link } from "react-router-dom";
 const NotFound = () => {
   return (
     <div
-      className="bg-[var(--color-primary)] text-[var(--color-text)]"
+      className="bg-[var(--color-primary)] text-[var(--color-text)] h-full"
       style={{
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        minHeight: "100vh",
         position: "relative",
         overflow: "hidden"
       }}

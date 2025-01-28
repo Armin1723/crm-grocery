@@ -31,7 +31,7 @@ const Sidebar = () => {
         expanded
           ? "min-w-[17%] max-w-[20%]"
           : "min-w-[5%] max-lg:min-w-[8%] max-w-[5%]"
-      } h-screen flex  border-r border-neutral-500/50 flex-col py-3 bg-[var(--color-sidebar)] text-[var(--color-text)] transition-all duration-300 ease-in`}
+      } h-full flex border-r border-neutral-500/50 flex-col py-3 bg-[var(--color-sidebar)] text-[var(--color-text)] transition-all duration-300 ease-in`}
     >
       <div className="top flex items-center w-full justify-between px-4 relative py-2 border-b border-neutral-500/50">
         <div className="logo flex items-center justify-start ">

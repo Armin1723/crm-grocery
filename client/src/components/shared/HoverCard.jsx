@@ -71,12 +71,12 @@ const HoverCard = ({ title, children, to= "", otherClasses = '' }) => {
             className="absolute top-1/2 -left-2 -translate-y-1/2 w-0 h-0 
             border-t-[8px] border-t-transparent
             border-b-[8px] border-b-transparent
-            border-r-[8px] border-r-[var(--color-card)]"
+            border-r-[8px] border-r-[var(--color-card)] "
           />
 
           {/* Content container */}
           <div
-            className="rounded-lg bg-[var(--color-card)] shadow-[0_0_20px_gray] !shadow-neutral-500/10 backdrop-blur-sm transition-all duration-200 ease-out opacity-100 translate-x-0 min-w-[30vw] overflow-y-auto"
+            className="rounded-lg flex flex-col items-center justify-center max-h-[60vh] bg-[var(--color-card)] shadow-[0_0_20px_gray] !shadow-neutral-500/10 backdrop-blur-sm transition-all duration-200 ease-out opacity-100 translate-x-0 min-w-[30vw] overflow-y-auto"
           >
             {children}
           </div>

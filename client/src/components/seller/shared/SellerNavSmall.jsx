@@ -73,8 +73,8 @@ const SellerNavSmall = () => {
       {ReactDOM.createPortal(
         <div
           ref={navRef}
-          className={`nav fixed top-0 left-0 !z-[999] 
-          h-screen flex border-r border-neutral-500/50 flex-col 
+          className={`nav !z-[99999] fixed top-4 left-0
+          h-full flex border-r border-neutral-500/50 flex-col 
           py-6 bg-[var(--color-sidebar)] text-[var(--color-text)] 
           transition-all duration-300 ease-in-out overflow-hidden
           ${navOpen ? "w-4/5 tab:w-2/5 md:w-1/3 lg:w-1/5" : "w-0"} `}
@@ -226,9 +226,10 @@ const SellerNavSmall = () => {
             </div>
             <LogoutButton expanded={false} />
           </div>
-        </div>,
+        </div>
+        ,
         document.body
-      )}
+      )} 
     </>
   );
 };

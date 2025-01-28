@@ -13,9 +13,9 @@ const Home = () => {
   useAuthStatus();
 
   return (
-    <div ref={pageRef} className="flex h-screen w-full bg-[var(--color-primary)] text-[var(--color-text)] ">
+    <div ref={pageRef} className="flex flex-1 overflow-y-hidden w-full bg-[var(--color-primary)] text-[var(--color-text)] ">
       <Sidebar />
-      <div className="content flex flex-1 h-screen overflow-y-auto flex-col items-start bg-[var(--color-primary)] ">
+      <div className="content flex flex-1 h-full overflow-y-auto flex-col items-start bg-[var(--color-primary)] ">
         <TopRibbon pageRef={pageRef} />
         <BreadCrumbNav />
         <div className="outlet-container flex flex-1 w-full overflow-y-scroll">

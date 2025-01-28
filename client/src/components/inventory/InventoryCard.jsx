@@ -167,7 +167,7 @@ const InventoryCard = ({ upid = "", inventoryData = {}, editable = false }) => {
                     <div
                       className="container-image relative max-w-[70%] tab:max-w-[50%] flex-1 min-h-full tab:h-[50%] aspect-square"
                       style={{
-                        backgroundImage: "url('/inventory/clip-mask.png')",
+                        backgroundImage: "url('./inventory/clip-mask.png')",
                         backgroundSize: "contain",
                         backgroundRepeat: "no-repeat",
                         backgroundPosition: "center",
@@ -185,11 +185,11 @@ const InventoryCard = ({ upid = "", inventoryData = {}, editable = false }) => {
                           width: "100%",
                           zIndex: 2,
                           display: "flex",
-                          maskImage: "url('/inventory/clip-mask.png')",
+                          maskImage: "url('./inventory/clip-mask.png')",
                           maskSize: "contain",
                           maskRepeat: "no-repeat",
                           maskPosition: "center",
-                          WebkitMaskImage: "url('/inventory/clip-mask.png')",
+                          WebkitMaskImage: "url('./inventory/clip-mask.png')",
                           WebkitMaskSize: "contain",
                           WebkitMaskRepeat: "no-repeat",
                           WebkitMaskPosition: "center",

@@ -37,7 +37,7 @@ const InventoryCardSmall = ({ product }) => {
           className="container-image relative flex-1 w-full aspect-square"
           style={{
             width: "100%",
-            backgroundImage: "url('/inventory/clip-mask-2.webp')",
+            backgroundImage: "url('./inventory/clip-mask-2.webp')",
             backgroundSize: "contain",
             backgroundRepeat: "no-repeat",
             backgroundPosition: "center",
@@ -53,11 +53,11 @@ const InventoryCardSmall = ({ product }) => {
               inset: 0,
               zIndex: 2,
               display: "flex",
-              maskImage: "url('/inventory/clip-mask-2.webp')",
+              maskImage: "url('./inventory/clip-mask-2.webp')",
               maskSize: "contain",
               maskRepeat: "no-repeat",
               maskPosition: "center",
-              WebkitMaskImage: "url('/inventory/clip-mask-2.webp')",
+              WebkitMaskImage: "url('./inventory/clip-mask-2.webp')",
               WebkitMaskSize: "contain",
               WebkitMaskRepeat: "no-repeat",
               WebkitMaskPosition: "center",

@@ -41,8 +41,8 @@ const SaleDetails = ({ idBackup = "" }) => {
 
   if (loading)
     return (
-      <div className="p-3 rounded-md flex h-full flex-col items-center justify-center gap-2 border border-neutral-500/50 bg-[var(--color-sidebar)] ">
-        <div className="spinner "></div>
+      <div className="p-3 rounded-md flex h-full min-h-[50vh] flex-1 flex-col items-center justify-center gap-2 w-full bg-[var(--color-sidebar)] ">
+        <div className="spinner"></div>
       </div>
     );
 
@@ -78,7 +78,7 @@ const SaleDetails = ({ idBackup = "" }) => {
             </thead>
             <tbody>
               {sale?.products.map((product) => (
-                <tr key={product._id} className="border-b border-neutral-500">
+                <tr key={product._id} className="border-b border-neutral-500/50">
                   <td className="py-2 pl-4">
                     <Avatar
                       image={product?.image}
