@@ -41,6 +41,8 @@ input.checkbox {
 
 #nprogress .bar {
   background: var(--color-accent-dark) !important;
+  height: 5px !important;
+  z-index: 9999999 !important;
 }
 
 *::selection {

@@ -129,6 +129,12 @@ const InventoryList = () => {
           })
         )}
 
+        {loading && results.length === 0 && (
+          <div className="flex items-center justify-center w-full h-full">
+            <div className="spinner" />
+          </div>
+        )}
+
         {results.length === 0 && !loading && (
           <div className="w-full my-2 h-full">No such inventory found.</div>
         )}

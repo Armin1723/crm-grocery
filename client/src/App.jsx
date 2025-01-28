@@ -14,8 +14,12 @@ import TitleBar from "./components/shared/TitleBar";
 const Seller = lazy(() => import("./pages/Seller"));
 const TopLoadingBar = lazy(() => import("./components/shared/TopLoadingBar"));
 const SellerSales = lazy(() => import("./components/seller/sales/SellerSales"));
-const SellerInventory = lazy(() => import("./components/seller/inventory/SellerInventory"));
-const SellerEmployee = lazy(() => import("./components/seller/employee/SellerEmployee"));
+const SellerInventory = lazy(() =>
+  import("./components/seller/inventory/SellerInventory")
+);
+const SellerEmployee = lazy(() =>
+  import("./components/seller/employee/SellerEmployee")
+);
 const SellerHome = lazy(() => import("./components/seller/home/SellerHome"));
 const SaleInvoice = lazy(() => import("./components/sales/SaleInvoice"));
 
@@ -136,123 +140,124 @@ const App = () => {
           backgroundColor: "var(--color-sidebar)",
           color: "var(--color-text)",
           border: "1px solid var(--color-card)",
+          top: "22px",
         }}
       />
-      <TopLoadingBar />
+      <TopLoadingBar style={{ zIndex: 1000 }} />
       <div className="w-screen h-screen flex flex-col">
-      <TitleBar />
-      <Suspense
-        fallback={
-          <div className="w-screen h-screen bg-[var(--color-primary)] flex flex-col items-center justify-center">
-            <div className="spinner"></div>
-          </div>
-        }
-      >
-        <Routes>
-          <Route
-            path="/"
-            element={
-              <ProtectedRoute>
-                <Home />
-              </ProtectedRoute>
-            }
-          >
-            <Route path="" element={<Stats />} />
+        <TitleBar />
+        <Suspense
+          fallback={
+            <div className="w-screen h-screen bg-[var(--color-primary)] flex flex-col items-center justify-center">
+              <div className="spinner"></div>
+            </div>
+          }
+        >
+          <Routes>
+            <Route
+              path="/"
+              element={
+                <ProtectedRoute>
+                  <Home />
+                </ProtectedRoute>
+              }
+            >
+              <Route path="" element={<Stats />} />
 
-            {/* Product Routes */}
-            <Route path="products" element={<Products />}>
-              <Route path="" element={<ViewProducts />} />
-              <Route path="add" element={<AddProduct />} />
-              <Route path=":id" element={<ProductDetails />} />
+              {/* Product Routes */}
+              <Route path="products" element={<Products />}>
+                <Route path="" element={<ViewProducts />} />
+                <Route path="add" element={<AddProduct />} />
+                <Route path=":id" element={<ProductDetails />} />
+              </Route>
+
+              {/* Purchase Routes */}
+              <Route path="purchases" element={<Purchases />}>
+                <Route path="" element={<ViewPurchases />} />
+                <Route path="add" element={<AddPurchase />} />
+                <Route path=":id" element={<PurchaseDetails />} />
+                <Route path="expenses" element={<ViewExpenses />} />
+                <Route path="expenses/add" element={<AddExpense />} />
+                <Route path="returns" element={<ViewPurchaseReturns />} />
+                <Route path="returns/add" element={<AddPurchaseReturn />} />
+              </Route>
+
+              {/* Sales Routes */}
+              <Route path="sales" element={<Sales />}>
+                <Route path="" element={<ViewSales />} />
+                <Route path="add" element={<AddSale />} />
+                <Route path=":id" element={<SaleDetails />} />
+                <Route path=":id/invoice" element={<SaleInvoice />} />
+                <Route path="returns" element={<ViewSaleReturns />} />
+                <Route path="returns/add" element={<SaleReturn />} />
+              </Route>
+
+              {/* Inventory Route */}
+              <Route path="inventory" element={<Inventory />}>
+                <Route path="" element={<InventoryList />} />
+                <Route path="grid" element={<InventoryGrid />} />
+                <Route path="expiring" element={<ExpiringInventory />} />
+              </Route>
+
+              {/* Suppliers Routes */}
+              <Route path="suppliers" element={<Suppliers />}>
+                <Route path="" element={<ViewSuppliers />} />
+                <Route path="add" element={<AddSuppliers />} />
+                <Route path=":id" element={<SupplierDetails />} />
+              </Route>
+
+              {/* Reports */}
+              <Route path="reports" element={<Reports />}>
+                <Route path="" element={<ExpenseReport />} />
+                <Route path="expense" element={<ExpenseReport />} />
+                <Route path="sales" element={<SalesReport />} />
+                <Route path="tax" element={<TaxReport />} />
+                <Route path="profit-loss" element={<ProfitLossReport />} />
+              </Route>
+
+              {/* Employee Routes */}
+              <Route path="employees" element={<Employees />}>
+                <Route path="" element={<ViewEmployees />} />
+                <Route path="view" element={<ViewEmployees />} />
+                <Route path="add" element={<AddEmployee />} />
+                <Route path=":id" element={<EmployeeDetails />} />
+              </Route>
             </Route>
 
-            {/* Purchase Routes */}
-            <Route path="purchases" element={<Purchases />}>
-              <Route path="" element={<ViewPurchases />} />
-              <Route path="add" element={<AddPurchase />} />
-              <Route path=":id" element={<PurchaseDetails />} />
-              <Route path="expenses" element={<ViewExpenses />} />
-              <Route path="expenses/add" element={<AddExpense />} />
-              <Route path="returns" element={<ViewPurchaseReturns />} />
-              <Route path="returns/add" element={<AddPurchaseReturn />} />
+            <Route path="/auth" element={<Auth />}>
+              <Route path="" element={<Login />} />
+              <Route path="login" element={<Login />} />
+              <Route path="forgot-password" element={<ForgotPassword />} />
+              <Route path="reset-password" element={<ResetPassword />} />
             </Route>
 
-            {/* Sales Routes */}
-            <Route path="sales" element={<Sales />}>
-              <Route path="" element={<ViewSales />} />
-              <Route path="add" element={<AddSale />} />
-              <Route path=":id" element={<SaleDetails />} />
-              <Route path=":id/invoice" element={<SaleInvoice />} />
-              <Route path="returns" element={<ViewSaleReturns />} />
-              <Route path="returns/add" element={<SaleReturn />} />
+            {/* Seller Routes */}
+            <Route
+              path="/seller"
+              element={
+                <ProtectedRoute>
+                  <Seller />
+                </ProtectedRoute>
+              }
+            >
+              <Route path="" element={<SellerHome />} />
+              <Route path="sales" element={<SellerSales />}>
+                <Route path="" element={<ViewSales />} />
+                <Route path="add" element={<AddSale />} />
+                <Route path=":id" element={<SaleDetails />} />
+              </Route>
+              <Route path="inventory" element={<SellerInventory />}>
+                <Route path="" element={<InventoryList />} />
+                <Route path="grid" element={<InventoryGrid />} />
+              </Route>
+              <Route path="employees" element={<SellerEmployee />}>
+                <Route path=":id" element={<EmployeeDetails />} />
+              </Route>
             </Route>
 
-            {/* Inventory Route */}
-            <Route path="inventory" element={<Inventory />}>
-              <Route path="" element={<InventoryList />} />
-              <Route path="grid" element={<InventoryGrid />} />
-              <Route path="expiring" element={<ExpiringInventory />} />
-            </Route>
-
-            {/* Suppliers Routes */}
-            <Route path="suppliers" element={<Suppliers />}>
-              <Route path="" element={<ViewSuppliers />} />
-              <Route path="add" element={<AddSuppliers />} />
-              <Route path=":id" element={<SupplierDetails />} />
-            </Route>
-
-            {/* Reports */}
-            <Route path="reports" element={<Reports />}>
-              <Route path="" element={<ExpenseReport />} />
-              <Route path="expense" element={<ExpenseReport />} />
-              <Route path="sales" element={<SalesReport />} />
-              <Route path="tax" element={<TaxReport />} />
-              <Route path="profit-loss" element={<ProfitLossReport />} />
-            </Route>
-
-            {/* Employee Routes */}
-            <Route path="employees" element={<Employees />}>
-              <Route path="" element={<ViewEmployees />} />
-              <Route path="view" element={<ViewEmployees />} />
-              <Route path="add" element={<AddEmployee />} />
-              <Route path=":id" element={<EmployeeDetails />} />
-            </Route>
-          </Route>
-
-          <Route path="/auth" element={<Auth />}>
-            <Route path="" element={<Login />} />
-            <Route path="login" element={<Login />} />
-            <Route path="forgot-password" element={<ForgotPassword />} />
-            <Route path="reset-password" element={<ResetPassword />} />
-          </Route>
-
-          {/* Seller Routes */}
-          <Route
-            path="/seller"
-            element={
-              <ProtectedRoute>
-                <Seller />
-              </ProtectedRoute>
-            }
-          >
-            <Route path="" element={<SellerHome />} />
-            <Route path="sales" element={<SellerSales />}>
-              <Route path="" element={<ViewSales />} />
-              <Route path="add" element={<AddSale />} />
-              <Route path=":id" element={<SaleDetails />} />
-            </Route>
-            <Route path="inventory" element={<SellerInventory />}>
-              <Route path="" element={<InventoryList />} />
-              <Route path="grid" element={<InventoryGrid />} />
-            </Route>
-            <Route path="employees" element={<SellerEmployee />}>
-              <Route path=":id" element={<EmployeeDetails />} />
-            </Route>
-          </Route>
-
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </Suspense>
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </Suspense>
       </div>
     </HashRouter>
   );

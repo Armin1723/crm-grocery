@@ -24,7 +24,7 @@ const Modal = ({ isOpen, onClose, title, children }) => {
           duration: 0.5,
           ease: "easeIn",
         }}
-        className="bg-[var(--color-sidebar)] rounded-md p-6 w-1/2 max-sm:w-[90%] overflow-hidden max-h-[90vh] max-sm:px-6"
+        className="bg-[var(--color-sidebar)] rounded-md p-6 w-[90%] lg:w-3/4 md:w-2/3 overflow-hidden min-h-[70vh] max-h-[90vh] max-sm:px-6"
       >
         <div className="flex items-center gap-2 w-full justify-between my-4">
           <h2 className="text-lg font-bold">{title}</h2>

@@ -1,13 +1,16 @@
-const { app, BrowserWindow, ipcMain, shell } = require("electron");
+const { app, BrowserWindow, ipcMain, shell, dialog } = require("electron");
 const { autoUpdater } = require("electron-updater");
+const { spawn } = require("child_process");
+const tcpPortUsed = require("tcp-port-used");
 const path = require("path");
 
 let mainWindow;
+let PORT = 8000;
 
 // Function to create the main Electron window
 function createWindow() {
   mainWindow = new BrowserWindow({
-    width: 1200,
+    width: 1300,
     height: 800,
     minWidth: 600,
     minHeight: 600,
@@ -48,6 +51,18 @@ function createWindow() {
     mainWindow.close();
   });
 
+  // Add a custom confirmation dialog before quitting
+  mainWindow.on('close', function (e) {
+    let response = dialog.showMessageBoxSync(this, {
+        type: 'question',
+        buttons: ['Yes', 'No'],
+        title: 'Confirm',
+        message: 'Are you sure you want to quit?'
+    });
+
+    if(response == 1) e.preventDefault();
+});
+
   mainWindow.on("closed", () => {
     mainWindow = null;
   });
@@ -58,8 +73,60 @@ ipcMain.on("open-in-browser", (event, url) => {
   shell.openExternal(url);
 });
 
+// Function to start your backend server
+async function startBackend() {
+  // Check if the backend process is already running
+  const isPortInUse = await tcpPortUsed.check(PORT);
+  if (isPortInUse) {
+    console.log("Backend is already running on port", PORT);
+    return;
+  }
+
+  // Use process.platform to determine the correct node command
+  const backendCommand = process.platform === "win32" ? "node" : "node";
+  const backendArgs = ["index.js"];
+  const backendPath = path.join(__dirname, "server");
+
+  console.log("Starting backend with command:", backendCommand);
+  console.log("Backend args:", backendArgs);
+  console.log("Backend working directory:", backendPath);
+
+  try {
+    backendProcess = spawn(backendCommand, backendArgs, {
+      cwd: backendPath,
+      stdio: ["inherit", "pipe", "pipe"],
+      shell: true,
+    });
+
+    // Handle stdout
+    backendProcess.stdout?.on("data", (data) => {
+      console.log(`Backend stdout: ${data}`);
+    });
+
+    // Handle stderr
+    backendProcess.stderr?.on("data", (data) => {
+      console.error(`Backend stderr: ${data}`);
+    });
+
+    backendProcess.on("error", (err) => {
+      console.error("Failed to start backend server:", err);
+    });
+
+    backendProcess.on("close", (code) => {
+      console.log(`Backend process exited with code ${code}`);
+      if (code !== 0) {
+        // Restart the backend process if it exits with a non-zero code
+        console.log("Attempting to restart backend...");
+      }
+    });
+  } catch (error) {
+    console.error("Error starting backend:", error);
+  }
+}
+
 // Initialize app
 app.whenReady().then(async () => {
+  await startBackend();
   createWindow();
 
   // Check for updates
@@ -125,22 +192,7 @@ ipcMain.handle("print-content", async (event, printHTML) => {
 
 // Properly clean up processes when closing
 app.on("window-all-closed", async () => {
-  if (backendProcess) {
-    console.log("Killing backend process...");
-    backendProcess.kill();
-    backendProcess = null;
-  }
-
   if (process.platform !== "darwin") {
     app.quit();
-  }
-});
-
-// Handle app quit
-app.on("quit", async () => {
-  if (backendProcess) {
-    console.log("Killing backend process on quit...");
-    backendProcess.kill();
-    backendProcess = null;
   }
 });

@@ -82,8 +82,6 @@ const SaleForm = ({ setRefetch = () => {}, closeModal = () => {} }) => {
   };
 
   const addSale = async (values) => {
-    console.log(values);
-    return;
     const id = toast.loading("Adding sale...");
     setLoading(true);
     try {
@@ -164,7 +162,7 @@ const SaleForm = ({ setRefetch = () => {}, closeModal = () => {} }) => {
       </div>
       {watchedProducts.length > 0 ? (
         <>
-          <div className="table-wrapper overflow-x-auto overflow-y-hidden min-h-fit flex relative flex-1 mt-2 border border-b-0 border-neutral-500/50 rounded-md rounded-b-none">
+          <div className="table-wrapper overflow-x-auto overflow-y-visible min-h-fit flex relative flex-1 mt-2 border border-b-0 border-neutral-500/50 rounded-md rounded-b-none">
             <div className="products-container overflow-x-auto overflow-y-auto table flex-col w-fit max-w-full max-sm:text-sm flex-1">
               <div className="th flex w-fit min-w-full flex-1 z-[99] justify-between items-center gap-2 border-b border-neutral-500/50 bg-[var(--color-card)] rounded-t-md px-2 py-1 sticky top-0">
                 <p className="w-[5%] min-w-[30px]">*</p>

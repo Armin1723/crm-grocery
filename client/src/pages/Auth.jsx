@@ -21,19 +21,19 @@ const Auth = () => {
   }, []);
 
   return (
-    <div className="w-full h-screen flex items-center justify-between max-sm:flex-col-reverse bg-[var(--color-primary)] text-[var(--color-text)]">
+    <div className="w-full flex-1 flex items-center justify-between max-sm:flex-col-reverse bg-[var(--color-primary)] text-[var(--color-text)]">
       <div className="form-container flex flex-col items-center justify-center w-1/2 max-sm:w-full max-sm:flex-1 ">
         <Outlet />
       </div>
-      <div className="animation-container flex flex-col items-center justify-center bg-[var(--color-sidebar)] h-full w-1/2 max-sm:w-full max-sm:h-1/3 md:border-l border-[var(--color-primary)]">
+      <div className="animation-container flex flex-col items-center justify-center bg-[var(--color-sidebar)] h-full w-1/2 max-sm:w-full max-sm:h-1/2 md:border-l border-[var(--color-primary)]">
         <Suspense
           fallback={
-            <div className="flex flex-col justify-center items-center w-screen h-screen ">
+            <div className="flex flex-col justify-center items-center w-screen h-full ">
               <div className="spinner"></div>
             </div>
           }
         >
-          <Lottie animationData={loginAnimation} className="w-1/2" />
+          <Lottie animationData={loginAnimation} className="w-1/3 lg:w-1/2" />
         </Suspense>
       </div>
     </div>

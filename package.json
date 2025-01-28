@@ -1,6 +1,6 @@
 {
   "name": "crm-grocery",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Grocery Store CRM App.",
   "author": "CRM",
   "main": "main.js",
@@ -10,7 +10,7 @@
     "build": "electron-builder",
     "build win": "electron-builder --win",
     "build linux": "electron-builder --linux",
-    "build mac": "electron-builder --mac"
+    "mac": "electron-builder --mac"
   },
   "devDependencies": {
     "electron": "^14.0.0",
@@ -29,7 +29,7 @@
       "name": "CRM Grocery",
       "description": "Grocery Store CRM App.",
       "author": "CRM",
-      "version": "1.0.2"
+      "version": "1.0.3"
     },
     "directories": {
       "output": "dist"
