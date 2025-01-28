@@ -94,11 +94,11 @@ const ExpenseForm = () => {
             {expenseTypes.map((type) => {
               return (
                 <option
-                  key={type}
+                  key={type.category}
                   className=" bg-[var(--color-card)]"
-                  value={type}
+                  value={type.category}
                 >
-                  {type}
+                  {type.category}
                 </option>
               );
             })}

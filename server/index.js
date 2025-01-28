@@ -5,14 +5,10 @@ const cors = require('cors');
 const connectToDB = require('./db');
 const cookieParser = require('cookie-parser');
 const { errorHandler } = require('./middleware/errorHandler.js');
-const scheduleProductExpiryNotifications = require('./crons/expiringProductsCron.js');
 
 const app = express();
 
 const port = process.env.PORT || 8000;
-
-// Cron Jobs
-scheduleProductExpiryNotifications();
 
 // Middlewares
 app.use(express.json());

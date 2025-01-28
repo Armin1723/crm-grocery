@@ -53,8 +53,7 @@ const ProductTable = ({ data = [] }) => {
                   {data?.name}
                 </td>
                 <td className="px-3 py-2 whitespace-nowrap text-sm min-w-[150px]">
-                  {data?.quantity} {" "}
-                  {data?.secondaryUnit}
+                  {data?.quantity} {data?.secondaryUnit}
                 </td>
                 <td className="px-3 py-2 whitespace-nowrap text-sm min-w-[150px]">
                   ₹{data?.rate * data?.quantity}
@@ -100,10 +99,10 @@ const TaxTable = ({ data = {}, title = "" }) => {
                   Id
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium  uppercase tracking-wider">
-                  Tax
+                  Total Amount
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium  uppercase tracking-wider">
-                  Amount
+                  Tax
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium  uppercase tracking-wider min-w-[150px]">
                   Signed By
@@ -122,15 +121,15 @@ const TaxTable = ({ data = {}, title = "" }) => {
                   } cursor-pointer`}
                 >
                   <td className="px-6 py-2 whitespace-nowrap text-sm ">
-                    <HoverCard title={`${data?._id.slice(0,15)}...`}>
+                    <HoverCard title={`${data?._id.slice(0, 15)}...`}>
                       <ProductTable data={data?.products} />
                     </HoverCard>
                   </td>
                   <td className="px-6 py-2 whitespace-nowrap text-sm ">
-                    ₹{(data?.totalTax).toFixed(2)}
+                    ₹{data?.totalAmount}
                   </td>
                   <td className="px-6 py-2 whitespace-nowrap text-sm ">
-                    ₹{data?.totalAmount}
+                    ₹{(data?.totalTax).toFixed(2)}
                   </td>
                   <td className="px-6 py-2 whitespace-nowrap text-sm min-w-[150px]">
                     {data?.signedBy}

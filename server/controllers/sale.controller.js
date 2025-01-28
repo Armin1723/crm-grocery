@@ -169,7 +169,7 @@ const getSaleReturns = async (req, res) => {
     salesReturns,
     totalPages: Math.ceil(totalSalesReturns / limit) || 1,
     page,
-    totalResults: totalSalesReturns,
+    totalSalesReturns,
   });
 };
 

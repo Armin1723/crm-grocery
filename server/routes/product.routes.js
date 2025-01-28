@@ -9,7 +9,6 @@ const {
   getTrendingProducts,
   autoSetRate,
   productPurchases,
-  productSales,
 } = require("../controllers/product.controller");
 const { asyncHandler } = require("../middleware/errorHandler");
 const multer = require("multer");
@@ -35,8 +34,6 @@ router.post(
 );
 
 router.get("/:id/purchases", asyncHandler(productPurchases));
-
-router.get("/:id/sales", asyncHandler(productSales));
 
 router.post("/:id/auto-set-rate", asyncHandler(autoSetRate));
 

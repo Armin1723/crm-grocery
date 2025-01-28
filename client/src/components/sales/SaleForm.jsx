@@ -9,7 +9,7 @@ import AddCustomerModal from "../customer/AddCustomerModal";
 import Divider from "../utils/Divider";
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
-import CustomerSuggestionByName from "../utils/CustomerSuggestionByName";
+import CustomerSuggestion from "../utils/CustomerSuggestion";
 
 const SaleForm = ({ setRefetch = () => {}, closeModal = () => {} }) => {
   const [suggestedProducts, setSuggestedProducts] = useState([]);
@@ -20,36 +20,6 @@ const SaleForm = ({ setRefetch = () => {}, closeModal = () => {} }) => {
   const navigate = useNavigate();
   const user = useSelector((state) => state.user);
   const isAdmin = user && user?.role === "admin";
-
-  const fetchCustomerDetails = async (e) => {
-    setCustomerLoading(true);
-    try {
-      if (e.target.value.length < 10) {
-        setCustomerDetails(null);
-        return;
-      }
-      const response = await fetch(
-        `${import.meta.env.VITE_BACKEND_URL}/api/v1/customers/${
-          e.target.value
-        }`,
-        {
-          credentials: "include",
-        }
-      );
-      const data = await response.json();
-      if (response.ok) {
-        setCustomerDetails(data.customer);
-      } else {
-        setCustomerDetails({
-          name: "Customer not found",
-        });
-      }
-    } catch (error) {
-      console.error("Error fetching customer details:", error.message);
-    } finally {
-      setCustomerLoading(false);
-    }
-  };
 
   const {
     register,
@@ -71,6 +41,13 @@ const SaleForm = ({ setRefetch = () => {}, closeModal = () => {} }) => {
       paymentType: "cash",
     },
   });
+
+  useEffect(() => {
+    if (customerDetails?.phone) {
+      setCustomerLoading(false);
+      setValue("customerMobile", customerDetails.phone);
+    }
+  }, [customerDetails]);
 
   const subTotal = useWatch({ name: "subTotal", control });
   const discount = useWatch({ name: "discount", control });
@@ -105,6 +82,8 @@ const SaleForm = ({ setRefetch = () => {}, closeModal = () => {} }) => {
   };
 
   const addSale = async (values) => {
+    console.log(values);
+    return;
     const id = toast.loading("Adding sale...");
     setLoading(true);
     try {
@@ -166,7 +145,7 @@ const SaleForm = ({ setRefetch = () => {}, closeModal = () => {} }) => {
     <form
       onSubmit={handleSubmit(addSale)}
       onKeyDown={handleKeyDown}
-      className="flex flex-col w-full flex-1 px-2 overflow-y-auto"
+      className="flex flex-col w-full flex-1 px-2 overflow-y-auto "
     >
       {/* Products Section */}
       <div className="title flex justify-between py-1">
@@ -185,8 +164,8 @@ const SaleForm = ({ setRefetch = () => {}, closeModal = () => {} }) => {
       </div>
       {watchedProducts.length > 0 ? (
         <>
-          <div className="table-wrapper overflow-x-auto min-h-fit flex relative flex-1 mt-2 border border-b-0 border-neutral-500/50 rounded-md rounded-b-none">
-            <div className="products-container overflow-x-auto table flex-col w-fit max-w-full max-sm:text-sm flex-1">
+          <div className="table-wrapper overflow-x-auto overflow-y-visible hide-scrollbar min-h-[20vh] flex relative flex-1 mt-2 border border-b-0 border-neutral-500/50 rounded-md rounded-b-none">
+            <div className="products-container overflow-x-auto hide-scrollbar table flex-col w-fit max-w-full max-sm:text-sm flex-1">
               <div className="th flex w-fit min-w-full flex-1 z-[99] justify-between items-center gap-2 border-b border-neutral-500/50 bg-[var(--color-card)] rounded-t-md px-2 py-1 sticky top-0">
                 <p className="w-[5%] min-w-[30px]">*</p>
                 <p className="w-1/4 min-w-[200px]">Name</p>
@@ -425,43 +404,29 @@ const SaleForm = ({ setRefetch = () => {}, closeModal = () => {} }) => {
 
       {/* Customer Section */}
       {watchedProducts.length > 0 && (
-      <div className="flex flex-col w-full py-2">
-        <div className="flex items-center gap-2">
-          <p className="my-1 font-semibold text-lg max-sm:text-base">
-            Customer
-          </p>
-          <AddCustomerModal
-            title="add"
-            setValue={setValue}
-            customer={customerDetails}
-          />
+        <div className="flex flex-col w-full py-2">
+          <div className="flex items-center gap-2">
+            <p className="my-1 font-semibold text-lg max-sm:text-base">
+              Customer
+            </p>
+            <AddCustomerModal
+              title="add"
+              setValue={setValue}
+              customer={customerDetails}
+            />
+          </div>
+          <div className="w-full flex flex-col md:flex-row gap-2">
+            <CustomerSuggestion
+              setCustomerDetails={setCustomerDetails}
+              type="phone"
+            />
+            <CustomerSuggestion
+              setCustomerDetails={setCustomerDetails}
+              type="name"
+            />
+          </div>
         </div>
-        <div className="w-full flex flex-col md:flex-row gap-2">
-          <input
-            type="number"
-            placeholder="Search by number"
-            className="outline-none border border-[var(--color-accent)] rounded-lg p-2 !z-[10] bg-transparent focus:border-[var(--color-accent-dark)] transition-all duration-300 peer w-full"
-            {...register("customerMobile", {
-              required: "Customer number is required",
-              minLength: {
-                value: 10,
-                message: "Invalid number",
-              },
-              maxLength: {
-                value: 10,
-                message: "Invalid number",
-              },
-              pattern: {
-                value: /^[0-9]*$/,
-                message: "Invalid number",
-              },
-            })}
-            onChange={fetchCustomerDetails}
-          />
-          <CustomerSuggestionByName setCustomerDetails={setCustomerDetails} />
-          
-        </div>
-      </div>)}
+      )}
 
       {/* Customer Details */}
       {!customerLoading && (
@@ -496,27 +461,6 @@ const SaleForm = ({ setRefetch = () => {}, closeModal = () => {} }) => {
           </div>
         </div>
       )}
-
-      {/* Payment Details */}
-      {/* <div className="flex flex-col w-full py-2">
-        <p className="my-1 font-semibold text-lg max-sm:text-base">
-          Payment details
-        </p>
-        <select
-          {...register("paymentType")}
-          className="outline-none border border-[var(--color-accent)] rounded-lg p-2 !z-[10] bg-transparent focus:border-[var(--color-accent-dark)] transition-all duration-300 peer "
-        >
-          <option className="bg-[var(--color-card)]" value="cash">
-            Cash
-          </option>
-          <option className="bg-[var(--color-card)]" value="card">
-            Card
-          </option>
-          <option className="bg-[var(--color-card)]" value="upi">
-            UPI
-          </option>
-        </select>
-      </div> */}
 
       {/* Submit Button */}
       <button

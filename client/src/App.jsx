@@ -1,15 +1,22 @@
 import React, { useEffect, lazy, Suspense } from "react";
-import { BrowserRouter, Outlet, Route, Routes } from "react-router-dom";
+import {
+  HashRouter,
+  Navigate,
+  Route,
+  Routes,
+  useLocation,
+} from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useSelector } from "react-redux";
-import Seller from "./pages/Seller";
-import TopLoadingBar from "./components/shared/TopLoadingBar";
-import SellerSales from "./components/seller/sales/SellerSales";
-import SellerInventory from "./components/seller/inventory/SellerInventory";
-import SellerEmployee from "./components/seller/employee/SellerEmployee";
-import SellerHome from "./components/seller/home/SellerHome";
-import SaleInvoice from "./components/sales/SaleInvoice";
+import ViewExpenses from "./components/purchases/ViewExpenses";
+const Seller = lazy(() => import("./pages/Seller"));
+const TopLoadingBar = lazy(() => import("./components/shared/TopLoadingBar"));
+const SellerSales = lazy(() => import("./components/seller/sales/SellerSales"));
+const SellerInventory = lazy(() => import("./components/seller/inventory/SellerInventory"));
+const SellerEmployee = lazy(() => import("./components/seller/employee/SellerEmployee"));
+const SellerHome = lazy(() => import("./components/seller/home/SellerHome"));
+const SaleInvoice = lazy(() => import("./components/sales/SaleInvoice"));
 
 const Home = lazy(() => import("./pages/Home"));
 const Auth = lazy(() => import("./pages/Auth"));
@@ -80,6 +87,18 @@ const AddPurchaseReturn = lazy(() =>
 );
 const TaxReport = lazy(() => import("./components/Reports/TaxReport"));
 
+const ProtectedRoute = ({ children }) => {
+  const user = useSelector((state) => state.user);
+  const isAuthenticated = user && user?.avatar;
+  const location = useLocation();
+
+  if (!isAuthenticated) {
+    return <Navigate to="/auth/login" state={{ from: location }} replace />;
+  }
+
+  return children;
+};
+
 const App = () => {
   const theme = useSelector((state) => state.theme.value);
 
@@ -108,7 +127,7 @@ const App = () => {
   }, [theme]);
 
   return (
-    <BrowserRouter>
+    <HashRouter>
       <ToastContainer
         theme={theme}
         portal={document.body}
@@ -127,7 +146,14 @@ const App = () => {
         }
       >
         <Routes>
-          <Route path="/" element={<Home />}>
+          <Route
+            path="/"
+            element={
+              <ProtectedRoute>
+                <Home />
+              </ProtectedRoute>
+            }
+          >
             <Route path="" element={<Stats />} />
 
             {/* Product Routes */}
@@ -142,7 +168,8 @@ const App = () => {
               <Route path="" element={<ViewPurchases />} />
               <Route path="add" element={<AddPurchase />} />
               <Route path=":id" element={<PurchaseDetails />} />
-              <Route path="expense" element={<AddExpense />} />
+              <Route path="expenses" element={<ViewExpenses />} />
+              <Route path="expenses/add" element={<AddExpense />} />
               <Route path="returns" element={<ViewPurchaseReturns />} />
               <Route path="returns/add" element={<AddPurchaseReturn />} />
             </Route>
@@ -197,7 +224,14 @@ const App = () => {
           </Route>
 
           {/* Seller Routes */}
-          <Route path="/seller" element={<Seller />}>
+          <Route
+            path="/seller"
+            element={
+              <ProtectedRoute>
+                <Seller />
+              </ProtectedRoute>
+            }
+          >
             <Route path="" element={<SellerHome />} />
             <Route path="sales" element={<SellerSales />}>
               <Route path="" element={<ViewSales />} />
@@ -216,7 +250,7 @@ const App = () => {
           <Route path="*" element={<NotFound />} />
         </Routes>
       </Suspense>
-    </BrowserRouter>
+    </HashRouter>
   );
 };
 

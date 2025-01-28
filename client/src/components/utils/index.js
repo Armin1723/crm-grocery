@@ -446,20 +446,38 @@ export const taxSlabs = [
 ];
 
 export const expenseTypes = [
-  "Electricity",
-  "Insurance",
-  "Internet",
-  "Legal",
-  "Logistics",
-  "Maintenance",
-  "Marketing",
-  "Office Supplies",
-  "Petty Expense",
-  "Rent",
-  "Salary",
-  "Travel",
-  "Miscellaneous",
+  { category: "Electricity" },
+  { category: "Insurance" },
+  { category: "Internet" },
+  { category: "Legal" },
+  { category: "Logistics" },
+  { category: "Maintenance" },
+  { category: "Marketing" },
+  { category: "Office Supplies" },
+  { category: "Petty Expense" },
+  { category: "Rent" },
+  { category: "Salary" },
+  { category: "Travel" },
+  { category: "Miscellaneous" },
 ];
+
+export const expenseCategoryColors = {
+  electricity: { bg: "bg-yellow-100", border: "border-yellow-400", text: "text-yellow-700" },
+  insurance: { bg: "bg-blue-100", border: "border-blue-400", text: "text-blue-700" },
+  internet: { bg: "bg-purple-100", border: "border-purple-400", text: "text-purple-700" },
+  legal: { bg: "bg-red-100", border: "border-red-400", text: "text-red-700" },
+  logistics: { bg: "bg-green-100", border: "border-green-400", text: "text-green-700" },
+  maintenance: { bg: "bg-gray-100", border: "border-gray-400", text: "text-gray-700" },
+  marketing: { bg: "bg-orange-100", border: "border-orange-400", text: "text-orange-700" },
+  "office supplies": { bg: "bg-teal-100", border: "border-teal-400", text: "text-teal-700" },
+  "petty expense": { bg: "bg-pink-100", border: "border-pink-400", text: "text-pink-700" },
+  rent: { bg: "bg-indigo-100", border: "border-indigo-400", text: "text-indigo-700" },
+  salary: { bg: "bg-cyan-100", border: "border-cyan-400", text: "text-cyan-700" },
+  travel: { bg: "bg-red-100", border: "border-red-400", text: "text-red-700" },
+  miscellaneous: { bg: "bg-lime-100", border: "border-lime-400", text: "text-lime-700" },
+  // Default for undefined categories
+  default: { bg: "bg-gray-100", border: "border-gray-400", text: "text-gray-700" },
+};
 
 export const pluralizeWord = (count, word) => {
   // Handle words ending in "y"

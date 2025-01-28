@@ -5,7 +5,6 @@ const crypto = require("crypto");
 const jwt = require("jsonwebtoken");
 
 const { sendMail } = require("../helpers");
-const passwordResetMailTemplate = require("../templates/email/passwordResetMailTemplate");
 
 const loginUser = async (req, res) => {
     const { email, password } = req.body;
@@ -88,7 +87,8 @@ const forgotPassword = async (req, res) => {
     user.resetPasswordExpires = Date.now() + 30 * 60 * 1000;
     await user.save();
 
-    sendMail(user.email, (subject = "Password Reset Link"), message = passwordResetMailTemplate(user.name, resetPasswordToken));
+    const message = `<p>Hi ${user.name} . Kindly use this link to reset your password. <a href="${process.env.FRONTEND_URL}/auth/reset-password?token=${resetPasswordToken}">here</a>`;
+    sendMail(user.email, (subject = "Password Reset Link"), message);
     res
       .status(200)
       .json({ success: true, message: "Password reset email sent" });

@@ -117,6 +117,7 @@ const RecentPurchase = () => {
                       border: "none",
                       color: "var(--color-text)",
                       padding: "10px",
+                      fontSize: "0.85rem",
                     }}
                     formatter={(value, name, props) => [
                       `${value} ${props.payload.secondaryUnit || "units"} (${props.payload.rate}₹)`,
@@ -131,9 +132,9 @@ const RecentPurchase = () => {
                       <Cell
                         key={`cell-${index}`}
                         fill={
-                          index % 2 === 0
+                          index % 2 !== 0
                             ? "var(--color-accent-dark)"
-                            : "var(--color-accent-light)"
+                            : "var(--color-accent)"
                         }
                       />
                     ))}

@@ -1,6 +1,55 @@
 {
+  "name": "crm-grocery",
+  "version": "1.0.2",
+  "description": "Grocery Store CRM App.",
+  "author": "CRM",
+  "main": "main.js",
   "scripts": {
-    "start": "nodemon server/index.js",
-    "dev": "vite client/index.html"
+    "start": "electron .",
+    "dev": "electron .",
+    "build": "electron-builder",
+    "build win": "electron-builder --win",
+    "build linux": "electron-builder --linux",
+    "build mac": "electron-builder --mac"
+  },
+  "devDependencies": {
+    "electron": "^14.0.0",
+    "electron-builder": "^25.1.8"
+  },
+  "dependencies": {
+    "child_process": "^1.0.0",
+    "electron-updater": "^6.3.9",
+    "tcp-port-used": "^1.0.2"
+  },
+  "build": {
+    "asar": true,
+    "appId": "com.crm.grocery",
+    "productName": "CRM Grocery",
+    "extraMetadata": {
+      "name": "CRM Grocery",
+      "description": "Grocery Store CRM App.",
+      "author": "CRM",
+      "version": "1.0.2"
+    },
+    "directories": {
+      "output": "dist"
+    },
+    "publish": {
+      "provider": "github",
+      "owner": "Armin1723",
+      "repo": "crm-grocery"
+    },
+    "win": {
+      "target": "nsis",
+      "icon": "build/icon.ico"
+    },
+    "linux": {
+      "target": "AppImage",
+      "icon": "build/icon.png"
+    },
+    "mac": {
+      "target": "dmg",
+      "icon": "build/icon.icns"
+    }
   }
 }

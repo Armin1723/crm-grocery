@@ -2,12 +2,13 @@ import React, { useEffect, useState } from "react";
 import Pagination from "../utils/Pagination";
 import SortableLink from "../utils/SortableLink";
 import ProductActionButton from "./ProductActionButton";
-import CategorySelection from "./CategorySelection";
 import Avatar from "../utils/Avatar";
 import SearchBar from "../utils/SearchBar";
 import ProductCardSmall from "./ProductCardSmall";
 import HoverCard from "../shared/HoverCard";
 import { Link } from "react-router-dom";
+import { categories } from "../utils";
+import CategorySelection from "../utils/CategorySelection";
 
 const ViewProducts = () => {
   const [loading, setLoading] = useState(false);
@@ -60,7 +61,11 @@ const ViewProducts = () => {
             } w-4 aspect-square rounded-full border-t border-b border-accent/90 cursor-pointer`}
             onClick={() => setRefetch((p) => !p)}
           ></p>
-          <CategorySelection category={category} setCategory={setCategory} />
+          <CategorySelection
+            category={category}
+            setCategory={setCategory}
+            categories={categories}
+          />
         </div>
         <SearchBar query={query} setQuery={setQuery} />
       </div>

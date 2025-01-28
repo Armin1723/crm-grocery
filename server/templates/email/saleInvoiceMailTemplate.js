@@ -4,19 +4,17 @@ const saleInvoiceMailTemplate = (sale) => {
     <html lang="en">
       <head>
         <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <style>
           body {
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
-            line-height: 1.6;
-            font-size: 14px; 
           }
           .container {
-            max-width: 800px;
+            max-width: 100%;
             margin: 0 auto;
             padding: 20px;
+            width: 100%;
           }
           .header {
             background-color: #f8f9fa;
@@ -26,70 +24,56 @@ const saleInvoiceMailTemplate = (sale) => {
           .header h1 {
             margin: 0;
             color: #343a40;
-            font-size: 20px; 
+            font-size: 24px;
           }
-          .section {
-            margin-bottom: 20px;
+          .content {
+            padding: 20px;
             background-color: #f8f9fa;
-            padding: 15px;
-            border-radius: 5px;
+            width: 100%;
           }
-          .section h2 {
-            color: #007bff;
-            border-bottom: 2px solid #007bff;
-            padding-bottom: 10px;
-            font-size: 18px; 
+          .content h2 {
+            margin: 0;
+            color: #343a40;
+            font-size: 20px;
           }
-          .flex {
+          .content p {
+            margin: 0;
+            color: #343a40;
+            font-size: 16px;
+          }
+          .content .flex {
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-bottom: 10px;
           }
-          .flex .left {
+          .content .flex .left {
             font-weight: bold;
-            font-size: 14px; 
+            font-size: 16px;
           }
-          .flex .right {
+          .content .flex .right {
             font-weight: normal;
-            font-size: 14px; 
+            font-size: 16px;
           }
-          .table-container {
-            overflow-x: auto;
-            -webkit-overflow-scrolling: touch;
-          }
-          table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 10px;
-          }
-          table th, table td {
-            border: 1px solid #ddd;
-            padding: 8px;
-            text-align: left;
-          }
-          table th {
-            background-color: #f2f2f2;
-            font-weight: bold;
-          }
-          .total {
+          .content .total {
             display: flex;
             justify-content: flex-end;
+            align-items: center;
             margin-top: 10px;
           }
-          .total .left {
+          .content .total .left {
             font-weight: bold;
-            font-size: 14px; 
+            font-size: 16px;
           }
-          .total .right {
+          .content .total .right {
             font-weight: normal;
-            font-size: 14px;
+            font-size: 16px;
           }
-          .download {
+          .content .download {
             margin-top: 20px;
             text-align: center;
           }
-          .download a {
+          .content .download a {
             padding: 10px 20px;
             background-color: #007bff;
             color: white;
@@ -104,33 +88,36 @@ const saleInvoiceMailTemplate = (sale) => {
               padding: 10px;
             }
             .header h1 {
-              font-size: 18px; /* Adjusted font size */
+              font-size: 20px;
             }
-            .section h2 {
-              font-size: 16px; /* Adjusted font size */
+            .content h2 {
+              font-size: 18px;
             }
-            .flex {
+            .content .flex {
               flex-direction: column;
               align-items: flex-start;
             }
-            .flex .left, .flex .right {
-              font-size: 12px; /* Adjusted font size */
+            .content .flex .left,
+            .content .flex .right {
+              font-size: 14px;
             }
-            .total {
+            .content .total {
               flex-direction: column;
               align-items: flex-start;
             }
-            .download a {
+            .content .download a {
               font-size: 14px;
               padding: 8px 15px;
             }
 
             table {
               width: 100%;
-              font-size: 12px; /* Adjusted font size for mobile */
+              font-size: 14px;
+              border-collapse: collapse;
             }
-            table th, table td {
-              padding: 6px;
+            table th,
+            table td {
+              padding: 10px;
               text-align: center;
             }
             table th {
@@ -140,6 +127,37 @@ const saleInvoiceMailTemplate = (sale) => {
             table tbody tr {
               border-bottom: 1px solid #343a40;
             }
+            table tbody td img {
+              width: 50px;
+              height: 50px;
+              object-fit: cover;
+            }
+          }
+
+          /* Additional large screen tweaks */
+          @media (min-width: 768px) {
+            .container {
+              max-width: 800px;
+              padding: 20px;
+            }
+            .header h1 {
+              font-size: 24px;
+            }
+            .content .flex {
+              flex-direction: row;
+            }
+            .content .flex .left,
+            .content .flex .right {
+              font-size: 16px;
+            }
+            .content .download a {
+              font-size: 16px;
+              padding: 10px 20px;
+            }
+            table {
+              width: 100%;
+              font-size: 16px;
+            }
           }
         </style>
       </head>
@@ -148,38 +166,31 @@ const saleInvoiceMailTemplate = (sale) => {
           <div class="header">
             <h1>Sale Invoice</h1>
           </div>
-
-          <div class="section">
+          <div class="content">
             <h2>Customer Details</h2>
             <div class="flex">
-              <div class="left">Name:</div>
+              <div class="left">Name: </div>
               <div class="right">${sale?.customer?.name || 'No name'}</div>
             </div>
             <div class="flex">
-              <div class="left">Email:</div>
+              <div class="left">Email: </div>
               <div class="right">${sale?.customer?.email || 'No email'}</div>
             </div>
             <div class="flex">
-              <div class="left">Phone:</div>
+              <div class="left">Phone: </div>
               <div class="right">${sale?.customer?.phone || 'No contact'}</div>
             </div>
-          </div>
-
-          <div class="section">
             <h2>Sale Details</h2>
             <div class="flex">
-              <div class="left">Sale ID:</div>
+              <div class="left">Sale ID: </div>
               <div class="right">${sale._id}</div>
             </div>
             <div class="flex">
-              <div class="left">Date:</div>
+              <div class="left">Date: </div>
               <div class="right">${new Date(sale.createdAt).toDateString()}</div>
             </div>
-          </div>
-
-          <div class="section">
-            <h2>Sold Products</h2>
-            <div class="table-container">
+            <div class="products">
+              <h2>Sold Products</h2>
               <table>
                 <thead>
                   <tr>
@@ -204,16 +215,14 @@ const saleInvoiceMailTemplate = (sale) => {
                     .join('')}
                 </tbody>
               </table>
+              <div class="total">
+                <div class="left">Total Amount : </div>
+                <div class="right"> ₹${sale.totalAmount}</div>
+              </div>
             </div>
-          </div>
-
-          <div class="total">
-            <div class="left">Total Amount:</div>
-            <div class="right">₹${sale.totalAmount}</div>
-          </div>
-
-          <div class="download">
-            <a href="${sale?.invoice}">Download Invoice</a>
+            <div class="download">
+              <a href="${sale.invoice}" target="_blank">Download Invoice PDF</a>
+            </div>
           </div>
         </div>
       </body>
