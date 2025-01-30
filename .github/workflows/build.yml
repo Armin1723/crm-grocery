@@ -19,3 +19,9 @@ jobs:
         run: npm run mac
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
+
+      - name: Upload macOS Build
+        uses: actions/upload-artifact@v3
+        with:
+          name: macos-build
+          path: dist/*.dmg
