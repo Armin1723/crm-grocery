@@ -17,3 +17,5 @@ jobs:
 
       - name: Build macOS App
         run: npm run mac
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
