@@ -511,8 +511,8 @@ const PurchaseForm = ({ setRefetch = () => {}, closeModal = () => {} }) => {
             </div>
           </div>
         ) : (
-          <div className="flex items-center justify-center w-full min-h-[25vh] my-1 bg-[var(--color-card)] rounded-md border border-neutral-500/50">
-            <p className="text-lg text-neutral-500">No products added</p>
+          <div className="flex items-center justify-center w-full text-[var(--color-text-light)] min-h-[25vh] my-1 bg-[var(--color-card)] rounded-md border border-neutral-500/50">
+            <p className="text-sm">No products added</p>
           </div>
         )}
       </div>
