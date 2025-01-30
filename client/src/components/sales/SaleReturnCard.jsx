@@ -88,7 +88,7 @@ const SaleReturnCard = ({ saleReturn = {} }) => {
                   <Avatar
                     image={product?.product?.image}
                     withBorder={false}
-                    fallbackImage="/utils/product-placeholder.png"
+                    fallbackImage="./utils/product-placeholder.png"
                   />
                 </td>
                 <td className="py-2 pl-4">{product?.product.name}</td>

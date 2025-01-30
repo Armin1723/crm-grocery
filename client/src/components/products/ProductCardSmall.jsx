@@ -11,7 +11,7 @@ const ProductCardSmall = ({
         {/* Product Image */}
         <div className="w-full h-48 bg-[var(--color-sidebar)] rounded-md overflow-hidden">
           <img
-            src={product?.image || "/utils/product-placeholder.png"}
+            src={product?.image || "./utils/product-placeholder.png"}
             alt={product?.name}
             loading="lazy"
             className="w-full h-full object-contain"

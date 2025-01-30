@@ -66,7 +66,7 @@ const TitleBar = () => {
       >
 
         <img
-          src="/logo.png"
+          src="./logo.png"
           alt="logo"
           className="w-5 aspect-square inline-block py-1"
         />

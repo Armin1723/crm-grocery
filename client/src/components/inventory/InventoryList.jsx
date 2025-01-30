@@ -100,7 +100,7 @@ const InventoryList = () => {
                               image={product?.image}
                               width={32}
                               withBorder={false}
-                              fallbackImage="/utils/product-placeholder.png"
+                              fallbackImage="./utils/product-placeholder.png"
                             />
                           </td>
                           <td className="py-2 pl-4 w-1/4 min-w-[150px]">

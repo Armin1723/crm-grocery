@@ -44,7 +44,7 @@ const ProductTable = ({ data = [] }) => {
                   <Avatar
                     image={data?.image}
                     withBorder={false}
-                    fallbackImage="/utils/product-placeholder.png"
+                    fallbackImage="./utils/product-placeholder.png"
                     width={24}
                     alt={data?.name}
                   />

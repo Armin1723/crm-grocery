@@ -101,7 +101,7 @@ const InventoryCard = ({ upid = "", inventoryData = {}, editable = false }) => {
       <div className="product-details bg-[var(--color-primary)] flex w-full justify-between items-center gap-4 p-4 rounded-md">
         <Avatar
           image={inventory?.image?.replace("/upload", "/upload/w_80")}
-          fallbackImage="/utils/product-placeholder.png"
+          fallbackImage="./utils/product-placeholder.png"
           isThumbnail
           withBorder={false}
           width={80}

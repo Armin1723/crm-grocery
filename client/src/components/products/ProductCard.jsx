@@ -17,7 +17,7 @@ const ProductCardLarge = ({
           {/* Image Section */}
           <div className="image w-full lg:w-1/4 aspect-[3/2] flex items-center justify-center rounded-l-md overflow-hidden bg-[var(--color-primary)]">
             <img
-              src={product?.image || "/utils/product-placeholder.png"}
+              src={product?.image || "./utils/product-placeholder.png"}
               alt="Placeholder"
               className="object-cover w-2/3 lg:w-full h-full"
               loading="lazy"

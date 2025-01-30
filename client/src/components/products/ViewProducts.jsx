@@ -135,7 +135,7 @@ const ViewProducts = () => {
                           alt={product.name}
                           width={50}
                           withBorder={false}
-                          fallbackImage="/utils/product-placeholder.png"
+                          fallbackImage="./utils/product-placeholder.png"
                         />
                       </Link>
                     </div>
