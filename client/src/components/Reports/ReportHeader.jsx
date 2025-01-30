@@ -101,7 +101,7 @@ const ReportHeader = ({
 
   return (
     <>
-      <header className="bg-[var(--color-card)] text-xs md:text-sm rounded-lg p-4 max-sm:p-2 sticky -top-3 md:top-0 z-[20] no-print">
+      <header className="bg-[var(--color-card)] text-xs md:text-sm rounded-lg p-4 max-sm:p-2 sticky top-0 z-[20] no-print">
         <div className="flex justify-between items-center">
           <h1 className="text-xl md:text-2xl lg:text-3xl font-bold capitalize">
             {title} Report

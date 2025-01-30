@@ -37,7 +37,7 @@ const Reports = () => {
     <ReportProvider>
       <div className="flex-1 h-full max-sm:overflow-y-auto flex flex-col p-3 w-full">
         <ChipNav chips={navData} baseUrl="/reports" />
-        <div className="flex-1 flex w-full max-lg:flex-col gap-3 border border-neutral-500/50 rounded-md overflow-y-auto">
+        <div className="flex-1 flex w-full border border-neutral-500/50 rounded-md overflow-y-auto">
           <Outlet />
         </div>
       </div>

@@ -166,21 +166,57 @@ const ExpenseReport = () => {
     ];
 
     // Map the data into CSV rows
-    const csvRows = data?.expenseList.map((item) => [
-      item._id,
-      item.signedBy,
-      item.supplier,
-      item.createdAt,
-      item.category,
-      item.source,
-      item.amount,
+    const purchaseRows = data?.purchases.map((item) => [
+      item?._id,
+      item?.signedBy,
+      item?.supplier,
+      item?.createdAt,
+      item?.category,
+      item?.source,
+      item?.amount,
     ]);
 
-    // Add the header to the rows
-    csvRows.unshift(headers);
+    // Map the data into CSV rows
+    const expenseRows = data?.otherExpenses.map((item) => [
+      item?._id,
+      item?.signedBy,
+      item?.supplier,
+      item?.createdAt,
+      item?.category,
+      item?.source,
+      item?.amount,
+    ]);
+
+    // Map the data into CSV rows
+    const purchaseReturnRows = data?.purchaseReturnsList.map((item) => [
+      item?._id,
+      item?.signedBy,
+      item?.supplier,
+      item?.createdAt,
+      item?.category,
+      item?.source,
+      item?.amount,
+    ]);
+
+
+
+    const csvRows = [
+      ["Purchase Data"], // Table title
+      headers,
+      ...(purchaseRows || []),
+      [], // Empty line for separation
+      ["Other Expense Data"], // Table title
+      headers,
+      ...(expenseRows || []),
+      [], // Empty line for separation
+      [" Returns Data"], // Table title
+      headers,
+      ...(purchaseReturnRows || []),
+    ];
+
 
     // Convert rows into a CSV string
-    const csvString = csvRows.map((row) => row.join(",")).join("\n");
+    const csvString = csvRows?.map((row) => row.join(",")).join("\n");
 
     // Create a Blob from the CSV string and trigger download
     const blob = new Blob([csvString], { type: "text/csv;charset=utf-8;" });
@@ -191,7 +227,7 @@ const ExpenseReport = () => {
   };
 
   return (
-    <div className="w-full p-6 min-h-fit max-sm:p-3 bg-[var(--color-sidebar)] rounded-lg">
+    <div className="w-full p-6 h-fit max-sm:p-3 bg-[var(--color-sidebar)] rounded-lg">
       <div className="mx-auto space-y-3 rounded-lg p-2">
         <ReportHeader
           title="expense"
