@@ -34,7 +34,7 @@ const NavSmall = () => {
         <div
           ref={navRef}
           className={`nav ${
-            navOpen ? "w-4/5 tab:w-3/4 opacity-100" : "w-0 opacity0"
+            navOpen ? "w-2/3 lg:w-1/4 opacity-100" : "w-0 opacity0"
           } fixed text-sm inset-0 top-4 !z-[999] 
      h-full flex border-r border-neutral-500/50 overflow-hidden flex-col py-6 bg-[var(--color-sidebar)] text-[var(--color-text)] transition-all duration-300 ease-in`}
         >

@@ -136,7 +136,7 @@ const InventoryList = () => {
         )}
 
         {results.length === 0 && !loading && (
-          <div className="w-full my-2 h-full">No such inventory found.</div>
+          <div className="w-full my-2 h-full flex items-center justify-center text-sm text-[var(--colorr-text-light)]">No such inventory found.</div>
         )}
       </div>
     </>

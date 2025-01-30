@@ -30,8 +30,8 @@ const SaleReturn = () => {
   };
 
   return (
-    <div className="py-3 h-full w-full rounded-md flex flex-col gap-2 border border-neutral-500/50 bg-[var(--color-sidebar)]">
-      <div className="title flex items-center gap-2 my-2">
+    <div className="py-3 h-full w-full flex-1 rounded-md flex flex-col gap-2 border border-neutral-500/50 bg-[var(--color-sidebar)]">
+      <div className="title flex items-center gap-2 my-2 w-full">
         <p className="text-xl max-lg:text-lg font-bold px-2 ">Sales Return</p>
       </div>
 
@@ -65,7 +65,7 @@ const SaleReturn = () => {
           </div>
         </div>
 
-        <div className="productsInfo">
+        <div className="productsInfo w-full flex flex-col">
           <Divider title="Products Details" />
           <SaleReturnForm sale={sale} setSale={setSale} loading={loading} />
         </div>

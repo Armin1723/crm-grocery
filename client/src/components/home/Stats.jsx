@@ -11,9 +11,9 @@ const Stats = () => {
       <div className="line-1 flex w-full ">
         <Cards />
       </div>
-      <div className="line-2 flex flex-1 gap-3 flex-col md:flex-row px-3 py-2 my-2">
+      <div className="line-2 flex flex-1 gap-3 flex-col lg:flex-row px-3 py-2 my-2">
         <SalesChart />
-        <div className="col w-full md:w-1/4 flex flex-col max-sm:flex-col-reverse gap-4">
+        <div className="col w-full lg:w-1/4 flex flex-col-reverse md:flex-col gap-4">
           <CategoryChart />
           <div className="flex-1 flex flex-col justify-center gap-3 rounded-md border border-neutral-500/50 bg-[var(--color-sidebar)] px-4 py-2">
             <p className="font-bold text-xl max-lg:text-lg">Add New Sale</p>

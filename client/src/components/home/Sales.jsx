@@ -29,12 +29,10 @@ const Purchases = () => {
     },
   ];
   return (
-    <div className="flex-1 overflow-y-scroll md:overflow-y-hidden flex flex-col p-3 w-full">
+    <div className="flex-1 overflow-y-auto min-h-full flex flex-col p-3 w-full">
       <ChipNav chips={chipData} baseUrl="/sales" />
-      <div className="flex-1 flex w-full flex-col md:flex-row gap-3 overflow-y-auto">
-        <div className="flex-1 max-sm:min-h-fit overflow-y-scroll">
-          <Outlet />
-        </div>
+      <div className="flex-1 flex w-full flex-col lg:flex-row gap-3 overflow-y-auto">
+        <Outlet />
         <RecentSale />
       </div>
     </div>

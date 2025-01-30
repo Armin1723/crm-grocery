@@ -43,7 +43,7 @@ const ViewSales = () => {
     fetchPurchases();
   }, [refetch, limit, page, sort, sortType]);
   return (
-    <div className="p-3 rounded-md flex h-full flex-col gap-2 border border-neutral-500/50 bg-[var(--color-sidebar)]">
+    <div className="p-3 rounded-md flex h-full flex-1 flex-col gap-2 border border-neutral-500/50 bg-[var(--color-sidebar)]">
       <div className="top flex w-full justify-between flex-wrap my-2">
         <div className="title flex items-center gap-2 flex-wrap ">
           <p className="text-xl max-lg:text-lg font-bold ">View Sales</p>
@@ -109,7 +109,7 @@ const ViewSales = () => {
                   key={index}
                   className="tr flex w-full justify-between items-center py-2 px-4 max-sm:px-1 gap-2 hover:bg-accent/10"
                 >
-                  <div className="w-1/5 min-w-[50px]">
+                  <div className="w-1/5 min-w-[50px] pl-2">
                     {sale?.customer?.name || sale?.customer?.phone || 'No data'}
                   </div>
                   <div className="w-[15%] min-w-[80px] px-2">

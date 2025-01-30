@@ -45,7 +45,7 @@ const RecentPurchase = () => {
   }, [refetch]);
 
   return (
-    <div className="bg-[var(--color-sidebar)] flex flex-col p-4 rounded-md border border-neutral-500/50 w-[30%] max-sm:w-full h-full overflow-y-auto">
+    <div className="bg-[var(--color-sidebar)] flex-col p-4 text-sm rounded-md border border-neutral-500/50 w-full hidden xl:flex xl:w-[30%] h-full overflow-y-auto">
       <div className="title flex items-center justify-between mb-4">
         <h2 className="text-xl font-bold">Recent Purchase</h2>
         <button
@@ -149,7 +149,7 @@ const RecentPurchase = () => {
             <p className="font-semibold mt-2">
               Total Amount: {recentPurchase.totalAmount} ₹
             </p>
-            <p>Signed By: {recentPurchase.signedBy?.name || "N/A"}</p>
+            <p className="capitalize">Signed By: {recentPurchase.signedBy?.name || "N/A"}</p>
           </div>
         </div>
       ) : (

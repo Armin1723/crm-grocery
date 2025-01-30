@@ -49,7 +49,7 @@ const ViewSaleReturns = () => {
   }, [refetch, page, sort, sortType]);
 
   return (
-    <div className="p-3 rounded-md flex h-full flex-col gap-2 border border-neutral-500/50 bg-[var(--color-sidebar)]">
+    <div className="p-3 rounded-md flex h-full flex-1 flex-col gap-2 border border-neutral-500/50 bg-[var(--color-sidebar)]">
       <div className="top flex w-full justify-between flex-wrap my-2">
         <div className="title flex items-center gap-2 flex-wrap ">
           <p className="text-xl max-lg:text-lg font-bold ">
@@ -120,7 +120,7 @@ const ViewSaleReturns = () => {
                     key={index}
                     className="tr flex w-full justify-between items-center p-4 max-sm:px-1 gap-2 hover:bg-accent/10"
                   >
-                    <div className="w-1/5 min-w-[50px]">
+                    <div className="w-1/5 min-w-[50px] pl-2">
                       {saleReturn?.customer?.name ||
                         saleReturn?.customer?.phone ||
                         "No data"}

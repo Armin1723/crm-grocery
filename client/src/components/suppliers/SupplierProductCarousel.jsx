@@ -47,7 +47,7 @@ const SupplierProductCarousel = () => {
         results?.products.map((product, index) => (
           <div
             key={product._id}
-            className="min-w-full w-full tab:min-w-[50%] tab:w-1/2 md:min-w-[50%] md:w-1/2 lg:min-w-[25%] lg:w-1/4  overflow-hidden snap-start snap-mandatory"
+            className="min-w-full w-full tab:min-w-[50%] tab:w-1/2 md:min-w-[50%] md:w-1/2 lg:min-w-[33%] lg:w-1/3 xl:w-1/4 xl:min-w-[25%]  overflow-hidden snap-start snap-mandatory"
           >
             <ProductCardSmall product={product} setRefetch={setRefetch} />
           </div>

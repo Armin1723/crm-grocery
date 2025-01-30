@@ -14,7 +14,7 @@ const SaleCardSmall = ({ sale }) => {
   } = sale;
 
   return (
-    <div className="bg-[var(--color-card)] shadow-md border border-neutral-500/50 rounded-md p-4 mb-4">
+    <div className="bg-[var(--color-card)] aspect-4/3 min-h-48 shadow-md border border-neutral-500/50 rounded-md p-4 mb-4">
       {/* Header */}
       <div className="flex justify-between items-center mb-3">
         <h3 className="text-[var(--color-text)] font-semibold">

@@ -42,7 +42,7 @@ const ProductSales = () => {
   }, [id, refetch, page]);
 
   return (
-    <div className="flex w-full min-h-fit overflow-x-auto scroll-snap snap-x snap-mandatory">
+    <div className="flex w-full overflow-x-auto overflow-y-visible scroll-snap snap-x snap-mandatory">
       {!results?.sales?.length && (
         <div className="flex flex-col min-w-full w-full md:w-1/2 md:min-w-[50%] lg:w-1/3 lg:min-w-[33%] rounded-md px-4 py-2 snap-start h-fit">
           <p className="text-lg max-sm:text-base text-[var(--color-text-light)]">
@@ -54,7 +54,7 @@ const ProductSales = () => {
         results?.sales?.map((sale, index) => (
           <div
             key={index}
-            className="flex flex-col min-w-full w-full md:w-1/2 md:min-w-[50%] lg:w-1/3 lg:min-w-[33%] rounded-md px-4 py-2 snap-start h-fit"
+            className="flex flex-col min-w-full w-full md:w-1/2 md:min-w-[50%] xl:w-1/3 xl:min-w-[33%] rounded-md px-2 py-2 snap-start h-fit"
           >
             <SaleCardSmall sale={sale} />
           </div>

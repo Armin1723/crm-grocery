@@ -4,7 +4,6 @@ import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
 const CategoryChart = () => {
   const CustomTooltip = ({ active, payload }) => {
     if (active && payload && payload.length) {
-      // Show only the value
       return (
         <div
           style={{
@@ -22,7 +21,7 @@ const CategoryChart = () => {
       );
     }
 
-    return null; // Do not render anything if tooltip is not active
+    return null;
   };
 
   const dataCopy = [
@@ -69,7 +68,7 @@ const CategoryChart = () => {
   ];
 
   return (
-    <div className="w-full h-2/3 min-h-[40vh] md:min-h-fit relative flex flex-col justify-center py-3 px-4 bg-[var(--color-sidebar)] border border-neutral-500/50 rounded-md">
+    <div className="w-full h-2/3 min-h-[40vh] lg:min-h-fit relative flex flex-col justify-center py-3 px-4 bg-[var(--color-sidebar)] border border-neutral-500/50 rounded-md">
         <div className="title px-3 py-2 ">
           <p className="text-xl font-bold">Stocks</p>
           <p className="text-xs text-neutral-500">by category</p>

@@ -130,7 +130,7 @@ const ViewExpenses = () => {
                   >
                     <div className="w-1/5 min-w-[50px] px-2 capitalize">
                       <span
-                        className={`px-3 rounded-lg text-xs border ${bg} ${border} ${text}`}
+                        className={`px-3 rounded-lg text-xs border truncate text-ellipsis ${bg} ${border} ${text}`}
                       >
                         {expense?.category || "N/A"}
                       </span>

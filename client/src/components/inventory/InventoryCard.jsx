@@ -69,6 +69,24 @@ const InventoryCard = ({ upid = "", inventoryData = {}, editable = false }) => {
     }
   };
 
+  if (loading) {
+    // Skeleton loader
+    <div className="flex flex-col min-w-full w-full md:w-1/2 md:min-w-[50%] lg:w-1/3 lg:min-w-[33%] rounded-md px-4 py-2 snap-start h-fit">
+      <div className="flex flex-col gap-2">
+        <div className="animate-pulse w-12 aspect-square rounded-full flex flex-col gap-2 bg-[var(--color-card)] p-4 max-sm:text-sm"/>
+        <div className="flex flex-col gap-2 w-4/5">
+          <p className="w-4/5 py-2 bg-[var(--color-card)] animate-pulse rounded-md"/>
+          <p className="w-3/5 py-1 bg-[var(--color-card)] animate-pulse rounded-md"/>
+        </div>
+      </div>
+      <div className="flex flex-col gap-3">
+        <div className="animate-pulse w-full h-20 bg-[var(--color-card)] rounded-md"/>
+        <div className="animate-pulse w-full h-20 bg-[var(--color-card)] rounded-md"/>
+        <div className="animate-pulse w-full h-20 bg-[var(--color-card)] rounded-md"/>
+      </div>
+    </div>;
+  }
+
   if (!inventory && !loading)
     return (
       <div className="flex flex-col min-w-full w-full md:w-1/2 md:min-w-[50%] lg:w-1/3 lg:min-w-[33%] rounded-md px-4 py-2 snap-start h-fit">

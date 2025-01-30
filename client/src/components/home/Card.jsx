@@ -67,7 +67,7 @@ const Card = ({ data, index, chartData = {} }) => {
         opacity: 0,
         y: 50,
       }}
-      className="snap-start flex min-w-full tab:min-w-[50%] md:min-w-[33%] lg:min-w-[25%]"
+      className="snap-start flex min-w-full tab:min-w-[50%] lg:min-w-[33%] xl:min-w-[25%]"
     >
       <div
         className="card-wrapper relative overflow-hidden mx-2 flex w-full aspect-[16/8] border rounded-md items-center bg-[var(--color-sidebar)] border-b-4 border-neutral-500/50 shadow-md"

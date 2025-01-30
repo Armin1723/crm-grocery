@@ -69,7 +69,7 @@ const SellerCategoryChart = () => {
   ];
 
   return (
-    <div className="w-full h-full min-h-[50vh] md:min-h-fit relative flex flex-col justify-center py-3 px-4 bg-[var(--color-sidebar)] border border-neutral-500/50 rounded-md">
+    <div className="w-full h-full min-h-[50vh] lg:min-h-fit relative flex flex-col justify-center py-3 px-4 bg-[var(--color-sidebar)] border border-neutral-500/50 rounded-md">
         <div className="title flex items-center gap-2 px-3 py-2 ">
           <p className="text-lg md:text-2xl font-bold">Stocks</p>
           <p className="text-xs md:text-sm text-neutral-500">(by category)</p>

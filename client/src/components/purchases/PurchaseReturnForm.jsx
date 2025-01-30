@@ -316,8 +316,8 @@ const PurchaseReturnForm = ({
           </div>
         </>
       ) : (
-        <div className="flex-1 flex min-h-[25vh] bg-[var(--color-card)] justify-center items-center rounded-md my-2">
-          <p className="text-center text-lg">Empty</p>
+        <div className="flex-1 flex min-h-[25vh] bg-[var(--color-card)] text-[var(--color-text-light)] justify-center items-center rounded-md my-2">
+          <p className="text-center text-sm">Empty</p>
         </div>
       )}
 

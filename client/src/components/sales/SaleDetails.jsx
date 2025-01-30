@@ -47,7 +47,7 @@ const SaleDetails = ({ idBackup = "" }) => {
     );
 
   return (
-    <div className="p-3 rounded-md flex h-full flex-col gap-2 border border-neutral-500/50 bg-[var(--color-sidebar)] overflow-y-auto">
+    <div className="p-3 rounded-md flex h-full flex-1 flex-col gap-2 border border-neutral-500/50 bg-[var(--color-sidebar)] overflow-y-auto">
       <div className="top flex w-full justify-between flex-wrap my-2">
         <div className="top-left title flex items-center gap-2 flex-wrap ">
           <p className="text-xl max-lg:text-lg font-bold ">Sale Details </p>

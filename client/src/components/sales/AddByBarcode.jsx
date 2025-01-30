@@ -97,7 +97,7 @@ const AddByBarcode = ({ getValues = [], setValue = () => {} }) => {
         type="text"
         placeholder="Barcode"
         onChange={handleBarcodeInput}
-        className="border border-neutral-500 bg-transparent p-1 pl-2 rounded-md outline-none max-sm:flex-1"
+        className="border border-neutral-500 bg-transparent px-2 py-1 rounded-md outline-none max-sm:flex-1"
       />
 
       {isModalOpen && (

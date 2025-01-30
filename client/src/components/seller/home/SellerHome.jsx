@@ -34,15 +34,15 @@ const SellerHome = () => {
 
   return (
     <div className="flex flex-col rounded-md bg-[var(--color-sidebar)] select-none p-2 flex-1 w-full h-full gap-3 overflow-y-auto">
-      <div className="line-1 flex flex-col md:flex-row w-full gap-2">
+      <div className="line-1 flex flex-col lg:flex-row w-full gap-2">
         <div className="salesChart flex-1">
           <SellerSalesChart/>
         </div>
-        <div className="w-full md:w-1/4 h-full">
+        <div className="w-full lg:w-1/4 h-full">
           <SellerCategoryChart />
         </div>
       </div>
-      <div className="line-2 grid grid-cols-1 md:grid-cols-3 gap-6 w-full">
+      <div className="line-2 flex-1 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full">
         {/* Sales Card */}
         <div className="flex flex-col justify-between rounded-lg shadow-lg border border-neutral-500/50 bg-[var(--color-primary)] p-5 hover:shadow-xl transition-shadow">
           <div className="flex items-center gap-4">
@@ -100,8 +100,8 @@ const SellerHome = () => {
         </div>
 
         {/* Employee Card */}
-        <div className="rounded-lg shadow-lg hover:shadow-xl transition-shadow border border-neutral-500/50">
-          <EmployeeCard employee={user} />
+        <div className="rounded-lg shadow-lg hover:shadow-xl transition-shadow border border-neutral-500/50 max-lg:last:col-span-full">
+          <EmployeeCard employee={user} otherClasses="h-full"/>
         </div>
       </div>
     </div>

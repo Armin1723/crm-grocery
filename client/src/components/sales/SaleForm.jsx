@@ -151,7 +151,7 @@ const SaleForm = ({ setRefetch = () => {}, closeModal = () => {} }) => {
       </div>
 
       {/* Add Product */}
-      <div className="add-product flex items-center max-sm:space-y-2 py-2 w-full pr-2 flex-wrap relative justify-between">
+      <div className="add-product flex items-center gap-3 py-2 w-full md:pr-2 flex-wrap relative justify-between">
         <SaleProductSuggestion
           getValues={getValues}
           setValue={setValue}
@@ -162,7 +162,7 @@ const SaleForm = ({ setRefetch = () => {}, closeModal = () => {} }) => {
       </div>
       {watchedProducts.length > 0 ? (
         <>
-          <div className="table-wrapper overflow-x-auto overflow-y-visible min-h-fit flex relative flex-1 mt-2 border border-b-0 border-neutral-500/50 rounded-md rounded-b-none">
+          <div className="table-wrapper overflow-x-auto overflow-y-visible min-h-[40vh] flex relative flex-1 mt-2 border border-b-0 border-neutral-500/50 rounded-md rounded-b-none">
             <div className="products-container overflow-x-auto overflow-y-auto table flex-col w-fit max-w-full max-sm:text-sm flex-1">
               <div className="th flex w-fit min-w-full flex-1 z-[99] justify-between items-center gap-2 border-b border-neutral-500/50 bg-[var(--color-card)] rounded-t-md px-2 py-1 sticky top-0">
                 <p className="w-[5%] min-w-[30px]">*</p>
@@ -395,8 +395,8 @@ const SaleForm = ({ setRefetch = () => {}, closeModal = () => {} }) => {
           </div>
         </>
       ) : (
-        <div className="flex-1 flex min-h-[25vh] bg-[var(--color-card)] justify-center items-center rounded-md my-2">
-          <p className="text-center text-lg">No products added</p>
+        <div className="flex-1 flex min-h-[25vh] bg-[var(--color-card)] text-[var(--color-text-light)] justify-center items-center rounded-md my-2">
+          <p className="text-center text-sm">No products added</p>
         </div>
       )}
 

@@ -4,14 +4,14 @@ import { Link } from "react-router-dom";
 import { formatDateIntl, getAge } from "../utils";
 import { useSelector } from "react-redux";
 
-const EmployeeCard = ({ employee }) => {
+const EmployeeCard = ({ employee , otherClasses = ''}) => {
   const user = useSelector((state) => state.user);
   const isAdmin = user && user.role && user.role === "admin";
   return (
     <div
       className={` ${
         employee?.role == "admin" ? "bg-red-500/10" : "bg-green-500/10"
-      } p-6 w-full rounded-lg shadow-lg bg-[var(--color-card)] text-[var(--color-text)] mx-auto`}
+      } p-6 w-full rounded-lg flex flex-col justify-between shadow-lg bg-[var(--color-card)] text-[var(--color-text)] mx-auto ${otherClasses}`}
     >
       {/* Card Layout */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-4 sm:space-y-0">

@@ -106,7 +106,7 @@ const PurchaseProductSuggestion = ({
       />
 
       {suggestedProducts.length > 0 && (
-        <div className="suggested-products w-full absolute top-full left-0 z-[99] bg-[var(--color-card)] rounded-b-md shadow-md border border-neutral-500/50">
+        <div className="suggested-products  w-full absolute top-full left-0 z-[999] bg-[var(--color-card)] rounded-b-md shadow-md border border-neutral-500/50">
           {suggestedProducts.map((product, index) => (
             <div
               key={product._id}

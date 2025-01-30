@@ -277,7 +277,7 @@ const PurchaseForm = ({ setRefetch = () => {}, closeModal = () => {} }) => {
                       onClick={() => setProductPreviewModal(true)}
                       className="w-1/5 min-w-[100px] flex-wrap flex-grow"
                     >
-                      <HoverCard title={product?.name} otherClasses="max-w-3xl z-[999]">
+                      <HoverCard title={product?.name} otherClasses="max-w-3xl z-[99]">
                         <InventoryCard upid={product?.upid} />
                       </HoverCard>
                     </p>
@@ -511,8 +511,8 @@ const PurchaseForm = ({ setRefetch = () => {}, closeModal = () => {} }) => {
             </div>
           </div>
         ) : (
-          <div className="flex items-center justify-center w-full min-h-[25vh] my-1 bg-[var(--color-card)] rounded-md border border-neutral-500/50">
-            <p className="text-lg text-neutral-500">No products added</p>
+          <div className="flex items-center justify-center w-full min-h-[25vh] my-1 bg-[var(--color-card)] text-[var(--color-text-light)] rounded-md border border-neutral-500/50">
+            <p className="text-sm">No products added</p>
           </div>
         )}
       </div>

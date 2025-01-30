@@ -54,17 +54,17 @@ const SellerNavSmall = () => {
         className="flex hamburger w-10 flex-col gap-1 px-2 cursor-pointer transition-all duration-300 ease-in"
       >
         <div
-          className={`line w-full border transition-all duration-300 
+          className={`line w-full border-b-2 transition-all duration-300 
           ${navOpen ? "rotate-45 translate-y-1.5" : ""} 
           border-[var(--color-text)]`}
         ></div>
         <div
-          className={`line w-3/5 border transition-all duration-300 
+          className={`line w-3/5 border-b-2 transition-all duration-300 
           ${navOpen ? "opacity-0" : ""} 
           border-[var(--color-text)]`}
         ></div>
         <div
-          className={`line w-full border transition-all duration-300 
+          className={`line w-full border-b-2 transition-all duration-300 
           ${navOpen ? "-rotate-45 -translate-y-1.5" : ""} 
           border-[var(--color-text)]`}
         ></div>

@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import SortableLink from "../utils/SortableLink";
 import Pagination from "../utils/Pagination";
 import { formatDate } from "../utils";
@@ -55,7 +55,6 @@ const ViewPurchases = () => {
             onClick={() => setRefetch((p) => !p)}
           ></p>
         </div>
-        {/* <ExportButton title="Purchases" /> */}
       </div>
 
       <div className="table-wrapper flex relative flex-1 my-2 overflow-y-auto">
@@ -76,10 +75,10 @@ const ViewPurchases = () => {
             </div>
             <div className="w-[15%] min-w-[80px] flex items-center  ">
               <SortableLink
-                title="totalAmount"
+                title={<p>Total <span className="max-md:hidden">Amount</span></p>}
                 isActive={sort === "totalAmount"}
                 sortType={sortType}
-                setSort={setSort}
+                setSort={()=>setSort("totalAmount")}
                 setSortType={setSortType}
               />
             </div>
@@ -94,10 +93,10 @@ const ViewPurchases = () => {
             </div>
             <div className="w-[15%] min-w-[50px] flex items-center  ">
               <SortableLink
-                title="signedBy"
+                title="Signed By"
                 isActive={sort === "signedBy"}
                 sortType={sortType}
-                setSort={setSort}
+                setSort={() => setSort("signedBy")}
                 setSortType={setSortType}
               />
             </div>
@@ -123,7 +122,7 @@ const ViewPurchases = () => {
                   >
                     <Link
                       to={`/suppliers/${purchase?.supplier?._id}`}
-                      className="w-1/5 min-w-[50px]"
+                      className="w-1/5 min-w-[50px] pl-2"
                     >
                       {purchase?.supplier?.name}
                     </Link>

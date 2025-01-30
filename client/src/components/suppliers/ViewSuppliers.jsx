@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import Pagination from "../utils/Pagination";
 import SortableLink from "../utils/SortableLink";
-import SearchBar from "../utils/SearchBar";
 import { Link } from "react-router-dom";
 import SupplierActionButton from "./SupplierActionButton";
 import { FaArrowDown, FaArrowUp } from "react-icons/fa";
@@ -55,7 +54,6 @@ const ViewSuppliers = () => {
             onClick={() => setRefetch((p) => !p)}
           ></p>
         </div>
-        {/* <SearchBar query={query} setQuery={setQuery} /> */}
       </div>
 
       <div className="table-wrapper flex relative flex-1 my-2 overflow-x-scroll ">
@@ -112,7 +110,7 @@ const ViewSuppliers = () => {
                     key={index}
                     className="tr flex w-full justify-between items-center py-2 px-4 max-sm:px-1 gap-2 hover:bg-accent/10"
                   >
-                    <Link to={`/suppliers/${supplier?._id}`} className="w-1/5 min-w-[50px]">{supplier?.name}</Link>
+                    <Link to={`/suppliers/${supplier?._id}`} className="w-1/5 min-w-[50px] pl-2">{supplier?.name}</Link>
                     <div
                       className={`w-[10%] min-w-[50px] px-2 font-semibold flex items-center gap-2 ${
                         supplier.balance > 0
@@ -129,7 +127,7 @@ const ViewSuppliers = () => {
                     <div className="w-[15%] min-w-[50px] px-2 capitalize">
                       {supplier?.phone || "N/A"}
                     </div>
-                    <div className="w-[15%] min-w-[80px] px-2 ">
+                    <div className="w-[15%] min-w-[80px] px-2 text-ellipsis truncate">
                       {supplier?.email || "N/A"}
                     </div>
                     <div className="actions w-[10%] min-w-[50px] flex items-center justify-center gap-2">

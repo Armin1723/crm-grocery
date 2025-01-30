@@ -10,7 +10,7 @@
     "build": "electron-builder",
     "build win": "electron-builder --win",
     "build linux": "electron-builder --linux",
-    "mac": "electron-builder --mac"
+    "mac": "electron-builder --mac --x64"
   },
   "devDependencies": {
     "electron": "^14.0.0",

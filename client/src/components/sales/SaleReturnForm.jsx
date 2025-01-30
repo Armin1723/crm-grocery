@@ -143,7 +143,7 @@ const SaleReturnForm = ({ sale = {}, setSale = () => {}, loading = false }) => {
     >
       {watchedProducts?.length > 0 ? (
         <>
-          <div className="table-wrapper flex relative flex-1 mt-2 border border-b-0 border-neutral-500/50 rounded-md rounded-b-none overflow-x-auto">
+          <div className="table-wrapper w-full flex relative flex-1 mt-2 border border-b-0 border-neutral-500/50 rounded-md rounded-b-none overflow-x-auto">
             <div className="products-container overflow-x-auto overflow-y-auto max-sm:px-2 table flex-col w-fit min-w-full max-sm:text-sm flex-1">
               <TableHeader />
               {watchedProducts &&
@@ -292,8 +292,8 @@ const SaleReturnForm = ({ sale = {}, setSale = () => {}, loading = false }) => {
           </div>
         </>
       ) : (
-        <div className="flex-1 flex min-h-[25vh] bg-[var(--color-card)] justify-center items-center rounded-md my-2">
-          <p className="text-center text-lg">Empty</p>
+        <div className="flex-1 flex min-h-[25vh] bg-[var(--color-card)] text-[var(--color-text-light)] justify-center items-center rounded-md my-2">
+          <p className="text-center text-sm">Empty</p>
         </div>
       )}
 

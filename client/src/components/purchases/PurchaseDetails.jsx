@@ -41,7 +41,7 @@ const PurchaseDetails = ({ idBackup = "" }) => {
 
   if (loading)
     return (
-      <div className="p-3 rounded-md flex h-full flex-col items-center justify-center gap-2 border border-neutral-500/50 bg-[var(--color-sidebar)] ">
+      <div className="p-3 rounded-md flex h-full flex-col items-center justify-center gap-2 min-h-[40vh] bg-[var(--color-sidebar)] ">
         <div className="spinner "></div>
       </div>
     );

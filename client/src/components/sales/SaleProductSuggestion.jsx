@@ -92,7 +92,7 @@ const SaleProductSuggestion = ({
       onKeyDown={handleKeyDown}
       tabIndex={0}
     >
-      <div className="rounded-s-md px-3 py-2 bg-[var(--color-card)]">
+      <div className="rounded-s-md px-3 py-1 bg-[var(--color-card)]">
         <FaSearch />
       </div>
       <input
