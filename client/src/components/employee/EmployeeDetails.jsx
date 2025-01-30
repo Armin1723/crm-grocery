@@ -42,14 +42,14 @@ const EmployeeDetails = () => {
   }, [id, refetch]);
 
   return (
-    <div className="p-3 rounded-md flex h-full min-h-[70vh] flex-col gap-4 border border-neutral-500/50 bg-[var(--color-sidebar)] overflow-y-auto flex-1">
+    <div className="p-3 rounded-md flex h-full flex-col gap-4 border border-neutral-500/50 bg-[var(--color-sidebar)] overflow-y-auto flex-1 px-2">
       {employee && !loading ? (
         <div className="wrapper flex flex-col overflow-y-auto gap-3">
           <Divider title="Employee Details" />
           <EmployeeCard employee={employee} setRefetch={setRefetch} />
 
           {(isAdmin || isSelf) && employee?.identityProof && (
-            <>
+            <div className="flex flex-col gap-2">
               <Divider title={<div className="flex items-center gap-3">
                 <span>Identity Proof</span>
                 <button
@@ -66,7 +66,7 @@ const EmployeeDetails = () => {
                       <embed
                         type="application/pdf"
                         src={`${employee?.identityProof}#toolbar=0&navpanes=0`}
-                        className="w-full md:w-4/5 h-[500px] border-none rounded-lg"
+                        className="w-4/5 md:w-4/5 h-[500px] border-none rounded-lg"
                         title="Identity Proof"
                       />
                     ) : (
@@ -89,11 +89,13 @@ const EmployeeDetails = () => {
                   )}
                 </div>
               </div>
-            </>
+            </div>
           )}
 
+        <div className="flex flex-col gap-2 px-2">
           <Divider title="Sales History" />
           <EmployeeSales uuid={id} />
+        </div>
         </div>
       ) : (
         <div className="w-full h-full flex items-center justify-center">

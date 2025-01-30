@@ -25,6 +25,12 @@
     "asar": true,
     "appId": "com.crm.grocery",
     "productName": "CRM Grocery",
+    "extraResources": [
+    {
+      "from": "./client/dist/assets/index-LmHcHfTF.css",
+      "to": "index.css"
+    }
+  ],
     "extraMetadata": {
       "name": "CRM Grocery",
       "description": "Grocery Store CRM App.",

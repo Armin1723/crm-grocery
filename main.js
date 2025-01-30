@@ -1,13 +1,10 @@
 const { app, BrowserWindow, ipcMain, shell, dialog } = require("electron");
 const { autoUpdater } = require("electron-updater");
-const { spawn } = require("child_process");
-const tcpPortUsed = require("tcp-port-used");
+const backend = require("./backend");
 const path = require("path");
 const fs = require("fs");
 
 let mainWindow;
-let backendProcess;
-let PORT = 8000;
 
 // Function to create the main Electron window
 function createWindow() {
@@ -26,8 +23,8 @@ function createWindow() {
     },
   });
 
-  // const startURL = `file://${path.join(__dirname, "./client/dist/index.html")}`;
-  const startURL = `http://localhost:5173`;
+  const startURL = `file://${path.join(__dirname, "./client/dist/index.html")}`;
+  // const startURL = `http://localhost:5173`;
   mainWindow.loadURL(startURL);
 
   // Handle custom window controls
@@ -74,61 +71,9 @@ ipcMain.on("open-in-browser", (event, url) => {
   shell.openExternal(url);
 });
 
-// Function to start your backend server
-async function startBackend() {
-  // Check if the backend process is already running
-  const isPortInUse = await tcpPortUsed.check(PORT);
-  if (isPortInUse) {
-    console.log("Backend is already running on port", PORT);
-    return;
-  }
-
-  // Use process.platform to determine the correct node command
-  const backendCommand = process.platform === "win32" ? "node.exe" : "node";
-  const backendArgs = ["index.js"];
-  const backendPath = path.join(__dirname, "./server");
-
-  console.log("Starting backend with command:", backendCommand);
-  console.log("Backend args:", backendArgs);
-  console.log("Backend working directory:", backendPath);
-
-  try {
-    backendProcess = spawn(backendCommand, backendArgs, {
-      cwd: backendPath,
-      stdio: ["inherit", "pipe", "pipe"],
-      shell: true,
-    });
-
-    // Handle stdout
-    backendProcess.stdout.on("data", (data) => {
-      console.log(`Backend stdout: ${data}`);
-    });
-
-    // Handle stderr
-    backendProcess.stderr.on("data", (data) => {
-      console.error(`Backend stderr: ${data}`);
-    });
-
-    backendProcess.on("error", (err) => {
-      console.error("Failed to start backend server:", err);
-    });
-
-    backendProcess.on("close", (code) => {
-      console.log(`Backend process exited with code ${code}`);
-      if (code !== 0) {
-        // Restart the backend process if it exits with a non-zero code
-        console.log("Attempting to restart backend...");
-        startBackend();
-      }
-    });
-  } catch (error) {
-    console.error("Error starting backend:", error);
-  }
-}
-
 // Initialize app
 app.whenReady().then(async () => {
-  await startBackend();
+  await backend.startBackend();
   createWindow();
 
   // Check for updates
@@ -178,22 +123,9 @@ ipcMain.on("print-content", async (event, printHTML) => {
     });
 
     // Load the content into the print window
-    // await printWindow.loadURL(
-    //   `data:text/html;charset=utf-8,${encodeURIComponent(printHTML)}`
-    // );
-
-    // Make sure the directory exists
-    const dirPath = path.join(__dirname, "./tmp");
-    if (!fs.existsSync(dirPath)) {
-      fs.mkdirSync(dirPath); // Create the tmp folder if it doesn't exist
-    }
-
-    // Create the file path
-    const filePath = path.join(dirPath, "file.html");
-
-    // Write the content to the file
-    fs.writeFileSync(filePath, printHTML);
-    await printWindow.loadFile(filePath);
+    await printWindow.loadURL(
+      `data:text/html;charset=utf-8,${encodeURIComponent(printHTML)}`
+    );
 
     // Wait for the content to load before printing
     printWindow.webContents.on("did-finish-load", () => {
@@ -212,6 +144,10 @@ ipcMain.on(
     event,
     { title, content, startDate, endDate, tailwindCSSStyles, tailwindCSS }
   ) => {
+    const tailwindPath = `file://${path.join(__dirname, "../index.css")}`;
+
+    const tailwindCSSAlternate = fs.readFileSync(path.join(__dirname, '../index.css'), 'utf-8');
+
     let printWindow = new BrowserWindow({
       width: 800,
       height: 1000,
@@ -221,15 +157,16 @@ ipcMain.on(
       },
     });
 
-
     // Format the report page
     const printHTML = `
     <html>
       <head>
         <title style="text-transform: capitalize;">${title} Report</title>
         <link rel="stylesheet" href="${tailwindCSSStyles}" />
+        <link rel="stylesheet" href="${tailwindPath}" />
         <style>
           ${tailwindCSS}
+          ${tailwindCSSAlternate}
           /* General print styles */
             @media print {
              

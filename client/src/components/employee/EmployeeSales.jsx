@@ -43,7 +43,7 @@ const EmployeeSales = () => {
   }, [uuid, page, sort, sortType]);
 
   return (
-    <div className="overflow-y-auto max-h-[50vh] w-full">
+    <div className="overflow-y-auto w-full">
       {results?.sales?.length && !loading ? (
         <table className="min-w-full text-sm">
           <thead className="bg-[var(--color-card)] border-b border-neutral-500/50 sticky top-0">
