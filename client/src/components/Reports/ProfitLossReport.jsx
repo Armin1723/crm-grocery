@@ -53,26 +53,19 @@ const ProfitLossReport = () => {
   }, [dateRange]);
 
   return (
-    <div
-      className="w-full p-6 min-h-fit max-sm:p-3 bg-[var(--color-sidebar)] rounded-lg "
-      ref={printRef}
-    >
-      <div className="mx-auto space-y-3 rounded-lg p-2">
-        <ReportHeader
-          title="P/L"
-          printRef={printRef}
-          handleDownload={null}
-        />
+    <div className="w-full p-1 min-h-fit bg-[var(--color-sidebar)] rounded-lg ">
+      <div className="mx-auto space-y-2 rounded-lg p-1">
+        <ReportHeader title="P/L" printRef={printRef} handleDownload={null} />
         {loading ? (
           <div className="w-full p-6 min-h-fit max-sm:p-3 bg-[var(--color-sidebar)] rounded-lg flex items-center justify-center">
             <div className="spinner"></div>
           </div>
         ) : (
-          <>
+          <div className="flex flex-col gap-2" ref={printRef}>
             <PLData reportData={reportData} />
 
             {/* Chart Section */}
-            <div className="bg-[var(--color-card)] rounded-lg p-6 flex flex-col gap-4 shadow-sm">
+            <div className="bg-[var(--color-card)] rounded-lg p-3 flex flex-col gap-3 shadow-sm">
               <Divider title="Monthly Trends" />
 
               {reportData?.charts?.salesChartData?.length === 0 ||
@@ -81,9 +74,9 @@ const ProfitLossReport = () => {
                   No data available for the selected date range
                 </p>
               ) : (
-                <div className="chart-grid grid grid-cols-1 md:grid-cols-2 capitalize items-baseline">
+                <div className="chart-grid flex flex-row flex-wrap capitalize items-center">
                   {/* Sales Chart */}
-                  <div className="">
+                  <div className="w-full md:w-1/2 text-center">
                     <ResponsiveContainer width="100%" height={350}>
                       <BarChart data={reportData?.charts?.salesChartData || []}>
                         <XAxis
@@ -107,7 +100,7 @@ const ProfitLossReport = () => {
                   </div>
 
                   {/* Expense Chart */}
-                  <div className="">
+                  <div className="w-full md:w-1/2 text-center">
                     <ResponsiveContainer width="100%" height={350}>
                       <BarChart
                         data={reportData?.charts?.expenseChartData || []}
@@ -152,13 +145,19 @@ const ProfitLossReport = () => {
                 Profit / Loss Overview
               </h2>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 my-4">
-                <div className={`bg-[var(--color-primary)] p-4 rounded-lg ${reportData?.grossProfit < 0 ? "bg-red-600/20" : "bg-green-600/20"}`}>
+              <div className="grid grid-cols-2 gap-3 my-2">
+                <div
+                  className={`bg-[var(--color-primary)] p-3 rounded-lg ${
+                    reportData?.grossProfit < 0
+                      ? "bg-red-600/20"
+                      : "bg-green-600/20"
+                  }`}
+                >
                   <h3 className="text-sm text-[var(--color-text-light)]">
                     Gross Profit/Loss
                   </h3>
                   <CountUp
-                    className={`text-2xl font-bold ${
+                    className={`text-lg lg:text-xl font-bold ${
                       reportData?.grossProfit < 0
                         ? "text-red-600"
                         : "text-green-600"
@@ -171,12 +170,18 @@ const ProfitLossReport = () => {
                   />
                 </div>
 
-                <div className={`bg-[var(--color-primary)] p-4 rounded-lg ${reportData?.netProfit < 0 ? "bg-red-600/20" : "bg-green-600/20"}`}>
+                <div
+                  className={`bg-[var(--color-primary)] p-4 rounded-lg ${
+                    reportData?.netProfit < 0
+                      ? "bg-red-600/20"
+                      : "bg-green-600/20"
+                  }`}
+                >
                   <h3 className="text-sm text-[var(--color-text-light)]">
                     Net Profit/Loss
                   </h3>
                   <CountUp
-                    className={`text-2xl font-bold ${
+                    className={`text-lg lg:text-xl font-bold ${
                       reportData?.netProfit < 0
                         ? "text-red-600"
                         : "text-green-600"
@@ -190,7 +195,7 @@ const ProfitLossReport = () => {
                 </div>
               </div>
             </div>
-          </>
+          </div>
         )}
       </div>
     </div>

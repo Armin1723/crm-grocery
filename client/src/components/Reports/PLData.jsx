@@ -23,7 +23,7 @@ const PLData = ({ reportData }) => {
       <div className="bg-[var(--color-card)] rounded-lg p-6 shadow-sm">
         <Divider title={<p className="text-md md:text-xl">Sales Overview</p>} />
 
-        <div className="sales-chart flex flex-col items-center justify-center md:flex-row gap-6">
+        <div className="sales-chart chart-grid flex flex-row items-center justify-center flex-wrap gap-3">
           {/* Sales Data */}
           <div className="flex flex-col gap-3 flex-1 w-full">
             <div className="bg-[var(--color-primary)] p-4 rounded-lg">
@@ -31,7 +31,7 @@ const PLData = ({ reportData }) => {
                 Total Sales
               </h3>
               <CountUp
-                className="text-2xl font-bold text-green-500"
+                className="text-lg lg:text-xl font-bold text-green-500"
                 end={reportData?.sales?.sales}
                 duration={2}
                 separator=","
@@ -45,7 +45,7 @@ const PLData = ({ reportData }) => {
                 Returns
               </h3>
               <CountUp
-                className="text-2xl font-bold text-red-500"
+                className="text-lg lg:text-xl font-bold text-red-500"
                 end={reportData?.sales?.returns}
                 duration={2}
                 separator=","
@@ -59,7 +59,7 @@ const PLData = ({ reportData }) => {
                 Net Sales
               </h3>
               <CountUp
-                className={`text-2xl font-bold ${
+                className={`text-lg lg:text-xl font-bold ${
                   reportData?.sales?.netSales >= 0
                     ? "text-green-500"
                     : "text-red-500"
@@ -75,7 +75,7 @@ const PLData = ({ reportData }) => {
 
           {/* Pie Chart */}
           {reportData?.charts?.salesByCategory?.length > 0 && (
-            <div className="bg-[var(--color-card)] rounded-lg shadow p-6 w-full md:w-1/2 h-full">
+            <div className="bg-[var(--color-card)] rounded-lg shadow p-6 w-full md:w-1/2 h-full text-center flex flex-col items-center justify-center">
               <ResponsiveContainer
                 width="100%"
                 height={300}
@@ -153,15 +153,15 @@ const PLData = ({ reportData }) => {
           title={<p className="text-md md:text-xl">Expenses Overview</p>}
         />
 
-        <div className="expense-chart flex flex-col items-center justify-center md:flex-row gap-6">
+        <div className="expense-chart chart-grid flex flex-row items-center justify-center flex-wrap gap-3">
           {/* Expense Data */}
-          <div className="flex flex-col gap-3 flex-1 w-full">
-            <div className="bg-[var(--color-primary)] p-4 rounded-lg">
+          <div className="flex flex-col gap-3 flex-1">
+            <div className="bg-[var(--color-primary)] p-4 rounded-lg w-full">
               <h3 className="text-sm text-[var(--color-text-light)]">
                 Total Expenses
               </h3>
               <CountUp
-                className="text-2xl font-bold"
+                className="text-lg lg:text-xl font-bold"
                 end={reportData?.expenses?.expenses}
                 duration={2}
                 separator=","
@@ -175,7 +175,7 @@ const PLData = ({ reportData }) => {
                 Returns
               </h3>
               <CountUp
-                className="text-2xl font-bold"
+                className="text-lg lg:text-xl font-bold"
                 end={reportData?.expenses?.returns}
                 duration={2}
                 separator=","
@@ -189,7 +189,7 @@ const PLData = ({ reportData }) => {
                 Net Expenses
               </h3>
               <CountUp
-                className="text-2xl font-bold text-red-500"
+                className="text-lg lg:text-xl font-bold text-red-500"
                 end={reportData?.expenses?.netExpenses}
                 duration={2}
                 separator=","
@@ -201,7 +201,7 @@ const PLData = ({ reportData }) => {
 
           {/* Pie Chart */}
           {reportData?.charts?.expensesByCategory?.length > 0 && (
-            <div className="bg-[var(--color-card)] rounded-lg shadow p-6 w-full md:w-1/2 h-full">
+            <div className="bg-[var(--color-card)] rounded-lg shadow p-6 w-full md:w-1/2 h-full text-center flex flex-col items-center justify-center">
               <ResponsiveContainer
                 width="100%"
                 height={300}

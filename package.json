@@ -5,7 +5,7 @@
   "author": "CRM",
   "main": "main.js",
   "scripts": {
-    "start": "electron .",
+    "start": "electron . --trace-warnings",
     "dev": "electron .",
     "build": "electron-builder",
     "build win": "electron-builder --win",

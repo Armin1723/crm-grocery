@@ -33,12 +33,12 @@ const SalesSummary = ({
   netSales,
 }) => {
   return (
-    <div className="bg-[var(--color-card)] shadow-md rounded-lg p-6">
-      <h2 className="text-xl font-semibold text-[var(--color-text)] mb-6">
+    <div className="bg-[var(--color-card)] shadow-md rounded-lg p-3">
+      <h2 className="text-xl font-semibold text-[var(--color-text)] mb-3">
         Sales Summary
       </h2>
 
-      <div className="grid gap-6 md:grid-cols-3 ">
+      <div className="grid gap-3 grid-cols-3 max-sm:grid-cols-1 ">
         {[
           {
             name: "Total Sales",
@@ -71,8 +71,12 @@ const SalesSummary = ({
                 )}
               </div>
               <div
-                className={`text-2xl font-semibold ${
-                  index == 2 ? item.value > 0 ? "text-green-500" : "text-red-500" : ""
+                className={`text-lg lg:text-xl font-semibold ${
+                  index == 2
+                    ? item.value > 0
+                      ? "text-green-500"
+                      : "text-red-500"
+                    : ""
                 }`}
               >
                 ₹
@@ -201,10 +205,7 @@ const SalesReport = () => {
   }, [dateRange]);
 
   return (
-    <div
-      className="w-full p-6 min-h-fit max-sm:p-3 bg-[var(--color-sidebar)] rounded-lg"
-      ref={printRef}
-    >
+    <div className="w-full p-6 min-h-fit max-sm:p-3 bg-[var(--color-sidebar)] rounded-lg">
       <div className="mx-auto space-y-3 rounded-lg p-2 ">
         <ReportHeader
           title="sales"
@@ -220,16 +221,18 @@ const SalesReport = () => {
           <div className="text-center text-red-500 py-8">{error}</div>
         ) : (
           <>
-            <SalesSummary
-              totalSales={data?.totalSales}
-              totalReturns={data?.totalSalesReturns}
-              cashInHand={data?.cashInHand}
-              cashAtBank={data?.cashAtBank}
-              netSales={data?.netSales}
-            />
+            <div className="flex flex-col gap-2" ref={printRef}>
+              <SalesSummary
+                totalSales={data?.totalSales}
+                totalReturns={data?.totalSalesReturns}
+                cashInHand={data?.cashInHand}
+                cashAtBank={data?.cashAtBank}
+                netSales={data?.netSales}
+              />
 
-            <SalesTable data={data?.salesList} title="sales" />
-            <SalesTable data={data?.returnsList} title="returns" />
+              <SalesTable data={data?.salesList} title="sales" />
+              <SalesTable data={data?.returnsList} title="returns" />
+            </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 no-print">
               {data.salesByCategory?.length > 0 && (

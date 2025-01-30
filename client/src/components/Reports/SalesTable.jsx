@@ -11,7 +11,7 @@ const SalesTable = ({ data = {}, title = "" }) => {
         {title} Details
       </h2>
       {data?.length > 0 ? (
-        <div className="overflow-x-auto overflow-y-auto max-md:max-h-[60vh]">
+        <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-neutral-500/50 capitalize">
             <thead className="bg-[var(--color-primary)] sticky top-0 z-10">
               <tr>

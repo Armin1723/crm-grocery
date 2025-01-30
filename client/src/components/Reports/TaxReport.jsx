@@ -4,19 +4,14 @@ import ReportHeader from "./ReportHeader";
 import TaxTable from "./TaxTable";
 import { useReport } from "../../context/ReportContext";
 
-const TaxSummary = ({
-  taxIn = 0,
-  taxOut = 0,
-  netPayable = 0,
-}) => {
-
+const TaxSummary = ({ taxIn = 0, taxOut = 0, netPayable = 0 }) => {
   return (
-    <div className="bg-[var(--color-card)] shadow-md rounded-lg p-6">
-      <h2 className="text-xl font-semibold text-[var(--color-text)] mb-6">
+    <div className="bg-[var(--color-card)] shadow-md rounded-lg p-3">
+      <h2 className="text-xl font-semibold text-[var(--color-text)] mb-3">
         Tax Summary
       </h2>
 
-      <div className="grid gap-6 md:grid-cols-3">
+      <div className="grid gap-3 grid-cols-3 max-sm:grid-cols-1">
         {[
           {
             name: "Tax In",
@@ -40,8 +35,9 @@ const TaxSummary = ({
                 <p>{item.name}</p>
               </div>
               <div
-                className={`text-2xl font-semibold ${
-                  index === 2 && (item?.value > 0 ? "text-red-500" : "text-green-500")
+                className={`text-lg lg:text-xl font-semibold ${
+                  index === 2 &&
+                  (item?.value > 0 ? "text-red-500" : "text-green-500")
                 }`}
               >
                 ₹
@@ -80,7 +76,7 @@ const TaxReport = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  const {dateRange} = useReport();
+  const { dateRange } = useReport();
 
   const printRef = useRef(null);
 
@@ -91,11 +87,9 @@ const TaxReport = () => {
 
       try {
         const response = await fetch(
-          `${
-            import.meta.env.VITE_BACKEND_URL
-          }/api/v1/reports/tax?startDate=${dateRange?.startDate}&endDate=${
-            dateRange?.endDate
-          }`,
+          `${import.meta.env.VITE_BACKEND_URL}/api/v1/reports/tax?startDate=${
+            dateRange?.startDate
+          }&endDate=${dateRange?.endDate}`,
           {
             credentials: "include",
           }
@@ -140,13 +134,13 @@ const TaxReport = () => {
 
     // Map the `tax out` data into CSV rows
     const taxOutRows = data?.taxOutTransactions?.map((item) => [
-        item._id,
-        item.signedBy,
-        item.signedById,
-        item.totalTax,
-        item.totalAmount,
-        item.createdAt,
-      ]);
+      item._id,
+      item.signedBy,
+      item.signedById,
+      item.totalTax,
+      item.totalAmount,
+      item.createdAt,
+    ]);
 
     // Combine the headers and rows, adding table separators
     const csvRows = [
@@ -171,10 +165,7 @@ const TaxReport = () => {
   };
 
   return (
-    <div
-      className="w-full p-6 min-h-fit max-sm:p-3 bg-[var(--color-sidebar)] rounded-lg"
-      ref={printRef}
-    >
+    <div className="w-full p-6 min-h-fit max-sm:p-3 bg-[var(--color-sidebar)] rounded-lg">
       <div className="mx-auto space-y-3 rounded-lg p-2 ">
         <ReportHeader
           title="tax"
@@ -189,7 +180,7 @@ const TaxReport = () => {
         ) : error ? (
           <div className="text-center text-red-500 py-8">{error}</div>
         ) : (
-          <>
+          <div className="flex flex-col gap-3" ref={printRef}>
             <TaxSummary
               taxIn={data?.totalTaxIn}
               taxOut={data?.totalTaxOut}
@@ -198,8 +189,7 @@ const TaxReport = () => {
 
             <TaxTable title="Input Tax" data={data?.taxInTransactions} />
             <TaxTable title="Output Tax" data={data?.taxOutTransactions} />
-
-          </>
+          </div>
         )}
       </div>
     </div>

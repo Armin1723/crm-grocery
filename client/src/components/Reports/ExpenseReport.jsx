@@ -27,12 +27,12 @@ const ExpenseSummary = ({
   const netPurchases = totalPurchases - totalReturns;
 
   return (
-    <div className="bg-[var(--color-card)] shadow-md rounded-lg p-6">
-      <h2 className="text-xl font-semibold text-[var(--color-text)] mb-6">
+    <div className="bg-[var(--color-card)] shadow-md rounded-lg p-3">
+      <h2 className="text-xl font-semibold text-[var(--color-text)] mb-3">
         Expense Summary
       </h2>
 
-      <div className="grid gap-6 md:grid-cols-3">
+      <div className="grid gap-3 grid-cols-3 max-sm:grid-cols-1">
         {[
           {
             name: "Net Purchases",
@@ -50,7 +50,7 @@ const ExpenseSummary = ({
           return (
             <div
               key={index}
-              className="text-center text-[var(--color-text-light)] bg-[var(--color-primary)] rounded-md p-2 flex flex-col justify-center"
+              className="boxes text-center text-[var(--color-text-light)] bg-[var(--color-primary)] rounded-md p-2 flex flex-col justify-center"
             >
               <div className="text-sm font-medium mb-2 flex items-center justify-center gap-2 w-full">
                 <p>{item.name}</p>
@@ -64,7 +64,7 @@ const ExpenseSummary = ({
                 )}
               </div>
               <div
-                className={`text-2xl font-semibold ${
+                className={`text-lg lg:text-xl font-semibold ${
                   index === 2 && "text-red-500"
                 }`}
               >
@@ -116,9 +116,9 @@ const ExpenseReport = () => {
   const [error, setError] = useState(null);
   const [activeIndex, setActiveIndex] = useState(null);
 
-  const printRef = useRef(null);
-
   const { dateRange } = useReport();
+
+  const printRef = useRef(null);
 
   useEffect(() => {
     const fetchExpenseReport = async () => {
@@ -191,10 +191,7 @@ const ExpenseReport = () => {
   };
 
   return (
-    <div
-      className="w-full p-6 min-h-fit max-sm:p-3 bg-[var(--color-sidebar)] rounded-lg"
-      ref={printRef}
-    >
+    <div className="w-full p-6 min-h-fit max-sm:p-3 bg-[var(--color-sidebar)] rounded-lg">
       <div className="mx-auto space-y-3 rounded-lg p-2">
         <ReportHeader
           title="expense"
@@ -210,15 +207,17 @@ const ExpenseReport = () => {
           <div className="text-center text-red-500 py-8">{error}</div>
         ) : (
           <>
-            <ExpenseSummary
-              totalPurchases={data.totalPurchases}
-              totalOtherExpenses={data?.totalOtherExpenses}
-              totalReturns={data?.totalReturns}
-            />
+            <div className="flex flex-col gap-2 w-full" ref={printRef}>
+              <ExpenseSummary
+                totalPurchases={data.totalPurchases}
+                totalOtherExpenses={data?.totalOtherExpenses}
+                totalReturns={data?.totalReturns}
+              />
 
-            <ExpenseTable title="Purchase" data={data?.purchases} />
-            <ExpenseTable title="Other Expense" data={data?.otherExpenses} />
-            <ExpenseTable title="Return" data={data?.purchaseReturnsList} />
+              <ExpenseTable title="Purchase" data={data?.purchases} />
+              <ExpenseTable title="Other Expense" data={data?.otherExpenses} />
+              <ExpenseTable title="Return" data={data?.purchaseReturnsList} />
+            </div>
 
             {/* Charts */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 no-print">
