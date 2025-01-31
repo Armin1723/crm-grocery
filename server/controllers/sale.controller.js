@@ -156,20 +156,27 @@ const getSaleReturns = async (req, res) => {
     sort = "createdAt",
     sortType = "desc",
   } = req.query;
-  const salesReturns = await SalesReturn.find()
+
+  let query = {}; 
+  const user = req.user;
+  if(user.role !== "admin"){
+    query = { signedBy: user.id };
+  };
+
+  const salesReturns = await SalesReturn.find(query)
     .populate("signedBy")
     .populate("customer")
     .limit(limit)
     .skip((page - 1) * limit)
     .sort({ [sort]: sortType });
 
-  const totalSalesReturns = await SalesReturn.countDocuments();
+  const totalSalesReturns = await SalesReturn.countDocuments(query);
   res.json({
     success: true,
     salesReturns,
     totalPages: Math.ceil(totalSalesReturns / limit) || 1,
     page,
-    totalResults: totalSalesReturns,
+    totalSalesReturns,
   });
 };
 

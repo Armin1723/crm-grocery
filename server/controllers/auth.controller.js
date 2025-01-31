@@ -5,7 +5,6 @@ const crypto = require("crypto");
 const jwt = require("jsonwebtoken");
 
 const { sendMail } = require("../helpers");
-const passwordResetMailTemplate = require("../templates/email/passwordResetMailTemplate");
 
 const loginUser = async (req, res) => {
     const { email, password } = req.body;
@@ -83,13 +82,13 @@ const forgotPassword = async (req, res) => {
         .json({ success: false, message: "Password reset link already sent" });
     }
 
-    // const resetPasswordToken = crypto.randomBytes(32).toString("hex");
-    const resetPasswordToken = Math.floor(100000 + Math.random() * 900000);
+    const resetPasswordToken = crypto.randomBytes(32).toString("hex");
     user.resetPasswordToken = resetPasswordToken;
     user.resetPasswordExpires = Date.now() + 30 * 60 * 1000;
     await user.save();
 
-    sendMail(user.email, (subject = "Password Reset Link"), message = passwordResetMailTemplate(user.name, resetPasswordToken));
+    const message = `<p>Hi ${user.name} . Kindly use this link to reset your password. <a href="${process.env.FRONTEND_URL}/auth/reset-password?token=${resetPasswordToken}">here</a>`;
+    sendMail(user.email, (subject = "Password Reset Link"), message);
     res
       .status(200)
       .json({ success: true, message: "Password reset email sent" });
@@ -109,15 +108,11 @@ const resetPassword = async (req, res) => {
     if (!user) {
       return res
         .status(400)
-        .json({ success: false, errors:{
-          otp: "Invalid OTP"
-        }, message: "Invalid token sent" });
+        .json({ success: false, message: "Invalid token sent" });
     }
 
     if (user.resetPasswordExpires < Date.now()) {
-      return res.status(400).json({ success: false, errors:{
-        otp: "OTP expired"
-      } ,message: "Token expired" });
+      return res.status(400).json({ success: false, message: "Token expired" });
     }
 
     const hashedPassword = await bcrypt.hash(newPassword, 12);

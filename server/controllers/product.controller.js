@@ -8,14 +8,13 @@ const mongoose = require("mongoose");
 const stockAlertMailTemplate = require("../templates/email/stockAlertMailTemplate");
 
 const getProduct = async (req, res) => {
-  const product = await Product.findOne({
-    $or: [{ upc: req.params.id }, { upid: req.params.id }],
-  });
+  const product = await Product.findOne({ upid: req.params.id });
   res.json({ success: true, product });
 };
 
 const addProduct = async (req, res) => {
   const { upc, name } = req.body;
+  console.log(req.body);
   if (upc) {
     const existingProduct = await Product.findOne({ upc });
     if (existingProduct) {
@@ -109,13 +108,9 @@ const getProducts = async (req, res) => {
 
 const getTrendingProducts = async (req, res) => {
   const trendingProducts = await Sale.aggregate([
-    {
-      $match: {
-        createdAt: {
-          $gte: new Date(new Date().setDate(new Date().getDate() - 30)),
-        },
-      },
-    },
+    { $match: { createdAt : {
+      $gte: new Date(new Date().setDate(new Date().getDate() - 30))
+    } } },
     { $unwind: "$products" },
     {
       $group: {
@@ -175,9 +170,7 @@ const productPurchases = async (req, res) => {
   const { limit = 5, page = 1 } = req.query;
   const { id } = req.params;
 
-  const product = await Product.findOne({ $or : [ {upid: id}, {upc: id}] })
-    .select("_id secondaryUnit")
-    .lean();
+  const product = await Product.findOne({ upid: id }).select("_id secondaryUnit").lean();
   if (!product) {
     return res.json({ success: false, message: "Product not found" });
   }
@@ -260,10 +253,7 @@ const productSales = async (req, res) => {
   const { limit = 5, page = 1 } = req.query;
   const { id } = req.params;
 
-  const product = await Product.findOne({ $or: [{ upid: id }, { upc: id }] })
-    .select("_id secondaryUnit")
-    .lean();
-
+  const product = await Product.findOne({ upid: id }).select("_id secondaryUnit").lean();
   if (!product) {
     return res.json({ success: false, message: "Product not found" });
   }
@@ -332,7 +322,6 @@ const productSales = async (req, res) => {
   const totalResults = totalSales[0]?.total || 0;
   const totalPages = Math.ceil(totalResults / parseInt(limit)) || 1;
   const hasMore = totalResults > page * parseInt(limit);
-
   res.json({
     success: true,
     sales,
