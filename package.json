@@ -27,7 +27,7 @@
     "productName": "CRM Grocery",
     "extraResources": [
     {
-      "from": "./client/dist/assets/index-LmHcHfTF.css",
+      "from": "./client/dist/assets/index-BvlHWItQ.css",
       "to": "index.css"
     }
   ],

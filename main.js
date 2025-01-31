@@ -73,7 +73,7 @@ ipcMain.on("open-in-browser", (event, url) => {
 
 // Initialize app
 app.whenReady().then(async () => {
-  await backend.startBackend();
+  // await backend.startBackend();
   createWindow();
 
   // Check for updates
@@ -101,7 +101,7 @@ app.whenReady().then(async () => {
 
   app.on("activate", async () => {
     if (mainWindow === null) {
-      await startBackend();
+      // await startBackend();
       createWindow();
       autoUpdater.checkForUpdatesAndNotify();
     }

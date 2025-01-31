@@ -12,9 +12,10 @@ async function startBackend() {
     return;
   }
 
-  const backendCommand = process.platform === "win32" ? "node.exe" : "node";
+  const backendCommand = process.platform === "win32" ? "node" : "node.exe";
   const backendArgs = ["index.js"];
-  const backendPath = path.join(__dirname, "./server");
+
+  const backendPath = path.join(__dirname, "server")
 
   try {
     backendProcess = spawn(backendCommand, backendArgs, {
