@@ -11,12 +11,15 @@ const {
   productPurchases,
   productSales,
 } = require("../controllers/product.controller");
+const { isAdmin } = require("../middleware");
 const { asyncHandler } = require("../middleware/errorHandler");
 const multer = require("multer");
 
 const upload = multer({ dest: "/tmp" });
 
 const router = require("express").Router();
+
+router.use(isAdmin);
 
 router.get("/", asyncHandler(getProducts));
 

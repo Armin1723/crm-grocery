@@ -13,7 +13,7 @@ const { isLoggedIn } = require("../middleware");
 
 const router = require("express").Router();
 
-// router.use(isLoggedIn);
+router.use(isLoggedIn);
 
 router.get("/", asyncHandler(getSuppliers));
 
