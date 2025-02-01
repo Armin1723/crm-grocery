@@ -31,7 +31,7 @@ const generateSalesReturnInvoice = async (salesReturn) => {
   try {
     // Create a new PDF document
     const doc = new PDFDocument({
-      size: [216, 9999], // 3-inch width, variable height
+      size: [216, 400], // 3-inch width, variable height
       margin: 10,
     });
 
