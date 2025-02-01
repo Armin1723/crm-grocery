@@ -62,6 +62,10 @@ const purchaseSchema = new mongoose.Schema(
     invoice: {
       type: String,
     },
+    company: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Company",
+    },
   },
   { timestamps: true }
 );

@@ -55,6 +55,10 @@ const saleSchema = new mongoose.Schema({
     notes: {
         type: String,
     },
+    company: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Company",
+    },
 }, { timestamps: true });
 
 const Sale = mongoose.model("Sale", saleSchema);

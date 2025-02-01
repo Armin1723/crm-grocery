@@ -5,12 +5,13 @@ const SalesReturn = require("../models/salesReturn.model");
 const PurchaseReturn = require("../models/purchaseReturn.model");
 
 // Utils
-const matchStage = (startDate, endDate) => ({
+const matchStage = (startDate, endDate, req) => ({
   $match: {
     createdAt: {
       $gte: new Date(new Date(startDate).setHours(0, 0, 0, 0)),
       $lte: new Date(new Date(endDate).setHours(23, 59, 59, 999)),
     },
+    company: req.user.company,
   },
 });
 
@@ -80,7 +81,7 @@ const getExpenseReport = async (req, res) => {
 
   // Define queries
   const purchaseQuery = Purchase.aggregate([
-    matchStage(startDate, endDate),
+    matchStage(startDate, endDate, req),
     userLookup,
     { $sort: { createdAt: -1 } },
     supplierLookup,
@@ -110,7 +111,7 @@ const getExpenseReport = async (req, res) => {
   ]);
 
   const otherExpensesQuery = Expense.aggregate([
-    matchStage(startDate, endDate),
+    matchStage(startDate, endDate, req),
     userLookup,
     {
       $addFields: {
@@ -135,7 +136,7 @@ const getExpenseReport = async (req, res) => {
   ]);
 
   const purchaseReturnQuery = PurchaseReturn.aggregate([
-    matchStage(startDate, endDate),
+    matchStage(startDate, endDate, req),
     supplierLookup,
     userLookup,
     {
@@ -154,7 +155,7 @@ const getExpenseReport = async (req, res) => {
   ]);
 
   const reportQuery = Purchase.aggregate([
-    matchStage(startDate, endDate),
+    matchStage(startDate, endDate, req),
     { $unwind: "$products" },
     productLookup,
     supplierLookup,
@@ -259,7 +260,7 @@ const getSalesReport = async (req, res) => {
 
   // Define queries
   const salesQuery = Sale.aggregate([
-    matchStage(startDate, endDate),
+    matchStage(startDate, endDate, req),
     { $unwind: "$products" },
     { $sort: { createdAt: -1 } },
     userLookup,
@@ -303,7 +304,7 @@ const getSalesReport = async (req, res) => {
   ]);
 
   const salesReturnQuery = SalesReturn.aggregate([
-    matchStage(startDate, endDate),
+    matchStage(startDate, endDate, req),
     { $unwind: "$products" },
     userLookup,
     productLookup,
@@ -339,7 +340,7 @@ const getSalesReport = async (req, res) => {
   ]);
 
   const reportQuery = Sale.aggregate([
-    matchStage(startDate, endDate),
+    matchStage(startDate, endDate, req),
     { $unwind: "$products" },
     productLookup,
     customerLookup,
@@ -457,7 +458,7 @@ const getProfitLossReport = async (req, res) => {
 
   // Aggregating Sales Data
   const salesAggregation = await Sale.aggregate([
-    matchStage(startDate, endDate),
+    matchStage(startDate, endDate, req),
     {
       $project: {
         totalAmount: 1,
@@ -475,7 +476,7 @@ const getProfitLossReport = async (req, res) => {
   ]);
 
   const returns = await SalesReturn.aggregate([
-    matchStage(startDate, endDate),
+    matchStage(startDate, endDate, req),
     {
       $project: {
         totalAmount: 1,
@@ -499,7 +500,7 @@ const getProfitLossReport = async (req, res) => {
 
   // Aggregating Purchase Data
   const purchasesAggregation = await Purchase.aggregate([
-    matchStage(startDate, endDate),
+    matchStage(startDate, endDate, req),
     {
       $project: {
         totalAmount: 1,
@@ -516,7 +517,7 @@ const getProfitLossReport = async (req, res) => {
 
   // Aggregating Expense Data
   const expenseAggregation = await Expense.aggregate([
-    matchStage(startDate, endDate),
+    matchStage(startDate, endDate, req),
     {
       $group: {
         _id: null,
@@ -527,7 +528,7 @@ const getProfitLossReport = async (req, res) => {
 
   // Aggregating Purchase Returns
   const purchaseReturns = await PurchaseReturn.aggregate([
-    matchStage(startDate, endDate),
+    matchStage(startDate, endDate, req),
     {
       $project: {
         totalAmount: 1,
@@ -559,7 +560,7 @@ const getProfitLossReport = async (req, res) => {
 
   // Grouped sales data by category
   const salesByCategory = await Sale.aggregate([
-    matchStage(startDate, endDate),
+    matchStage(startDate, endDate, req),
     {
       $unwind: "$products",
     },
@@ -597,7 +598,7 @@ const getProfitLossReport = async (req, res) => {
 
   // Preparing Chart Data for Recharts (Sales and Expenses over time)
   const salesChartData = await Sale.aggregate([
-    matchStage(startDate, endDate),
+    matchStage(startDate, endDate, req),
     {
       $project: {
         month: { $month: "$createdAt" },
@@ -621,7 +622,7 @@ const getProfitLossReport = async (req, res) => {
 
   // Aggregating Expense Data
   const expenseChartData = await Expense.aggregate([
-    matchStage(startDate, endDate),
+    matchStage(startDate, endDate, req),
     {
       $project: {
         month: { $month: "$createdAt" },
@@ -644,7 +645,7 @@ const getProfitLossReport = async (req, res) => {
   ]);
 
   const purchaseChartData = await Purchase.aggregate([
-    matchStage(startDate, endDate),
+    matchStage(startDate, endDate, req),
     {
       $project: {
         month: { $month: "$createdAt" },
@@ -719,7 +720,7 @@ const getProfitLossReport = async (req, res) => {
 
   // Grouped expenses data by category
   const expensesByCategory = await Expense.aggregate([
-    matchStage(startDate, endDate),
+    matchStage(startDate, endDate, req),
     {
       $group: {
         _id: "$category",
@@ -728,7 +729,7 @@ const getProfitLossReport = async (req, res) => {
     },
   ]);
   const purchasesByCategory = await Purchase.aggregate([
-    matchStage(startDate, endDate),
+    matchStage(startDate, endDate, req),
     {
       $unwind: "$products",
     },
@@ -796,7 +797,7 @@ const getTaxReport = async (req, res) => {
 
   // Aggregation for Tax Out (Sales) - excluding returned products
   const taxOutPipeline = [
-    matchStage(startDate, endDate),
+    matchStage(startDate, endDate, req),
     { $unwind: "$products" },
     productLookup,
     userLookup,
@@ -889,7 +890,7 @@ const getTaxReport = async (req, res) => {
 
   // Aggregation for Tax In (Purchases) - excluding returned products
   const taxInPipeline = [
-    matchStage(startDate, endDate),
+    matchStage(startDate, endDate, req),
     { $unwind: "$products" },
     productLookup,
     userLookup,

@@ -6,17 +6,23 @@ const cloudinary = require("../config/cloudinary");
 const Purchase = require("../models/purchase.model");
 const mongoose = require("mongoose");
 const stockAlertMailTemplate = require("../templates/email/stockAlertMailTemplate");
+const Company = require("../models/company.model");
 
 const getProduct = async (req, res) => {
-  const product = await Product.findOne({ upid: req.params.id });
+  const product = await Product.findOne({
+    upid: req.params.id,
+    company: req.user.company,
+  });
   res.json({ success: true, product });
 };
 
 const addProduct = async (req, res) => {
   const { upc, name } = req.body;
-  console.log(req.body);
   if (upc) {
-    const existingProduct = await Product.findOne({ upc });
+    const existingProduct = await Product.findOne({
+      upc,
+      company: req.user.company,
+    });
     if (existingProduct) {
       return res.status(400).json({
         message: "Product with this upc already exists",
@@ -24,7 +30,10 @@ const addProduct = async (req, res) => {
       });
     }
   }
-  const existingProduct = await Product.findOne({ name });
+  const existingProduct = await Product.findOne({
+    name,
+    company: req.user.company,
+  });
   if (existingProduct) {
     return res.status(400).json({
       message: "Product with this name already exists",
@@ -32,7 +41,10 @@ const addProduct = async (req, res) => {
     });
   }
 
-  const product = await Product.create(req.body);
+  const product = await Product.create({
+    ...req.body,
+    company: req.user.company,
+  });
 
   // Upload image to cloudinary
   if (req.files) {
@@ -78,12 +90,16 @@ const getProducts = async (req, res) => {
 
   if (name) {
     const products = await Product.find({
-      name: { $regex: `${name}`, $options: "i" },
+      $and: [
+        { company: req.user.company },
+        { name: { $regex: `${name}`, $options: "i" } },
+      ],
     }).limit(5);
+
     return res.json({ success: true, products });
   }
 
-  let filter = {};
+  let filter = { company: req.user.company };
   if (category) {
     filter.category = { $regex: category, $options: "i" };
   }
@@ -108,9 +124,14 @@ const getProducts = async (req, res) => {
 
 const getTrendingProducts = async (req, res) => {
   const trendingProducts = await Sale.aggregate([
-    { $match: { createdAt : {
-      $gte: new Date(new Date().setDate(new Date().getDate() - 30))
-    } } },
+    {
+      $match: {
+        createdAt: {
+          $gte: new Date(new Date().setDate(new Date().getDate() - 30)),
+        },
+        company: req.user.company,
+      },
+    },
     { $unwind: "$products" },
     {
       $group: {
@@ -140,26 +161,30 @@ const getTrendingProducts = async (req, res) => {
 
 const searchProduct = async (req, res) => {
   const { query, limit = 10, page = 1 } = req.query;
-  if (query.startsWith(process.env.INITIALS)) {
-    const product = await Product.findOne({ upid: query });
+  const company = await Company.findById(req.user.company);
+
+  if (query.startsWith(company?.initials)) {
+    const product = await Product.findOne({ upid: query, company: req.user.company });
     if (product) {
       return res.json({ success: true, products: product });
     }
     return res.json({ success: false, message: "Product not found" });
   } else if (query.length == 12) {
-    const product = await Product.findOne({ upc: query });
+    const product = await Product.findOne({ upc: query, company: req.user.company });
     if (product) {
       return res.json({ success: true, products: product });
     }
   }
   const products = await Product.find({
     name: { $regex: query, $options: "i" },
+    company: req.user.company,
   })
     .limit(limit)
     .skip((page - 1) * limit);
 
   const totalProducts = await Product.countDocuments({
     name: { $regex: query, $options: "i" },
+    company: req.user.company,
   });
   const totalPages = Math.ceil(totalProducts / limit);
 
@@ -170,12 +195,15 @@ const productPurchases = async (req, res) => {
   const { limit = 5, page = 1 } = req.query;
   const { id } = req.params;
 
-  const product = await Product.findOne({ upid: id }).select("_id secondaryUnit").lean();
+  const product = await Product.findOne({ upid: id })
+    .select("_id secondaryUnit")
+    .lean();
   if (!product) {
     return res.json({ success: false, message: "Product not found" });
   }
 
   const purchases = await Purchase.aggregate([
+    { $match: { company: req.user.company } },
     { $unwind: "$products" },
     {
       $match: {
@@ -216,6 +244,7 @@ const productPurchases = async (req, res) => {
   ]);
 
   const totalPurchases = await Purchase.aggregate([
+    { $match: { company: req.user.company } },
     { $unwind: "$products" },
     {
       $match: {
@@ -253,12 +282,15 @@ const productSales = async (req, res) => {
   const { limit = 5, page = 1 } = req.query;
   const { id } = req.params;
 
-  const product = await Product.findOne({ upid: id }).select("_id secondaryUnit").lean();
+  const product = await Product.findOne({ upid: id })
+    .select("_id secondaryUnit")
+    .lean();
   if (!product) {
     return res.json({ success: false, message: "Product not found" });
   }
 
   const sales = await Sale.aggregate([
+    { $match: { company: req.user.company } },
     { $unwind: "$products" },
     {
       $match: {
@@ -299,6 +331,7 @@ const productSales = async (req, res) => {
   ]);
 
   const totalSales = await Sale.aggregate([
+    { $match: { company: req.user.company } },
     { $unwind: "$products" },
     {
       $match: {
@@ -334,7 +367,10 @@ const productSales = async (req, res) => {
 
 const setStockPreference = async (req, res) => {
   const { quantity } = req.body;
-  const product = await Product.findById(req.params.id);
+  const product = await Product.findOne({
+    _id: req.params.id,
+    company: req.user.company,
+  });
   if (!product) {
     return res
       .status(404)
@@ -401,6 +437,8 @@ const autoSetRate = async (req, res) => {
   try {
     // Use aggregation to find the highest purchase rate for the product
     const result = await Purchase.aggregate([
+      // Match purchases for the company
+      { $match: { company: req.user.company } },
       // Unwind the products array to access individual product entries
       { $unwind: "$products" },
 

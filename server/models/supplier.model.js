@@ -31,7 +31,11 @@ const supplierSchema = new mongoose.Schema({
     notes: {
         type: String,
     },
-    
+    company: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Company",
+        required: true,
+    },
 }, { timestamps: true });
 
 const Supplier = mongoose.model("Supplier", supplierSchema);

@@ -17,7 +17,7 @@ const getSales = async (req, res) => {
     sortType = "desc",
   } = req.query;
 
-  let query = {};
+  let query = { company: req.user.company };
   const user = req.user;
   if(user.role == "employee"){
     query = { signedBy: user.id };
@@ -43,11 +43,11 @@ const getSales = async (req, res) => {
 
 const getEmployeeSales = async (req, res) => {
   const { limit = 10, page = 1, employeeId = { $exists: true } } = req.query;
-  const sales = await Sale.find({ signedBy: employeeId })
+  const sales = await Sale.find({ signedBy: employeeId, company: req.user.company })
     .limit(limit)
     .skip((page - 1) * limit);
 
-  const totalSales = await Sale.countDocuments({ signedBy: employeeId });
+  const totalSales = await Sale.countDocuments({ signedBy: employeeId, company: req.user.company });
   res.json({
     success: true,
     sales,
@@ -157,7 +157,7 @@ const getSaleReturns = async (req, res) => {
     sortType = "desc",
   } = req.query;
 
-  let query = {}; 
+  let query = {company: req.user.company}; 
   const user = req.user;
   if(user.role !== "admin"){
     query = { signedBy: user.id };
@@ -205,6 +205,7 @@ const addSale = async (req, res) => {
   const sale = await Sale.create({
     products,
     signedBy: req.user.id,
+    company: req.user.company,
     subTotal,
     otherCharges,
     discount,
@@ -326,6 +327,7 @@ const addSaleReturn = async (req, res) => {
       expiry: product.expiry,
     })),
     signedBy: req.user.id,
+    company: req.user.company,
     subTotal: req.body.subTotal,
     otherCharges: req.body.otherCharges,
     discount: req.body.discount,
@@ -397,7 +399,7 @@ const addSaleReturn = async (req, res) => {
 
 const getRecentSale = async (req, res) => {
   // Find the most recent sale by sorting by date descending
-  const recentSale = await Sale.findOne({})
+  const recentSale = await Sale.findOne({company: req.user.company})
     .sort({ createdAt: -1 })
     .populate("products.product")
     .populate("customer")

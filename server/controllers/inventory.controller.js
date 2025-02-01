@@ -2,18 +2,20 @@ const { mergeBatchesHelper } = require("../helpers");
 const Inventory = require("../models/inventory.model");
 const Product = require("../models/product.model");
 
-const matchStage = {
+const getMatchStage = (req) => ({
   $match: {
     totalQuantity: { $gt: 0 },
+    company: req.user.company,
   },
-};
+});
+
 
 const getProductsFromInventory = async (req, res) => {
   const { name, barcode, page = 1, limit = 10 } = req.query;
   const skip = (page - 1) * limit;
 
   const pipeline = [
-    matchStage,
+    getMatchStage(req),
     {
       $lookup: {
         from: "products",
@@ -151,7 +153,7 @@ const getProductsGroupedByCategory = async (req, res) => {
 
   const pipeline = [
     // Match products with positive quantity
-    matchStage,
+    getMatchStage(req),
 
     // Lookup to populate product details (only fetch required fields)
     {
@@ -268,7 +270,7 @@ const getInventoryListGroupedByCategory = async (req, res) => {
   const { query = "", category } = req.query;
 
   const pipeline = [
-    matchStage,
+    getMatchStage(req),
     {
       $lookup: {
         from: "products",
@@ -380,7 +382,7 @@ const getExpiringInventory = async (req, res) => {
   const expiryDateRange = getExpiryDateRange(time);
 
   const pipeline = [
-    matchStage,
+    getMatchStage(req),
     {
       $lookup: {
         from: "products",

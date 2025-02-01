@@ -2,15 +2,16 @@ const User = require("../models/user.model");
 const bcrypt = require("bcryptjs");
 const cloudinary = require("../config/cloudinary");
 const Sale = require("../models/sale.model");
+const Company = require("../models/company.model");
 
 const getEmployees = async (req, res) => {
   const { limit = 10, page = 1, sort = "name", sortType = "asc" } = req.query;
-  const employees = await User.find()
+  const employees = await User.find({company: req.user.company})
     .sort({ [sort]: sortType })
     .limit(limit)
     .skip((page - 1) * limit);
 
-  const totalResults = await User.countDocuments();
+  const totalResults = await User.countDocuments({company: req.user.company});
 
   const totalPages = Math.ceil(totalResults / limit) || 1;
 
@@ -18,7 +19,7 @@ const getEmployees = async (req, res) => {
 };
 
 const getEmployee = async (req, res) => {
-  const employee = await User.findOne({ uuid: req.params.uuid });
+  const employee = await User.findOne({ uuid: req.params.uuid, company: req.user.company });
   if (!employee) {
     return res.json({ success: false, message: "Employee not found" });
   }
@@ -28,10 +29,12 @@ const getEmployee = async (req, res) => {
 const addEmployee = async (req, res) => {
   const employee = req.body;
 
+  const company = await Company.findById(req.user.company).select("initials").lean();
+
   const generateUUID = async () => {
     let uuid =
       "EMP" +
-      process.env.INITIALS +
+      company.initials.toUpperCase() +
       Math.random().toString(36).substr(2, 6).toUpperCase();
     const existingUser = await User.findOne({ uuid });
     if (existingUser) {
@@ -42,6 +45,7 @@ const addEmployee = async (req, res) => {
   };
 
   employee.uuid = await generateUUID();
+  employee.company = req.user.company;
 
   const tempPass = req.body.name.split(" ")[0].toLowerCase() + "@123";
 
@@ -104,7 +108,7 @@ const addEmployee = async (req, res) => {
 
 const editEmployee = async (req, res) => {
   const { name, email, phone, address, uuid } = req.body;
-  const employee = await User.findOne({ uuid: uuid });
+  const employee = await User.findOne({ uuid: uuid , company: req.user.company});
   if (!employee) {
     return res.json({ success: false, message: "Employee not found" });
   }
@@ -167,7 +171,7 @@ const editEmployee = async (req, res) => {
 };
 
 const deleteEmployee = async (req, res) => {
-  const employee = await User.findOne({ uuid: req.params.uuid });
+  const employee = await User.findOne({ uuid: req.params.uuid, company: req.user.company });
   if (!employee) {
     return res.json({ success: false, message: "Employee not found" });
   }
@@ -176,7 +180,7 @@ const deleteEmployee = async (req, res) => {
 };
 
 const getEmployeeSales = async (req, res) => {
-  const employee = await User.findOne({ uuid: req.params.uuid });
+  const employee = await User.findOne({ uuid: req.params.uuid, company: req.user.company });
   if (!employee) {
     return res.json({ success: false, message: "Employee not found" });
   }
@@ -188,13 +192,13 @@ const getEmployeeSales = async (req, res) => {
     sort = "createdAt",
     sortType = "asc",
   } = req.query;
-  const sales = await Sale.find({ signedBy: employee._id })
+  const sales = await Sale.find({ signedBy: employee._id, company: req.user.company })
     .limit(limit)
     .skip(limit * (page - 1))
     .sort({ [sort]: sortType })
     .populate("signedBy");
 
-  const totalResults = await Sale.countDocuments({ signedBy: employee._id });
+  const totalResults = await Sale.countDocuments({ signedBy: employee._id, company: req.user.company });
 
   const totalPages = Math.ceil(totalResults / limit) || 1;
 

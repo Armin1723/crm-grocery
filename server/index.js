@@ -34,6 +34,7 @@ app.use('/api/v1/stats', require('./routes/stat.routes.js'));
 app.use('/api/v1/auth', require('./routes/auth.routes.js'));
 app.use('/api/v1/expenses', require('./routes/expense.routes.js'));
 app.use('/api/v1/customers', require('./routes/customer.routes.js'));
+app.use('/api/v1/companies', require('./routes/company.routes.js'));
 
 // Server
 app.get('/', (req, res) => {
@@ -41,7 +42,7 @@ app.get('/', (req, res) => {
 });
 
 // Error Handler middleware
-app.use(errorHandler)
+app.use(errorHandler);
 
 app.listen(port, () => {
     console.log(`Server is running on port ${port}`);

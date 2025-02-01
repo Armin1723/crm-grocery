@@ -12,13 +12,16 @@ const getSuppliers = async (req, res) => {
     sortType = "asc",
   } = req.query;
 
-  const nameQuery = name ? { name: { $regex: name, $options: "i" } } : {};
-  const suppliers = await Supplier.find(nameQuery)
+  const query = { company: req.user.company };
+  if (name) {
+    query.name = { $regex: name, $options: "i" };
+  }
+  const suppliers = await Supplier.find(query)
     .limit(name ? 5 : limit)
     .skip((page - 1) * limit)
     .sort({ [sort]: sortType });
 
-  const totalResults = await Supplier.countDocuments(nameQuery);
+  const totalResults = await Supplier.countDocuments(query);
   const totalPages = Math.ceil(totalResults / limit) || 1;
 
   res.json({ success: true, suppliers, page, totalResults, totalPages });
@@ -125,7 +128,10 @@ const addSupplier = async (req, res) => {
   if (!name || !phone) {
     return res.json({ success: false, message: "Please fill in all fields" });
   }
-  const supplier = new Supplier(req.body);
+  const supplier = new Supplier({
+    ...req.body,
+    company: req.user.company,
+  });
 
   await supplier.save();
   res.json({ success: true, supplier });

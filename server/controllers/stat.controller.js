@@ -4,11 +4,12 @@ const Purchase = require("../models/purchase.model");
 const Sale = require("../models/sale.model");
 const User = require("../models/user.model");
 
-const matchStage = {
+const getMatchStage = (req) => ({
   $match: {
+    company: req.user.company,
     totalQuantity: { $gt: 0 },
   },
-};
+});
 
 // Basic stats of sales, purchases, and inventory for recharts
 const getBasicStats = async (req, res) => {
@@ -37,7 +38,12 @@ const getBasicStats = async (req, res) => {
   const [salesData, purchaseData, productsData, inventoryData] =
     await Promise.all([
       Sale.aggregate([
-        { $match: { createdAt: { $gte: sixMonthsAgoDate } } },
+        {
+          $match: {
+            company: req.user.company,
+            createdAt: { $gte: sixMonthsAgoDate },
+          },
+        },
         {
           $group: {
             _id: {
@@ -50,7 +56,12 @@ const getBasicStats = async (req, res) => {
         { $sort: { "_id.year": 1, "_id.month": 1 } },
       ]),
       Purchase.aggregate([
-        { $match: { createdAt: { $gte: sixMonthsAgoDate } } },
+        {
+          $match: {
+            company: req.user.company,
+            createdAt: { $gte: sixMonthsAgoDate },
+          },
+        },
         {
           $group: {
             _id: {
@@ -63,7 +74,12 @@ const getBasicStats = async (req, res) => {
         { $sort: { "_id.year": 1, "_id.month": 1 } },
       ]),
       Product.aggregate([
-        { $match: { createdAt: { $gte: sixMonthsAgoDate } } },
+        {
+          $match: {
+            company: req.user.company,
+            createdAt: { $gte: sixMonthsAgoDate },
+          },
+        },
         {
           $group: {
             _id: {
@@ -76,7 +92,12 @@ const getBasicStats = async (req, res) => {
         { $sort: { "_id.year": 1, "_id.month": 1 } },
       ]),
       Inventory.aggregate([
-        { $match: { createdAt: { $gte: sixMonthsAgoDate } } },
+        {
+          $match: {
+            company: req.user.company,
+            createdAt: { $gte: sixMonthsAgoDate },
+          },
+        },
         { $unwind: "$batches" },
         {
           $group: {
@@ -192,7 +213,7 @@ const getBasicStats = async (req, res) => {
 
 const getProductsGroupedByCategory = async (req, res) => {
   const productData = await Inventory.aggregate([
-    matchStage,
+    getMatchStage(req),
     {
       $lookup: {
         from: "products",
@@ -400,7 +421,7 @@ const getSaleStats = async (req, res) => {
 
 const getInventoryGroupedByCategory = async (req, res) => {
   const inventoryData = await Inventory.aggregate([
-    matchStage,
+    getMatchStage(req),
     {
       $lookup: {
         from: "products",
@@ -471,6 +492,7 @@ const salesPurchaseChart = async (req, res) => {
       salesPipeline.push({ $match: { signedBy: user._id } });
     }
     salesPipeline.push(
+      { $match: { company: req.user.company } },
       {
         $group: {
           _id: groupFormat,
@@ -487,6 +509,7 @@ const salesPurchaseChart = async (req, res) => {
     let purchaseData = [];
     if (user.role === "admin") {
       purchaseData = await Purchase.aggregate([
+        { $match: { company: req.user.company } },
         {
           $group: {
             _id: groupFormat,
@@ -531,12 +554,12 @@ const salesPurchaseChart = async (req, res) => {
 };
 
 const getSellerStats = async (req, res) => {
-
   const user = await User.findById(req.user.id);
   const totalUserMonthlySales = await Sale.aggregate([
     {
       $match: {
         signedBy: user._id,
+        company: req.user.company,
         createdAt: { $gte: new Date(new Date().setHours(0, 0, 0, 0)) },
       },
     },
@@ -554,7 +577,10 @@ const getSellerStats = async (req, res) => {
   return res.status(200).json({
     success: true,
     stats: {
-      totalSales: totalUserMonthlySales.reduce((acc, curr) => acc + curr.totalAmount, 0),
+      totalSales: totalUserMonthlySales.reduce(
+        (acc, curr) => acc + curr.totalAmount,
+        0
+      ),
       totalInventory: totalInventoryItems,
     },
   });

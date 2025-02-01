@@ -75,6 +75,11 @@ const productSchema = new mongoose.Schema(
       preference: { type: Boolean, default: false },
       quantity: { type: Number, default: 0 },
     },
+    company: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Company",
+      required: true,
+    },
   },
   { timestamps: true }
 );

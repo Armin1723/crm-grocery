@@ -20,7 +20,7 @@ const getPurchases = async (req, res) => {
     sortType = "desc",
   } = req.query;
 
-  const query = {};
+  const query = { company : req.user.company };
   if (supplierId) {
     query.supplier = supplierId;
   }
@@ -45,13 +45,14 @@ const getPurchases = async (req, res) => {
 
 const getEmployeePurchases = async (req, res) => {
   const { limit = 10, page = 1, employeeId = { $exists: true } } = req.query;
-  const purchases = await Purchase.find({ signedBy: employeeId })
+  const purchases = await Purchase.find({ signedBy: employeeId, company: req.user.company })
 
     .limit(limit)
     .skip((page - 1) * limit);
 
   const totalPurchases = await Purchase.countDocuments({
     signedBy: employeeId,
+    company: req.user.company,
   });
 
   res.json({
@@ -113,6 +114,7 @@ const getPurchase = async (req, res) => {
     const inventory = await Inventory.findOne({
       product: product.product,
       totalQuantity: { $gte: product.quantity },
+      company: req.user.company,
     });
     if (!inventory || !inventory.batches.length) {
       product.maxQuantity = 0;
@@ -160,13 +162,13 @@ const getPurchaseReturns = async (req, res) => {
     sort = "createdAt",
     sortType = "desc",
   } = req.query;
-  const purchaseReturns = await PurchaseReturn.find({})
+  const purchaseReturns = await PurchaseReturn.find({company: req.user.company})
     .populate("products.product supplier signedBy")
     .limit(limit)
     .skip((page - 1) * limit)
     .sort({ [sort]: sortType });
 
-  const totalPurchaseReturns = await PurchaseReturn.countDocuments({});
+  const totalPurchaseReturns = await PurchaseReturn.countDocuments({company: req.user.company});
   res.status(200).json({
     success: true,
     purchaseReturns,
@@ -181,6 +183,7 @@ const addPurchaseReturn = async (req, res) => {
 
   const alreadyReturned = await PurchaseReturn.findOne({
     purchaseId: invoiceId,
+    company: req.user.company,
   });
   if (alreadyReturned) {
     return res.status(400).json({
@@ -205,6 +208,7 @@ const addPurchaseReturn = async (req, res) => {
     supplier: req.body.supplierId,
     signedBy: req.user.id,
     purchaseId: invoiceId,
+    company: req.user.company,
   });
 
   // Update Inventory
@@ -268,6 +272,7 @@ const addPurchase = async (req, res) => {
     totalAmount,
     paidAmount,
     deficitAmount: totalAmount - paidAmount,
+    company: req.user.company,
   });
 
   // Track the deficit amount and update the supplier's balance
@@ -296,6 +301,7 @@ const addPurchase = async (req, res) => {
           },
         ],
         totalQuantity: product.quantity,
+        company: req.user.company,
       });
     } else {
         inventory.batches.push({
@@ -328,7 +334,7 @@ const addPurchase = async (req, res) => {
 
 const getRecentPurchase = async (req, res) => {
   // Find the most recent purchase by sorting by date descending
-  const recentPurchase = await Purchase.findOne({})
+  const recentPurchase = await Purchase.findOne({company: req.user.company})
     .sort({ createdAt: -1 })
     .populate("products.product")
     .populate("supplier")
