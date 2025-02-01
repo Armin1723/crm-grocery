@@ -49,6 +49,7 @@ const generateSaleInvoice = async (saleId) => {
     doc.pipe(stream);
 
     // Set monospaced font for alignment
+    doc.y = 10;
     doc.font("Courier");
 
     // Add Header
