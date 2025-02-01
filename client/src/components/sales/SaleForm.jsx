@@ -82,8 +82,6 @@ const SaleForm = ({ setRefetch = () => {}, closeModal = () => {} }) => {
   };
 
   const addSale = async (values) => {
-    console.log(values);
-    return;
     const id = toast.loading("Adding sale...");
     setLoading(true);
     try {
