@@ -40,7 +40,7 @@ const generateSaleInvoice = async (saleId) => {
     if (!sale) throw new Error("Sale not found");
 
     const doc = new PDFDocument({
-      size: [216, 400],
+      size: [216, 9999],
       margin: 10,
     });
 
