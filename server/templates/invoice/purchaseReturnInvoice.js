@@ -17,7 +17,8 @@ const generatePurchaseReturnInvoice = async (purchaseReturnId) => {
     const purchaseReturn = await PurchaseReturn.findById(purchaseReturnId)
       .populate("products.product")
       .populate("supplier")
-      .populate("signedBy");
+      .populate("signedBy")
+      .populate("company");
 
     const doc = new PDFDocument({ size: "A4", margin: 50 });
     const filePath = `./tmp/purchase_return_receipt_${purchaseReturn._id}.pdf`;
@@ -48,7 +49,7 @@ const generatePurchaseReturnInvoice = async (purchaseReturnId) => {
     });
 
     const uploadResult = await cloudinary.uploader.upload(filePath, {
-      folder: "grocery-crm/invoices",
+      folder: `${purchase?.company?.licenseKey}/invoices/purchaseReturn`,
       resource_type: "raw",
     });
 

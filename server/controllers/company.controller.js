@@ -10,17 +10,27 @@ const addCompany = async (req, res) => {
     !req.body.phone ||
     !req.body.initials
   ) {
-    return res.status(400).json({ message: "All fields are required" });
+    return res.status(400).json({ message: "All fields are required" , errors: {
+      name: "Company name is required",
+      address: "Company address is required",
+      email: "Company email is required",
+      phone: "Company phone is required",
+      initials: "Company initials is required"
+    }});
   }
   const existingCompany = await Company.findOne({ name: req.body.name });
   if (existingCompany) {
-    return res.status(400).json({ message: "Company already exists" });
+    return res.status(400).json({ success: false, message: "Company already exists", errors:{
+      name: "Company name already exists"
+    } });
   }
   const existingInitials = await Company.findOne({
     initials: req.body.initials,
   });
   if (existingInitials) {
-    return res.status(400).json({ message: "Initials already exists" });
+    return res.status(400).json({ message: "Initials already exists", success: false, errors:{
+      initials: "Company initials already taken."
+    } });
   }
 
   // Generate license key and trial end date
@@ -165,7 +175,8 @@ const updateCompany = async (req, res) => {
 
   await company.save();
 
-  return res.status(200).json({ message: "Company updated successfully" });
+  const user = await User.findOne({ company: company._id }).populate("company").lean();
+  return res.status(200).json({ message: "Company updated successfully", user });
 };
 
 const deleteCompany = async (req, res) => {

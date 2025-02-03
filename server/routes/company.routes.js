@@ -21,6 +21,9 @@ router.use(isAdmin);
 // Create a new Company
 router.post("/", upload.fields([{name: "logo"}]), asyncHandler(addCompany));
 
+// Update a Company with id
+router.put("/:id", upload.fields([{name: "logo"}]), asyncHandler(updateCompany));
+
 // Retrieve all Companies
 router.get("/", asyncHandler(getCompanies));
 
@@ -29,9 +32,6 @@ router.put(":id/activate", asyncHandler(activateCompany));
 
 // Retrieve a single Company with id
 router.get("/:id", asyncHandler(getCompany));
-
-// Update a Company with id
-router.put("/:id", upload.fields([{name: "logo"}]), asyncHandler(updateCompany));
 
 // Delete a Company with id
 router.delete("/:id", asyncHandler(deleteCompany));

@@ -49,11 +49,12 @@ const addProduct = async (req, res) => {
   // Upload image to cloudinary
   if (req.files) {
     const { image } = req.files;
+    const company = await Company.findById(req.user.company).select("licenseKey").lean();
     if (image) {
       try {
         const cloudinaryResponse = await cloudinary.uploader.upload(
           image[0].path,
-          { folder: "Product_images" }
+          { folder: `${company?.licenseKey}/products` }
         );
         if (!cloudinaryResponse || cloudinaryResponse.error) {
           return res.status(500).json({
@@ -193,7 +194,7 @@ const productPurchases = async (req, res) => {
   const { limit = 5, page = 1 } = req.query;
   const { id } = req.params;
 
-  const product = await Product.findOne({ upid: id })
+  const product = await Product.findOne({ upid: id, company: req.user.company })
     .select("_id secondaryUnit")
     .lean();
   if (!product) {
@@ -201,7 +202,7 @@ const productPurchases = async (req, res) => {
   }
 
   const purchases = await Purchase.aggregate([
-    { $match: { company: req.user.company } },
+    { $match: { company: new mongoose.Types.ObjectId(req.user.company) } },
     { $unwind: "$products" },
     {
       $match: {
@@ -242,7 +243,7 @@ const productPurchases = async (req, res) => {
   ]);
 
   const totalPurchases = await Purchase.aggregate([
-    { $match: { company: req.user.company } },
+    { $match: { company: new mongoose.Types.ObjectId(req.user.company) } },
     { $unwind: "$products" },
     {
       $match: {
@@ -280,7 +281,7 @@ const productSales = async (req, res) => {
   const { limit = 5, page = 1 } = req.query;
   const { id } = req.params;
 
-  const product = await Product.findOne({ upid: id })
+  const product = await Product.findOne({ upid: id, company: req.user.company })
     .select("_id secondaryUnit")
     .lean();
   if (!product) {
@@ -288,7 +289,7 @@ const productSales = async (req, res) => {
   }
 
   const sales = await Sale.aggregate([
-    { $match: { company: req.user.company } },
+    { $match: { company: new mongoose.Types.ObjectId(req.user.company) } },
     { $unwind: "$products" },
     {
       $match: {
@@ -329,7 +330,7 @@ const productSales = async (req, res) => {
   ]);
 
   const totalSales = await Sale.aggregate([
-    { $match: { company: req.user.company } },
+    { $match: { company: new mongoose.Types.ObjectId(req.user.company) } },
     { $unwind: "$products" },
     {
       $match: {
@@ -398,9 +399,10 @@ const editProduct = async (req, res) => {
     const { image } = req.files;
     if (image) {
       try {
+        const company = await Company.findById(req.user.company).select("licenseKey").lean();
         const cloudinaryResponse = await cloudinary.uploader.upload(
           image[0].path,
-          { folder: "Product_images" }
+          { folder: `${company?.licenseKey}/products` }
         );
         if (!cloudinaryResponse || cloudinaryResponse.error) {
           return res.status(500).json({

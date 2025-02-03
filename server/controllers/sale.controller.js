@@ -219,7 +219,6 @@ const addSale = async (req, res) => {
     } 
     sale.customer = customer._id;
   }
-  await sale.save();
 
   // Update Inventory
   for (const product of products) {
@@ -363,21 +362,8 @@ const addSaleReturn = async (req, res) => {
     await inventory.save();
   });
 
-  const populatedSaleReturn = await SalesReturn.findById(saleReturn._id).populate(
-    "customer products.product"
-  );
-
   // Generate a sales return invoice
-  saleReturn.invoice = await generateSalesReturnInvoice({
-    _id: populatedSaleReturn._id,
-    returnDate: populatedSaleReturn.createdAt,
-    customer: populatedSaleReturn?.customer,
-    products : populatedSaleReturn?.products,
-    subTotal: populatedSaleReturn?.subTotal,
-    discount: populatedSaleReturn?.discount,
-    totalAmount: populatedSaleReturn?.totalAmount,
-    reason: populatedSaleReturn?.reason,
-  });
+  saleReturn.invoice = await generateSalesReturnInvoice(saleReturn._id);
 
   await saleReturn.save();
 

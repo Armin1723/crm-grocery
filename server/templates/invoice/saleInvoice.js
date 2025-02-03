@@ -35,7 +35,8 @@ const generateSaleInvoice = async (saleId) => {
     const sale = await Sale.findById(saleId)
       .populate("products.product")
       .populate("customer")
-      .populate("signedBy");
+      .populate("signedBy")
+      .populate("company");
 
     if (!sale) throw new Error("Sale not found");
 
@@ -75,7 +76,7 @@ const generateSaleInvoice = async (saleId) => {
     });
 
     const uploadResult = await cloudinary.uploader.upload(filePath, {
-      folder: "grocery-crm/invoices",
+      folder: `${sale?.company?.licenseKey}/invoices/sales`,
       resource_type: "raw",
     });
 

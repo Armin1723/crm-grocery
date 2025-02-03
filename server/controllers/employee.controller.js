@@ -59,7 +59,7 @@ const addEmployee = async (req, res) => {
       try {
         const cloudinaryResponse = await cloudinary.uploader.upload(
           avatar[0].path,
-          { folder: "Employee_Images" }
+          { folder: `${company?.licenseKey}/employees` }
         );
         if (!cloudinaryResponse || cloudinaryResponse.error) {
           return res.status(500).json({
@@ -81,7 +81,7 @@ const addEmployee = async (req, res) => {
       try {
         const cloudinaryResponse = await cloudinary.uploader.upload(
           identityProof[0].path,
-          { folder: "Employee_Identity_Proofs" }
+          { folder: `${company?.licenseKey}/employees` }
         );
         if (!cloudinaryResponse || cloudinaryResponse.error) {
           return res.status(500).json({
@@ -117,6 +117,8 @@ const editEmployee = async (req, res) => {
   employee.phone = phone;
   employee.address = address;
 
+  const company = await Company.findById(req.user.company).select("licenseKey").lean();
+
   // Upload Image if exists
   if (req.files) {
     const { avatar, identityProof } = req.files;
@@ -124,7 +126,7 @@ const editEmployee = async (req, res) => {
       try {
         const cloudinaryResponse = await cloudinary.uploader.upload(
           avatar[0].path,
-          { folder: "Employee_Images" }
+          { folder: `${company?.licenseKey}/employeeImages` }
         );
         if (!cloudinaryResponse || cloudinaryResponse.error) {
           return res.status(500).json({
@@ -146,7 +148,7 @@ const editEmployee = async (req, res) => {
       try {
         const cloudinaryResponse = await cloudinary.uploader.upload(
           identityProof[0].path,
-          { folder: "Employee_Identity_Proofs" }
+          { folder: `${company?.licenseKey}/employeeImages` }
         );
         if (!cloudinaryResponse || cloudinaryResponse.error) {
           return res.status(500).json({

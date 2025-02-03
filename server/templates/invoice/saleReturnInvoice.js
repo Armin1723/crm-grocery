@@ -2,6 +2,7 @@ const PDFDocument = require("pdfkit");
 const fs = require("fs");
 const path = require("path");
 const cloudinary = require("../../config/cloudinary");
+const SalesReturn = require("../../models/salesReturn.model");
 
 // Helper function to split text into multiple lines based on max line length
 const splitTextToLines = (text, maxLength) => {
@@ -27,7 +28,14 @@ const splitTextToLines = (text, maxLength) => {
 const formatCurrency = (value) => `₹${value.toFixed(2)}`;
 const formatDate = (date) => new Date(date).toLocaleDateString("en-IN");
 
-const generateSalesReturnInvoice = async (salesReturn) => {
+const generateSalesReturnInvoice = async (salesReturnId) => {
+
+  const salesReturn = await SalesReturn.findById(salesReturnId)
+    .populate("products.product")
+    .populate("customer")
+    .populate("signedBy")
+    .populate("company");
+
   try {
     // Create a new PDF document
     const doc = new PDFDocument({
@@ -69,7 +77,7 @@ const generateSalesReturnInvoice = async (salesReturn) => {
     });
 
     const uploadResult = await cloudinary.uploader.upload(filePath, {
-      folder: "grocery-crm/invoices",
+      folder: `${salesReturn?.company?.licenseKey}/invoices/salesReturn`,
       resource_type: "raw",
     });
 

@@ -26,7 +26,9 @@ const addExpense = async (req, res) => {
 const getExpenses = async (req, res) => {
   const { page = 1, limit = 10, category } = req.query;
   const query = { company: req.user.company };
-  if (category) query.category = category;
+  if (category) {
+    query.category = { $regex: category, $options: "i" };
+  }
   const expenses = await Expense.find(query)
     .skip((page - 1) * limit)
     .limit(limit);
