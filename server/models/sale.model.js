@@ -28,9 +28,6 @@ const saleSchema = new mongoose.Schema({
     subTotal: {
         type: Number,
     },
-    otherCharges: {
-        type: Number,
-    },
     discount: {
         type: Number,
     },

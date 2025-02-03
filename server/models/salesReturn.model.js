@@ -40,9 +40,6 @@ const salesReturnSchema = new mongoose.Schema(
     totalAmount: {
       type: Number,
     },
-    otherCharges: {
-      type: Number,
-    },
     discount: {
       type: Number,
     },

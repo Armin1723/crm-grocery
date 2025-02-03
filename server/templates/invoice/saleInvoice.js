@@ -181,7 +181,6 @@ const addInvoiceSummary = (doc, sale) => {
       )}`
     )
     .text(`Sub Total     : ${formatCurrency(sale.subTotal || 0)}`)
-    .text(`Other Charges : ${formatCurrency(sale.otherCharges || 0)}`)
     .text(`Discount      : ${formatCurrency(sale.discount || 0)}`)
     .text(`Total Amount  : ${formatCurrency(sale.totalAmount || 0)}`, {
       bold: true,

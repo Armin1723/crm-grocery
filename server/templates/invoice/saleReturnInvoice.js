@@ -180,7 +180,6 @@ const addInvoiceSummary = (doc, salesReturn) => {
       )}`
     )
     .text(`Sub Total     : ${formatCurrency(salesReturn.subTotal || 0)}`)
-    .text(`Other Charges : ${formatCurrency(salesReturn.otherCharges || 0)}`)
     .text(`Discount      : ${formatCurrency(salesReturn.discount || 0)}`)
     .text(`Amount        : ${formatCurrency(salesReturn.totalAmount || 0)}`, {
       bold: true,

@@ -74,7 +74,6 @@ const getSale = async (req, res) => {
   const formattedSale = {
     _id: sale._id,
     subTotal: sale.subTotal,
-    otherCharges: sale.otherCharges,
     discount: sale.discount,
     totalAmount: sale.totalAmount,
     createdAt: sale.createdAt,
@@ -192,7 +191,6 @@ const addSale = async (req, res) => {
       },
     ],
     customerMobile,
-    otherCharges = 0,
     discount = 0,
     subTotal = 0,
     totalAmount = 0,
@@ -202,13 +200,12 @@ const addSale = async (req, res) => {
   if (!products.length) {
     return res.status(400).json({ message: "Products are required." });
   }
-  
+
   const sale = await Sale.create({
     products,
     signedBy: req.user.id,
     company: req.user.company,
     subTotal,
-    otherCharges,
     discount,
     totalAmount,
     paymentMode,
@@ -331,7 +328,6 @@ const addSaleReturn = async (req, res) => {
     signedBy: req.user.id,
     company: req.user.company,
     subTotal: req.body.subTotal,
-    otherCharges: req.body.otherCharges,
     discount: req.body.discount,
     totalAmount: req.body.totalAmount,
   });
@@ -378,7 +374,6 @@ const addSaleReturn = async (req, res) => {
     customer: populatedSaleReturn?.customer,
     products : populatedSaleReturn?.products,
     subTotal: populatedSaleReturn?.subTotal,
-    otherCharges: populatedSaleReturn?.otherCharges,
     discount: populatedSaleReturn?.discount,
     totalAmount: populatedSaleReturn?.totalAmount,
     reason: populatedSaleReturn?.reason,
