@@ -36,10 +36,10 @@ const purchaseSchema = new mongoose.Schema(
     subTotal: {
       type: Number,
     },
-    otherCharges: {
+    discount: {
       type: Number,
     },
-    discount: {
+    otherCharges: {
       type: Number,
     },
     totalAmount: {

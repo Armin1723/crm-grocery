@@ -18,19 +18,19 @@ const addExpense = async (req, res) => {
 
   return res.status(201).json({
     success: true,
-    message: "Expenses Added Successfully",
+    message: "Expense Added Successfully",
     newExpense,
   });
 };
 
 const getExpenses = async (req, res) => {
-  const { page = 1, limit = 10 } = req.query;
-  const expenses = await Expense.find({ company: req.user.company })
+  const { page = 1, limit = 10, category } = req.query;
+  const query = { company: req.user.company };
+  if (category) query.category = category;
+  const expenses = await Expense.find(query)
     .skip((page - 1) * limit)
     .limit(limit);
-  const totalExpenses = await Expense.countDocuments({
-    company: req.user.company,
-  });
+  const totalExpenses = await Expense.countDocuments(query);
   return res.status(200).json({
     success: true,
     expenses,
