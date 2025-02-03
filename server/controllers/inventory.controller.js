@@ -1,11 +1,12 @@
 const { mergeBatchesHelper } = require("../helpers");
 const Inventory = require("../models/inventory.model");
 const Product = require("../models/product.model");
+const mongoose = require("mongoose");
 
 const getMatchStage = (req) => ({
   $match: {
     totalQuantity: { $gt: 0 },
-    company: req.user.company,
+    company: new mongoose.Types.ObjectId(req.user.company),
   },
 });
 

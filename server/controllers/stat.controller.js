@@ -4,11 +4,15 @@ const Purchase = require("../models/purchase.model");
 const Sale = require("../models/sale.model");
 const User = require("../models/user.model");
 
+const mongoose = require("mongoose");
+
 const getMatchStage = (req) => ({
   $match: {
-    company: req.user.company,
+    $and: [{
     totalQuantity: { $gt: 0 },
-  },
+    company: new mongoose.Types.ObjectId(req.user.company),
+  }],
+}
 });
 
 // Basic stats of sales, purchases, and inventory for recharts
@@ -38,9 +42,9 @@ const getBasicStats = async (req, res) => {
   const [salesData, purchaseData, productsData, inventoryData] =
     await Promise.all([
       Sale.aggregate([
+        { $match: { company: new mongoose.Types.ObjectId(req.user.company) } },
         {
           $match: {
-            company: req.user.company,
             createdAt: { $gte: sixMonthsAgoDate },
           },
         },
@@ -56,9 +60,9 @@ const getBasicStats = async (req, res) => {
         { $sort: { "_id.year": 1, "_id.month": 1 } },
       ]),
       Purchase.aggregate([
+        { $match: { company: new mongoose.Types.ObjectId(req.user.company) } },
         {
           $match: {
-            company: req.user.company,
             createdAt: { $gte: sixMonthsAgoDate },
           },
         },
@@ -74,9 +78,9 @@ const getBasicStats = async (req, res) => {
         { $sort: { "_id.year": 1, "_id.month": 1 } },
       ]),
       Product.aggregate([
+        { $match: { company: new mongoose.Types.ObjectId(req.user.company) } },
         {
           $match: {
-            company: req.user.company,
             createdAt: { $gte: sixMonthsAgoDate },
           },
         },
@@ -92,9 +96,9 @@ const getBasicStats = async (req, res) => {
         { $sort: { "_id.year": 1, "_id.month": 1 } },
       ]),
       Inventory.aggregate([
+        { $match: { company: new mongoose.Types.ObjectId(req.user.company) } },
         {
           $match: {
-            company: req.user.company,
             createdAt: { $gte: sixMonthsAgoDate },
           },
         },
@@ -492,7 +496,7 @@ const salesPurchaseChart = async (req, res) => {
       salesPipeline.push({ $match: { signedBy: user._id } });
     }
     salesPipeline.push(
-      { $match: { company: req.user.company } },
+      { $match: { company: new mongoose.Types.ObjectId(req.user.company) } },
       {
         $group: {
           _id: groupFormat,
@@ -509,7 +513,7 @@ const salesPurchaseChart = async (req, res) => {
     let purchaseData = [];
     if (user.role === "admin") {
       purchaseData = await Purchase.aggregate([
-        { $match: { company: req.user.company } },
+        { $match: { company:  new mongoose.Types.ObjectId(req.user.company) } },
         {
           $group: {
             _id: groupFormat,

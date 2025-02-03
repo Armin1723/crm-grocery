@@ -44,8 +44,8 @@ const loginUser = async (req, res) => {
   if (!subscriptionActive) {
     return res.status(400).json({
       success: false,
-      message: "Subscription expired",
-      errors: { company: "Subscription expired" },
+      message: "Subscription Expired",
+      errors: { company: "Subscription Expired" },
     });
   }
 

@@ -5,7 +5,6 @@ const cors = require('cors');
 const connectToDB = require('./db');
 const cookieParser = require('cookie-parser');
 const { errorHandler } = require('./middleware/errorHandler.js');
-
 const app = express();
 
 const port = process.env.PORT || 8000;

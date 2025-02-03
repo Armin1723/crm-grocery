@@ -8,6 +8,7 @@ const generateSalesReturnInvoice = require("../templates/invoice/saleReturnInvoi
 const generateSaleInvoice = require("../templates/invoice/saleInvoice");
 const saleReturnInvoiceMailTemplate = require("../templates/email/saleReturnInvoiceMailTemplate");
 const saleInvoiceMailTemplate = require("../templates/email/saleInvoiceMailTemplate");
+const Company = require("../models/company.model");
 
 const getSales = async (req, res) => {
   const {
@@ -201,7 +202,7 @@ const addSale = async (req, res) => {
   if (!products.length) {
     return res.status(400).json({ message: "Products are required." });
   }
-
+  
   const sale = await Sale.create({
     products,
     signedBy: req.user.id,
@@ -215,9 +216,9 @@ const addSale = async (req, res) => {
 
   let customer = null;
   if (customerMobile) {
-      customer = await Customer.findOne({ phone: customerMobile });
+      customer = await Customer.findOne({ phone: customerMobile, company : req.user.company });
     if (!customer) {
-      customer = await Customer.create({ phone: customerMobile });
+      customer = await Customer.create({ phone: customerMobile, company : req.user.company });
     } 
     sale.customer = customer._id;
   }
@@ -251,8 +252,9 @@ const addSale = async (req, res) => {
     // Send Mail to Admin if stockPreference set
     if (inventory?.product?.stockAlert?.preference) {
       if (inventory.totalQuantity < inventory?.product?.stockAlert.quantity) {
+        const company = await Company.findById(req.user.company).select("email").lean();
         sendMail(
-          (to = process.env.ADMIN_EMAIL),
+          (to = company.email),
           (subject = "Low Stock Alert"),
           (message = lowStockMailTemplate(
             inventory.product.name,
@@ -269,7 +271,7 @@ const addSale = async (req, res) => {
   //send mail to customer
   if(customer?.email){
     const updatedSale = await Sale.findById(sale._id).populate("customer signedBy products.product" );
-    await sendMail(
+    sendMail(
       customer.email,
       "Sales Invoice",
       (message = saleInvoiceMailTemplate(updatedSale))
@@ -387,7 +389,7 @@ const addSaleReturn = async (req, res) => {
 
   // Send the invoice to the customer
   if (populatedSaleReturn?.customer?.email) {
-    await sendMail(
+    sendMail(
       populatedSaleReturn?.customer?.email,
       "Sales Return Invoice",
       (message = saleReturnInvoiceMailTemplate(populatedSaleReturn))

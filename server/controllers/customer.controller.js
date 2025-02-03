@@ -6,7 +6,7 @@ const escapeRegExp = (string) => {
 
 const getCustomer = async (req, res) => {
   const { phone } = req.params;
-  const { company } = req.user.company;
+  const company = req.user.company;
 
   const customer = await Customer.findOne({ phone, company });
   if (!customer) {
@@ -17,7 +17,7 @@ const getCustomer = async (req, res) => {
 
 const getCustomersByName = async (req, res) => {
   const { query } = req.query;
-  const { company } = req.user.company;
+  const company = req.user.company;
 
   // Escape the query to avoid special character issues
   const escapedQuery = escapeRegExp(query);

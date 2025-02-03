@@ -90,10 +90,8 @@ const getProducts = async (req, res) => {
 
   if (name) {
     const products = await Product.find({
-      $and: [
-        { company: req.user.company },
-        { name: { $regex: `${name}`, $options: "i" } },
-      ],
+      company: req.user.company,
+      name: { $regex: name, $options: "i" },
     }).limit(5);
 
     return res.json({ success: true, products });
@@ -129,7 +127,7 @@ const getTrendingProducts = async (req, res) => {
         createdAt: {
           $gte: new Date(new Date().setDate(new Date().getDate() - 30)),
         },
-        company: req.user.company,
+        company:  new mongoose.Types.ObjectId(req.user.company),
       },
     },
     { $unwind: "$products" },
@@ -438,7 +436,7 @@ const autoSetRate = async (req, res) => {
     // Use aggregation to find the highest purchase rate for the product
     const result = await Purchase.aggregate([
       // Match purchases for the company
-      { $match: { company: req.user.company } },
+      { $match: { company: new mongoose.Types.ObjectId(req.user.company) } },
       // Unwind the products array to access individual product entries
       { $unwind: "$products" },
 

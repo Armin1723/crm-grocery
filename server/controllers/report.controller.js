@@ -3,6 +3,7 @@ const Expense = require("../models/expense.model");
 const Sale = require("../models/sale.model");
 const SalesReturn = require("../models/salesReturn.model");
 const PurchaseReturn = require("../models/purchaseReturn.model");
+const mongoose = require("mongoose");
 
 // Utils
 const matchStage = (startDate, endDate, req) => ({
@@ -11,7 +12,7 @@ const matchStage = (startDate, endDate, req) => ({
       $gte: new Date(new Date(startDate).setHours(0, 0, 0, 0)),
       $lte: new Date(new Date(endDate).setHours(23, 59, 59, 999)),
     },
-    company: req.user.company,
+    company: new mongoose.Types.ObjectId(req.user.company),
   },
 });
 

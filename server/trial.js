@@ -13,6 +13,7 @@ const User = require("./models/user.model");
 const Product = require("./models/product.model");
 const Customer = require("./models/customer.model");
 const Expense = require("./models/expense.model");
+const Supplier = require("./models/supplier.model");
 // const { generateSaleReturnInvoice } = require("./templates/invoice/saleReturnInvoice");
 
 const updatePurchaseInvoice = async () => {
@@ -61,50 +62,56 @@ const addCompanyToEverything = async () => {
   const inventory = await Inventory.find();
   const users = await User.find();
   const products = await Product.find();
+  const suppliers = await Supplier.find();
 
-  for (const customer of customers) {
-    customer.company = company._id;
-    await customer.save();
-  }
+  // for (const customer of customers) {
+  //   customer.company = company._id;
+  //   await customer.save();
+  // }
 
-  for (const purchase of purchases) {
-    purchase.company = company._id;
-    await purchase.save();
-  }
+  // for (const purchase of purchases) {
+  //   purchase.company = company._id;
+  //   await purchase.save();
+  // }
 
-  for (const purchaseReturn of purchaseReturns) {
-    purchaseReturn.company = company._id;
-    await purchaseReturn.save();
-  }
+  // for (const purchaseReturn of purchaseReturns) {
+  //   purchaseReturn.company = company._id;
+  //   await purchaseReturn.save();
+  // }
 
-  for (const expense of expenses) {
-    expense.company = company._id;
-    await expense.save();
-  }
+  // for (const expense of expenses) {
+  //   expense.company = company._id;
+  //   await expense.save();
+  // }
 
-  for (const sale of sales) {
-    sale.company = company._id;
-    await sale.save();
-  }
+  // for (const sale of sales) {
+  //   sale.company = company._id;
+  //   await sale.save();
+  // }
 
-  for (const saleReturn of saleReturns) {
-    saleReturn.company = company._id;
-    await saleReturn.save();
-  }
+  // for (const saleReturn of saleReturns) {
+  //   saleReturn.company = company._id;
+  //   await saleReturn.save();
+  // }
 
-  for (const user of users) {
-    user.company = company._id;
-    await user.save();
-  }
+  // for (const user of users) {
+  //   user.company = company._id;
+  //   await user.save();
+  // }
 
-  for (const product of products) {
-    product.company = company._id;
-    await product.save();
-  }
+  // for (const product of products) {
+  //   product.company = company._id;
+  //   await product.save();
+  // }
 
-  for (const item of inventory) {
-    item.company = company._id;
-    await item.save();
+  // for (const item of inventory) {
+  //   item.company = company._id;
+  //   await item.save();
+  // }
+
+  for (const supplier of suppliers) {
+    supplier.company = company._id;
+    await supplier.save();
   }
 
   console.log(
