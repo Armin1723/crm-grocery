@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 
 const CustomerSuggestion = ({
   setCustomerDetails = () => {},
@@ -11,8 +11,15 @@ const CustomerSuggestion = ({
 
   const fetchCustomerByName = async (e) => {
     const value = e.target.value;
+    // If the type is phone and the value is 10 characters long, set the phone number
     setInputValue(value);
-    setCustomerDetails(null);
+    if (type === "phone" && value.length === 10) {
+      setCustomerDetails({
+        phone: value,
+      });
+    } else {
+      setCustomerDetails(null);
+    }
 
     if (!value) {
       setSuggestedCustomers([]);

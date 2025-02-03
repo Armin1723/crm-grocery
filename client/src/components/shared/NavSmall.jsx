@@ -6,6 +6,7 @@ import { IoIosCloseCircle } from "react-icons/io";
 import Avatar from "../utils/Avatar";
 import { useSelector } from "react-redux";
 import LogoutButton from "../utils/LogoutButton";
+import Logo from "./Logo";
 
 const NavSmall = () => {
   const pathname = useLocation().pathname;
@@ -22,11 +23,11 @@ const NavSmall = () => {
       <div
         ref={hamRef}
         onClick={() => setNavOpen((prev) => !prev)}
-        className="hidden max-sm:flex hamburger w-6 flex-col gap-1 mx-2"
+        className="hidden max-sm:flex hamburger w-6 flex-col gap-1 mx-2 cursor-pointer"
       >
-        <div className="line w-full border border-[var(--color-text)]"></div>
-        <div className="line w-3/5 border border-[var(--color-text)]"></div>
-        <div className="line w-4/5 border border-[var(--color-text)]"></div>
+        <div className="line w-full border-b-2 border-[var(--color-text)]"></div>
+        <div className="line w-3/5 border-b-2 border-[var(--color-text)]"></div>
+        <div className="line w-4/5 border-b-2 border-[var(--color-text)]"></div>
       </div>
 
       {/* Small Nav */}
@@ -40,9 +41,8 @@ const NavSmall = () => {
         >
           <div className="top flex w-full justify-between px-4 relative pb-2 border-b border-neutral-500/50 ">
             <div className="top-sub flex items-center justify-between w-full gap-2">
-              <div className="logo flex items-center gap-2">
-                <p className="text-2xl font-bold">CRM - Grocery</p>
-              </div>
+            
+              <Logo />
               <div
                 className="close cursor-pointer text-xl"
                 onClick={() => setNavOpen(false)}

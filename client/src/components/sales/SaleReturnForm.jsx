@@ -21,6 +21,7 @@ const SaleReturnForm = ({ sale = {}, setSale = () => {}, loading = false }) => {
     control,
     getValues,
     reset,
+    resetField,
     setError,
     clearErrors,
   } = useForm({
@@ -35,20 +36,15 @@ const SaleReturnForm = ({ sale = {}, setSale = () => {}, loading = false }) => {
   });
 
   useEffect(() => {
-    reset({
-      subTotal: sale?.subTotal || 0,
-      discount: sale?.discount || 0,
-      totalAmount: sale?.totalAmount || 0,
-      otherCharges: sale?.otherCharges || 0,
-      products: sale?.products || [],
-      invoiceId: sale?._id || "",
-    });
-  }, [sale, reset]);
+    setValue("products", sale.products);
+  }, [sale, setValue]);
+
+  const watchedProducts = useWatch({ name: "products", control });
 
   // Check expiry dates on load
   useEffect(() => {
-    getValues("products").forEach((product, index) => {
-      if (new Date(product?.expiry) < new Date()) {
+    watchedProducts.forEach((product, index) => {
+      if (product?.expiry && new Date(product?.expiry) < new Date()) {
         setError(`products.${index}.expiry`, {
           type: "manual",
           message: "This product has expired",
@@ -60,9 +56,8 @@ const SaleReturnForm = ({ sale = {}, setSale = () => {}, loading = false }) => {
         clearErrors(`products.${index}.expiry`);
       };
     });
-  }, [getValues("products"), setError]);
+  }, [watchedProducts, setError]);
 
-  const watchedProducts = useWatch({ name: "products", control });
 
   useEffect(() => {
     const calculatedSubTotal = watchedProducts.reduce(
@@ -83,7 +78,45 @@ const SaleReturnForm = ({ sale = {}, setSale = () => {}, loading = false }) => {
   const removeProduct = (index) => {
     const updatedProducts = [...watchedProducts];
     updatedProducts.splice(index, 1);
+    
+    // First clear all product-related errors
+    Object.keys(errors).forEach(key => {
+      if (key.startsWith('products.')) {
+        clearErrors(key);
+      }
+    });
+
+    // Reset the specific field
+    resetField(`products.${index}`);
+    
+    // Update the products array
     setValue("products", updatedProducts);
+    
+    // Re-validate the remaining products
+    updatedProducts.forEach((product, idx) => {
+      // Check expiry
+      if (product?.expiry && new Date(product?.expiry) < new Date()) {
+        setError(`products.${idx}.expiry`, {
+          type: "manual",
+          message: "This product has expired",
+        });
+      }
+      
+      // Validate quantity
+      if (product.quantity) {
+        if (product.quantity < 1) {
+          setError(`products.${idx}.quantity`, {
+            type: "manual",
+            message: "Minimum quantity is 1",
+          });
+        } else if (product.quantity > sale?.products[idx]?.quantity) {
+          setError(`products.${idx}.quantity`, {
+            type: "manual",
+            message: `Maximum quantity is ${sale?.products[idx]?.quantity}`,
+          });
+        }
+      }
+    });
   };
 
   // Handle form submission
@@ -98,14 +131,16 @@ const SaleReturnForm = ({ sale = {}, setSale = () => {}, loading = false }) => {
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify(values),
+          body: JSON.stringify({
+            ...values,
+            invoiceId: sale._id,
+          }),
         }
       );
       const data = await res.json();
       if (!res.ok) {
         throw new Error(data.message || "Something went wrong!");
       }
-      setSale({});
       reset();
       navigate("/sales");
       toast.update(id, {
@@ -143,8 +178,8 @@ const SaleReturnForm = ({ sale = {}, setSale = () => {}, loading = false }) => {
     >
       {watchedProducts?.length > 0 ? (
         <>
-          <div className="table-wrapper w-full flex relative flex-1 mt-2 border border-b-0 border-neutral-500/50 rounded-md rounded-b-none overflow-x-auto">
-            <div className="products-container overflow-x-auto overflow-y-auto max-sm:px-2 table flex-col w-fit min-w-full max-sm:text-sm flex-1">
+          <div className="table-wrapper w-full flex relative flex-1 mt-2 border border-b-0 border-neutral-500/50 rounded-md rounded-b-none min-h-[12vh] overflow-x-auto">
+            <div className="products-container max-sm:px-2 table flex-col w-fit min-w-full max-sm:text-sm flex-1">
               <TableHeader />
               {watchedProducts &&
                 watchedProducts.map((product, index) => (
@@ -167,7 +202,7 @@ const SaleReturnForm = ({ sale = {}, setSale = () => {}, loading = false }) => {
                         errors?.products?.[index]?.expiry ? "text-red-500" : ""
                       }`}
                     >
-                      {formatDateIntl(product.expiry)}
+                      {formatDateIntl(product?.expiry) || "N/A"}
                       {errors?.products?.[index]?.expiry && (
                         <p className="text-red-500 text-xs">
                           {errors.products[index].expiry.message}
@@ -212,8 +247,8 @@ const SaleReturnForm = ({ sale = {}, setSale = () => {}, loading = false }) => {
                           },
                           min: { value: 1, message: "Minimum quantity is 1" },
                           max: {
-                            value: sale?.products[index].quantity || 1,
-                            message: `Maximum quantity is ${sale?.products[index].quantity}`,
+                            value: watchedProducts[index].quantity,
+                            message: `Maximum quantity is ${sale?.products[index]?.quantity}`,
                           },
                         })}
                       />

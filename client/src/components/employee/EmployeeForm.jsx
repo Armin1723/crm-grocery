@@ -161,7 +161,7 @@ const EmployeeForm = ({
   return (
     <form
       onSubmit={handleSubmit(addEmployee)}
-      className="flex flex-col justify-end gap-2 w-full flex-1 min-h-[60vh] px-3 max-sm:px-1 space-y-2"
+      className="flex flex-col gap-2 w-full flex-1 min-h-[6h] px-3 max-sm:px-1 space-y-2 h-full overflow-y-auto"
     >
       {/* Avatar Upload */}
       <div className="space-y-2">
@@ -334,7 +334,7 @@ const EmployeeForm = ({
               {previewType === "pdf" ? (
                 <div className="h-96 w-full">
                   <embed
-                    src={identityProofPreview}
+                    src={`${identityProofPreview}#toolbar=0&navpanes=0`}
                     type="application/pdf"
                     width="100%"
                     height="100%"

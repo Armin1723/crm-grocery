@@ -8,6 +8,7 @@ import { useSelector } from "react-redux";
 import LogoutButton from "../../utils/LogoutButton";
 import HoverCard from "../../shared/HoverCard";
 import EmployeeCard from "../../employee/EmployeeCard";
+import Logo from "../../shared/Logo";
 
 const SellerNavSmall = () => {
   const pathname = useLocation().pathname;
@@ -82,9 +83,7 @@ const SellerNavSmall = () => {
           {/* Top Section */}
           <div className="top flex w-full justify-between px-4 relative pb-2 border-b border-neutral-500/50">
             <div className="top-sub flex items-center justify-between w-full gap-2">
-              <div className="logo flex items-center gap-2">
-                <p className="text-2xl font-bold">Logo</p>
-              </div>
+              <Logo />
               <div
                 className="close cursor-pointer text-xl"
                 onClick={() => setNavOpen(false)}
@@ -95,13 +94,13 @@ const SellerNavSmall = () => {
           </div>
 
           {/* Links Container */}
-          <div className="links-container flex-1 mt-4 w-full select-none">
+          <div className="links-container flex-1 mt-4 w-full select-none text-sm">
             <ul className="links min-h-[50px] max-h-[60vh] overflow-y-auto hide-scrollbar flex flex-col w-full">
               {links.map((link, index) => {
                 const isActive =
-                link.to === "/"
-                ? pathname === '/seller/'
-                : pathname.startsWith(`/seller${link.to}`)
+                  link.to === "/"
+                    ? pathname === "/seller/"
+                    : pathname.startsWith(`/seller${link.to}`);
 
                 const hasSublinks = link.sublinks && link.sublinks.length > 0;
                 const isSubmenuOpen = openSubmenus[link.title];
@@ -210,7 +209,7 @@ const SellerNavSmall = () => {
           <div
             onClick={() => setNavOpen(false)}
             className="bottom flex justify-between gap-1 cursor-pointer 
-          items-center border-t border-neutral-500/50 pt-4 px-4"
+          items-center border-t border-neutral-500/50 pt-4 px-4 text-sm"
           >
             <div className="profile flex items-center gap-2">
               <HoverCard title={<Avatar width={42} image={user?.avatar} />}>
@@ -226,10 +225,9 @@ const SellerNavSmall = () => {
             </div>
             <LogoutButton expanded={false} />
           </div>
-        </div>
-        ,
+        </div>,
         document.body
-      )} 
+      )}
     </>
   );
 };

@@ -11,6 +11,8 @@ import "react-toastify/dist/ReactToastify.css";
 import { useSelector } from "react-redux";
 import ViewExpenses from "./components/purchases/ViewExpenses";
 import TitleBar from "./components/shared/TitleBar";
+import Company from "./components/home/Company";
+import ViewCompany from "./components/company/ViewCompany";
 const Seller = lazy(() => import("./pages/Seller"));
 const TopLoadingBar = lazy(() => import("./components/shared/TopLoadingBar"));
 const SellerSales = lazy(() => import("./components/seller/sales/SellerSales"));
@@ -222,6 +224,11 @@ const App = () => {
                 <Route path="add" element={<AddEmployee />} />
                 <Route path=":id" element={<EmployeeDetails />} />
               </Route>
+
+              {/* Company Routes */}
+              <Route path="company" element={<Company />}>
+                <Route path="" element={<ViewCompany />} />
+              </Route>
             </Route>
 
             <Route path="/auth" element={<Auth />}>
@@ -245,6 +252,8 @@ const App = () => {
                 <Route path="" element={<ViewSales />} />
                 <Route path="add" element={<AddSale />} />
                 <Route path=":id" element={<SaleDetails />} />
+                <Route path="return" element={<ViewSaleReturns />} />
+                <Route path="return/add" element={<SaleReturn />} />
               </Route>
               <Route path="inventory" element={<SellerInventory />}>
                 <Route path="" element={<InventoryList />} />

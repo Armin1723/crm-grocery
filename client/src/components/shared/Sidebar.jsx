@@ -7,6 +7,7 @@ import LogoutButton from "../utils/LogoutButton";
 import { links } from "../utils";
 import HoverCard from "./HoverCard";
 import EmployeeCard from "../employee/EmployeeCard";
+import Logo from "./Logo";
 
 const Sidebar = () => {
   const user = useSelector((state) => state.user);
@@ -34,18 +35,11 @@ const Sidebar = () => {
       } h-full flex border-r border-neutral-500/50 flex-col py-3 bg-[var(--color-sidebar)] text-[var(--color-text)] transition-all duration-300 ease-in`}
     >
       <div className="top flex items-center w-full justify-between px-4 relative py-2 border-b border-neutral-500/50">
-        <div className="logo flex items-center justify-start ">
-          <p className="text-2xl font-bold">
-            CRM{" "}
-            <span className={`${!expanded && "hidden"} max-md:hidden`}>
-              - Grocery{" "}
-            </span>
-          </p>
-        </div>
+        <Logo expanded={expanded} />
 
         <button
           onClick={() => setExpanded((prev) => !prev)}
-          className={`absolute top-1/2 -translate-y-1/2 !z-[99] right-0 translate-x-1/2 p-2 bg-[var(--color-primary)] border border-neutral-500/90 hover:shadow-md hover:bg-opacity-75 rounded-full ${
+          className={`absolute top-1/2 -translate-y-1/2 !z-[98] right-0 translate-x-1/2 p-2 bg-[var(--color-primary)] border border-neutral-500/90 hover:shadow-md hover:bg-opacity-75 rounded-full ${
             expanded ? "rotate-180" : "scale-75 origin-center"
           } transition-all duration-300 ease-in`}
         >

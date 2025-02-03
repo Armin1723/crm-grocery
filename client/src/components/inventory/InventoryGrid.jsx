@@ -132,8 +132,8 @@ const InventoryGrid = () => {
             <div className="spinner"></div>
           </div>
         ) : (
-          <p className="text-lg max-lg:text-base p-2">
-            No products found in inventory.
+          <p className="text-sm p-2 h-full w-full flex flex-col items-center justify-center text-[var(--color-text-light)]">
+            No such products found in inventory.
           </p>
         )}
       </div>

@@ -62,6 +62,7 @@ const SaleDetails = ({ idBackup = "" }) => {
       </div>
 
       <div className="wrapper flex-1 overflow-y-auto px-2">
+          <p className="text-sm text-[var(--color-text-light)]">Invoice ID: {sale?._id}</p>
 
         {/* Sale Products */}
         <Divider title="Sale Products" />
@@ -78,7 +79,7 @@ const SaleDetails = ({ idBackup = "" }) => {
             </thead>
             <tbody>
               {sale?.products.map((product) => (
-                <tr key={product._id} className="border-b border-neutral-500/50">
+                <tr key={product?._id} className="border-b border-neutral-500/50">
                   <td className="py-2 pl-4">
                     <Avatar
                       image={product?.image}

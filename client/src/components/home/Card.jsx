@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import React, { useState } from "react";
+import React from "react";
 import CountUp from "react-countup";
 import { Link } from "react-router-dom";
 import { Line, LineChart, ResponsiveContainer, Tooltip } from "recharts";
@@ -29,19 +29,19 @@ const Card = ({ data, index, chartData = {} }) => {
     },
   ];
 
-  const [stats, setStats] = useState(chartData.data || chartDataCopy);
-
   const CustomTooltip = ({ active, payload }) => {
     if (active && payload && payload.length) {
       return (
-        <div className="tooltip-container shadow-md">
+        <div className="tooltip-container shadow-md bg-[var(--color-sidebar)] p-2 rounded-md">
           <p
             className="text-sm max-sm:text-xs"
             style={{
               color: data.color,
             }}
           >
-            {payload[0].value}
+            {payload[0].value} {" "}
+            {/* rupee symbol */}
+            {data.title == "Products" ? "items" : "₹" }
           </p>
         </div>
       );
@@ -110,12 +110,12 @@ const Card = ({ data, index, chartData = {} }) => {
         <div className="right flex flex-col flex-1 overflow-hidden h-full w-full px-6 max-sm:px-4 py-2">
           <div className="chart h-2/3 max-h-[66%] w-full flex items-center justify-center overflow-hidden">
             <ResponsiveContainer width="99%" height="99%">
-              <LineChart data={stats}>
+              <LineChart data={chartData?.data || chartDataCopy}>
                 <Tooltip content={<CustomTooltip />} />
                 <Line
                   type="monotone"
-                  dataKey="count"
-                  // dataKey={data.title === "Inventory" ? "totalValue" : "count"}
+                  // dataKey="count"
+                  dataKey={data.title === "Inventory" ? "totalValue" : "count"}
                   stroke={data?.color}
                   strokeWidth={2}
                 />

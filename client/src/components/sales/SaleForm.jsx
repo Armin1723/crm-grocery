@@ -229,9 +229,6 @@ const SaleForm = ({ setRefetch = () => {}, closeModal = () => {} }) => {
                         {errors?.products?.[index]?.sellingRate.message}
                       </p>
                     )}
-                    <span className="text-xs absolute top-1/2 -translate-y-1/2 right-2 rounded-lg bg-accent text-white px-2">
-                      ₹/{product.secondaryUnit}
-                    </span>
                   </div>
                   <div className="w-1/5 min-w-[120px] relative">
                     <input

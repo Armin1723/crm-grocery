@@ -35,7 +35,7 @@ const SaleReturn = () => {
         <p className="text-xl max-lg:text-lg font-bold px-2 ">Sales Return</p>
       </div>
 
-      <div className="container flex flex-col w-full flex-1 overflow-y-auto px-2">
+      <div className="container flex flex-col min-w-full flex-1 overflow-y-auto px-2 ">
         <div className="salesInfo flex flex-col gap-2 w-full">
           <Divider title="Sale ID" />
           <div className="w-full flex items-center gap-2">

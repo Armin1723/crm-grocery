@@ -34,7 +34,9 @@ const ViewProducts = () => {
             import.meta.env.VITE_BACKEND_URL
           }/api/v1/products?sort=${sort}&sortType=${sortType}&limit=${limit}&query=${query}&page=${page}${
             category ? `&category=${category}` : ""
-          }`
+          }`,{
+            credentials: 'include',
+          }
         );
         const data = await response.json();
         if (!response.ok) {

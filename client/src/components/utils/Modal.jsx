@@ -29,13 +29,13 @@ const Modal = ({ isOpen, onClose, title, children }) => {
         <div className="flex items-center gap-2 w-full justify-between my-4">
           <h2 className="text-lg font-bold">{title}</h2>
           <button
-            className="bg-red-500 text-white px-3 py-1 rounded-md"
+            className="bg-red-500 hover:bg-red-600/90 transition-all duration-200 text-white px-3 py-1 rounded-md"
             onClick={onClose}
           >
             Close
           </button>
         </div>
-        <div className="flex-1 overflow-y-auto max-h-[60vh]">{children}</div>
+        <div className="flex-1 overflow-y-auto max-h-[60vh] flex flex-col">{children}</div>
       </motion.div>
     </div>
   );

@@ -2,6 +2,7 @@ import React from "react";
 import { Outlet } from "react-router-dom";
 import ChipNav from "../../utils/ChipNav";
 import { FaChartLine, FaPlus } from "react-icons/fa";
+import { MdOutlineKeyboardReturn } from "react-icons/md";
 
 const SellerSales = () => {
   const chipData = [
@@ -15,9 +16,19 @@ const SellerSales = () => {
       to: "/seller/sales/add",
       icon: FaPlus,
     },
+    {
+      label: "View Returns",
+      to: "/seller/sales/return",
+      icon: MdOutlineKeyboardReturn,
+    },
+    {
+      label: "Add Return",
+      to: "/seller/sales/return/add",
+      icon: FaPlus,
+    }
   ];
   return (
-    <div className="rounded-md bg-[var(--color-sidebar)] select-none p-2 flex-1 flex flex-col w-full h-full gap-3 overflow-x-hidden">
+    <div className="rounded-md bg-[var(--color-sidebar)] p-2 flex-1 flex flex-col w-full h-full gap-3 overflow-x-hidden">
       <ChipNav chips={chipData} baseUrl="/seller" />
       <div className="flex-1 overflow-y-auto">
         <Outlet />

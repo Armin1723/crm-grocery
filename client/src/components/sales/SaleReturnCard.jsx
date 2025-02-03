@@ -62,9 +62,11 @@ const SaleReturnCard = ({ saleReturn = {} }) => {
         {/* Individual Stat */}
         <div className="flex flex-col items-center justify-center p-4 rounded-lg bg-[var(--color-sidebar)]">
           <span className="text-xl font-bold ">
-            {saleReturn?.products?.length || "0"}
+            {saleReturn?.products?.reduce((acc, item) =>{
+              return acc + item.quantity
+            },0) || "0"}
           </span>
-          <p className="text-sm text-[var(--color-text-light)]">Products</p>
+          <p className="text-sm text-[var(--color-text-light)]">Items</p>
         </div>
       </div>
 

@@ -45,12 +45,12 @@ const AlertForm = ({ product, closeModal, setRefetch = () => {} }) => {
   };
 
   return (
-    <div>
-      <p className="text-neutral-500 text-sm mb-4 mt-2">
+    <div className="flex flex-col items-center justify-between flex-1">
+      <p className="text-[var(--color-text-light)] text-sm mb-4 mt-2">
         Set an alert for {product?.name} to get notified when it reaches a
         certain quantity.
       </p>
-      <div className="flex items-center gap-2 my-3">
+      <div className="flex items-center gap-2 my-3 w-full">
         <div className="name-input w-1/2 flex flex-col relative group my-2">
           <input
             type="text"
@@ -70,7 +70,7 @@ const AlertForm = ({ product, closeModal, setRefetch = () => {} }) => {
         </div>
         {product?.secondaryUnit}
       </div>
-      <div className="buttons flex gap-2 max-sm:flex-col">
+      <div className="buttons flex gap-2 max-sm:flex-col w-full">
         <button
           onClick={setAlert}
           disabled={!quantity}

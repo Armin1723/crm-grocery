@@ -72,7 +72,7 @@ input.checkbox {
 
 /* Input Field */
 .input {
-  @apply outline-none border border-neutral-500/50 rounded-md p-2 !z-[10] bg-transparent focus:border-[var(--color-accent-dark)] transition-all duration-300;
+  @apply outline-none border border-neutral-500/50 rounded-md p-2 !z-[10] bg-transparent focus:border-[var(--color-accent-dark)] transition-all duration-300 accent-[var(--color-accent-dark)];
 }
 
 .input-label {

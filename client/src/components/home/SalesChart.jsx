@@ -9,53 +9,8 @@ import {
 } from "recharts";
 import SelectionDropDown from "./SelectionDropDown";
 
-const dataCopy = [
-  {
-    name: "Page A",
-    sales: 4000,
-    purchases: 2400,
-    amt: 2400,
-  },
-  {
-    name: "Page B",
-    sales: 3000,
-    purchases: 1398,
-    amt: 2210,
-  },
-  {
-    name: "Page C",
-    sales: 2000,
-    purchases: 9800,
-    amt: 2290,
-  },
-  {
-    name: "Page D",
-    sales: 2780,
-    purchases: 3908,
-    amt: 2000,
-  },
-  {
-    name: "Page E",
-    sales: 1890,
-    purchases: 4800,
-    amt: 2181,
-  },
-  {
-    name: "Page F",
-    sales: 2390,
-    purchases: 3800,
-    amt: 2500,
-  },
-  {
-    name: "Page G",
-    sales: 3490,
-    purchases: 4300,
-    amt: 2100,
-  },
-];
-
 const SalesChart = () => {
-  const [data, setData] = useState(dataCopy);
+  const [data, setData] = useState([]);
   const [groupBy, setGroupBy] = useState("daily");
 
   useEffect(() => {
@@ -107,6 +62,7 @@ const SalesChart = () => {
         <ResponsiveContainer width="100%" height="100%">
           <AreaChart
             data={data}
+            key={data.length}
             margin={{
               top: 10,
               right: 30,

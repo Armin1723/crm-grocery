@@ -98,7 +98,7 @@ const ProductForm = ({
     formData.append("primaryUnit", values.primaryUnit);
     formData.append("secondaryUnit", values.secondaryUnit);
     formData.append("conversionFactor", values.conversionFactor);
-    if (values.rate) formData.append("rate", values.rate);
+    formData.append("rate", values.rate);
     if (values.mrp) formData.append("mrp", values.mrp);
     if (values.shelfLife) formData.append("shelfLife", values.shelfLife);
     formData.append("description", values.description);
@@ -171,7 +171,7 @@ const ProductForm = ({
   return (
     <form
       onSubmit={handleSubmit(addProduct)}
-      className="flex flex-col justify-end gap-2 w-full flex-1 min-h-[60vh] px-3 max-sm:px-1 space-y-2"
+      className="flex flex-col gap-2 w-full flex-1 min-h-[60vh] px-3 max-sm:px-1 space-y-2"
     >
       {/* Image Upload */}
       <div className="space-y-2">

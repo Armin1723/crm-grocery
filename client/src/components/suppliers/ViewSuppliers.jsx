@@ -26,7 +26,10 @@ const ViewSuppliers = () => {
         const response = await fetch(
           `${
             import.meta.env.VITE_BACKEND_URL
-          }/api/v1/suppliers?sort=${sort}&sortType=${sortType}&limit=${limit}&query=${query}&page=${page}`
+          }/api/v1/suppliers?sort=${sort}&sortType=${sortType}&limit=${limit}&query=${query}&page=${page}`,
+          {
+            credentials: "include",
+          }
         );
         const data = await response.json();
         if (!response.ok) {
@@ -110,7 +113,12 @@ const ViewSuppliers = () => {
                     key={index}
                     className="tr flex w-full justify-between items-center py-2 px-4 max-sm:px-1 gap-2 hover:bg-accent/10"
                   >
-                    <Link to={`/suppliers/${supplier?._id}`} className="w-1/5 min-w-[50px] pl-2">{supplier?.name}</Link>
+                    <Link
+                      to={`/suppliers/${supplier?._id}`}
+                      className="w-1/5 min-w-[50px] pl-2"
+                    >
+                      {supplier?.name}
+                    </Link>
                     <div
                       className={`w-[10%] min-w-[50px] px-2 font-semibold flex items-center gap-2 ${
                         supplier.balance > 0

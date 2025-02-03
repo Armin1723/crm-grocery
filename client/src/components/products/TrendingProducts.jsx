@@ -19,7 +19,9 @@ const TrendingProducts = () => {
     const fetchTrendingProducts = async () => {
       try {
         const response = await fetch(
-          `${import.meta.env.VITE_BACKEND_URL}/api/v1/products/trending`
+          `${import.meta.env.VITE_BACKEND_URL}/api/v1/products/trending`,{
+            credentials: 'include',
+          }
         );
         if (response.ok) {
           const data = await response.json();

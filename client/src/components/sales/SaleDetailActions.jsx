@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { FaFileInvoice } from "react-icons/fa";
+import { FaFileInvoice, FaPrint } from "react-icons/fa";
 import Modal from "../utils/Modal";
 import { useSelector } from "react-redux";
 import { MdDelete } from "react-icons/md";
@@ -14,6 +14,10 @@ const SaleDetailActions = ({ sale = {} }) => {
   const navigate = useNavigate();
 
   const isAdmin = user?.role === "admin";
+
+  const handlePrint = () => {
+    window.electron.ipcRenderer.send("print-sales-invoice", sale);
+  };
 
   const preDelete = () => {
     const isAnyProductExpired = sale?.products?.some((product) => {
@@ -49,10 +53,12 @@ const SaleDetailActions = ({ sale = {} }) => {
     <>
       <div className="flex gap-2 items-center">
         <button
-          onClick={() => setShowInvoice(true)}
-          className="flex items-center rounded-lg font-medium text-red-500 hover:text-red-500/80 cursor-pointer shadow-sm hover:bg-gradient-to-tr transition-all duration-200"
+          onClick={() => handlePrint(sale?.invoice)}
+          title="Thermal Print" 
+          className="flex items-center rounded-lg font-medium text-accent hover:text-accentDark cursor-pointer shadow-sm hover:bg-gradient-to-tr transition-all duration-200"
         >
-          <FaFileInvoice className="w-4 h-4" />
+          {/* <FaFileInvoice className="w-4 h-4" /> */}
+          <FaPrint className="w-4 h-4" />
         </button>
         {isAdmin && (
           <button className="flex items-center rounded-lg font-medium text-red-600 hover:text-red-600/80 cursor-pointer shadow-sm hover:bg-gradient-to-tr transition-all duration-200">

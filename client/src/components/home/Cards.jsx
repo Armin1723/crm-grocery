@@ -3,7 +3,6 @@ import Card from "./Card";
 import { FaChartLine, FaShoppingCart } from "react-icons/fa";
 import { AiFillProduct } from "react-icons/ai";
 import { BsInboxesFill } from "react-icons/bs";
-import { GoChevronDown } from "react-icons/go";
 
 const Cards = () => {
   const cardsData = [

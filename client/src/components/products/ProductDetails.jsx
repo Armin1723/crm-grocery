@@ -17,7 +17,9 @@ const ProductDetails = ({ idBackup = "" }) => {
     const fetchProduct = async () => {
       try {
         const res = await fetch(
-          `${import.meta.env.VITE_BACKEND_URL}/api/v1/products/${id}`
+          `${import.meta.env.VITE_BACKEND_URL}/api/v1/products/${id}`,{
+            credentials: 'include',
+          }
         );
         const data = await res.json();
         if (res.ok) {

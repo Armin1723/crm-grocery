@@ -50,7 +50,7 @@ const ViewEmployees = () => {
     <div className="p-3 rounded-md flex h-full w-full flex-col gap-2 border border-neutral-500/50 bg-[var(--color-sidebar)]">
       <div className="top flex w-full justify-between items-center flex-wrap my-2">
         <div className="title flex items-center gap-2 flex-wrap ">
-          <p className="text-xl max-lg:text-lg font-bold ">View Employees</p>
+          <p className="text-base font-bold ">View Employees</p>
           <p
             className={`${
               loading && "animate-spin"

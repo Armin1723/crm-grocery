@@ -27,12 +27,13 @@ const HoverCard = ({ title, children, to= "", otherClasses = '' }) => {
       // Position content to the right of the title
       const x = titleRect.right + 8;
 
-      // Center vertically relative to the title
+      // Center vertically relative to the title and account for page bottom and top with a margin
+      const margin = 20;
       const y = Math.max(
-        10,
+        margin,
         Math.min(
           titleRect.top + (titleRect.height - contentRect.height) / 2,
-          window.innerHeight - contentRect.height - 10
+          window.innerHeight - contentRect.height - margin
         )
       );
 
@@ -41,7 +42,7 @@ const HoverCard = ({ title, children, to= "", otherClasses = '' }) => {
   }, [isHovered]);
 
   if (isMobile) {
-    return <Link to={to}>{title}</Link>;
+    return <Link to={to} className="">{title}</Link>;
   }
 
   return (
@@ -58,7 +59,7 @@ const HoverCard = ({ title, children, to= "", otherClasses = '' }) => {
       {isHovered && (
         <div
           ref={contentRef}
-          className="fixed z-50 max-w-3xl"
+          className="fixed z-[999] max-w-3xl"
           style={{
             top: position.y,
             left: position.x,

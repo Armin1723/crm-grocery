@@ -44,7 +44,7 @@ const SellerHome = () => {
       </div>
       <div className="line-2 flex-1 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full">
         {/* Sales Card */}
-        <div className="flex flex-col justify-between rounded-lg shadow-lg border border-neutral-500/50 bg-[var(--color-primary)] p-5 hover:shadow-xl transition-shadow">
+        <div className="flex flex-col justify-between rounded-lg border border-neutral-500/50 bg-[var(--color-primary)] p-5">
           <div className="flex items-center gap-4">
             <div className="bg-accent text-white rounded-full p-3">
               <FaChartLine />
@@ -76,7 +76,7 @@ const SellerHome = () => {
         </div>
 
         {/* Inventory Card */}
-        <div className="flex flex-col justify-between rounded-lg shadow-lg border border-neutral-500/50 bg-[var(--color-primary)] p-5 hover:shadow-xl transition-shadow">
+        <div className="flex flex-col justify-between rounded-lg border border-neutral-500/50 bg-[var(--color-primary)] p-5">
           <div className="flex items-center gap-4">
             <div className="bg-green-500 text-white rounded-full p-3">
               <BsInboxesFill />
@@ -100,7 +100,7 @@ const SellerHome = () => {
         </div>
 
         {/* Employee Card */}
-        <div className="rounded-lg shadow-lg hover:shadow-xl transition-shadow border border-neutral-500/50 max-lg:last:col-span-full">
+        <div className="rounded-lg transition-shadow border border-neutral-500/50 max-lg:last:col-span-full">
           <EmployeeCard employee={user} otherClasses="h-full"/>
         </div>
       </div>

@@ -26,11 +26,11 @@
     "appId": "com.crm.grocery",
     "productName": "CRM Grocery",
     "extraResources": [
-    {
-      "from": "./client/dist/assets/index-BvlHWItQ.css",
-      "to": "index.css"
-    }
-  ],
+      {
+        "from": "./client/dist/assets/index-DR3T4Mb6.css",
+        "to": "./assets/index.css"
+      }
+    ],
     "extraMetadata": {
       "name": "CRM Grocery",
       "description": "Grocery Store CRM App.",
