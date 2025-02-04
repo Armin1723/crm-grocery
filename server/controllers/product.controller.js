@@ -18,28 +18,39 @@ const getProduct = async (req, res) => {
 
 const addProduct = async (req, res) => {
   const { upc, name } = req.body;
+  const query = {
+    company: req.user.company,
+    $or: [],
+  };
+  
   if (upc) {
-    const existingProduct = await Product.findOne({
-      upc,
-      company: req.user.company,
-    });
+    query.$or.push({ upc });
+  }
+  
+  if (name) {
+    query.$or.push({ name });
+  }
+  
+  if (query.$or.length > 0) {
+    const existingProduct = await Product.findOne(query);
     if (existingProduct) {
+      let message = "Product already exists";
+  
+      if (upc && name) {
+        message = "Product with this upc or name already exists";
+      } else if (upc) {
+        message = "Product with this upc already exists";
+      } else if (name) {
+        message = "Product with this name already exists";
+      }
+  
       return res.status(400).json({
-        message: "Product with this upc already exists",
+        message,
         success: false,
       });
     }
   }
-  const existingProduct = await Product.findOne({
-    name,
-    company: req.user.company,
-  });
-  if (existingProduct) {
-    return res.status(400).json({
-      message: "Product with this name already exists",
-      success: false,
-    });
-  }
+  
 
   const product = await Product.create({
     ...req.body,

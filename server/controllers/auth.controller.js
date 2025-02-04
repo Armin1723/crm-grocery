@@ -1,10 +1,14 @@
+require("dotenv").config();
 const User = require("../models/user.model");
 
 const bcrypt = require("bcryptjs");
 const crypto = require("crypto");
 const jwt = require("jsonwebtoken");
 
+const cloudinary = require("../config/cloudinary");
+
 const { sendMail } = require("../helpers");
+const registerMailTemplate = require("../templates/email/registerMailTemplate");
 
 const loginUser = async (req, res) => {
   const { email, password } = req.body;
@@ -28,7 +32,10 @@ const loginUser = async (req, res) => {
   if (!user) {
     return res.status(400).json({
       message: "User not found",
-      errors: { email: "Email/Emp Id not found." },
+      errors: {
+        email: "Invalid Crendentials",
+        password: "Invalid Credentials",
+      },
       success: false,
     });
   }
@@ -37,10 +44,17 @@ const loginUser = async (req, res) => {
   if (!isMatch) {
     return res
       .status(400)
-      .json({ success: false, errors: { password: "Invalid password" } });
-  } 
+      .json({
+        success: false,
+        errors: {
+          email: "Invalid Crendentials",
+          password: "Invalid Credentials",
+        },
+      });
+  }
 
-  const subscriptionActive = !user.company || (user?.company?.subscriptionEndDate > Date.now());
+  const subscriptionActive =
+    !user.company || user?.company?.subscriptionEndDate > Date.now();
   if (!subscriptionActive) {
     return res.status(400).json({
       success: false,
@@ -66,6 +80,90 @@ const loginUser = async (req, res) => {
   });
   user.password = undefined;
   res.status(200).json({ success: true, user });
+};
+
+const registerUser = async (req, res) => {
+  const { email, name, phone, dob, address } = req.body;
+  if (!email || !name || !phone || !dob) {
+    return res.status(400).json({
+      success: false,
+      message: "All fields are required.",
+    });
+  }
+
+  const existingUser = await User.findOne({
+    $and: [{ $or: [{ email }, { phone }] }, { role: "admin" }],
+  });
+  if (existingUser) {
+    return res.status(400).json({
+      success: false,
+      message: "User already exists",
+    });
+  }
+
+  const user = new User({
+    email,
+    name,
+    phone,
+    dob,
+    address,
+    role: "admin",
+  });
+
+  const password =
+    user.name.split(" ")[0].toLowerCase() + "@" + user.phone.slice(-4);
+  const hashedPassword = await bcrypt.hash(password, 12);
+  user.password = hashedPassword;
+
+  //generate UUID
+  const generateUUID = async () => {
+    let uuid = "EMP" + Math.random().toString(36).substr(2, 6).toUpperCase();
+    const existingUser = await User.findOne({ uuid });
+    if (existingUser) {
+      return generateUUID();
+    } else {
+      return uuid;
+    }
+  };
+
+  user.uuid = await generateUUID();
+
+  // Upload avatar
+  if (req.files) {
+    const { avatar } = req.files;
+    if (avatar) {
+      try {
+        const cloudinaryResponse = await cloudinary.uploader.upload(
+          avatar[0].path,
+          { folder: "clients" }
+        );
+        if (!cloudinaryResponse || cloudinaryResponse.error) {
+          return res.status(500).json({
+            success: false,
+            message: "Failed to upload avatar to cloud.",
+            error: cloudinaryResponse.error,
+          });
+        }
+        user.avatar = cloudinaryResponse.secure_url;
+      } catch (error) {
+        return res.status(500).json({
+          success: false,
+          message: "Failed to upload avatar to cloud.",
+          error: error.message,
+        });
+      }
+    }
+  }
+
+  await user.save();
+
+  // Send email to user with password
+  sendMail(
+    user.email,
+    (subject = "Welcome to CRM App"),
+    (message = registerMailTemplate(user?.name))
+  );
+  res.status(200).json({ success: true, message: "User created successfully" });
 };
 
 const forgotPassword = async (req, res) => {
@@ -153,6 +251,7 @@ const validateUser = async (req, res) => {
 
 module.exports = {
   loginUser,
+  registerUser,
   forgotPassword,
   resetPassword,
   logoutUser,

@@ -1,6 +1,9 @@
+require("dotenv").config();
+
 const Company = require("../models/company.model");
 const cloudinary = require("../config/cloudinary");
 const User = require("../models/user.model");
+const jwt = require("jsonwebtoken");
 
 const addCompany = async (req, res) => {
   if (
@@ -15,7 +18,7 @@ const addCompany = async (req, res) => {
       address: "Company address is required",
       email: "Company email is required",
       phone: "Company phone is required",
-      initials: "Company initials is required"
+      initials: "Company initials are required"
     }});
   }
   const existingCompany = await Company.findOne({ name: req.body.name });
@@ -82,19 +85,31 @@ const addCompany = async (req, res) => {
 
   await company.save();
 
-  const user = await User.findByIdAndUpdate(req.user.id, {
-    company: company._id,
-  });
+  // Update user with company id and initials
+  const user = await User.findById(req.user.id).populate("company");
+  user.company = company._id;
+  user.uuid = user.uuid.slice(0, 3) + company.initials + user.uuid.slice(-3);
+  await user.save();
 
-  res.cookie("token", "", {
-    httpOnly: true,
-    expires: new Date(0),
-    sameSite: "Strict",
-    secure: process.env.ENVIRONMENT === "prod",
-  });
+  const token = jwt.sign(
+      {
+        id: user._id,
+        role: user.role,
+        company: user?.company?._id,
+      },
+      process.env.JWT_SECRET,
+      { expiresIn: process.env.JWT_EXPIRES_IN }
+    );
+    res.cookie("token", token, {
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+      httpOnly: true,
+      secure: true,
+      sameSite: "None",
+    });
+    user.password = undefined;
 
   res.status(201).json({
-    message: "Company created successfully , Login again to continue.",
+    message: "Company created successfully.",
     user,
     company,
   });

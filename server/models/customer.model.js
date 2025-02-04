@@ -13,7 +13,6 @@ const customerSchema = new mongoose.Schema({
     phone: {
         type: String,
         required: true,
-        index: true,
     },
     company: {
         type: mongoose.Schema.Types.ObjectId,
