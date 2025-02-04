@@ -2,5 +2,8 @@
   "scripts": {
     "start": "nodemon server/index.js",
     "dev": "vite client/index.html"
+  },
+  "dependencies": {
+    "express-rate-limit": "^7.5.0"
   }
 }
