@@ -20,9 +20,9 @@ const getSales = async (req, res) => {
 
   let query = { company: req.user.company };
   const user = req.user;
-  if(user.role == "employee"){
+  if (user.role == "employee") {
     query = { signedBy: user.id };
-  };
+  }
 
   const sales = await Sale.find(query)
     .populate("signedBy")
@@ -44,11 +44,17 @@ const getSales = async (req, res) => {
 
 const getEmployeeSales = async (req, res) => {
   const { limit = 10, page = 1, employeeId = { $exists: true } } = req.query;
-  const sales = await Sale.find({ signedBy: employeeId, company: req.user.company })
+  const sales = await Sale.find({
+    signedBy: employeeId,
+    company: req.user.company,
+  })
     .limit(limit)
     .skip((page - 1) * limit);
 
-  const totalSales = await Sale.countDocuments({ signedBy: employeeId, company: req.user.company });
+  const totalSales = await Sale.countDocuments({
+    signedBy: employeeId,
+    company: req.user.company,
+  });
   res.json({
     success: true,
     sales,
@@ -63,7 +69,7 @@ const getSale = async (req, res) => {
     "products.product customer signedBy"
   );
 
-  if(!sale){
+  if (!sale) {
     return res.status(404).json({ success: false, message: "Sale not found." });
   }
 
@@ -119,8 +125,8 @@ const deleteSale = async (req, res) => {
     const inventory = await Inventory.findOne({
       product: product.product,
     }).populate("product");
-    
-    if(!inventory){
+
+    if (!inventory) {
       await Inventory.create({
         product: product.product,
         totalQuantity: product.quantity,
@@ -143,7 +149,6 @@ const deleteSale = async (req, res) => {
       inventory.totalQuantity += product.quantity;
       await inventory.save();
     }
-  
   }
   await sale.deleteOne();
   return res.json({ success: true, message: "Sale deleted successfully." });
@@ -157,11 +162,11 @@ const getSaleReturns = async (req, res) => {
     sortType = "desc",
   } = req.query;
 
-  let query = {company: req.user.company}; 
+  let query = { company: req.user.company };
   const user = req.user;
-  if(user.role !== "admin"){
+  if (user.role !== "admin") {
     query = { signedBy: user.id };
-  };
+  }
 
   const salesReturns = await SalesReturn.find(query)
     .populate("signedBy")
@@ -182,14 +187,7 @@ const getSaleReturns = async (req, res) => {
 
 const addSale = async (req, res) => {
   const {
-    products = [
-      {
-        product: "",
-        quantity: 0,
-        sellingRate: 0,
-        expiry: "",
-      },
-    ],
+    products = [],
     customerMobile,
     discount = 0,
     subTotal = 0,
@@ -201,7 +199,7 @@ const addSale = async (req, res) => {
     return res.status(400).json({ message: "Products are required." });
   }
 
-  const sale = await Sale.create({
+  const sale = new Sale({
     products,
     signedBy: req.user.id,
     company: req.user.company,
@@ -211,69 +209,93 @@ const addSale = async (req, res) => {
     paymentMode,
   });
 
-  let customer = null;
-  if (customerMobile) {
-      customer = await Customer.findOne({ phone: customerMobile, company : req.user.company });
-    if (!customer) {
-      customer = await Customer.create({ phone: customerMobile, company : req.user.company });
-    } 
-    sale.customer = customer._id;
-  }
+  // Run customer lookup and creation in parallel
+  let customerPromise = customerMobile
+    ? Customer.findOneAndUpdate(
+        { phone: customerMobile, company: req.user.company },
+        { phone: customerMobile, company: req.user.company },
+        { upsert: true, new: true } // Create if not found
+      )
+    : null;
 
-  // Update Inventory
-  for (const product of products) {
-    const inventory = await Inventory.findOne({
-      product: product.product,
-    }).populate("product");
+  let inventoryProducts = products.map((p) => p.product);
+  let inventoryPromise = Inventory.find({
+    product: { $in: inventoryProducts },
+  }).populate("product");
 
-    for (const batch of inventory?.batches || []) {
-      const sameBatch =
+  // Resolve both promises
+  const [customer, inventories] = await Promise.all([
+    customerPromise,
+    inventoryPromise,
+  ]);
+
+  if (customer) sale.customer = customer._id;
+
+  // Process inventory updates in parallel
+  let inventoryUpdates = inventories.map((inventory) => {
+    const productData = products.find(
+      (p) => String(p.product) === String(inventory.product._id)
+    );
+    if (!productData) return null;
+
+    let batchToUpdate = inventory.batches.find(
+      (batch) =>
         (!batch.expiry ||
-          !product.expiry ||
-          new Date(batch?.expiry).getTime() ===
-            new Date(product?.expiry).getTime()) &&
-        batch.sellingRate === product.sellingRate &&
-        (!product.mrp || !batch.mrp || batch.mrp === product?.mrp);
-      if (sameBatch) {
-        batch.quantity -= product.quantity;
-        if (batch.quantity === 0) {
-          inventory.batches.pull(batch._id);
-        }
-        inventory.totalQuantity -= product.quantity;
-        await inventory.save();
-        break;
-      }
+          !productData.expiry ||
+          new Date(batch.expiry).getTime() ===
+            new Date(productData.expiry).getTime()) &&
+        batch.sellingRate === productData.sellingRate
+    );
+
+    if (batchToUpdate) {
+      batchToUpdate.quantity -= productData.quantity;
+      if (batchToUpdate.quantity === 0)
+        inventory.batches.pull(batchToUpdate._id);
     }
-    
-    // Send Mail to Admin if stockPreference set
-    if (inventory?.product?.stockAlert?.preference) {
-      if (inventory.totalQuantity < inventory?.product?.stockAlert.quantity) {
-        const company = await Company.findById(req.user.company).select("email").lean();
-        sendMail(
-          (to = company.email),
-          (subject = "Low Stock Alert"),
-          (message = lowStockMailTemplate(
-            inventory.product.name,
-            inventory.totalQuantity
-          ))
-        );
-      }
-    }
-  };
-  
+    inventory.totalQuantity -= productData.quantity;
+
+    return inventory.save();
+  });
+
+  // Bulk update all inventories
+  await Promise.all(inventoryUpdates);
+
+  // Generate invoice in background
   sale.invoice = await generateSaleInvoice(sale._id);
   await sale.save();
 
-  //send mail to customer
-  if(customer?.email){
-    const updatedSale = await Sale.findById(sale._id).populate("customer signedBy products.product" );
-    sendMail(
-      customer.email,
-      "Sales Invoice",
-      (message = saleInvoiceMailTemplate(updatedSale))
-    )
-  }
   res.json({ success: true, sale });
+
+  // Send emails in background
+  process.nextTick(async () => {
+    if (customer?.email) {
+      const updatedSale = await Sale.findById(sale._id).populate(
+        "customer signedBy products.product"
+      );
+      sendMail(
+        customer.email,
+        "Sales Invoice",
+        saleInvoiceMailTemplate(updatedSale)
+      );
+    }
+
+    // Stock alert notifications
+    inventories.forEach(async (inventory) => {
+      if (
+        inventory.product?.stockAlert?.preference &&
+        inventory.totalQuantity < inventory.product.stockAlert.quantity
+      ) {
+        const company = await Company.findById(req.user.company)
+          .select("email")
+          .lean();
+        sendMail(
+          company.email,
+          "Low Stock Alert",
+          lowStockMailTemplate(inventory.product.name, inventory.totalQuantity)
+        );
+      }
+    });
+  });
 };
 
 const regenerateSaleInvoice = async (req, res) => {
@@ -281,16 +303,16 @@ const regenerateSaleInvoice = async (req, res) => {
   if (!sale) {
     return res.status(404).json({ success: false, message: "Sale not found." });
   }
-    sale.invoice = await generateSaleInvoice(sale._id);
-    await sale.save();
-    res.json({ success: true, sale });
+  sale.invoice = await generateSaleInvoice(sale._id);
+  await sale.save();
+  res.json({ success: true, sale });
 };
 
 const addSaleReturn = async (req, res) => {
   const { invoiceId, products = [] } = req.body;
   const sale = await Sale.findById(invoiceId).populate("customer").lean();
   if (!sale) {
-    return res.status(404).json({ success:false, message: "Sale not found." });
+    return res.status(404).json({ success: false, message: "Sale not found." });
   }
 
   // Check if valid products are returned (less than sold quantity)
@@ -309,7 +331,9 @@ const addSaleReturn = async (req, res) => {
     .select(" saleId ")
     .lean();
   if (existingReturn) {
-    return res.status(400).json({ success:false, message: "Return already exists on this bill." });
+    return res
+      .status(400)
+      .json({ success: false, message: "Return already exists on this bill." });
   }
 
   // Create a new sale return document
@@ -367,7 +391,6 @@ const addSaleReturn = async (req, res) => {
 
   await saleReturn.save();
 
-
   // Send the invoice to the customer
   if (populatedSaleReturn?.customer?.email) {
     sendMail(
@@ -382,7 +405,7 @@ const addSaleReturn = async (req, res) => {
 
 const getRecentSale = async (req, res) => {
   // Find the most recent sale by sorting by date descending
-  const recentSale = await Sale.findOne({company: req.user.company})
+  const recentSale = await Sale.findOne({ company: req.user.company })
     .sort({ createdAt: -1 })
     .populate("products.product")
     .populate("customer")
