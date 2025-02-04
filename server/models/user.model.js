@@ -20,6 +20,12 @@ const userSchema = new mongoose.Schema(
     email: {
       type: String,
       required: true,
+      validate: {
+        validator: function (v) {
+          return /^([\w-\.]+@([\w-]+\.)+[\w-]{2,4})?$/.test(v);
+        },
+        message: (props) => `${props.value} is not a valid email address`,
+      },
     },
     identityProof: {
       type: String,
@@ -47,13 +53,16 @@ const userSchema = new mongoose.Schema(
     },
     resetPasswordToken: {
       type: String,
+      select: false,
     },
     resetPasswordExpires: {
       type: Date,
+      select: false,
     },
     company: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Company",
+      index: true,
     },
   },
   { timestamps: true }

@@ -55,6 +55,8 @@ const saleSchema = new mongoose.Schema({
     company: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Company",
+        required: true,
+        index: true,
     },
 }, { timestamps: true });
 

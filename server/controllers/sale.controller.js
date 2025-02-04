@@ -214,7 +214,7 @@ const addSale = async (req, res) => {
     ? Customer.findOneAndUpdate(
         { phone: customerMobile, company: req.user.company },
         { phone: customerMobile, company: req.user.company },
-        { upsert: true, new: true } // Create if not found
+        { upsert: true, new: true } 
       )
     : null;
 
@@ -392,15 +392,15 @@ const addSaleReturn = async (req, res) => {
   await saleReturn.save();
 
   // Send the invoice to the customer
-  if (populatedSaleReturn?.customer?.email) {
+  if (saleReturn?.customer?.email) {
     sendMail(
-      populatedSaleReturn?.customer?.email,
+      saleReturn?.customer?.email,
       "Sales Return Invoice",
-      (message = saleReturnInvoiceMailTemplate(populatedSaleReturn))
+      (message = saleReturnInvoiceMailTemplate(saleReturn))
     );
   }
 
-  res.json({ success: true, populatedSaleReturn });
+  res.json({ success: true, saleReturn });
 };
 
 const getRecentSale = async (req, res) => {

@@ -67,7 +67,7 @@ const generateSalesReturnInvoice = async (salesReturnId) => {
     addReasonForReturn(doc, salesReturn.reason);
 
     // Add Footer
-    addFooter(doc);
+    addFooter(doc, salesReturn);
 
     doc.end();
 
@@ -93,16 +93,18 @@ const generateSalesReturnInvoice = async (salesReturnId) => {
 const addHeader = (doc, salesReturn) => {
   doc
     .fontSize(10)
-    .text("YOUR STORE NAME", { align: "center", bold: true })
+    .text(salesReturn?.company?.name?.toUpperCase(), { align: "center", bold: true })
     .moveDown(0.2)
     .fontSize(8)
-    .text("123 Market Street", { align: "center" })
-    .text("City, State, ZIP", { align: "center" })
-    .text("Phone: (123) 456-7890", { align: "center" })
+    .text(salesReturn?.company?.address, { align: "center" })
+    .text(`Phone: ${salesReturn?.company?.phone}`, { align: "center" })
+    .text(`Email: ${salesReturn?.company?.email  || 'N/A'}`, { align: "center" })
+    .moveDown(0.2)
+    .text("------------------------------------------------", { align: "center" })
     .moveDown(0.5)
-    .text("SALES RETURN INVOICE", { align: "center", underline: true })
+    .text("SALE RETURN RECEIPT", { align: "center", underline: true })
     .moveDown(0.5)
-    .text(`Return ID: ${salesReturn._id}`, { align: "center" })
+    .text(`Receipt No: ${salesReturn._id}`, { align: "center" })
     .text(`Date: ${formatDate(salesReturn.createdAt)}`, { align: "center" })
     .moveDown();
 };
@@ -203,7 +205,7 @@ const addReasonForReturn = (doc, reason) => {
     .moveDown();
 };
 
-const addFooter = (doc) => {
+const addFooter = (doc, salesReturn) => {
   doc
     .fontSize(8)
     .text("------------------------------------------------", {
@@ -213,7 +215,7 @@ const addFooter = (doc) => {
     .text("Thank you for your cooperation!", { align: "center" })
     .moveDown(0.5)
     .text("This is a computer-generated invoice.", { align: "center" })
-    .text(`Generated on ${new Date().toLocaleString("en-IN")}`, {
+    .text(`Generated on ${formatDate(salesReturn.createdAt)}`, {
       align: "center",
     });
 };

@@ -25,6 +25,7 @@ const expenseSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Company',
         required: true,
+        index: true,
     },
 });
 

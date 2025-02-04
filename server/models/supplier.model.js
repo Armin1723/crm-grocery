@@ -4,7 +4,6 @@ const supplierSchema = new mongoose.Schema({
     name: {
         type: String,
         required: true,
-        unique: true,
     },
     address: {
         type: String,
@@ -16,7 +15,6 @@ const supplierSchema = new mongoose.Schema({
     phone: {
         type: String,
         required: true,
-        unique: true,
     },
     gstin: {
         type: String,
@@ -35,6 +33,7 @@ const supplierSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: "Company",
         required: true,
+        index: true,
     },
 }, { timestamps: true });
 

@@ -1,7 +1,6 @@
 const PurchaseReturn = require("./models/purchaseReturn.model");
 const Purchase = require("./models/purchase.model");
 const Sale = require("./models/sale.model");
-// const saleReturn = require("./models/saleReturn.model");
 
 const generatePurchaseReturnInvoice = require("./templates/invoice/purchaseReturnInvoice");
 const generatePurchaseInvoice = require("./templates/invoice/purchaseInvoice");
@@ -14,8 +13,14 @@ const Product = require("./models/product.model");
 const Customer = require("./models/customer.model");
 const Expense = require("./models/expense.model");
 const Supplier = require("./models/supplier.model");
-// const { generateSaleReturnInvoice } = require("./templates/invoice/saleReturnInvoice");
+const generateSalesReturnInvoice = require("./templates/invoice/saleReturnInvoice");
 
+const updateLastPurchaseInvoice = async () => {
+  const purchase = await Purchase.findOne().sort({ createdAt: -1 });
+  purchase.invoice = await generatePurchaseInvoice(purchase._id);
+  await purchase.save();
+  console.log("Updated last purchase invoice");
+};
 const updatePurchaseInvoice = async () => {
   const purchases = await Purchase.find();
 
@@ -41,7 +46,7 @@ const updatePurchaseReturnInvoice = async () => {
 };
 
 const updateSaleInvoice = async (limit = 1) => {
-  const sales = await Sale.find().sort({ createdAt: -1 }).limit(limit);
+  const sales = await Sale.find().sort({ createdAt: -1 })
 
   for (const sale of sales) {
     sale.invoice = await generateSaleInvoice(sale._id);
@@ -50,6 +55,18 @@ const updateSaleInvoice = async (limit = 1) => {
   }
   console.log("Updated all sale invoices");
 };
+
+const updateSalesReturnInvoice = async () => {
+  const saleReturns = await SalesReturn.find();
+
+  for(const salesReturn of saleReturns) {
+    salesReturn.invoice = await generateSalesReturnInvoice(salesReturn._id);
+    console.log("Updated sale return invoice for", salesReturn._id);
+    await salesReturn.save();
+  }
+  console.log("Updated all sale return invoices");
+};
+
 
 const addCompanyToEverything = async () => {
   const company = await Company.findOne();
@@ -120,8 +137,10 @@ const addCompanyToEverything = async () => {
 };
 
 module.exports = {
+  updateLastPurchaseInvoice,
   updatePurchaseInvoice,
   updatePurchaseReturnInvoice,
   updateSaleInvoice,
+  updateSalesReturnInvoice,
   addCompanyToEverything,
 };

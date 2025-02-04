@@ -28,7 +28,7 @@ const formatCurrency = (value) => {
   const rupeeSymbol = "₹";
   return `${rupeeSymbol}${value.toFixed(2)}`;
 };
-const formatDate = (date) => date.toLocaleDateString("en-IN");
+const formatDate = (date) => new Date(date).toLocaleDateString("en-IN");
 
 const generateSaleInvoice = async (saleId) => {
   try {
@@ -66,7 +66,7 @@ const generateSaleInvoice = async (saleId) => {
     addInvoiceSummary(doc, sale);
 
     // Add Footer
-    addFooter(doc, sale?.discount);
+    addFooter(doc, sale?.discount, sale);
 
     doc.end();
 
@@ -92,12 +92,14 @@ const generateSaleInvoice = async (saleId) => {
 const addHeader = (doc, sale) => {
   doc
     .fontSize(10)
-    .text("YOUR STORE NAME", { align: "center", bold: true })
+    .text(sale?.company?.name?.toUpperCase(), { align: "center", bold: true })
     .moveDown(0.2)
     .fontSize(8)
-    .text("123 Market Street", { align: "center" })
-    .text("City, State, ZIP", { align: "center" })
-    .text("Phone: (123) 456-7890", { align: "center" })
+    .text(sale?.company?.address, { align: "center" })
+    .text(`Phone: ${sale?.company?.phone}`, { align: "center" })
+    .text(`Email: ${sale?.company?.email  || 'N/A'}`, { align: "center" })
+    .moveDown(0.2)
+    .text("------------------------------------------------", { align: "center" })
     .moveDown(0.5)
     .text("SALE RECEIPT", { align: "center", underline: true })
     .moveDown(0.5)
@@ -189,7 +191,7 @@ const addInvoiceSummary = (doc, sale) => {
     .moveDown(1);
 };
 
-const addFooter = (doc, discount = 0) => {
+const addFooter = (doc, discount = 0, sale) => {
   doc
     .fontSize(8)
     .text("------------------------------------------------", {
@@ -205,7 +207,7 @@ const addFooter = (doc, discount = 0) => {
     .text("Thank you for shopping with us!", { align: "center" })
     .moveDown(0.5)
     .text("This is a computer-generated receipt.", { align: "center" })
-    .text(`Generated on ${new Date().toLocaleString('en-IN')}`, {
+    .text(`Generated on ${sale.createdAt}`, {
       align: "center",
     });
 };

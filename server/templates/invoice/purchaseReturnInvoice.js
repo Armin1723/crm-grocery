@@ -12,6 +12,8 @@ const formatCurrency = (amount) => {
   }).format(amount);
 };
 
+const formatDate = (date) => new Date(date).toLocaleDateString("en-IN");
+
 const generatePurchaseReturnInvoice = async (purchaseReturnId) => {
   try {
     const purchaseReturn = await PurchaseReturn.findById(purchaseReturnId)
@@ -26,7 +28,7 @@ const generatePurchaseReturnInvoice = async (purchaseReturnId) => {
     doc.pipe(stream);
 
     // Header
-    generateHeader(doc, purchaseReturnId);
+    await generateHeader(doc, purchaseReturn);
 
     // Supplier Details
     generateSupplierInformation(doc, purchaseReturn);
@@ -38,7 +40,7 @@ const generatePurchaseReturnInvoice = async (purchaseReturnId) => {
     generateSummary(doc, purchaseReturn);
 
     // Footer
-    generateFooter(doc);
+    generateFooter(doc, purchaseReturn);
 
     doc.end();
 
@@ -49,7 +51,7 @@ const generatePurchaseReturnInvoice = async (purchaseReturnId) => {
     });
 
     const uploadResult = await cloudinary.uploader.upload(filePath, {
-      folder: `${purchase?.company?.licenseKey}/invoices/purchaseReturn`,
+      folder: `${purchaseReturn?.company?.licenseKey}/invoices/purchaseReturn`,
       resource_type: "raw",
     });
 
@@ -61,33 +63,59 @@ const generatePurchaseReturnInvoice = async (purchaseReturnId) => {
   }
 };
 
-function generateHeader(doc, purchaseReturnId) {
+async function generateHeader(doc, purchaseReturn) {
   // Main Title
-  doc
-    .fillColor("#444444")
-    .fontSize(18)
-    .font("Helvetica-Bold")
-    .text("Purchase Return Invoice", { align: "center", bold: true })
-    .moveDown(1);
+  try {
+    doc
+      .fillColor("#444444")
+      .fontSize(18)
+      .font("Helvetica-Bold")
+      .text("Purchase Return Invoice", { align: "center", bold: true })
+      .moveDown(1);
 
-  // Logo and Title
-  doc
-    .font("Helvetica")
-    .image(path.join(__dirname, "logo.png"), 50, 85, { width: 50 }) // Add logo
-    .fillColor("#444444")
-    .fontSize(20)
-    .text("Grocery CRM", 110, 97);
+    if (!purchaseReturn?.company?.logo) {
+      throw new Error("Company logo URL is missing");
+    }
 
-  // Invoice ID
-  doc.fontSize(10).text("Invoice Id: " + purchaseReturnId, 110, 122);
+    // Fetch the Cloudinary image as a buffer
+    const response = await fetch(purchaseReturn.company.logo);
 
-  // Address Section
-  doc
-    .fontSize(10)
-    .text("Grocery CRM", 200, 90, { align: "right" })
-    .text("123 Main Street", 200, 105, { align: "right" })
-    .text("New York, NY, 10025", 200, 120, { align: "right" })
-    .moveDown();
+    if (!response.ok) {
+      throw new Error(`Failed to fetch image: ${response.statusText}`);
+    }
+
+    const imageBuffer = Buffer.from(await response.arrayBuffer());
+
+    // Logo and Title
+    doc
+      .font("Helvetica")
+      .image(imageBuffer, 50, 85, { width: 50 })
+      .fillColor("#444444")
+      .fontSize(20)
+      .text(purchaseReturn.company.name, 110, 97);
+
+    // Invoice ID
+    doc.fontSize(10).text("Invoice Id: " + purchaseReturn._id, 110, 122);
+
+    // Address Section
+    doc
+      .fontSize(10)
+      .text(purchaseReturn?.company?.name, 200, 90, { align: "right" })
+      .text(
+        purchaseReturn?.company?.address?.split(" ")?.slice(0, 4).join(" "),
+        200,
+        105,
+        { align: "right" })
+      .text(
+          `Email: ${purchaseReturn?.company?.email}`,
+          200,
+          120,
+          { align: "right" }
+        )
+      .moveDown();
+  } catch (err) {
+    console.log(err);
+  }
 }
 
 function generateSupplierInformation(doc, purchaseReturn) {
@@ -204,13 +232,13 @@ function generateTableRow(doc, y, item, description, quantity, rate, total) {
     .text(total, 480, y, { width: 90, align: "right" });
 }
 
-function generateFooter(doc) {
+function generateFooter(doc, purchaseReturn) {
   doc
     .fontSize(8)
     .text("Thank you for your business!", 50, 750, { align: "center" })
     .moveDown(0.5)
     .text("This is a computer-generated receipt.", { align: "center" })
-    .text(`Generated on ${new Date().toLocaleString("en-IN")}`, {
+    .text(`Generated on ${formatDate(purchaseReturn.createdAt)}`, {
       align: "center",
     });
 }
