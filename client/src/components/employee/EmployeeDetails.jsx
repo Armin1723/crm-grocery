@@ -4,18 +4,22 @@ import Divider from "../utils/Divider";
 import EmployeeCard from "./EmployeeCard";
 import EmployeeSales from "./EmployeeSales";
 import { useSelector } from "react-redux";
-import { MdChevronRight, MdFilePresent, MdImage } from "react-icons/md";
+import { MdEdit, MdFilePresent, MdImage } from "react-icons/md";
 import { FaChevronCircleDown } from "react-icons/fa";
+import EmployeeForm from "./EmployeeForm";
+import Modal from "../utils/Modal";
 
 const EmployeeDetails = () => {
   const { id } = useParams();
   const user = useSelector((state) => state.user);
   const isAdmin = user && user.role && user.role === "admin";
-  const isSelf = user && (user.uuid == id);
+  const isSelf = user && user.uuid == id;
   const [employee, setEmployee] = useState(null);
   const [refetch, setRefetch] = useState(false);
   const [loading, setLoading] = useState(true);
   const [showId, setShowId] = useState(false);
+
+  const [employeeModalOpen, setEmployeeModalOpen] = useState(false);
 
   useEffect(() => {
     const fetchEmployee = async () => {
@@ -45,21 +49,41 @@ const EmployeeDetails = () => {
     <div className="p-3 rounded-md flex h-full flex-col gap-4 border border-neutral-500/50 bg-[var(--color-sidebar)] overflow-y-auto flex-1 px-2">
       {employee && !loading ? (
         <div className="wrapper flex flex-col overflow-y-auto gap-3">
-          <Divider title="Employee Details" />
+          <Divider
+            title={
+              <div className="flex items-center gap-1">
+                <span>Employee Details</span>
+                <MdEdit
+                  className="cursor-pointer"
+                  onClick={() => setEmployeeModalOpen(true)}
+                />
+              </div>
+            }
+          />
           <EmployeeCard employee={employee} setRefetch={setRefetch} />
 
           {(isAdmin || isSelf) && employee?.identityProof && (
             <div className="flex flex-col gap-2">
-              <Divider title={<div className="flex items-center gap-3">
-                <span>Identity Proof</span>
-                <button
-                  onClick={() => setShowId((prev) => !prev)}
-                  className={`font-semibold cursor-pointer transition-all duration-200 ${showId && 'rotate-180'}`}
-                >
-                  <FaChevronCircleDown/>
-                </button>
-              </div>} />
-              <div className={`${showId ? 'max-h-full' : 'max-h-0'} transition-all duration-300 w-full mx-auto overflow-hidden rounded-lg shadow-md bg-[var(--color-card)]`}>
+              <Divider
+                title={
+                  <div className="flex items-center gap-3">
+                    <span>Identity Proof</span>
+                    <button
+                      onClick={() => setShowId((prev) => !prev)}
+                      className={`font-semibold cursor-pointer transition-all duration-200 ${
+                        showId && "rotate-180"
+                      }`}
+                    >
+                      <FaChevronCircleDown />
+                    </button>
+                  </div>
+                }
+              />
+              <div
+                className={`${
+                  showId ? "max-h-full" : "max-h-0"
+                } transition-all duration-300 w-full mx-auto overflow-hidden rounded-lg shadow-md bg-[var(--color-card)]`}
+              >
                 <div className="p-1">
                   <div className="relative w-full flex justify-center">
                     {employee?.identityProof.endsWith(".pdf") ? (
@@ -92,15 +116,29 @@ const EmployeeDetails = () => {
             </div>
           )}
 
-        <div className="flex flex-col gap-2 px-2">
-          <Divider title="Sales History" />
-          <EmployeeSales uuid={id} />
-        </div>
+          <div className="flex flex-col gap-2 px-2">
+            <Divider title="Sales History" />
+            <EmployeeSales uuid={id} />
+          </div>
         </div>
       ) : (
         <div className="w-full h-full flex items-center justify-center">
           <div className="spinner"></div>
         </div>
+      )}
+      {employeeModalOpen && (
+        <Modal
+          isOpen={employeeModalOpen}
+          setIsOpen={setEmployeeModalOpen}
+          onClose={() => setEmployeeModalOpen(false)}
+        >
+          <EmployeeForm
+            title="edit"
+            employee={employee}
+            setRefetch={setRefetch}
+            closeModal={() => setEmployeeModalOpen(false)}
+          />
+        </Modal>
       )}
     </div>
   );

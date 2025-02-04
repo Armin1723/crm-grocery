@@ -3,6 +3,7 @@ import Avatar from "../utils/Avatar";
 import { Link } from "react-router-dom";
 import { formatDateIntl, getAge } from "../utils";
 import { useSelector } from "react-redux";
+import { MdEdit } from "react-icons/md";
 
 const EmployeeCard = ({ employee , otherClasses = ''}) => {
   const user = useSelector((state) => state.user);
