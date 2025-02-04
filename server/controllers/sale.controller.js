@@ -258,7 +258,7 @@ const addSale = async (req, res) => {
   });
 
   // Bulk update all inventories
-  await Promise.all(inventoryUpdates);
+  await Promise.all(inventoryUpdates, sale.save());
 
   // Generate invoice in background
   sale.invoice = await generateSaleInvoice(sale._id);
