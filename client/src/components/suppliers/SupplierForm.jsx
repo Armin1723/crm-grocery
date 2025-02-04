@@ -98,7 +98,7 @@ const SupplierForm = ({
   return (
     <form
       onSubmit={handleSubmit(onSubmit)}
-      className="flex flex-col gap-4 h-full justify-end min-h-fit overflow-y-auto select-none p-3 "
+      className="flex flex-col gap-4 h-full min-h-fit overflow-y-auto select-none p-3 "
     >
       <Divider title="Basic Details" />
       <div className="name-address-group w-full flex max-sm:flex-col gap-4">

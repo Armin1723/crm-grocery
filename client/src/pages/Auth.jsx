@@ -22,7 +22,7 @@ const Auth = () => {
 
   return (
     <div className="w-full flex-1 flex items-center justify-between max-sm:flex-col-reverse bg-[var(--color-primary)] text-[var(--color-text)]">
-      <div className="form-container flex flex-col items-center justify-center w-1/2 max-sm:w-full max-sm:flex-1 ">
+      <div className="form-container flex flex-col items-center justify-center w-1/2 max-sm:w-full max-sm:flex-1 max-sm:min-h-[50vh]">
         <Outlet />
       </div>
       <div className="animation-container flex flex-col items-center justify-center bg-[var(--color-sidebar)] h-full w-1/2 max-sm:w-full max-sm:h-1/2 md:border-l border-[var(--color-primary)]">

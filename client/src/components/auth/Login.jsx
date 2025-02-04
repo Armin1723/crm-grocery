@@ -10,6 +10,7 @@ import { IoLogIn } from "react-icons/io5";
 
 const Login = () => {
   const [passVisible, setPassVisible] = React.useState(false);
+  const [loading, setLoading] = React.useState(false);
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -35,6 +36,7 @@ const Login = () => {
   });
 
   const handleLogin = async (values) => {
+    setLoading(true);
     const id = toast.loading("Logging you in...");
     try {
       const response = await fetch(
@@ -78,6 +80,8 @@ const Login = () => {
         isLoading: false,
         autoClose: 2000,
       });
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -88,14 +92,14 @@ const Login = () => {
       exit={{ opacity: 0, x: -50 }}
       transition={{ duration: 0.5 }}
       onSubmit={handleSubmit(handleLogin)}
-      className="flex flex-col gap-4 p-3 rounded-md py-6 max-sm:w-3/4 max-w-[80%]"
+      className="flex flex-col gap-4 p-3 rounded-md py-6 w-3/4"
     >
       <div className="intro my-6 max-lg:my-4 max-sm:my-2">
         <h2 className="font-outfit font-bold text-xl sm:text-3xl md:text-3xl lg:text-3xl ">
-          Welcome to Grocery - CRM
+          Welcome Back
         </h2>
         <p className="text-sm text-[var(--color-text-light)]">
-          Enter your details to get started.
+          Login to your account.
         </p>
       </div>
 
@@ -114,7 +118,7 @@ const Login = () => {
         />
         <label
           htmlFor="email"
-          className="absolute appearance-none z-[5] text-[var(--color-text-light)] transition-all duration-300 ease-in -translate-y-full -translate-x-3 scale-75 peer-focus:-translate-y-full peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-x-0 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-x-3 peer-focus:text-[var(--color-accent-dark)] start-1"
+          className="absolute appearance-none z-[5] text-[var(--color-text-light)] transition-all duration-300 ease-in -translate-y-full -translate-x-3 scale-75 peer-focus:-translate-y-full peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-x-0 peer-placeholder-shown:-translate-y-1 peer-focus:scale-75 peer-focus:-translate-x-3 peer-focus:text-[var(--color-accent-dark)] start-1"
         >
           Email / Emp ID
         </label>
@@ -138,7 +142,7 @@ const Login = () => {
         />
         <label
           htmlFor="password"
-          className="absolute appearance-none text-[var(--color-text-light)] transition-all duration-300 ease-in -translate-y-full -translate-x-3 scale-75 peer-focus:-translate-y-full peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-x-0 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-x-3 peer-focus:text-[var(--color-accent-dark)] start-1"
+          className="absolute appearance-none text-[var(--color-text-light)] transition-all duration-300 ease-in -translate-y-full -translate-x-3 scale-75 peer-focus:-translate-y-full peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-x-0 peer-placeholder-shown:-translate-y-1 peer-focus:scale-75 peer-focus:-translate-x-3 peer-focus:text-[var(--color-accent-dark)] start-1"
         >
           Password
         </label>
@@ -155,13 +159,15 @@ const Login = () => {
         )}
       </div>
 
-      <div className="forgot-pass text-[var(--color-accent)] hover:text-[var(--color-accent-dark)] transition-all duration-300 ease-in. text-sm text-right">
-        <Link to="/auth/forgot-password">Forgot Password?</Link>
+      <div className="forgot-pass text-sm flex justify-between">
+        <Link to="/auth/forgot-password" className="text-[var(--color-text-light)]">Forgot Password?</Link>
+        <Link to="/auth/register" className="text-[var(--color-accent)] hover:text-[var(--color-accent-dark)] hover:underline transition-all duration-300 ease-in">New here?</Link>
       </div>
 
       <button
         type="submit"
-        className="rounded-md bg-[var(--color-accent)] hover:bg-[var(--color-accent-dark)] text-[#f6f7f5] px-3 py-1.5 my-2 transition-all duration-300 flex items-center justify-center gap-1"
+        disabled={loading || Object.keys(errors).length}
+        className="rounded-md disabled:cursor-not-allowed disabled:opacity-50 bg-[var(--color-accent)] hover:bg-[var(--color-accent-dark)] text-[#f6f7f5] px-3 py-1.5 my-2 transition-all duration-300 flex items-center justify-center gap-1"
       >
         <p>Login</p>
         <IoLogIn />

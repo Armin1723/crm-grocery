@@ -100,7 +100,6 @@ const EmployeeForm = ({
     formData.append("phone", values.phone);
     formData.append("dob", values.dob);
     formData.append("address", values.address);
-    formData.append("uuid", employee.uuid);
 
     // Append avatar photo to FormData object
     if (values.avatar instanceof File) {

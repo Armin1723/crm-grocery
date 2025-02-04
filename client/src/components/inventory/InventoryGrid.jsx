@@ -11,13 +11,15 @@ const InventoryGrid = () => {
   const [category, setCategory] = useState("");
   const [page, setPage] = useState(1);
   const [query, setQuery] = useState("");
+  const [isFetching, setIsFetching] = useState(false);  // New state to track active fetches
 
   const scrollContainerRef = React.useRef(null);
 
   // Fetch inventory data
   useEffect(() => {
-    setLoading(true);
     const fetchInventory = async () => {
+      setLoading(true);
+      setIsFetching(true);  // Set fetching flag
       try {
         const response = await fetch(
           `${
@@ -31,21 +33,28 @@ const InventoryGrid = () => {
         if (!response.ok) {
           throw new Error(data.message || "Something went wrong");
         }
-        setResults({
+        setResults(prevResults => ({
           hasMore: data?.hasMore,
           page: data?.page,
           data:
-            data.page === 1 ? data?.data : [...results?.data, ...data?.data],
-        });
+            data.page === 1 ? data?.data : [...(prevResults?.data || []), ...data?.data],
+        }));
       } catch (error) {
         console.error("Error fetching inventory:", error.message);
       } finally {
         setLoading(false);
+        setIsFetching(false);  
       }
     };
 
     fetchInventory();
   }, [refetch, page, query, category]);
+
+  // Reset page when filters change
+  useEffect(() => {
+    setPage(1);
+    setResults({}); 
+  }, [query, category]);
 
   // Infinite scroll
   useEffect(() => {
@@ -55,12 +64,12 @@ const InventoryGrid = () => {
 
       const buffer = window.innerWidth < 768 ? 50 : 150;
 
-      // Check if scrolled to the bottom
+      // Check if scrolled to the bottom and no fetch is in progress
       if (
         container.scrollHeight - container.scrollTop - 50 <=
         container.clientHeight + buffer
       ) {
-        if (results?.hasMore && !loading) {
+        if (results?.hasMore && !loading && !isFetching) {
           setPage((prev) => prev + 1);
         }
       }
@@ -76,9 +85,9 @@ const InventoryGrid = () => {
         container.removeEventListener("scroll", handleScroll);
       }
     };
-  }, [results?.hasMore, loading]);
+  }, [results?.hasMore, loading, isFetching]);  
 
-  const inventory = results.data;
+  const inventory = results?.data || [];
 
   return (
     <>

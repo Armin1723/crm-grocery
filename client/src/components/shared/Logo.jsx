@@ -11,7 +11,7 @@ const Logo = ({ expanded = "true" }) => {
       title={
         <div className="flex items-center gap-2 overflow-hidden">
           <Avatar
-            image={user?.company?.logo.replace("/uploads/", "/uploads/w_80/")}
+            image={user?.company?.logo?.replace("/uploads/", "/uploads/w_80/")}
             width={40}
             withBorder={false}
           />

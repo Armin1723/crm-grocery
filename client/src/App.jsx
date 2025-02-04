@@ -13,6 +13,8 @@ import ViewExpenses from "./components/purchases/ViewExpenses";
 import TitleBar from "./components/shared/TitleBar";
 import Company from "./components/home/Company";
 import ViewCompany from "./components/company/ViewCompany";
+import AddCompany from "./components/company/AddCompany";
+import Register from "./components/auth/Register";
 const Seller = lazy(() => import("./pages/Seller"));
 const TopLoadingBar = lazy(() => import("./components/shared/TopLoadingBar"));
 const SellerSales = lazy(() => import("./components/seller/sales/SellerSales"));
@@ -101,6 +103,8 @@ const ProtectedRoute = ({ children }) => {
 
   if (!isAuthenticated) {
     return <Navigate to="/auth/login" state={{ from: location }} replace />;
+  } else if(!user.company){
+    return <Navigate to="/company/add" state={{ from: location }} replace />;
   }
 
   return children;
@@ -156,6 +160,11 @@ const App = () => {
           }
         >
           <Routes>
+            
+            {/* Base Route for adding company on the first login */}
+            <Route path="/company/add" element={<AddCompany />} />
+
+            {/* Protected Routes */}
             <Route
               path="/"
               element={
@@ -234,6 +243,7 @@ const App = () => {
             <Route path="/auth" element={<Auth />}>
               <Route path="" element={<Login />} />
               <Route path="login" element={<Login />} />
+              <Route path="register" element={<Register />} />
               <Route path="forgot-password" element={<ForgotPassword />} />
               <Route path="reset-password" element={<ResetPassword />} />
             </Route>

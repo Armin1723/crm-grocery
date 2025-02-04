@@ -67,7 +67,7 @@ input.checkbox {
 }
 
 .horizontal-scrollbar::-webkit-scrollbar{
-  height: 3px;
+  height: 3px !important;
 }
 
 /* Input Field */

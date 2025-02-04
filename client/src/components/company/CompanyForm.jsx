@@ -6,6 +6,7 @@ import { MdClose } from "react-icons/md";
 import Divider from "../utils/Divider";
 import { setUser } from "../../redux/features/user/userSlice";
 import { useDispatch } from "react-redux";
+import { useNavigate } from "react-router-dom";
 
 const CompanyForm = ({
   company = {},
@@ -15,12 +16,14 @@ const CompanyForm = ({
   const [imagePreview, setImagePreview] = React.useState(company.logo || null);
 
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   const {
     register,
     handleSubmit,
     formState: { errors },
     setValue,
+    setError,
     reset,
     watch,
   } = useForm({
@@ -34,7 +37,6 @@ const CompanyForm = ({
       email: company.email || "",
       gstin: company.gstin || "",
       initials: company.initials || "",
-      licenseKey: company.licenseKey || "",
     },
   });
 
@@ -89,6 +91,11 @@ const CompanyForm = ({
           isLoading: false,
           autoClose: 2000,
         });
+        if (data.errors) {
+          Object.entries(data.errors).forEach(([field, message]) => {
+            setError(field, { type: "server", message });
+          });
+        }
       } else {
         toast.update(id, {
           render: `Company ${title === "edit" ? "updated" : "added"} successfully`,
@@ -99,10 +106,12 @@ const CompanyForm = ({
         if (title === "add") {
           reset();
           setImagePreview(null);
+          dispatch(setUser(data?.user));
+          navigate("/");
         } else {
           closeModal();
+          dispatch(setUser(data?.user));
         }
-        dispatch(setUser(data?.user));
       }
     } catch (error) {
       toast.update(id, {
@@ -190,9 +199,17 @@ const CompanyForm = ({
           <input
             type="text"
             placeholder="Company Initials"
-            className={`input peer ${errors.initials && "border-red-500 focus:!border-red-500"}`}
+            className={`input peer uppercase placeholder:capitalize ${errors.initials && "border-red-500 focus:!border-red-500"}`}
             {...register("initials", {
               required: "Company initials are required",
+              minLength: {
+                value: 3,
+                message: "Initials must be 3 characters",
+              },
+              maxLength: {
+                value: 3,
+                message: "Initials must be 3 characters",
+              },
             })}
           />
         </FormInput>

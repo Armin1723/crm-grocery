@@ -32,6 +32,7 @@ const EmployeeSales = () => {
           console.error(data.message || "Something went wrong");
         } else {
           setResults(data);
+          setLoading(false);
         }
       } catch (error) {
         console.error(error.message);

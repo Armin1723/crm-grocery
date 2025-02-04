@@ -54,7 +54,7 @@ const ProductSales = () => {
         results?.sales?.map((sale, index) => (
           <div
             key={index}
-            className="flex flex-col min-w-full w-full md:w-1/2 md:min-w-[50%] xl:w-1/3 xl:min-w-[33%] rounded-md px-2 py-2 snap-start h-fit"
+            className="flex flex-col min-w-full w-full md:w-1/2 md:min-w-[50%] xl:w-1/3 xl:min-w-[33%] horizontal-scrollbar rounded-md px-2 py-2 snap-start h-fit"
           >
             <SaleCardSmall sale={sale} />
           </div>
