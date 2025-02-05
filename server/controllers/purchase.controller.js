@@ -10,6 +10,7 @@ const followUpPaymentMailTemplate = require("../templates/email/followUpPaymentM
 const generatePurchaseInvoice = require("../templates/invoice/purchaseInvoice");
 const generatePurchaseReturnInvoice = require("../templates/invoice/purchaseReturnInvoice");
 const { sendMail, mergeBatchesHelper } = require("../helpers");
+const Company = require("../models/company.model");
 
 const getPurchases = async (req, res) => {
   const {
@@ -407,10 +408,12 @@ const addPayment = async (req, res) => {
 
   // Send an email notification to the supplier
   if (supplier.email) {
+    const company = await Company.find(req.user.company).lean();
     const message = followUpPaymentMailTemplate(
       supplier.name,
       paidAmount,
-      purchase._id
+      purchase._id,
+      company
     );
     await sendMail(supplier.email, "Payment Received", message);
   }

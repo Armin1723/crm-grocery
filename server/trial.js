@@ -14,6 +14,16 @@ const Customer = require("./models/customer.model");
 const Expense = require("./models/expense.model");
 const Supplier = require("./models/supplier.model");
 const generateSalesReturnInvoice = require("./templates/invoice/saleReturnInvoice");
+const { sendMail } = require("./helpers");
+const expiringProductsTemplateMail = require("./templates/email/expiringProductsTemplateMail");
+const followUpPaymentMailTemplate = require("./templates/email/followUpPaymentMailTemplate");
+const lowStockMailTemplate = require("./templates/email/lowStockMailTemplate");
+const passwordResetMailTemplate = require("./templates/email/passwordResetMailTemplate");
+const registerMailTemplate = require("./templates/email/registerMailTemplate");
+const saleInvoiceMailTemplate = require("./templates/email/saleInvoiceMailTemplate");
+const saleReturnInvoiceMailTemplate = require("./templates/email/saleReturnInvoiceMailTemplate");
+const stockAlertMailTemplate = require("./templates/email/stockAlertMailTemplate");
+const welcomeEmployeeMail = require("./templates/email/welcomeEmployeeMail");
 
 const updateLastPurchaseInvoice = async () => {
   const purchase = await Purchase.findOne().sort({ createdAt: -1 });
@@ -136,6 +146,65 @@ const addCompanyToEverything = async () => {
   );
 };
 
+const sendTestMails = async () => {  
+  const recipient = "alam.airuz23@gmail.com";
+  const purchase = await Purchase.findOne().sort({ createdAt: -1 }).lean();
+  const sale = await Sale.findOne().sort({ createdAt: -1 }).populate("products.product").lean();
+  const saleReturn = await SalesReturn.findOne().sort({ createdAt: -1 }).populate("products.product").lean();
+  const product = await Product.findOne().lean();
+  const employee = await User.findOne({role: "employee"}).lean();
+  const company = await Company.findOne().sort({createdAt: -1}).lean();
+
+  sendMail(
+    recipient,
+    "Follow Up Payment Reminder",
+    followUpPaymentMailTemplate("abs", 1000, purchase._id, company) 
+  );
+
+  sendMail(
+    recipient,
+    "Low Stock Alert",
+    lowStockMailTemplate("test product", 10, company)
+  );
+
+  sendMail(
+    recipient,
+    "Password Reset",
+    passwordResetMailTemplate("Test User", "768755", company)
+  );
+
+  sendMail(
+    recipient,
+    "Register Mail",
+    registerMailTemplate("Test User", company)
+  );  
+
+  sendMail(
+    recipient,
+    "Sale Return Invoice Mail",
+    saleReturnInvoiceMailTemplate(saleReturn, company)
+  );
+
+  sendMail(
+    recipient,
+    "Sale Invoice Mail",
+    saleInvoiceMailTemplate(sale, company)
+  );
+
+  sendMail(
+    recipient,
+    "Stock Alert Mail",
+    stockAlertMailTemplate(product, company)
+  );
+
+  sendMail(
+    recipient,
+    "Welcome Employee Mail",
+    welcomeEmployeeMail(employee, company)
+  );
+};
+
+
 module.exports = {
   updateLastPurchaseInvoice,
   updatePurchaseInvoice,
@@ -143,4 +212,5 @@ module.exports = {
   updateSaleInvoice,
   updateSalesReturnInvoice,
   addCompanyToEverything,
+  sendTestMails,
 };

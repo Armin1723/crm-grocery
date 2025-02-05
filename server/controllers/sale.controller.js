@@ -270,12 +270,12 @@ const addSale = async (req, res) => {
   process.nextTick(async () => {
     if (customer?.email) {
       const updatedSale = await Sale.findById(sale._id).populate(
-        "customer signedBy products.product"
+        "customer signedBy products.product company"
       );
       sendMail(
         customer.email,
         "Sales Invoice",
-        saleInvoiceMailTemplate(updatedSale)
+        saleInvoiceMailTemplate(updatedSale, updatedSale.company)
       );
     }
 
@@ -286,12 +286,11 @@ const addSale = async (req, res) => {
         inventory.totalQuantity < inventory.product.stockAlert.quantity
       ) {
         const company = await Company.findById(req.user.company)
-          .select("email")
           .lean();
         sendMail(
           company.email,
           "Low Stock Alert",
-          lowStockMailTemplate(inventory.product.name, inventory.totalQuantity)
+          lowStockMailTemplate(inventory.product.name, inventory.totalQuantity, company)
         );
       }
     });
@@ -393,10 +392,11 @@ const addSaleReturn = async (req, res) => {
 
   // Send the invoice to the customer
   if (saleReturn?.customer?.email) {
+    const company = await Company.findById(req.body.company).lean();
     sendMail(
       saleReturn?.customer?.email,
       "Sales Return Invoice",
-      (message = saleReturnInvoiceMailTemplate(saleReturn))
+      (message = saleReturnInvoiceMailTemplate(saleReturn, company))
     );
   }
 

@@ -104,7 +104,7 @@ const getProducts = async (req, res) => {
     const products = await Product.find({
       company: req.user.company,
       name: { $regex: name, $options: "i" },
-    }).limit(5);
+    }).limit(5).lean();
 
     return res.json({ success: true, products });
   }
@@ -380,7 +380,7 @@ const setStockPreference = async (req, res) => {
   const product = await Product.findOne({
     _id: req.params.id,
     company: req.user.company,
-  });
+  }).populate("company");
   if (!product) {
     return res
       .status(404)
@@ -396,7 +396,7 @@ const setStockPreference = async (req, res) => {
     sendMail(
       (to = process.env.ADMIN_EMAIL),
       (subject = "Stock Alert Set"),
-      (message = stockAlertMailTemplate(product))
+      (message = stockAlertMailTemplate(product, product.company))
     );
   }
 

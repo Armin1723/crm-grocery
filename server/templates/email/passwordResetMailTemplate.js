@@ -1,5 +1,3 @@
-require("dotenv").config();
-
 const passwordResetMailTemplate = (name, resetPasswordToken) => {
   return `
     <!DOCTYPE html>
@@ -11,71 +9,41 @@ const passwordResetMailTemplate = (name, resetPasswordToken) => {
       <style>
         body {
           font-family: Arial, sans-serif;
-          font-size: 16px;
           line-height: 1.6;
-          margin: 0;
-          padding: 0;
+          color: #333;
+          max-width: 600px;
+          margin: 0 auto;
+          padding: 20px;
           background-color: #f9f9f9;
         }
         .container {
-          max-width: 600px;
-          margin: 20px auto;
-          padding: 20px;
-          border: 1px solid #ddd;
-          border-radius: 8px;
           background-color: #ffffff;
+          padding: 20px;
+          border-radius: 8px;
         }
         h2 {
-          margin-bottom: 20px;
+          color: #5d3fd3;
         }
-        p {
-          margin: 10px 0;
-        }
-        a {
-          text-decoration: none;
+        .otp {
+          font-size: 24px;
           font-weight: bold;
-        }
-        a:hover {
-          text-decoration: underline;
-        }
-        .button {
-          display: inline-block;
-          padding: 10px 20px;
-          margin-top: 20px;
-          background-color: #5d3fd3;
-          border: 1px solid #5d3fd3;
-          text-decoration: none;
-          border-radius: 5px;
-          font-weight: bold;
-          color: #fff;
-        }
-        .button:hover {
-          background-color: #5d3fd3b0;
-        }
-        .footer {
-          margin-top: 20px;
-          font-size: 14px;
-          color: #666;
+          color: #5d3fd3;
+          margin: 20px 0;
         }
       </style>
     </head>
     <body>
       <div class="container">
         <h2>Password Reset Request</h2>
-        <p style="text-transform: capitalize;">Hi <span style="font-weight: bold;">${name}</span>,</p>
-        <p>We received a request to reset your password. If you didn’t make this request, you can safely ignore this email.</p>
+        <p>Hi <strong>${name}</strong>,</p>
+        <p>We received a request to reset your password. If you didn't make this request, you can safely ignore this email.</p>
         <p>To reset your password, use the OTP below:</p>
-        <p style="font-size: 20px;">
-          <strong>${resetPasswordToken}</strong>
-        </p>
-        <p class="footer">
-          Regards, <br>
-          <strong>The Team</strong>
-        </p>
+        <p class="otp">${resetPasswordToken}</p>
       </div>
     </body>
     </html>
-  `;
-};
+  `
+}
 
-module.exports = passwordResetMailTemplate;
+module.exports = passwordResetMailTemplate
+

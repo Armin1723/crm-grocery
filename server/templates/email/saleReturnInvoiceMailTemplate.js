@@ -1,174 +1,130 @@
-const saleReturnInvoiceMailTemplate = (saleReturn) => {
+const emailHeader = require("./emailHeader")
+const emailFooter = require("./emailFooter")
+
+const saleReturnInvoiceMailTemplate = (saleReturn, company) => {
+  const header = emailHeader(company)
+  const footer = emailFooter(company)
+
   return `
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <style>
-      body {
-        font-family: Arial, sans-serif;
-        margin: 0;
-        padding: 0;
-      }
-      .container {
-        max-width: 800px;
-        margin: 0 auto;
-        padding: 20px;
-      }
-      .header {
-        background-color: #f8f9fa;
-        padding: 10px;
-        text-align: center;
-      }
-      .header h1 {
-        margin: 0;
-        color: #343a40;
-      }
-      .content {
-        padding: 20px;
-        background-color: #f8f9fa;
-      }
-      .content h2 {
-        margin: 0;
-        color: #343a40;
-      }
-      .content p {
-        margin: 0;
-        color: #343a40;
-      }
-      .content .flex {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 10px;
-      }
-      .content .flex .left {
-        font-weight: bold;
-      }
-      .content .flex .right {
-        font-weight: normal;
-      }
-      .content .products {
-        margin-top: 20px;
-      }
-      .content .products table {
-        width: 100%;
-        border-collapse: collapse;
-      }
-      .content .products table thead {
-        background-color: #343a40;
-        color: #fff;
-      }
-      .content .products table thead th {
-        padding: 10px;
-        text-align: left;
-      }
-      .content .products table tbody tr {
-        border-bottom: 1px solid #343a40;
-      }
-      .content .products table tbody tr:last-child {
-        border-bottom: none;
-      }
-      .content .products table tbody td {
-        padding: 10px;
-      }
-      .content .products table tbody td img {
-        width: 50px;
-        height: 50px;
-        object-fit: cover;
-      }
-      .content .products .total {
-        display: flex;
-        justify-content: flex-end;
-        align-items: center;
-        margin-top: 10px;
-      }
-      .content .products .total .left {
-        font-weight: bold;
-      }
-      .content .products .total .right {
-        font-weight: normal;
-      }
-    </style>
-    </head>
-    <body>
-      <div class="container">
-        <div class="header">
-          <h1>Return Invoice</h1>
-        </div>
+    <!DOCTYPE html>
+    <html lang="en">
+      <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Sale Return Invoice</title>
+        <style>
+          body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+          }
+          .content {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 5px;
+          }
+          h2 {
+            color: #5d3fd3;
+          }
+          .flex {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+          }
+          .flex .left {
+            font-weight: bold;
+          }
+          table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+          }
+          table th, table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+          }
+          table th {
+            background-color: #5d3fd3;
+            color: #fff;
+          }
+          .product-image {
+            width: 50px;
+            height: 50px;
+            object-fit: cover;
+          }
+          .total {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 20px;
+          }
+        </style>
+      </head>
+      <body>
+        ${header}
         <div class="content">
           <h2>Customer Details</h2>
           <div class="flex">
-            <div class="left">Name: 
-            </div>
-            <div class="right"> ${saleReturn?.customer?.name || "No name"}</div>
-            </div>
-            <div class="flex">
-              <div class="left">Email: </div>
-              <div class="right"> ${
-                saleReturn?.customer?.email || "No Email"
-              }</div>
-            </div>
-            <div class="flex">
-              <div class="left">Phone: </div>
-              <div class="right"> ${
-                saleReturn?.customer?.phone || "No Contact"
-              }</div>
-            </div>
-            <h2>Return Details</h2>
-            <div class="flex">
-              <div class="left">Return ID: </div>
-              <div class="right"> ${saleReturn._id}</div>
-            </div>
-            <div class="flex">
-              <div class="left">Date
-                </div>
-                <div class="right">${new Date(
-                  saleReturn.createdAt
-                ).toDateString()}</div>
-                </div>
-                <div class="products">
-                  <h2>Returned Products</h2>
-                  <table>
-                    <thead>
-                      <tr>
-                        <th>Image</th>
-                        <th>Product</th>
-                        <th>Quantity</th>
-                        <th>Price</th>
-                        <th>Total</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      ${saleReturn.products
-                        .map(
-                          (product) => `
-                        <tr>
-                          <td><img src="${product?.product?.image}" alt="${
-                            product?.product?.name
-                          }" /></td>
-                          <td>${product?.product?.name}</td>
-                      <td>${product.quantity} ${
-                            product?.product?.secondaryUnit
-                          }</td>
-                          <td>₹${product.sellingRate}</td>
-                          <td>₹${product.quantity * product.sellingRate}</td>
-                        </tr>
-                      `
-                        )
-                        .join("")}
-                    </tbody>
-                  </table>
-                  <div class="total">
-                    <div class="left">Total Amount</div>
-                    <div class="right">₹${saleReturn.totalAmount}</div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </body>
-        </html>
-        `;
-};
+            <div class="left">Name:</div>
+            <div class="right">${saleReturn?.customer?.name || "No name"}</div>
+          </div>
+          <div class="flex">
+            <div class="left">Email:</div>
+            <div class="right">${saleReturn?.customer?.email || "No Email"}</div>
+          </div>
+          <div class="flex">
+            <div class="left">Phone:</div>
+            <div class="right">${saleReturn?.customer?.phone || "No Contact"}</div>
+          </div>
+          <h2>Return Details</h2>
+          <div class="flex">
+            <div class="left">Return ID:</div>
+            <div class="right">${saleReturn._id}</div>
+          </div>
+          <div class="flex">
+            <div class="left">Date:</div>
+            <div class="right">${new Date(saleReturn.createdAt).toDateString()}</div>
+          </div>
+          <h2>Returned Products</h2>
+          <table>
+            <thead>
+              <tr>
+                <th>Image</th>
+                <th>Product</th>
+                <th>Quantity</th>
+                <th>Price</th>
+                <th>Total</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${saleReturn.products
+                .map(
+                  (product) => `
+                <tr>
+                  <td><img src="${product?.product?.image}" alt="${product?.product?.name}" class="product-image" /></td>
+                  <td>${product?.product?.name}</td>
+                  <td>${product.quantity} ${product?.product?.secondaryUnit}</td>
+                  <td>₹${product.sellingRate}</td>
+                  <td>₹${product.quantity * product.sellingRate}</td>
+                </tr>
+              `,
+                )
+                .join("")}
+            </tbody>
+          </table>
+          <div class="total">
+            <div class="left">Total Amount:</div>
+            <div class="right">₹${saleReturn.totalAmount}</div>
+          </div>
+        </div>
+        ${footer}
+      </body>
+    </html>
+  `
+}
 
-module.exports = saleReturnInvoiceMailTemplate;
+module.exports = saleReturnInvoiceMailTemplate
+

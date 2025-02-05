@@ -9,6 +9,7 @@ const cloudinary = require("../config/cloudinary");
 
 const { sendMail } = require("../helpers");
 const registerMailTemplate = require("../templates/email/registerMailTemplate");
+const passwordResetMailTemplate = require("../templates/email/passwordResetMailTemplate");
 
 const loginUser = async (req, res) => {
   const { email, password } = req.body;
@@ -42,15 +43,13 @@ const loginUser = async (req, res) => {
 
   const isMatch = await bcrypt.compare(password, user.password);
   if (!isMatch) {
-    return res
-      .status(400)
-      .json({
-        success: false,
-        errors: {
-          email: "Invalid Crendentials",
-          password: "Invalid Credentials",
-        },
-      });
+    return res.status(400).json({
+      success: false,
+      errors: {
+        email: "Invalid Crendentials",
+        password: "Invalid Credentials",
+      },
+    });
   }
 
   const subscriptionActive =
@@ -175,7 +174,7 @@ const forgotPassword = async (req, res) => {
   }
   const user = await User.findOne({
     email,
-  });
+  })
   if (!user) {
     return res.status(400).json({ message: "User not found", success: false });
   }
@@ -191,8 +190,11 @@ const forgotPassword = async (req, res) => {
   user.resetPasswordExpires = Date.now() + 30 * 60 * 1000;
   await user.save();
 
-  const message = `<p>Hi ${user.name} . Kindly use this link to reset your password. <a href="${process.env.FRONTEND_URL}/auth/reset-password?token=${resetPasswordToken}">here</a>`;
-  sendMail(user.email, (subject = "Password Reset Link"), message);
+  sendMail(
+    user.email,
+    (subject = "Password Reset Link"),
+    passwordResetMailTemplate(user.name, resetPasswordToken)
+  );
   res.status(200).json({ success: true, message: "Password reset email sent" });
 };
 
