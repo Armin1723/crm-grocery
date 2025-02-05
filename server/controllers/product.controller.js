@@ -7,6 +7,7 @@ const Purchase = require("../models/purchase.model");
 const mongoose = require("mongoose");
 const stockAlertMailTemplate = require("../templates/email/stockAlertMailTemplate");
 const Company = require("../models/company.model");
+const Inventory = require("../models/inventory.model");
 
 const getProduct = async (req, res) => {
   const product = await Product.findOne({
@@ -406,6 +407,21 @@ const setStockPreference = async (req, res) => {
 
 const editProduct = async (req, res) => {
   let updateData = { ...req.body };
+
+  //Check if units are updated and inventory exists
+  if (updateData.primaryUnit || updateData.secondaryUnit || updateData.conversionFactor) {
+    const inventory = await Inventory.findOne({
+      product: req.params.id,
+      company: req.user.company,
+    });
+    if (inventory && inventory.totalQuantity > 0) {
+      return res.status(400).json({
+        success: false,
+        message: "Product units cannot be updated as inventory exists",
+      });
+    }
+  };
+
   if (req.files) {
     const { image } = req.files;
     if (image) {
