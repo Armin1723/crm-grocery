@@ -28,7 +28,7 @@ const formatCurrency = (value) => {
   const rupeeSymbol = "₹";
   return `${rupeeSymbol}${value.toFixed(2)}`;
 };
-const formatDate = (date) => new Date(date).toLocaleDateString("en-IN");
+const formatDate = (date) => new Date(date).toLocaleString("en-IN");
 
 const generateSaleInvoice = async (saleId) => {
   try {

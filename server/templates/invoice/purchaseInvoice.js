@@ -3,7 +3,6 @@ const PDFDocument = require("pdfkit");
 const fs = require("fs");
 const cloudinary = require("../../config/cloudinary");
 const Purchase = require("../../models/purchase.model");
-const path = require("path");
 
 const formatCurrency = (amount) => {
   return new Intl.NumberFormat("en-IN", {
@@ -12,7 +11,7 @@ const formatCurrency = (amount) => {
   }).format(amount);
 };
 
-const formatDate = (date) => new Date(date).toLocaleDateString("en-IN");
+const formatDate = (date) => new Date(date).toLocaleString("en-IN");
 
 const generatePurchaseInvoice = async (purchaseId) => {
   try {

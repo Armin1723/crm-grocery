@@ -38,7 +38,7 @@ app.use('/api/v1/companies', require('./routes/company.routes.js'));
 // Server
 app.get('/', (req, res) => {
     res.send('Hello World from CRM API');
-});
+});4
 
 // Error Handler middleware
 app.use(errorHandler);

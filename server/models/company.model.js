@@ -1,25 +1,32 @@
 const mongoose = require('mongoose');
+const sanitizeHtml = require('sanitize-html');
+const validator = require('validator');
 
 const companySchema = new mongoose.Schema({
     name: {
         type: String,
-        required: true
+        required: true,
+        set: (value) => sanitizeHtml(value),
     },
     address: {
         type: String,
-        required: true
+        required: true,
+        set: (value) => sanitizeHtml(value),
     },
     branch: {
         type: String,
-        required: true
+        required: true,
+        set: (value) => sanitizeHtml(value),
     },
     phone: {
         type: String,
-        required: true
+        required: true,
+        validate: [validator.isMobilePhone, "Please provide a valid phone"],
     },
     email: {
         type: String,
-        required: true
+        required: true,
+        validate: [validator.isEmail, "Please provide a valid email"],  
     },
     gstin: {
         type: String,
@@ -35,6 +42,9 @@ const companySchema = new mongoose.Schema({
         required: true
     },
     logo: {
+        type: String,
+    },
+    tnc: {
         type: String,
     },
     licenseKey: {

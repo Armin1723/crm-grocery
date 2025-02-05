@@ -2,7 +2,6 @@ require("dotenv").config();
 const PDFDocument = require("pdfkit");
 const fs = require("fs");
 const cloudinary = require("../../config/cloudinary");
-const path = require("path");
 const PurchaseReturn = require("../../models/purchaseReturn.model");
 
 const formatCurrency = (amount) => {
@@ -12,7 +11,7 @@ const formatCurrency = (amount) => {
   }).format(amount);
 };
 
-const formatDate = (date) => new Date(date).toLocaleDateString("en-IN");
+const formatDate = (date) => new Date(date).toLocaleString("en-IN");
 
 const generatePurchaseReturnInvoice = async (purchaseReturnId) => {
   try {

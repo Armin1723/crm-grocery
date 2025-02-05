@@ -1,28 +1,27 @@
 const mongoose = require("mongoose");
+const sanitizeHtml = require("sanitize-html");
+const validator = require("validator");
 
 const customerSchema = new mongoose.Schema({
     name: {
         type: String,
         trim: true,
-        minLength: {
-            value: 3,
-            message: "Name must be at least 3 characters long",
-        },
-        maxLength: {
-            value: 50,
-            message: "Name must be at most 50 characters long",
-        },
+        set: (value) => sanitizeHtml(value),
     },
     address: {
         type: String,
+        trim: true,
+        set: (value) => sanitizeHtml(value),
     },
     email: {
         type: String,
         required: true,
+        validate: [validator.isEmail, "Please provide a valid email"],
     },
     phone: {
         type: String,
         required: true,
+        validate: [validator.isMobilePhone, "Please provide a valid phone"],
     },
     company: {
         type: mongoose.Schema.Types.ObjectId,

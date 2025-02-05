@@ -26,7 +26,7 @@ const splitTextToLines = (text, maxLength) => {
 };
 
 const formatCurrency = (value) => `₹${value.toFixed(2)}`;
-const formatDate = (date) => new Date(date).toLocaleDateString("en-IN");
+const formatDate = (date) => new Date(date).toLocaleString("en-IN");
 
 const generateSalesReturnInvoice = async (salesReturnId) => {
 

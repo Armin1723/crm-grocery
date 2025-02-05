@@ -1,13 +1,18 @@
 const mongoose = require("mongoose");
+const sanitizeHtml = require("sanitize-html");
+const validator = require("validator");
+const { validate } = require("./purchase.model");
 
 const userSchema = new mongoose.Schema(
   {
     name: {
       type: String,
       required: true,
+      set: (value) => sanitizeHtml(value),
     },
     address: {
       type: String,
+      set: (value) => sanitizeHtml(value),
     },
     role: {
       type: String,
@@ -20,23 +25,20 @@ const userSchema = new mongoose.Schema(
     email: {
       type: String,
       required: true,
-      validate: {
-        validator: function (v) {
-          return /^([\w-\.]+@([\w-]+\.)+[\w-]{2,4})?$/.test(v);
-        },
-        message: (props) => `${props.value} is not a valid email address`,
-      },
+      validate: [validator.isEmail, "Please provide a valid email"],
     },
     identityProof: {
       type: String,
     },
-    dob:{
+    dob: {
       type: Date,
       required: true,
+      validate: [validator.isDate, "Please provide a valid date"],
     },
     phone: {
       type: String,
       required: true,
+      validate: [validator.isMobilePhone, "Please provide a valid phone"],
     },
     password: {
       type: String,
