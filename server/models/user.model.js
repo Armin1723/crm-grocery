@@ -1,7 +1,6 @@
 const mongoose = require("mongoose");
 const sanitizeHtml = require("sanitize-html");
 const validator = require("validator");
-const { validate } = require("./purchase.model");
 
 const userSchema = new mongoose.Schema(
   {

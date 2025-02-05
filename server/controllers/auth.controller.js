@@ -114,19 +114,6 @@ const registerUser = async (req, res) => {
   const hashedPassword = await bcrypt.hash(password, 12);
   user.password = hashedPassword;
 
-  //generate UUID
-  const generateUUID = async () => {
-    let uuid = "EMP" + Math.random().toString(36).substr(2, 6).toUpperCase();
-    const existingUser = await User.findOne({ uuid });
-    if (existingUser) {
-      return generateUUID();
-    } else {
-      return uuid;
-    }
-  };
-
-  user.uuid = await generateUUID();
-
   // Upload avatar
   if (req.files) {
     const { avatar } = req.files;

@@ -83,12 +83,27 @@ const addCompany = async (req, res) => {
     }
   }
 
-  await company.save();
+  await company.save(); 
 
+  const generateUUID = async () => {
+    let uuid =
+      "EMP" +
+      company.initials.toUpperCase() +
+      Math.random().toString(36).substr(2, 6).toUpperCase();
+    const existingUser = await User.findOne({ uuid });
+    if (existingUser) {
+      return generateUUID();
+    } else {
+      return uuid;
+    }
+  };
+  
   // Update user with company id and initials
   const user = await User.findById(req.user.id).populate("company");
   user.company = company._id;
-  user.uuid = user.uuid.slice(0, 3) + company.initials + user.uuid.slice(-3);
+  if(!user.uuid){
+    user.uuid = await generateUUID();
+  }
   await user.save();
 
   const token = jwt.sign(
