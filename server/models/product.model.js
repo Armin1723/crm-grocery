@@ -89,8 +89,12 @@ productSchema.index({ upid: 1 }, { unique: true });
 
 //Pre save hook to generate upid code from process.env.INITIALS
 productSchema.pre("save", async function (next) {
-  const company = await mongoose.model("Company").findById(this.company).select("initials").lean();
   if (!this.upid) {
+    const company = await mongoose
+      .model("Company")
+      .findById(this.company)
+      .select("initials")
+      .lean();
     const timestamp = Date.now().toString(36).slice(-3);
     const random = Math.random().toString(36).substr(2, 3);
     const counter = await this.constructor
