@@ -5,6 +5,7 @@ import { toast } from "react-toastify";
 const CustomerForm = ({
   title = "add",
   customer = {},
+  setCustomer = () => {},
   setValue = () => {},
   closeModal = () => {},
   setRefetch = () => {},
@@ -75,11 +76,12 @@ const CustomerForm = ({
           body: JSON.stringify(values),
         }
       );
+      const data = await res.json();
       if (!res.ok) {
-        const data = await res.json();
         throw new Error(data.message || "Failed to add/edit customer");
       }
       toast.success("Customer added successfully");
+      setCustomer(data?.customer);
       setValue("customerMobile", values.phone);
     } catch (error) {
       console.error("Error adding customer:", error.message);

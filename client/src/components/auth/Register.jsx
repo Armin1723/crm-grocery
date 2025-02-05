@@ -113,9 +113,9 @@ const Register = ({}) => {
           </p>
         </div>
 
-        {/* Avatar Upload */}
-        <div className="space-y-2 flex w-full name-image-group items-center justify-between">
-          <div className="image-input rounded-lg p-4 text-center relative">
+        {/* Avatar-Name Upload */}
+        <div className="flex w-full name-image-group items-center justify-between gap-4">
+          <div className="image-input rounded-lg py-2 text-center relative">
             {avatarPreview ? (
               <div className="relative w-fit px-3 flex items-center justify-center">
                 <img
@@ -203,8 +203,8 @@ const Register = ({}) => {
         </div>
 
         {/* Phone and DOB */}
-        <div className="phone-dob-group flex max-sm:flex-col gap-4 max-sm:gap-2 w-full my-2">
-          <div className="w-1/2 max-sm:w-full relative group">
+        <div className="phone-dob-group flex max-sm:flex-col gap-2 w-full ">
+          <div className="w-1/2 max-sm:w-full relative group my-2">
             <input
               type="tel"
               placeholder=" "
@@ -229,7 +229,7 @@ const Register = ({}) => {
             )}
           </div>
 
-          <div className="w-1/2 max-sm:w-full relative group">
+          <div className="w-1/2 max-sm:w-full relative group my-2">
             <input
               type="date"
               placeholder=" "

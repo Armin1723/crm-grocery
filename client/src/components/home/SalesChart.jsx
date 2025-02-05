@@ -12,15 +12,18 @@ import SelectionDropDown from "./SelectionDropDown";
 const SalesChart = () => {
   const [data, setData] = useState([]);
   const [groupBy, setGroupBy] = useState("daily");
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchData = async () => {
+      setLoading(true);
       try {
         const response = await fetch(
           `${
             import.meta.env.VITE_BACKEND_URL
-          }/api/v1/stats/sales-chart?groupBy=${groupBy}`,{
-          credentials: "include",
+          }/api/v1/stats/sales-chart?groupBy=${groupBy}`,
+          {
+            credentials: "include",
           }
         );
         const data = await response.json();
@@ -31,6 +34,8 @@ const SalesChart = () => {
         }
       } catch (err) {
         console.log(err);
+      } finally {
+        setLoading(false);
       }
     };
     fetchData();
@@ -57,72 +62,77 @@ const SalesChart = () => {
           </div>
         </div>
       </div>
-
-      <div className="px-2 flex-1 min-h-[40vh] text-xs md:text-sm">
-        <ResponsiveContainer width="100%" height="100%">
-          <AreaChart
-            data={data}
-            key={data.length}
-            margin={{
-              top: 10,
-              right: 30,
-              left: 0,
-              bottom: 10,
-            }}
-          >
-            <defs>
-              <linearGradient id="colorUv" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#8884d8" stopOpacity={0.8} />
-                <stop offset="95%" stopColor="#8884d8" stopOpacity={0} />
-              </linearGradient>
-              <linearGradient id="colorPv" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#82ca9d" stopOpacity={0.8} />
-                <stop offset="95%" stopColor="#82ca9d" stopOpacity={0} />
-              </linearGradient>
-            </defs>
-            <XAxis
-              dataKey="name"
-              tickFormatter={(value) => {
-                if (groupBy === "daily") return value;
-                if (groupBy === "weekly") return `Wk ${value}`;
-                return value;
+      {loading ? (
+        <div className="flex-1 flex items-center justify-center">
+          <div className="spinner"></div>
+        </div>
+      ) : (
+        <div className="px-2 flex-1 min-h-[40vh] text-xs md:text-sm">
+          <ResponsiveContainer width="100%" height="100%">
+            <AreaChart
+              data={data}
+              key={data.length}
+              margin={{
+                top: 10,
+                right: 30,
+                left: 0,
+                bottom: 10,
               }}
-              interval={5}
-            />
-            <YAxis />
-            <Tooltip
-              contentStyle={{
-                background: "var(--color-card-overlay)",
-                border: "none",
-                gap: "0",
-                borderRadius: "0.5rem",
-                boxShadow: "0 0 10px 0 rgba(0, 0, 0, 0.1)",
-              }}
-              itemStyle={{ fontWeight: "bold", textTransform: "capitalize" }}
-              labelStyle={{
-                color: "var(--color-text-light)",
-                fontSize: "0.7rem",
-              }}
-            />
-            <Area
-              type="monotone"
-              dataKey="sales"
-              stackId="1"
-              stroke="#5d3fd3"
-              fillOpacity={1}
-              fill="url(#colorUv)"
-            />
-            <Area
-              type="monotone"
-              dataKey="purchases"
-              stackId="1"
-              stroke="seaGreen"
-              fillOpacity={1}
-              fill="url(#colorPv)"
-            />
-          </AreaChart>
-        </ResponsiveContainer>
-      </div>
+            >
+              <defs>
+                <linearGradient id="colorUv" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="#8884d8" stopOpacity={0.8} />
+                  <stop offset="95%" stopColor="#8884d8" stopOpacity={0} />
+                </linearGradient>
+                <linearGradient id="colorPv" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="#82ca9d" stopOpacity={0.8} />
+                  <stop offset="95%" stopColor="#82ca9d" stopOpacity={0} />
+                </linearGradient>
+              </defs>
+              <XAxis
+                dataKey="name"
+                tickFormatter={(value) => {
+                  if (groupBy === "daily") return value;
+                  if (groupBy === "weekly") return `Wk ${value}`;
+                  return value;
+                }}
+                interval={5}
+              />
+              <YAxis />
+              <Tooltip
+                contentStyle={{
+                  background: "var(--color-card-overlay)",
+                  border: "none",
+                  gap: "0",
+                  borderRadius: "0.5rem",
+                  boxShadow: "0 0 10px 0 rgba(0, 0, 0, 0.1)",
+                }}
+                itemStyle={{ fontWeight: "bold", textTransform: "capitalize" }}
+                labelStyle={{
+                  color: "var(--color-text-light)",
+                  fontSize: "0.7rem",
+                }}
+              />
+              <Area
+                type="monotone"
+                dataKey="sales"
+                stackId="1"
+                stroke="#5d3fd3"
+                fillOpacity={1}
+                fill="url(#colorUv)"
+              />
+              <Area
+                type="monotone"
+                dataKey="purchases"
+                stackId="1"
+                stroke="seaGreen"
+                fillOpacity={1}
+                fill="url(#colorPv)"
+              />
+            </AreaChart>
+          </ResponsiveContainer>
+        </div>
+      )}
     </div>
   );
 };

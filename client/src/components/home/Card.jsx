@@ -39,9 +39,8 @@ const Card = ({ data, index, chartData = {} }) => {
               color: data.color,
             }}
           >
-            {payload[0].value} {" "}
-            {/* rupee symbol */}
-            {data.title == "Products" ? "items" : "₹" }
+            {payload[0].value} {/* rupee symbol */}
+            {data.title == "Products" ? "items" : "₹"}
           </p>
         </div>
       );
@@ -110,7 +109,10 @@ const Card = ({ data, index, chartData = {} }) => {
         <div className="right flex flex-col flex-1 overflow-hidden h-full w-full px-6 max-sm:px-4 py-2">
           <div className="chart h-2/3 max-h-[66%] w-full flex items-center justify-center overflow-hidden">
             <ResponsiveContainer width="99%" height="99%">
-              <LineChart data={chartData?.data || chartDataCopy}>
+              <LineChart
+                data={chartData?.data || []}
+                key={chartData?.data?.length}
+              >
                 <Tooltip content={<CustomTooltip />} />
                 <Line
                   type="monotone"

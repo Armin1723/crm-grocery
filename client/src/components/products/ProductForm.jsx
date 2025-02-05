@@ -1,5 +1,5 @@
 import React from "react";
-import { set, useForm } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import TagInput from "../utils/TagInput";
 import { autoSetConversionFactor, categories, taxSlabs, units } from "../utils";
 import { toast } from "react-toastify";
@@ -95,9 +95,27 @@ const ProductForm = ({
     formData.append("name", values.name);
     formData.append("category", values.category);
     formData.append("subCategory", values.subCategory);
-    formData.append("primaryUnit", values.primaryUnit);
-    formData.append("secondaryUnit", values.secondaryUnit);
-    formData.append("conversionFactor", values.conversionFactor);
+    if (
+      product &&
+      product.primaryUnit &&
+      product.primaryUnit !== values.primaryUnit
+    ) {
+      formData.append("primaryUnit", values.primaryUnit);
+    }
+    if (
+      product &&
+      product.secondaryUnit &&
+      product.secondaryUnit !== values.secondaryUnit
+    ) {
+      formData.append("secondaryUnit", values.secondaryUnit);
+    }
+    if (
+      product &&
+      product.conversionFactor &&
+      product.conversionFactor !== values.conversionFactor
+    ) {
+      formData.append("conversionFactor", values.conversionFactor);
+    }
     formData.append("rate", values.rate);
     if (values.mrp) formData.append("mrp", values.mrp);
     if (values.shelfLife) formData.append("shelfLife", values.shelfLife);
@@ -195,7 +213,10 @@ const ProductForm = ({
               </div>
             </div>
           ) : (
-            <div onClick={()=> document.querySelector('#image-upload').click()} className="h-48 cursor-pointer flex items-center justify-center bg-[var(--color-card)] rounded-lg">
+            <div
+              onClick={() => document.querySelector("#image-upload").click()}
+              className="h-48 cursor-pointer flex items-center justify-center bg-[var(--color-card)] rounded-lg"
+            >
               <span className="text-gray-500">Click to upload image</span>
             </div>
           )}
@@ -332,7 +353,10 @@ const ProductForm = ({
               required: "Secondary Unit is required",
               onChange: (e) => {
                 setValue("secondaryUnit", e.target.value);
-                setValue("conversionFactor", autoSetConversionFactor(watch("primaryUnit"), e.target.value));
+                setValue(
+                  "conversionFactor",
+                  autoSetConversionFactor(watch("primaryUnit"), e.target.value)
+                );
               },
             })}
           >

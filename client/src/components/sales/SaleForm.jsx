@@ -62,14 +62,14 @@ const SaleForm = ({ setRefetch = () => {}, closeModal = () => {} }) => {
   useEffect(() => {
     const calculatedSubTotal = watchedProducts.reduce(
       (acc, curr) =>
-        acc + ((curr.mrp || curr.sellingRate) * curr.quantity || 0),
+      acc + ((curr.mrp || curr.sellingRate) * curr.quantity || 0),
       0
-    );
+    ).toFixed(1);
     const calculatedDiscount = watchedProducts.reduce(
       (acc, curr) =>
         acc + (curr.mrp ? curr.mrp - curr.sellingRate : 0) * curr.quantity,
       0
-    );
+    ).toFixed(1);
     setValue("subTotal", calculatedSubTotal);
     setValue("discount", calculatedDiscount);
     setValue("totalAmount", calculatedSubTotal - calculatedDiscount);
@@ -237,7 +237,7 @@ const SaleForm = ({ setRefetch = () => {}, closeModal = () => {} }) => {
                       min={
                         product.secondaryUnit === "kg" ||
                         product.secondaryUnit === "l"
-                          ? 0.25
+                          ? 0.1
                           : 1
                       }
                       max={product.maxQuantity}
@@ -258,7 +258,7 @@ const SaleForm = ({ setRefetch = () => {}, closeModal = () => {} }) => {
                           value:
                             watchedProducts[index]?.secondaryUnit === "kg" ||
                             watchedProducts[index]?.secondaryUnit === "l"
-                              ? 0.25
+                              ? 0.1
                               : 1,
                           message: `Invalid Quantity`,
                         },
@@ -408,6 +408,7 @@ const SaleForm = ({ setRefetch = () => {}, closeModal = () => {} }) => {
               title="add"
               setValue={setValue}
               customer={customerDetails}
+              setCustomer={setCustomerDetails}  
             />
           </div>
           <div className="w-full flex flex-col md:flex-row gap-2">
@@ -436,6 +437,7 @@ const SaleForm = ({ setRefetch = () => {}, closeModal = () => {} }) => {
                   title="edit"
                   setValue={setValue}
                   customer={customerDetails}
+                  setCustomer={setCustomerDetails}
                 />
               </div>
             }

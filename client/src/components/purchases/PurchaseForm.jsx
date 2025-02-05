@@ -190,7 +190,7 @@ const PurchaseForm = ({ setRefetch = () => {}, closeModal = () => {} }) => {
           })}
         />
         {suggestedSuppliers.length > 0 && (
-          <div className="suggested-suppliers w-full absolute top-full left-0 bg-[var(--color-card)] rounded-md shadow-md border border-neutral-500/50">
+          <div className="suggested-suppliers w-full z-[99] absolute top-full left-0 bg-[var(--color-card)] rounded-md shadow-md border border-neutral-500/50">
             {suggestedSuppliers.map((supplier) => (
               <div
                 key={supplier._id}
@@ -244,8 +244,8 @@ const PurchaseForm = ({ setRefetch = () => {}, closeModal = () => {} }) => {
 
       <div className="table-wrapper flex relative max-h-[55vh] min-h-fit flex-1 my-2 overflow-x-scroll">
         {watchedProducts.length > 0 ? (
-          <div className="products-container overflow-x-scroll w-fir table flex-col min-w-[1000px] max-sm:text-sm">
-            <div className="th flex w-fit min-w-full flex-1 justify-between items-center gap-4 border border-neutral-500/50 bg-[var(--color-card)] font-semibold rounded-t-md px-2 py-1 sticky top-0 z-[99]">
+          <div className="products-container overflow-x-scroll table flex-col min-w-[1000px] max-sm:text-sm">
+            <div className="th flex w-fit min-w-full flex-1 justify-between items-center gap-4 border border-neutral-500/50 bg-[var(--color-card)] font-semibold rounded-t-md px-2 py-1 sticky top-0 z-[999]">
               <p className="w-[5%] min-w-[30px]">*</p>
               <p className="w-1/5 min-w-[100px]">Name</p>
               <p className="w-1/5 min-w-[120px]">Expiry</p>
@@ -305,6 +305,7 @@ const PurchaseForm = ({ setRefetch = () => {}, closeModal = () => {} }) => {
                     <div className="selling-rate w-1/5 min-w-[120px] relative">
                       <input
                         type="number"
+                        step={product.secondaryUnit === "gram" ? 0.001 : 1}
                         className={` ${
                           errors?.products?.[index]?.sellingRate &&
                           "text-red-700 border-red-500"

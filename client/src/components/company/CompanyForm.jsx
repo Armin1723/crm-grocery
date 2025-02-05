@@ -245,6 +245,7 @@ const CompanyForm = ({
           <input
             type="email"
             placeholder="Email Address"
+            readOnly={title === "edit"}
             className={`input peer ${errors.email && "border-red-500 focus:!border-red-500"}`}
             {...register("email", {
               required: "Email is required",
@@ -265,6 +266,7 @@ const CompanyForm = ({
         >
           <input
             type="tel"
+            readOnly={title === "edit"}
             placeholder="Phone Number"
             className={`input peer ${errors.phone && "border-red-500 focus:!border-red-500"}`}
             {...register("phone", {
@@ -283,7 +285,7 @@ const CompanyForm = ({
         <textarea
           placeholder="Company Address"
           rows={3}
-          className={`input peer ${errors.address && "border-red-500 focus:!border-red-500"}`}
+          className={`input text-sm peer ${errors.address && "border-red-500 focus:!border-red-500"}`}
           {...register("address", {
             required: "Address is required",
           })}

@@ -28,7 +28,7 @@ const ProductCardSmall = ({
             {product?.name}
           </Link>
           <p className="text-[var(--color-text)] font-semibold">
-            {product.mrp ? `₹${product.mrp}` : "MRP: Not Set"}
+            {product?.mrp ? `₹${product?.mrp}` : "MRP: Not Set"}
           </p>
 
           {/* Product Category & Subcategory */}
@@ -72,7 +72,7 @@ const ProductCardSmall = ({
         <p className="text-[var(--color-text-light)] text-sm">
           <strong>Tax:</strong> {product.tax ? product.tax : 'Not Set'}%
         </p>
-        {product.upid && (
+        {product?.upid && (
           <p className="text-[var(--color-text-light)] text-sm mt-1 truncate">
             <strong>Product ID:</strong> {product.upid}
           </p>

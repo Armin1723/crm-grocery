@@ -1,4 +1,13 @@
-const { app, BrowserWindow, ipcMain, shell, dialog } = require("electron");
+const {
+  app,
+  BrowserWindow,
+  ipcMain,
+  shell,
+  dialog,
+  Tray,
+  Menu,
+  Notification,
+} = require("electron");
 const { autoUpdater } = require("electron-updater");
 const path = require("path");
 const { handlePrintSalesInvoice, handlePrintReport } = require("./print");
@@ -19,6 +28,9 @@ function createWindow() {
       nodeIntegration: false,
       contextIsolation: true,
       nativeWindowOpen: false,
+      devTools: !app.isPackaged,
+      enableAutofill: true,
+      spellcheck: true,
     },
   });
 
@@ -71,10 +83,46 @@ ipcMain.on("open-in-browser", (event, url) => {
   shell.openExternal(url);
 });
 
+// Create tray icon
+let tray = null;
+const createTray = () => {
+  tray = new Tray(path.join(__dirname, "build", "icon.png"));
+  tray.setToolTip("CRM Application");
+
+  const contextMenu = Menu.buildFromTemplate([
+    {
+      label: "Show App",
+      click: () => {
+        mainWindow.show();
+      },
+    },
+    {
+      label: "Check for Updates",
+      click: () => {
+        autoUpdater.checkForUpdatesAndNotify();
+      },
+    },
+    { type: "separator" },
+    {
+      label: "Quit",
+      click: () => {
+        app.quit();
+      },
+    },
+  ]);
+
+  tray.setContextMenu(contextMenu);
+
+  tray.on("click", () => {
+    mainWindow.isVisible() ? mainWindow.hide() : mainWindow.show();
+  });
+};
+
 // Initialize app
 app.whenReady().then(async () => {
   // await backend.startBackend();
   createWindow();
+  createTray();
 
   // Check for updates
   autoUpdater.checkForUpdatesAndNotify();
@@ -86,6 +134,15 @@ app.whenReady().then(async () => {
   autoUpdater.on("update-available", () => {
     console.log("Update available. Downloading...");
     mainWindow.webContents.send("update-log", "update-available");
+  });
+
+  autoUpdater.on("update-not-available", () => {
+    new Notification({
+      title: "CRM Application",
+      body: "No updates available",
+    }).show();
+    console.log("No updates available.");
+    mainWindow.webContents.send("update-log", "update-not-available");
   });
 
   autoUpdater.on("update-downloaded", () => {
@@ -108,11 +165,13 @@ app.whenReady().then(async () => {
   });
 });
 
-//print report 
+//print report
 ipcMain.on("print-report", (event, report) => handlePrintReport(report));
 
 // Print sales invoice
-ipcMain.on("print-sales-invoice", (event, sale) => handlePrintSalesInvoice(sale));
+ipcMain.on("print-sales-invoice", (event, sale) =>
+  handlePrintSalesInvoice(sale)
+);
 
 // Properly clean up processes when closing
 app.on("window-all-closed", async () => {

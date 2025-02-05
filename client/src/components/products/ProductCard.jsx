@@ -43,11 +43,11 @@ const ProductCardLarge = ({
                   </div>
                 </div>
                 <p className="text-lg max-sm:text-sm font-semibold text-[var(--color-text)] mt-1">
-                  {product.mrp ? `₹${product.mrp}` : "MRP: Not Set"}
+                  {product?.mrp ? `₹${product?.mrp}` : "MRP: Not Set"}
                 </p>
-                {product.upid && (
+                {product?.upid && (
                   <p className="text-[var(--color-text-light)] max-sm:text-xs">
-                    Product ID: {product.upid}
+                    Product ID: {product?.upid}
                   </p>
                 )}
               </div>
@@ -94,7 +94,7 @@ const ProductCardLarge = ({
                       </h3>
                       <p className="text-[var(--color-text-light)]">
                         <span className="">Preference:</span>{" "}
-                        {product.stockAlert.quantity} {product.secondaryUnit}
+                        {product.stockAlert?.quantity} {product?.secondaryUnit}
                       </p>
                     </div>
                   )}

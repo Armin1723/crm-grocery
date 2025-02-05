@@ -210,7 +210,7 @@ const SupplierForm = ({
       <div className="gstin-pan-group w-full flex max-sm:flex-col relative group gap-4">
         <div className="gstin-input w-full flex flex-col relative group my-2">
           <input
-            type="number"
+            type="text"
             placeholder=" "
             className={`input peer ${
               errors && errors.gstin && "border-red-500 focus:!border-red-500"

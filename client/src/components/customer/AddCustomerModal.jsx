@@ -9,6 +9,7 @@ const AddCustomerModal = ({
   title = "add",
   setValue = () => {},
   customer = {},
+  setCustomer = () => {},
 }) => {
   const [addCustomerModal, setAddCustomerModal] = useState(false);
 
@@ -38,6 +39,7 @@ const AddCustomerModal = ({
               title={title}
               setValue={setValue}
               customer={customer}
+              setCustomer={setCustomer}
               closeModal={() => setAddCustomerModal(false)}
             />
           </Modal>,
