@@ -32,20 +32,22 @@ const saleInvoiceMailTemplate = (sale, company) => {
           .flex {
             display: flex;
             justify-content: space-between;
-            margin-bottom: 10px;
+            margin-bottom: 5px;
           }
           .flex .left {
             font-weight: bold;
           }
           table {
-            width: 100%;
+            width: auto;
+            max-width: 100%;
             border-collapse: collapse;
             margin-top: 20px;
           }
           table th, table td {
             border: 1px solid #ddd;
-            padding: 8px;
+            padding: 5px 12px;
             text-align: left;
+            white-space: nowrap;
           }
           table th {
             background-color: #5d3fd3;
@@ -142,4 +144,3 @@ const saleInvoiceMailTemplate = (sale, company) => {
 }
 
 module.exports = saleInvoiceMailTemplate
-

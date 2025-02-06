@@ -1,6 +1,6 @@
 {
   "scripts": {
-    "start": "nodemon server/index.js",
+    "start": "node server/index.js",
     "dev": "vite client/index.html"
   }
 }

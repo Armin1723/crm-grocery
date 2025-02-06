@@ -32,13 +32,14 @@ const saleReturnInvoiceMailTemplate = (saleReturn, company) => {
           .flex {
             display: flex;
             justify-content: space-between;
-            margin-bottom: 10px;
+            margin-bottom: 5px;
           }
           .flex .left {
             font-weight: bold;
           }
           table {
-            width: 100%;
+            width: auto;
+            max-width: 100%;
             border-collapse: collapse;
             margin-top: 20px;
           }
@@ -60,6 +61,18 @@ const saleReturnInvoiceMailTemplate = (saleReturn, company) => {
             display: flex;
             justify-content: flex-end;
             margin-top: 20px;
+          }
+            .download {
+            text-align: center;
+            margin-top: 20px;
+          }
+          .download a {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #5d3fd3;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
           }
         </style>
       </head>
@@ -118,6 +131,9 @@ const saleReturnInvoiceMailTemplate = (saleReturn, company) => {
           <div class="total">
             <div class="left">Total Amount:</div>
             <div class="right">₹${saleReturn.totalAmount}</div>
+          </div>
+          <div class="download">
+            <a href="${saleReturn.invoice}" target="_blank">Download Invoice PDF</a>
           </div>
         </div>
         ${footer}

@@ -4,6 +4,8 @@ const Company = require("../models/company.model");
 const cloudinary = require("../config/cloudinary");
 const User = require("../models/user.model");
 const jwt = require("jsonwebtoken");
+const { sendMail } = require("../helpers");
+const companyRegistrationMailTemplate = require("../templates/email/companyRegistrationMailTemplate");
 
 const addCompany = async (req, res) => {
   if (
@@ -128,7 +130,18 @@ const addCompany = async (req, res) => {
     user,
     company,
   });
-};
+
+  // Send emails in background
+  process.nextTick(async () => {
+    await sendMail(
+      user?.email,
+      "Company Registration Successful",
+      companyRegistrationMailTemplate(
+        user, company
+      )
+    )
+  });
+}
 
 const getCompanies = async (req, res) => {
   const { limit = 10, page = 1 } = req.query;

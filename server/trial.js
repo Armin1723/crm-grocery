@@ -136,10 +136,10 @@ const addCompanyToEverything = async () => {
   //   await item.save();
   // }
 
-  for (const supplier of suppliers) {
-    supplier.company = company._id;
-    await supplier.save();
-  }
+  // for (const supplier of suppliers) {
+  //   supplier.company = company._id;
+  //   await supplier.save();
+  // }
 
   console.log(
     "Added company to all purchases, purchase returns, sales, and sale returns"
@@ -149,35 +149,35 @@ const addCompanyToEverything = async () => {
 const sendTestMails = async () => {  
   const recipient = "alam.airuz23@gmail.com";
   const purchase = await Purchase.findOne().sort({ createdAt: -1 }).lean();
-  const sale = await Sale.findOne().sort({ createdAt: -1 }).populate("products.product").lean();
-  const saleReturn = await SalesReturn.findOne().sort({ createdAt: -1 }).populate("products.product").lean();
+  const sale = await Sale.findOne().sort({ createdAt: -1 }).populate("products.product customer").lean();
+  const saleReturn = await SalesReturn.findOne().sort({ createdAt: -1 }).populate("products.product customer").lean();
   const product = await Product.findOne().lean();
   const employee = await User.findOne({role: "employee"}).lean();
-  const company = await Company.findOne().sort({createdAt: -1}).lean();
+  const company = await Company.findOne().lean();
 
-  sendMail(
-    recipient,
-    "Follow Up Payment Reminder",
-    followUpPaymentMailTemplate("abs", 1000, purchase._id, company) 
-  );
+  // sendMail(
+  //   recipient,
+  //   "Follow Up Payment Reminder",
+  //   followUpPaymentMailTemplate("AR Enterprises", 1000, purchase._id, company) 
+  // );
 
-  sendMail(
-    recipient,
-    "Low Stock Alert",
-    lowStockMailTemplate("test product", 10, company)
-  );
+  // sendMail(
+  //   recipient,
+  //   "Low Stock Alert",
+  //   lowStockMailTemplate("Test Product", 10, company)
+  // );
 
-  sendMail(
-    recipient,
-    "Password Reset",
-    passwordResetMailTemplate("Test User", "768755", company)
-  );
+  // sendMail(
+  //   recipient,
+  //   "Password Reset",
+  //   passwordResetMailTemplate("Test User", "768755", company)
+  // );
 
-  sendMail(
-    recipient,
-    "Register Mail",
-    registerMailTemplate("Test User", company)
-  );  
+  // sendMail(
+  //   recipient,
+  //   "Register Mail",
+  //   registerMailTemplate("Test User", company)
+  // );  
 
   sendMail(
     recipient,
@@ -191,17 +191,17 @@ const sendTestMails = async () => {
     saleInvoiceMailTemplate(sale, company)
   );
 
-  sendMail(
-    recipient,
-    "Stock Alert Mail",
-    stockAlertMailTemplate(product, company)
-  );
+  // sendMail(
+  //   recipient,
+  //   "Stock Alert Mail",
+  //   stockAlertMailTemplate(product, company)
+  // );
 
-  sendMail(
-    recipient,
-    "Welcome Employee Mail",
-    welcomeEmployeeMail(employee, company)
-  );
+  // sendMail(
+  //   recipient,
+  //   "Welcome Employee Mail",
+  //   welcomeEmployeeMail(employee, company)
+  // );
 };
 
 
