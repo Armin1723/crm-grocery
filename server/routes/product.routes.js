@@ -11,7 +11,7 @@ const {
   productPurchases,
   productSales,
 } = require("../controllers/product.controller");
-const { isAdmin } = require("../middleware");
+const { isAdmin, isSubscriptionActive } = require("../middleware");
 const { asyncHandler } = require("../middleware/errorHandler");
 const multer = require("multer");
 
@@ -23,9 +23,12 @@ router.use(isAdmin);
 
 router.get("/", asyncHandler(getProducts));
 
-router.post("/", upload.fields([{ name: "image" }]), asyncHandler(addProduct));
-
 router.get("/trending", asyncHandler(getTrendingProducts));
+
+// Protected routes (For subscribers only)
+router.use(isSubscriptionActive);
+
+router.post("/", upload.fields([{ name: "image" }]), asyncHandler(addProduct));
 
 router.get("/search", asyncHandler(searchProduct));
 

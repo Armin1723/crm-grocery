@@ -5,6 +5,7 @@ const cors = require('cors');
 const connectToDB = require('./db');
 const cookieParser = require('cookie-parser');
 const { errorHandler } = require('./middleware/errorHandler.js');
+const { loadSubscriptionsToCache } = require('./helpers/subscriptionCache.js');
 const app = express();
 
 const port = process.env.PORT || 8000;
@@ -39,6 +40,9 @@ app.use('/api/v1/companies', require('./routes/company.routes.js'));
 app.get('/', (req, res) => {
     res.send('Hello World from CRM API');
 });
+
+// Load Subscription Cache
+loadSubscriptionsToCache();
 
 // Error Handler middleware
 app.use(errorHandler);

@@ -9,13 +9,16 @@ const {
 } = require("../controllers/supplier.controller");
 const { asyncHandler } = require("../middleware/errorHandler");
 
-const { isLoggedIn } = require("../middleware");
+const { isLoggedIn, isSubscriptionActive } = require("../middleware");
 
 const router = require("express").Router();
 
 router.use(isLoggedIn);
 
 router.get("/", asyncHandler(getSuppliers));
+
+//Protected routes (for subscribed users)
+router.use(isSubscriptionActive);
 
 router.post("/", asyncHandler(addSupplier));
 

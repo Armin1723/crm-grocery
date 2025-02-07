@@ -7,9 +7,11 @@ const {
   getTaxReport,
 } = require("../controllers/report.controller.js");
 const { asyncHandler } = require("../middleware/errorHandler.js");
-const { isLoggedIn } = require("../middleware/index.js");
+const { isLoggedIn, isSubscriptionActive } = require("../middleware/index.js");
 
 router.use(isLoggedIn);
+
+router.use(isSubscriptionActive);
 
 router.get("/expense", asyncHandler(getExpenseReport));
 

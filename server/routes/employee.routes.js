@@ -6,7 +6,7 @@ const {
   deleteEmployee,
   getEmployeeSales,
 } = require("../controllers/employee.controller");
-const { isAdmin } = require("../middleware");
+const { isAdmin, isSubscriptionActive } = require("../middleware");
 const { asyncHandler } = require("../middleware/errorHandler");
 const multer = require("multer");
 
@@ -16,7 +16,9 @@ const router = require("express").Router();
 
 router.use(isAdmin);
 
-router.get("/",isAdmin, asyncHandler(getEmployees));
+router.get("/", asyncHandler(getEmployees));
+
+router.use(isSubscriptionActive);
 
 router.post(
   "/",

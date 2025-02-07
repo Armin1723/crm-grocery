@@ -9,7 +9,7 @@ const {
   deleteSale,
   regenerateSaleInvoice,
 } = require("../controllers/sale.controller");
-const { isLoggedIn } = require("../middleware");
+const { isLoggedIn, isSubscriptionActive } = require("../middleware");
 const { asyncHandler } = require("../middleware/errorHandler");
 
 const router = require("express").Router();
@@ -20,9 +20,12 @@ router.get("/", asyncHandler(getSales));
 
 router.get("/recent", asyncHandler(getRecentSale));
 
+router.get("/return", asyncHandler(getSaleReturns));
+
 router.post("/return", asyncHandler(addSaleReturn));
 
-router.get("/return", asyncHandler(getSaleReturns));
+// Protected routes (For subscribers only)
+router.use(isSubscriptionActive);
 
 router.get("/:id", asyncHandler(getSale));
 

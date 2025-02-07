@@ -7,9 +7,8 @@ const {
   addPayment,
   getPurchaseReturns,
   addPurchaseReturn,
-  getPurchaseReturn,
 } = require("../controllers/purchase.controller");
-const { isLoggedIn } = require("../middleware");
+const { isLoggedIn, isSubscriptionActive } = require("../middleware");
 const { asyncHandler } = require("../middleware/errorHandler");
 
 const router = require("express").Router();
@@ -22,11 +21,12 @@ router.get("/recent", asyncHandler(getRecentPurchase));
 
 router.get("/employee/:employeeId", asyncHandler(getEmployeePurchases));
 
-router.post("/", asyncHandler(addPurchase));
-
 router.get("/return", asyncHandler(getPurchaseReturns));
 
-router.get("/return/:id", asyncHandler(getPurchaseReturn));
+//Protected routes (For subscribers only)
+router.use(isSubscriptionActive);
+
+router.post("/", asyncHandler(addPurchase));
 
 router.post("/return", asyncHandler(addPurchaseReturn));
 

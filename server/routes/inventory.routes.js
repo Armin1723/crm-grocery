@@ -9,7 +9,7 @@ const {
   getExpiringInventory,
   getInventoryListGroupedByCategory,
 } = require("../controllers/inventory.controller");
-const { isAdmin, isLoggedIn } = require("../middleware");
+const { isAdmin, isLoggedIn, isSubscriptionActive } = require("../middleware");
 const { asyncHandler } = require("../middleware/errorHandler");
 
 const router = require("express").Router();
@@ -25,6 +25,9 @@ router.get("/list", asyncHandler(getInventoryListGroupedByCategory));
 router.get("/expiring", asyncHandler(getExpiringInventory));
 
 router.get("/:upid", asyncHandler(getProductFromInventory));
+
+//protected routes (for subscribed users)
+router.use(isSubscriptionActive);
 
 router.get("/:upid/rates", asyncHandler(getRates));
 

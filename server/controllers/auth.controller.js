@@ -52,15 +52,15 @@ const loginUser = async (req, res) => {
     });
   }
 
-  const subscriptionActive =
-    !user.company || user?.company?.subscriptionEndDate > Date.now();
-  if (!subscriptionActive) {
-    return res.status(400).json({
-      success: false,
-      message: "Subscription Expired",
-      errors: { company: "Subscription Expired" },
-    });
-  }
+  // const subscriptionActive =
+  //   !user.company || user?.company?.subscriptionEndDate > Date.now();
+  // if (!subscriptionActive) {
+  //   return res.status(400).json({
+  //     success: false,
+  //     message: "Subscription Expired",
+  //     errors: { company: "Subscription Expired" },
+  //   });
+  // }
 
   const token = jwt.sign(
     {

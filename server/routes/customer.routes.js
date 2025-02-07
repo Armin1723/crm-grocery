@@ -5,9 +5,11 @@ const {
   getCustomersByName,
 } = require("../controllers/customer.controller");
 
-const { isLoggedIn } = require("../middleware");
+const { isLoggedIn, isSubscriptionActive } = require("../middleware");
 
 router.use(isLoggedIn);
+
+router.use(isSubscriptionActive);
 
 router.get("/:phone", getCustomer);
 router.post("/", addEditCustomer);
