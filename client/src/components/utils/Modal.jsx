@@ -23,10 +23,10 @@ const Modal = ({ isOpen, onClose, title, children }) => {
           damping: 20,
           duration: 0.5,
           ease: "easeIn",
-        }}
-        className="bg-[var(--color-sidebar)] rounded-md p-6 w-[90%] lg:w-3/4 md:w-2/3 overflow-hidden min-h-[70vh] max-h-[90vh] max-sm:px-6"
+        }} 
+        className="bg-[var(--color-sidebar)] rounded-md p-6 w-[90%] md:w-2/3 flex flex-col overflow-hidden max-h-[80vh] max-sm:px-6"
       >
-        <div className="flex items-center gap-2 w-full justify-between my-4">
+        <div className="flex items-center gap-2 w-full justify-between py-4 bg-[var(--color-sidebar)]">
           <h2 className="text-lg font-bold">{title}</h2>
           <button
             className="bg-red-500 hover:bg-red-600/90 transition-all duration-200 text-white px-3 py-1 rounded-md"
@@ -35,7 +35,7 @@ const Modal = ({ isOpen, onClose, title, children }) => {
             Close
           </button>
         </div>
-        <div className="flex-1 overflow-y-auto max-h-[60vh] flex flex-col">{children}</div>
+        <div className="flex-1 overflow-y-auto flex flex-col px-3">{children}</div>
       </motion.div>
     </div>
   );

@@ -1,3 +1,4 @@
+import { useQuery } from "@tanstack/react-query";
 import React, { useState, useEffect } from "react";
 import {
   BarChart,
@@ -9,47 +10,42 @@ import {
 } from "recharts";
 
 const TrendingProducts = () => {
-  const [trendingProducts, setTrendingProducts] = useState([]);
-  const [filteredProducts, setFilteredProducts] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [selectedCategory, setSelectedCategory] = useState("All");
-  const [error, setError] = useState("");
-
-  useEffect(() => {
-    const fetchTrendingProducts = async () => {
-      try {
-        const response = await fetch(
-          `${import.meta.env.VITE_BACKEND_URL}/api/v1/products/trending`,{
-            credentials: 'include',
-          }
-        );
-        if (response.ok) {
-          const data = await response.json();
-          const formattedData = data.trendingProducts.map((item) => ({
-            name: item.product.name,
-            category: item.product.category,
-            totalSales: item.totalSales,
-            secondaryUnit: item.secondaryUnit,
-          }));
-          setTrendingProducts(formattedData);
-          setFilteredProducts(formattedData); // Initialize with all products
-        } else {
-          throw new Error("Failed to fetch trending products.");
+  
+  const { data: trendingProducts, error, isFetching: loading } = useQuery({
+    queryKey: ["trendingProducts"],
+    queryFn: async () => {
+      const response = await fetch(
+        `${import.meta.env.VITE_BACKEND_URL}/api/v1/products/trending`,
+        {
+          credentials: "include",
         }
-      } catch (error) {
-        setError(error.message);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchTrendingProducts();
-  }, []);
+      );
+      const data = await response.json();
+      return data.trendingProducts.map((item) => ({
+        name: item.product.name,
+        category: item.product.category,
+        totalSales: item.totalSales,
+        secondaryUnit: item.secondaryUnit,
+      }));
+    },
+    staleTime: 2 * 60 * 1000,
+  })
+
+  const [filteredProducts, setFilteredProducts] = useState([]);
+  const [selectedCategory, setSelectedCategory] = useState("All");
+
+  //useEffect to set filteredProducts to trendingProducts initially
+  useEffect(() => {
+    if (trendingProducts) {
+      setFilteredProducts(trendingProducts);
+    }
+  }, [trendingProducts]);
 
   const categories = [
     "All",
-    ...new Set(trendingProducts.map((product) => product.category)),
+    ...new Set(trendingProducts?.map((product) => product.category)),
   ];
-
+  
   const handleCategoryFilter = (category) => {
     setSelectedCategory(category);
     setFilteredProducts(
@@ -74,21 +70,21 @@ const TrendingProducts = () => {
     );
 
   return (
-    <div className="bg-[var(--color-sidebar)] p-4 rounded-md border border-neutral-500/50 w-full lg:w-[30%] h-full flex flex-col justify-between">
+    <div className="bg-[var(--color-sidebar)] p-4 rounded-md border border-neutral-500/50 w-full xl:w-[30%] h-full flex flex-col justify-between">
       <p className="text-2xl max-lg:text-xl font-bold mb-4">
         Trending Products
       </p>
 
-      <div className="bg-[var(--color-card)] flex-1 overflow-y-auto rounded-md p-4">
+      <div className="bg-[var(--color-card)] flex-1 flex flex-col overflow-y-auto rounded-md p-4">
         {categories.length > 1 && (
-          <div className="mb-2">
+          <div className="mb-2 flex-1">
             <p className="font-semibold mb-2">Filter Trending Categories:</p>
             <select
               className="w-full bg-[var(--color-sidebar)] text-[var(--color-text)] p-2 rounded-md border border-neutral-500/50 outline-none"
               value={selectedCategory}
               onChange={(e) => handleCategoryFilter(e.target.value)}
             >
-              {categories.map((category, index) => (
+              {categories?.map((category, index) => (
                 <option key={index} value={category}>
                   {category}
                 </option>
@@ -97,10 +93,10 @@ const TrendingProducts = () => {
           </div>
         )}
 
-        {filteredProducts.length > 0 ? (
+        {filteredProducts?.length > 0 ? (
           <ResponsiveContainer
             width="100%"
-            height={Math.max(280, filteredProducts.length * 50)}
+            height={Math.max(280, filteredProducts?.length * 50)}
           >
             <BarChart
               data={filteredProducts}
@@ -154,7 +150,7 @@ const TrendingProducts = () => {
             </BarChart>
           </ResponsiveContainer>
         ) : (
-          <p className="text-neutral-500 text-center">
+          <p className="text-neutral-500 text-center flex-1">
             No trending products available in this category.
           </p>
         )}

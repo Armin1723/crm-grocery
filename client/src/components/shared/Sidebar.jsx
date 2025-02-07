@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import Avatar from "../utils/Avatar";
-import { MdChevronRight } from "react-icons/md";
+import { MdChevronRight, MdSettings } from "react-icons/md";
 import { Link, useLocation } from "react-router-dom";
 import { useSelector } from "react-redux";
 import LogoutButton from "../utils/LogoutButton";
@@ -55,9 +55,14 @@ const Sidebar = () => {
                 : pathname.startsWith(link.to);
 
             return (
-              <div key={index} className={`link ${user && user?.role !== "admin" && link.protected && "hidden"}`}>
+              <div
+                key={index}
+                className={`link ${
+                  user && user?.role !== "admin" && link.protected && "hidden"
+                }`}
+              >
                 <Link
-                  to={user?.role == 'admin' ? link.to : `/seller${link.to}`}
+                  to={user?.role == "admin" ? link.to : `/seller${link.to}`}
                   title={link.title}
                   className={`link flex items-center gap-4 py-2 group hover:bg-accent/5 transition-all relative duration-300 ease-in group ${
                     !expanded && "justify-start gap-2 "

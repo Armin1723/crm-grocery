@@ -15,6 +15,7 @@ const PurchaseDetails = ({ idBackup = "" }) => {
   if (!id) id = idBackup;
   const [purchase, setPurchase] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
   const [refetch, setRefetch] = useState(false);
 
   useEffect(() => {
@@ -28,7 +29,10 @@ const PurchaseDetails = ({ idBackup = "" }) => {
           }
         );
         const data = await res.json();
-        if (!res.ok) throw new Error(data.error);
+        if (!res.ok) {
+          setError(data.message || "Something went wrong");
+          throw new Error(data.message || "Something went wrong");
+        }
         setPurchase(data.purchase);
       } catch (error) {
         toast.error(error.message || "Something went wrong");
@@ -43,6 +47,12 @@ const PurchaseDetails = ({ idBackup = "" }) => {
     return (
       <div className="p-3 rounded-md flex h-full flex-col items-center justify-center gap-2 min-h-[40vh] bg-[var(--color-sidebar)] ">
         <div className="spinner "></div>
+      </div>
+    );
+  else if (error)
+    return (
+      <div className="p-3 rounded-md flex h-full flex-col items-center justify-center gap-2 min-h-[40vh] bg-[var(--color-sidebar)] ">
+        <p className="text-red-500">{error.message || "Something went wrong"}</p>
       </div>
     );
 

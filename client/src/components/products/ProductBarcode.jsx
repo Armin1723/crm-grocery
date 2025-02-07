@@ -4,12 +4,15 @@ import Barcode from "react-barcode";
 import { MdEdit } from "react-icons/md";
 import { FaDownload, FaPrint } from "react-icons/fa";
 import { toPng } from "html-to-image";
+import { useSelector } from "react-redux";
 
 const ProductBarcode = ({ product, setRefetch = () => {} }) => {
   const [isModalOpen, setModalOpen] = useState(false);
   const [barcodeInfo, setBarcodeInfo] = useState(product?.barcodeInfo);
 
   const labelRef = React.useRef(null);
+
+  const user = useSelector((state) => state.user);
 
   const handleSave = async () => {
     try {
@@ -112,7 +115,7 @@ const ProductBarcode = ({ product, setRefetch = () => {} }) => {
         }}
       >
         <h2 className="text-xl max-sm:text-lg font-semibold mt-2 text-black">
-          Store Name
+          {user?.company?.name}
         </h2>
         <p className="flex items-center gap-1">
           <span className="">{product?.name}</span>
@@ -148,13 +151,13 @@ const ProductBarcode = ({ product, setRefetch = () => {} }) => {
       </div>
 
       <div className="buttons absolute top-6 right-4 flex items-center gap-2">
-        <button
+        {/* <button
           onClick={handlePrint}
           title="Print Barcode"
           className="py-2 text-accent hover:text-accentDark text-sm no-print cursor-pointer"
         >
           <FaPrint />
-        </button>
+        </button> */}
 
         {/* Download Button */}
         <button

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { formatDate } from "../utils";
 import Pagination from "../utils/Pagination";
 import SortableLink from "../utils/SortableLink";
@@ -7,10 +7,9 @@ import Modal from "../utils/Modal";
 import { Link } from "react-router-dom";
 import SaleDetails from "./SaleDetails";
 import HoverCard from "../shared/HoverCard";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 const ViewSaleReturns = () => {
-  const [loading, setLoading] = useState(false);
-  const [refetch, setRefetch] = useState(false);
 
   const [selectedSaleId, setSelectedSaleId] = useState("");
 
@@ -20,33 +19,30 @@ const ViewSaleReturns = () => {
   const [sortType, setSortType] = useState("desc");
 
   const steps = [10, 20, 50, 100];
-  const [results, setResults] = useState({});
 
-  useEffect(() => {
-    const fetchSales = async () => {
-      try {
-        setLoading(true);
-        const response = await fetch(
-          `${
-            import.meta.env.VITE_BACKEND_URL
-          }/api/v1/sales/return?sort=${sort}&sortType=${sortType}&page=${page}`,
-          {
-            credentials: "include",
-          }
-        );
-        const data = await response.json();
-        if (!response.ok) {
-          throw new Error(data.message || "Something went wrong");
+  const queryClient = useQueryClient();
+  const refetch = () => {
+    queryClient.invalidateQueries({ queryKey: ["salesReturns"] });
+  };
+  const { data: results, loading } = useQuery({
+    queryKey: ["salesReturns", sort, sortType, limit, page],
+    queryFn: async () => {
+      const response = await fetch(
+        `${
+          import.meta.env.VITE_BACKEND_URL
+        }/api/v1/sales/return?sort=${sort}&sortType=${sortType}&page=${page}`,
+        {
+          credentials: "include",
         }
-        setResults(data);
-      } catch (error) {
-        console.log(error);
-      } finally {
-        setLoading(false);
+      );
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.message || "Something went wrong");
       }
-    };
-    fetchSales();
-  }, [refetch, page, sort, sortType]);
+      return data;
+    },
+    staleTime: 5 * 60 * 1000,
+  });
 
   return (
     <div className="p-3 rounded-md flex h-full flex-1 flex-col gap-2 border border-neutral-500/50 bg-[var(--color-sidebar)]">
@@ -59,7 +55,7 @@ const ViewSaleReturns = () => {
             className={`${
               loading && "animate-spin"
             } w-4 aspect-square rounded-full border-t border-b border-accent/90 cursor-pointer`}
-            onClick={() => setRefetch((p) => !p)}
+            onClick={() => refetch()}
           ></p>
         </div>
       </div>
@@ -179,8 +175,8 @@ const ViewSaleReturns = () => {
             <div className="flex items-center">
               <span>
                 Showing {(page - 1) * limit + 1} -{" "}
-                {Math.min(page * limit, results?.totalResults) || 1} of{" "}
-                {results?.totalResults} results.
+                {Math.min(page * limit, results?.totalSalesReturns) || 1} of{" "}
+                {results?.totalSalesReturns} results.
               </span>
               <div className="flex items-center gap-2 mx-2">
                 <button
@@ -195,7 +191,7 @@ const ViewSaleReturns = () => {
                       return prev;
                     });
                   }}
-                  disabled={limit === steps[0] || results.totalSales < limit}
+                  disabled={limit === steps[0] || results?.totalSalesReturns < limit}
                   className="px-3 flex items-center justify-center rounded-md bg-[var(--color-primary)] w-6 aspect-square border border-neutral-500/50 hover:opacity-75 disabled:opacity-50 disabled:cursor-not-allowed disabled:border-neutral-500/20"
                 >
                   -
@@ -212,7 +208,7 @@ const ViewSaleReturns = () => {
                       return prev;
                     });
                   }}
-                  disabled={limit === steps[steps.length - 1] || limit >= results.totalResults}
+                  disabled={limit === steps[steps.length - 1] || limit >= results?.totalSalesReturns}
                   className="px-3 flex items-center justify-center rounded-md bg-[var(--color-primary)] w-6 aspect-square border border-neutral-500/50 hover:opacity-75 disabled:opacity-50 disabled:cursor-not-allowed disabled:border-neutral-500/20"
                 >
                   +

@@ -4,11 +4,13 @@ import Divider from "../utils/Divider";
 import SupplierCard from "./SupplierCard";
 import SupplierPurchaseTable from "./SupplierPurchaseTable";
 import SupplierProductCarousel from "./SupplierProductCarousel";
+import { toast } from "react-toastify";
 
 const SupplierDetails = () => {
   const { id } = useParams();
   const [supplier, setSupplier] = useState({});
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [refetch, setRefetch] = useState(false);
 
   useEffect(() => {
@@ -22,6 +24,8 @@ const SupplierDetails = () => {
         );
         const data = await res.json();
         if (!res.ok) {
+          toast.error(data.message || "Something went wrong");
+          setError(data.message || "Something went wrong");
           throw new Error(data.message || "Something went wrong");
         }
         setSupplier(data.supplier);
@@ -48,22 +52,32 @@ const SupplierDetails = () => {
         </div>
       </div>
 
-      <div className="wrapper flex-1 space-y-6 overflow-y-auto px-2 w-full">
-        {/* Supplier Card */}
-        <SupplierCard supplier={supplier} setRefetch={setRefetch}/>
-
-        {/* Purchase History */}
-        <div className="space-y-3">
-          <Divider title="Purchase History" />
-          <SupplierPurchaseTable />
+      {loading ? (
+        <div className="flex-1 space-y-6 overflow-y-auto px-2 w-full flex flex-col items-center justify-center">
+          <div className="spinner"></div>
         </div>
-
-        {/* Products */}
-        <div className="space-y-3 w-full">
-          <Divider title="Products History" />
-          <SupplierProductCarousel />
+      ) : error ? (
+        <div className="flex-1 space-y-6 overflow-y-auto px-2 w-full flex flex-col items-center justify-center text-red-600">
+          {error?.message || "Something went wrong."}
         </div>
-      </div>
+      ) : (
+        <div className="wrapper flex-1 space-y-6 overflow-y-auto px-2 w-full">
+          {/* Supplier Card */}
+          <SupplierCard supplier={supplier} setRefetch={setRefetch} />
+
+          {/* Purchase History */}
+          <div className="space-y-3">
+            <Divider title="Purchase History" />
+            <SupplierPurchaseTable />
+          </div>
+
+          {/* Products */}
+          <div className="space-y-3 w-full">
+            <Divider title="Products History" />
+            <SupplierProductCarousel />
+          </div>
+        </div>
+      )}
     </div>
   );
 };

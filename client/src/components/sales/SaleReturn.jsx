@@ -67,7 +67,7 @@ const SaleReturn = () => {
 
         <div className="productsInfo w-full flex flex-col">
           <Divider title="Products Details" />
-          <SaleReturnForm sale={sale} setSale={setSale} loading={loading} />
+          <SaleReturnForm sale={sale} setSale={setSale} />
         </div>
       </div>
     </div>

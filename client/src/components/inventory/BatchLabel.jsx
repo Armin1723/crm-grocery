@@ -3,7 +3,8 @@ import Barcode from "react-barcode";
 import { FaPrint, FaDownload } from "react-icons/fa";
 import Modal from "../utils/Modal";
 import { MdEdit } from "react-icons/md";
-import { toPng } from "html-to-image";
+import { toJpeg } from "html-to-image";
+import { useSelector } from "react-redux";
 
 const BatchLabel = ({
   inventory = {},
@@ -15,6 +16,8 @@ const BatchLabel = ({
   const [barcodeInfo, setBarcodeInfo] = useState(inventory?.barcodeInfo);
 
   const labelRefInventory = useRef(null);
+
+  const user = useSelector((state) => state.user);
 
   const handleSave = async () => {
     try {
@@ -91,10 +94,10 @@ const BatchLabel = ({
       const noPrint = document.querySelectorAll(".no-print");
       noPrint.forEach((el) => (el.style.display = "none"));
       try {
-        const dataUrl = await toPng(labelRefInventory.current);
+        const dataUrl = await toJpeg(labelRefInventory.current);
         const link = document.createElement("a");
         link.href = dataUrl;
-        link.download = `barcode_${inventory?.upid || "label"}.png`;
+        link.download = `barcode_${inventory?.upid || "label"}.jpg`;
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
@@ -129,7 +132,7 @@ const BatchLabel = ({
           }}
           className="text-xl max-sm:text-lg font-semibold mt-2"
         >
-          Store Name
+          {user?.company?.name}
         </h2>
         <p style={{ display: "flex", gap: "0.25rem", alignItems: "center" }}>
           <span className="">{inventory?.name}</span>
@@ -168,7 +171,7 @@ const BatchLabel = ({
           <p
             style={{
               fontWeight: "bold",
-              fontSize: "1.5rem",
+              fontSize: "1.2rem",
             }}
           >
             Our Price: {batch?.sellingRate}₹
@@ -212,13 +215,13 @@ const BatchLabel = ({
 
       <div className="buttons absolute top-6 right-4 flex items-center gap-2">
         {/* Print Button */}
-        <button
+        {/* <button
           onClick={handlePrint}
           title="Print Barcode"
           className="py-2 text-accent hover:text-accentDark text-sm no-print cursor-pointer"
         >
           <FaPrint />
-        </button>
+        </button> */}
 
         {/* Download Button */}
         <button

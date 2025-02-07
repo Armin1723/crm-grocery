@@ -13,6 +13,7 @@ const SaleDetails = ({ idBackup = "" }) => {
   let { id } = useParams();
   const [sale, setSale] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
   const [refetch, setRefetch] = useState(false);
 
   if (!id) id = idBackup;
@@ -28,7 +29,10 @@ const SaleDetails = ({ idBackup = "" }) => {
           }
         );
         const data = await res.json();
-        if (!res.ok) throw new Error(data.error);
+        if (!res.ok) {
+          setError(data.message || "Something went wrong");
+          throw new Error(data.message || "Something went wrong");
+        }
         setSale(data.sale);
       } catch (error) {
         toast.error(error.message || "Something went wrong");
@@ -41,13 +45,21 @@ const SaleDetails = ({ idBackup = "" }) => {
 
   if (loading)
     return (
-      <div className="p-3 rounded-md flex h-full min-h-[50vh] flex-1 flex-col items-center justify-center gap-2 w-full bg-[var(--color-sidebar)] ">
-        <div className="spinner"></div>
+      <div className="p-3 rounded-md flex h-full flex-col items-center justify-center gap-2 min-h-[40vh] bg-[var(--color-sidebar)] w-full">
+        <div className="spinner "></div>
+      </div>
+    );
+  else if (error)
+    return (
+      <div className="p-3 rounded-md flex h-full flex-col items-center justify-center gap-2 min-h-[40vh] bg-[var(--color-sidebar)] w-full">
+        <p className="text-red-500">
+          {error.message || "Something went wrong"}
+        </p>
       </div>
     );
 
   return (
-    <div className="p-3 rounded-md flex h-full flex-1 flex-col gap-2 border border-neutral-500/50 bg-[var(--color-sidebar)] overflow-y-auto">
+    <div className="p-3 rounded-md flex h-full flex-1 flex-col gap-2 bg-[var(--color-sidebar)] overflow-y-auto">
       <div className="top flex w-full justify-between flex-wrap my-2">
         <div className="top-left title flex items-center gap-2 flex-wrap ">
           <p className="text-xl max-lg:text-lg font-bold ">Sale Details </p>
@@ -62,7 +74,9 @@ const SaleDetails = ({ idBackup = "" }) => {
       </div>
 
       <div className="wrapper flex-1 overflow-y-auto px-2">
-          <p className="text-sm text-[var(--color-text-light)]">Invoice ID: {sale?._id}</p>
+        <p className="text-sm text-[var(--color-text-light)]">
+          Invoice ID: {sale?._id}
+        </p>
 
         {/* Sale Products */}
         <Divider title="Sale Products" />
@@ -79,7 +93,10 @@ const SaleDetails = ({ idBackup = "" }) => {
             </thead>
             <tbody>
               {sale?.products.map((product) => (
-                <tr key={product?._id} className="border-b border-neutral-500/50">
+                <tr
+                  key={product?._id}
+                  className="border-b border-neutral-500/50"
+                >
                   <td className="py-2 pl-4">
                     <Avatar
                       image={product?.image}
@@ -89,7 +106,8 @@ const SaleDetails = ({ idBackup = "" }) => {
                   </td>
                   <td className="py-2 pl-4">{product.name}</td>
                   <td className="py-2 pl-4">
-                    {product.quantity} {pluralizeWord(product.quantity,product.secondaryUnit)}
+                    {product.quantity}{" "}
+                    {pluralizeWord(product.quantity, product.secondaryUnit)}
                   </td>
                   <td className="py-2 pl-4">₹{product.sellingRate}</td>
                   <td className="py-2 pl-4">

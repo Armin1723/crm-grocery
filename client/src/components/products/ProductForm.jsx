@@ -1,11 +1,12 @@
 import React from "react";
-import { useForm } from "react-hook-form";
+import { set, useForm } from "react-hook-form";
 import TagInput from "../utils/TagInput";
 import { autoSetConversionFactor, categories, taxSlabs, units } from "../utils";
 import { toast } from "react-toastify";
 import FormInput from "../utils/FormInput";
 import { MdClose } from "react-icons/md";
 import Divider from "../utils/Divider";
+import { useQueryClient } from "@tanstack/react-query";
 
 const ProductForm = ({
   product = {},
@@ -30,6 +31,10 @@ const ProductForm = ({
 
   const [conversionModalOpen, setConversionModalOpen] = React.useState(false);
 
+  const [loading, setLoading] = React.useState(false);
+
+  const queryClient = useQueryClient()
+
   const {
     register,
     handleSubmit,
@@ -53,6 +58,8 @@ const ProductForm = ({
       primaryUnit: product.primaryUnit || "",
       secondaryUnit: product.secondaryUnit || "",
       conversionFactor: product.conversionFactor || 0,
+      upc: product.upc || "",
+      barcodeInfo: product.barcodeInfo || "",
       stockAlert: product?.stockAlert?.quantity || 0,
     },
   });
@@ -101,12 +108,16 @@ const ProductForm = ({
       product.primaryUnit !== values.primaryUnit
     ) {
       formData.append("primaryUnit", values.primaryUnit);
+    } else if (!product?.primaryUnit) {
+      formData.append("primaryUnit", values.primaryUnit);
     }
     if (
       product &&
       product.secondaryUnit &&
       product.secondaryUnit !== values.secondaryUnit
     ) {
+      formData.append("secondaryUnit", values.secondaryUnit);
+    } else if (!product?.secondaryUnit) {
       formData.append("secondaryUnit", values.secondaryUnit);
     }
     if (
@@ -115,12 +126,16 @@ const ProductForm = ({
       product.conversionFactor !== values.conversionFactor
     ) {
       formData.append("conversionFactor", values.conversionFactor);
+    } else if (!product?.conversionFactor) {
+      formData.append("conversionFactor", values.conversionFactor);
     }
     formData.append("rate", values.rate);
     if (values.mrp) formData.append("mrp", values.mrp);
     if (values.shelfLife) formData.append("shelfLife", values.shelfLife);
     formData.append("description", values.description);
     formData.append("tax", values.tax);
+    formData.append("upc", values.upc);
+    formData.append("barcodeInfo", values.barcodeInfo);
     if (isStockAlertEnabled && values.stockAlert) {
       formData.append("stockAlert", {
         preference: true,
@@ -138,6 +153,7 @@ const ProductForm = ({
     }
 
     try {
+      setLoading(true);
       const response = await fetch(
         `${import.meta.env.VITE_BACKEND_URL}/api/v1/products${
           title == "edit" ? "/" + product._id : ""
@@ -167,6 +183,7 @@ const ProductForm = ({
           isLoading: false,
           autoClose: 2000,
         });
+        queryClient.invalidateQueries(["products"]);
         if (title == "add") {
           reset();
           setTags([]);
@@ -183,6 +200,8 @@ const ProductForm = ({
         isLoading: false,
         autoClose: 2000,
       });
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -545,7 +564,7 @@ const ProductForm = ({
         </FormInput>
       </div>
 
-      <div className="upc-alert-group flex-col gap-2 mt-2 w-full items-end">
+      <div className="alert-group flex-col gap-2 mt-2 w-full items-end">
         {/* Stock Alert Checkbox */}
         <div className="flex items-center gap-2 ">
           <input
@@ -621,6 +640,47 @@ const ProductForm = ({
 
       <Divider title="Additional Information" />
 
+      <div className="upc-barcodeInfo-group flex max-sm:flex-col max-sm:gap-2 mt-2 w-full gap-4">
+        {/* Upc Input */}
+        <FormInput
+          label="UPC/HSN"
+          error={errors && errors.upc}
+          otherClasses="w-1/2"
+        >
+          <input
+            type="number"
+            inputMode="alphanumeric"
+            placeholder=" "
+            className={`input peer ${
+              errors && errors.rate && "border-red-500 focus:!border-red-500"
+            }`}
+            name="upc"
+            {...register("upc")}
+          />
+        </FormInput>
+
+        {/* Barcode Info Input */}
+        <FormInput
+          label="Barcode Info"
+          otherClasses="w-1/2"
+          error={errors && errors.barcodeInfo}
+        >
+          <input
+            type="text"
+            inputMode="alphanumeric"
+            placeholder="Additional Barcode Info"
+            step={1}
+            className={`input peer ${
+              errors &&
+              errors.barcodeInfo &&
+              "border-red-500 focus:!border-red-500 text-red-500"
+            }`}
+            name="barcodeInfo"
+            {...register("barcodeInfo")}
+          />
+        </FormInput>
+      </div>
+
       {/* Tag Input */}
       <TagInput tags={tags} setTags={setTags} />
 
@@ -648,7 +708,7 @@ const ProductForm = ({
       {/* Submit Button */}
       <button
         type="submit"
-        disabled={Object.keys(errors).length > 0}
+        disabled={Object.keys(errors).length > 0 || loading}
         className="px-3 py-1.5 my-2 capitalize rounded-md bg-accent disabled:cursor-not-allowed disabled:opacity-30 hover:bg-accentDark text-white"
       >
         {title} Product

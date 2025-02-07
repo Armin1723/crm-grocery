@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import {
   BarChart,
   Bar,
@@ -10,46 +10,35 @@ import {
 } from "recharts";
 import { formatDate } from "../utils";
 import { Link } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
 
 const RecentSale = () => {
-  const [recentSale, setRecentSale] = useState(null);
-  const [refetch, setRefetch] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
-
-  useEffect(() => {
-    const fetchRecentSale = async () => {
-      setLoading(true);
-      setError(null);
-      try {
-        const response = await fetch(
-          `${import.meta.env.VITE_BACKEND_URL}/api/v1/sales/recent`,
-          {
-            credentials: "include",
-          }
-        );
-        if (response.ok) {
-          const data = await response.json();
-          setRecentSale(data.recentSale);
-        } else {
-          throw new Error("Failed to fetch the recent sale.");
+  const {
+    data: recentSale,
+    isFetching: loading,
+    refetch,
+    error,
+  } = useQuery({
+    queryKey: ["recentSale"],
+    queryFn: async () => {
+      const response = await fetch(
+        `${import.meta.env.VITE_BACKEND_URL}/api/v1/sales/recent`,
+        {
+          credentials: "include",
         }
-      } catch (error) {
-        setError(error.message);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchRecentSale();
-  }, [refetch]);
+      );
+      const data = await response.json();
+      return data?.recentSale;
+    },
+    staleTime: 1000 * 60 * 2,
+  });
 
   return (
     <div className="bg-[var(--color-sidebar)] text-sm flex-col p-4 rounded-md border border-neutral-500/50 w-full hidden xl:flex xl:w-[35%] h-full overflow-y-auto">
       <div className="title flex items-center justify-between mb-4">
         <h2 className="text-xl font-bold">Recent Sale</h2>
         <button
-          onClick={() => setRefetch((prev) => !prev)}
+          onClick={() => refetch()}
           className="text-sm text-white bg-[var(--color-accent)] px-2 py-1 rounded hover:bg-[var(--color-accent-dark)] transition-all"
         >
           Refresh
@@ -61,12 +50,17 @@ const RecentSale = () => {
           <div className="spinner"></div>
         </div>
       ) : error ? (
-        <p className="text-center text-red-500">{error}</p>
+        <p className="text-center flex-1 flex flex-col items-center justify-center text-[var(--color-text-light)] ">
+          {"No data" || error?.message}
+        </p>
       ) : recentSale ? (
         <div className="flex flex-col gap-4 flex-1 overflow-y-auto">
           {/* Sale Details */}
           <div className="bg-[var(--color-card)] p-3 rounded-md shadow-sm">
-            <Link to={`/sales/${recentSale.saleId}`} className="text-sm font-semibold text-accent hover:underline">
+            <Link
+              to={`/sales/${recentSale.saleId}`}
+              className="text-sm font-semibold text-accent hover:underline"
+            >
               View Sale Details
             </Link>
             <p>
@@ -78,12 +72,12 @@ const RecentSale = () => {
               {recentSale.customer?.email || "N/A"}
             </p>
             <p className="text-xs italic text-gray-400">
-              {formatDate(recentSale.date) || "N/A"}
+              {formatDate(recentSale?.date) || "N/A"}
             </p>
           </div>
 
           {/* Products Chart */}
-          <div className="bg-[var(--color-card)] p-3 rounded-md shadow-sm flex-1 overflow-y-auto">
+          <div className="bg-[var(--color-card)] p-3 rounded-md shadow-sm flex-1 flex flex-col justify-between overflow-y-auto">
             <h3 className="text-base font-semibold underline mb-2">
               Products in This Sale
             </h3>
@@ -117,7 +111,9 @@ const RecentSale = () => {
                       fontSize: "0.85rem",
                     }}
                     formatter={(value, name, props) => [
-                      `${value} ${props.payload.secondaryUnit || "units"} (${props.payload.rate}₹)`,
+                      `${value} ${props.payload.secondaryUnit || "units"} (${
+                        props.payload.rate
+                      }₹)`,
                     ]}
                   />
                   <Bar
@@ -146,7 +142,9 @@ const RecentSale = () => {
             <p className="font-semibold mt-2">
               Total Amount: {recentSale.totalAmount} ₹
             </p>
-            <p className="capitalize">Signed By: {recentSale.signedBy?.name || "N/A"}</p>
+            <p className="capitalize">
+              Signed By: {recentSale.signedBy?.name || "N/A"}
+            </p>
           </div>
         </div>
       ) : (

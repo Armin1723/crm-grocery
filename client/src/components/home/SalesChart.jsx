@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import {
   AreaChart,
   Area,
@@ -8,38 +8,28 @@ import {
   ResponsiveContainer,
 } from "recharts";
 import SelectionDropDown from "./SelectionDropDown";
+import { useQuery } from "@tanstack/react-query";
 
 const SalesChart = () => {
-  const [data, setData] = useState([]);
   const [groupBy, setGroupBy] = useState("daily");
-  const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      setLoading(true);
-      try {
-        const response = await fetch(
-          `${
-            import.meta.env.VITE_BACKEND_URL
-          }/api/v1/stats/sales-chart?groupBy=${groupBy}`,
-          {
-            credentials: "include",
-          }
-        );
-        const data = await response.json();
-        if (response.ok) {
-          setData(data.stats);
-        } else {
-          throw new Error(data.message || "Something went wrong");
+  const {data, isFetching: loading} = useQuery({
+    queryKey: ["salesChart", {groupBy}],
+    queryFn: async () => {
+      const response = await fetch(
+        `${
+          import.meta.env.VITE_BACKEND_URL
+        }/api/v1/stats/sales-chart?groupBy=${groupBy}`,
+        {
+          credentials: "include",
         }
-      } catch (err) {
-        console.log(err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchData();
-  }, [groupBy]);
+      );
+      const data = await response.json();
+      return data.stats;
+    },
+    staleTime: 1000 * 60 * 5,
+  })
+
   return (
     <div className="flex-1 flex flex-col rounded-md border border-neutral-500/50 bg-[var(--color-sidebar)]">
       <div className="header px-3 py-4 flex items-center justify-between gap-4 flex-wrap">

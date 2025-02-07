@@ -51,7 +51,7 @@ const HoverCard = ({ title, children, to= "", otherClasses = '' }) => {
         ref={titleRef}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
-        className="cursor-pointer inline-block"
+        className="cursor-pointer inline-block "
       >
         {title}
       </div>
@@ -59,7 +59,7 @@ const HoverCard = ({ title, children, to= "", otherClasses = '' }) => {
       {isHovered && (
         <div
           ref={contentRef}
-          className="fixed z-[999] max-w-3xl"
+          className="fixed z-[99] max-w-3xl"
           style={{
             top: position.y,
             left: position.x,
@@ -77,7 +77,7 @@ const HoverCard = ({ title, children, to= "", otherClasses = '' }) => {
 
           {/* Content container */}
           <div
-            className="rounded-lg flex flex-col items-center justify-center max-h-[60vh] bg-[var(--color-card)] shadow-[0_0_20px_gray] !shadow-neutral-500/10 backdrop-blur-sm transition-all duration-200 ease-out opacity-100 translate-x-0 min-w-[30vw] overflow-y-auto"
+            className="rounded-lg z-[100] flex flex-col items-center justify-center max-h-[60vh] bg-[var(--color-card)] shadow-[0_0_20px_gray] !shadow-neutral-500/10 backdrop-blur-sm transition-all duration-200 ease-out opacity-100 translate-x-0 min-w-[30vw] overflow-y-auto"
           >
             {children}
           </div>

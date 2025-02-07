@@ -15,7 +15,7 @@ const SortableLink = ({
         isActive && "bg-accent/10"
       } px-2 py-1 rounded-md`}
     >
-      <p className="capitalize">{title}</p>
+      <div className="capitalize">{title}</div>
       {isActive && (
         <TiArrowSortedUp
           onClick={() =>

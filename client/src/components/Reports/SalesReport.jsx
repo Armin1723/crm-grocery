@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useRef, useState } from "react";
 import ReportHeader from "./ReportHeader";
 import CountUp from "react-countup";
 import SalesTable from "./SalesTable";
@@ -15,6 +15,8 @@ import {
 } from "recharts";
 import { FaChevronCircleDown } from "react-icons/fa";
 import { useReport } from "../../context/ReportContext";
+import { useQuery } from "@tanstack/react-query";
+import { toast } from "react-toastify";
 
 const COLORS = [
   "#4299E1", // Blue
@@ -108,15 +110,7 @@ const SalesSummary = ({
 const SalesReport = () => {
   const printRef = useRef(null);
 
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState(null);
   const [activeIndex, setActiveIndex] = useState(null);
-  const [data, setData] = useState({
-    totalSales: 0,
-    salesByCategory: [],
-    salesByCustomer: [],
-    salesList: [],
-  });
 
   const { dateRange } = useReport();
 
@@ -175,50 +169,46 @@ const SalesReport = () => {
     link.click();
   };
 
-  useEffect(() => {
-    setIsLoading(true);
-    setError(null);
-
-    const fetchSalesReport = async () => {
-      try {
-        const response = await fetch(
-          `${import.meta.env.VITE_BACKEND_URL}/api/v1/reports/sales?startDate=${
-            dateRange.startDate
-          }&endDate=${dateRange.endDate}`,
-          {
-            credentials: "include",
-          }
-        );
-        const data = await response.json();
-        if (!response.ok) {
-          throw new Error(data.message || "An error occurred.");
+  const {
+    data,
+    isFetching: loading,
+    error,
+  } = useQuery({
+    queryKey: ["salesReport", dateRange],
+    queryFn: async () => {
+      const response = await fetch(
+        `${import.meta.env.VITE_BACKEND_URL}/api/v1/reports/sales?startDate=${
+          dateRange.startDate
+        }&endDate=${dateRange.endDate}`,
+        {
+          credentials: "include",
         }
-        setData(data.data);
-      } catch (error) {
-        setError(error.message || "An error occurred. Please try again.");
-      } finally {
-        setIsLoading(false);
+      );
+      const data = await response.json();
+      if (!response.ok) {
+        toast.error(data.message);
+        throw new Error(data.message);
       }
-    };
-
-    fetchSalesReport();
-  }, [dateRange]);
+      return data.data;
+    },
+    retry: false,
+  });
 
   return (
-    <div className="w-full p-6 min-h-fit max-sm:p-3 bg-[var(--color-sidebar)] rounded-lg">
-      <div className="mx-auto space-y-3 rounded-lg p-2 ">
+    <div className="w-full p-6 flex flex-col flex-1 max-sm:p-3 bg-[var(--color-sidebar)] rounded-lg">
+      <div className="mx-auto space-y-3 rounded-lg p-2 flex-1 flex flex-col w-full overflow-y-auto">
         <ReportHeader
           title="sales"
           printRef={printRef}
           handleDownload={handleDownload}
         />
 
-        {isLoading ? (
+        {loading ? (
           <div className="text-center py-8 w-full flex-1 flex justify-center items-center">
             <div className="spinner"></div>
           </div>
         ) : error ? (
-          <div className="text-center text-red-500 py-8">{error}</div>
+          <div className="text-center text-red-500 py-8 flex-1 flex flex-col items-center justify-center">{error.message || "Something went wrong"}</div>
         ) : (
           <>
             <div className="flex flex-col gap-2" ref={printRef}>
@@ -235,7 +225,7 @@ const SalesReport = () => {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 no-print">
-              {data.salesByCategory?.length > 0 && (
+              {data?.salesByCategory?.length > 0 && (
                 <div className="bg-[var(--color-card)] rounded-lg shadow p-6">
                   <h2 className="text-xl font-bold pb-4 mb-3 border-b border-neutral-500/50">
                     Sales by Category
@@ -247,7 +237,7 @@ const SalesReport = () => {
                   >
                     <PieChart>
                       <Pie
-                        data={data.salesByCategory}
+                        data={data?.salesByCategory}
                         dataKey="total"
                         nameKey="category"
                         cx="50%"
@@ -261,7 +251,7 @@ const SalesReport = () => {
                         }
                         onMouseEnter={() => setActiveIndex((_, index) => index)}
                       >
-                        {data.salesByCategory.map((entry, index) => (
+                        {data?.salesByCategory.map((entry, index) => (
                           <Cell
                             key={`cell-${index}`}
                             fill={COLORS[index % COLORS.length]}

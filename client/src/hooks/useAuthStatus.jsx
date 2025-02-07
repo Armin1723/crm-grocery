@@ -10,7 +10,7 @@ const useAuthStatus = () => {
 
   useEffect(() => {
     const checkAuthStatus = async () => {
-      if (user && user?.avatar) {
+      if (user && user?.name) {
         if(user?.role === 'employee') {
           navigate('/seller');
         }

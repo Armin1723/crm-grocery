@@ -1,8 +1,10 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useRef } from "react";
 import CountUp from "react-countup";
 import ReportHeader from "./ReportHeader";
 import TaxTable from "./TaxTable";
 import { useReport } from "../../context/ReportContext";
+import { useQuery } from "@tanstack/react-query";
+import { toast } from "react-toastify";
 
 const TaxSummary = ({ taxIn = 0, taxOut = 0, netPayable = 0 }) => {
   return (
@@ -66,51 +68,34 @@ const COLORS = [
 ];
 
 const TaxReport = () => {
-  const [data, setData] = useState({
-    totalTaxIn: 0,
-    totalTaxOut: 0,
-    netPayable: 0,
-    taxInTransactions: [],
-    taxOutTransactions: [],
-  });
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState(null);
-
   const { dateRange } = useReport();
 
   const printRef = useRef(null);
 
-  useEffect(() => {
-    const fetchTaxReport = async () => {
-      setIsLoading(true);
-      setError(null);
-
-      try {
-        const response = await fetch(
-          `${import.meta.env.VITE_BACKEND_URL}/api/v1/reports/tax?startDate=${
-            dateRange?.startDate
-          }&endDate=${dateRange?.endDate}`,
-          {
-            credentials: "include",
-          }
-        );
-
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
+  const {
+    data,
+    isFetching: loading,
+    error,
+  } = useQuery({
+    queryKey: ["taxReport", dateRange],
+    queryFn: async () => {
+      const response = await fetch(
+        `${import.meta.env.VITE_BACKEND_URL}/api/v1/reports/tax?startDate=${
+          dateRange?.startDate
+        }&endDate=${dateRange?.endDate}`,
+        {
+          credentials: "include",
         }
-
-        const result = await response.json();
-        setData(result);
-      } catch (error) {
-        setError("Failed to fetch tax report. Please try again later.");
-        console.error("Error fetching tax report:", error);
-      } finally {
-        setIsLoading(false);
+      );
+      const data = await response.json();
+      if (!response.ok) {
+        toast.error(data.message);
+        throw new Error(data.message);
       }
-    };
-
-    fetchTaxReport();
-  }, [dateRange]);
+      return data;
+    },
+    retry: false,
+  });
 
   const handleDownload = () => {
     const headers = [
@@ -165,20 +150,22 @@ const TaxReport = () => {
   };
 
   return (
-    <div className="w-full p-6 min-h-fit max-sm:p-3 bg-[var(--color-sidebar)] rounded-lg">
-      <div className="mx-auto space-y-3 rounded-lg p-2 ">
+    <div className="w-full p-6 flex-1 max-sm:p-3 bg-[var(--color-sidebar)] rounded-lg">
+      <div className="mx-auto space-y-3 rounded-lg p-2 flex flex-col h-full overflow-y-auto">
         <ReportHeader
           title="tax"
           printRef={printRef}
           handleDownload={handleDownload}
         />
 
-        {isLoading ? (
+        {loading ? (
           <div className="text-center py-8 w-full flex-1 flex justify-center items-center">
             <div className="spinner"></div>
           </div>
         ) : error ? (
-          <div className="text-center text-red-500 py-8">{error}</div>
+          <div className="text-center text-red-500 py-8 flex-1 flex flex-col items-center justify-center">
+            {error.message || "Something went wrong."}
+          </div>
         ) : (
           <div className="flex flex-col gap-3" ref={printRef}>
             <TaxSummary

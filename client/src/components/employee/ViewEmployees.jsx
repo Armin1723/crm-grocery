@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import Pagination from "../utils/Pagination";
 import SortableLink from "../utils/SortableLink";
 import { formatDate } from "../utils";
@@ -6,10 +6,10 @@ import Avatar from "../utils/Avatar";
 import HoverCard from "../shared/HoverCard";
 import EmployeeCard from "./EmployeeCard";
 import EmployeeActions from "./EmployeeActions";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { toast } from "react-toastify";
 
 const ViewEmployees = () => {
-  const [loading, setLoading] = useState(false);
-  const [refetch, setRefetch] = useState(false);
 
   const [limit, setLimit] = useState(10);
   const [page, setPage] = useState(1);
@@ -18,33 +18,32 @@ const ViewEmployees = () => {
 
   const steps = [10, 20, 50, 100];
 
-  const [results, setResults] = useState();
-
-  useEffect(() => {
-    const fetchEmployees = async () => {
-      try {
-        setLoading(true);
-        const response = await fetch(
-          `${
-            import.meta.env.VITE_BACKEND_URL
-          }/api/v1/employees?sort=${sort}&sortType=${sortType}&limit=${limit}&page=${page}`,
-          {
-            credentials: "include",
-          }
-        );
-        const data = await response.json();
-        if (!response.ok) {
-          throw new Error(data.message || "Something went wrong");
+  const queryClient = useQueryClient();
+  const refetch = () => {
+    queryClient.invalidateQueries({ queryKey: ["employees"] });
+  };
+  const { data: results, isFetching: loading } = useQuery({
+    queryKey: ["employees", { sort, sortType, limit, page }],
+    queryFn: async () => {
+      const response = await fetch(
+        `${
+          import.meta.env.VITE_BACKEND_URL
+        }/api/v1/employees?sort=${sort}&sortType=${sortType}&limit=${limit}&page=${page}`,
+        {
+          credentials: "include",
         }
-        setResults(data);
-      } catch (error) {
-        console.log(error);
-      } finally {
-        setLoading(false);
+      );
+      const data = await response.json();
+
+      if (!response.ok) {
+        toast.error(data.message);
+        throw new Error(data.message);
       }
-    };
-    fetchEmployees();
-  }, [refetch, limit, page, sort, sortType]);
+      return data;
+    },
+    staleTime: 5 * 60 * 1000,
+    retry: false,
+  });
 
   return (
     <div className="p-3 rounded-md flex h-full w-full flex-col gap-2 border border-neutral-500/50 bg-[var(--color-sidebar)]">
@@ -55,7 +54,7 @@ const ViewEmployees = () => {
             className={`${
               loading && "animate-spin"
             } w-4 aspect-square rounded-full border-t border-b border-accent/90 cursor-pointer`}
-            onClick={() => setRefetch((p) => !p)}
+            onClick={() => refetch()}
           ></p>
         </div>
       </div>
@@ -119,7 +118,7 @@ const ViewEmployees = () => {
           </div>
 
           <div className="table-row-goup flex-1 border-l border-r border-neutral-500/50 flex flex-col ">
-            {results?.employees?.length ? (
+            {results?.employees && results?.employees?.length ? (
               results?.employees?.map((employee, index) => {
                 return (
                   <div
@@ -128,8 +127,8 @@ const ViewEmployees = () => {
                   >
                     <div className="w-[10%] min-w-[100px]">
                       <Avatar
-                        image={employee?.avatar.replace('/uploads/', '/uploads/w_100,h_100,c_thumb/')}
-                        alt={employee.name}
+                        image={employee?.avatar?.replace('/uploads/', '/uploads/w_100,h_100,c_thumb/')}
+                        alt={employee?.name}
                         width={42}
                         withBorder={false}
                       />
@@ -160,7 +159,7 @@ const ViewEmployees = () => {
                       {formatDate(employee?.createdAt)}
                     </div>
                     <div className="w-[10%] flex items-center flex-wrap gap-2 min-w-[50px]">
-                      <EmployeeActions employee={employee} setRefetch={setRefetch} />
+                      <EmployeeActions employee={employee} setRefetch={refetch} />
                     </div>
                   </div>
                 );

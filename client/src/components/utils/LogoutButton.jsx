@@ -4,10 +4,13 @@ import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { setUser } from "../../redux/features/user/userSlice";
+import { useQueryClient } from "@tanstack/react-query";
 
 const LogoutButton = ({ expanded = true }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+
+  const queryClient = useQueryClient();
 
   const handleLogout = async () => {
     const id = toast.loading("Logging out...");
@@ -24,6 +27,8 @@ const LogoutButton = ({ expanded = true }) => {
       } else {
         localStorage.removeItem("user");
         navigate("/auth");
+        queryClient.invalidateQueries();
+        queryClient.clear();
         dispatch(setUser(null));
         toast.update(id, {
           render: "Logout successful",

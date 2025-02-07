@@ -14,7 +14,7 @@ const Auth = () => {
   useEffect(() => {
     if (user && user.role === "employee") {
       navigate("/seller");
-    } else if (user && user.avatar) {
+    } else if (user && user.name) {
       toast.info("You are already logged in");
       navigate("/");
     }

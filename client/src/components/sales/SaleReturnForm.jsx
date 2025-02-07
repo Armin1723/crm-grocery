@@ -7,9 +7,10 @@ import { toast } from "react-toastify";
 import Modal from "../utils/Modal";
 import { useNavigate } from "react-router-dom";
 
-const SaleReturnForm = ({ sale = {}, setSale = () => {}, loading = false }) => {
+const SaleReturnForm = ({ sale = {}, setSale = () => {} }) => {
   const [saleReturn, setSaleReturn] = useState({});
   const [invoiceModal, setInvoiceModal] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const navigate = useNavigate();
 
@@ -367,7 +368,7 @@ const SaleReturnForm = ({ sale = {}, setSale = () => {}, loading = false }) => {
 
       <button
         type="submit"
-        disabled={Object.keys(errors).length > 0 || !sale.products}
+        disabled={Object.keys(errors).length > 0 || !sale.products || loading}
         className="disabled:opacity-30 disabled:cursor-not-allowed w-full cursor-pointer bg-accent text-white hover:bg-accentDark transition-all duration-300 p-2 rounded-md mt-2"
       >
         Confirm Return

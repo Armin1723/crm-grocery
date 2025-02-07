@@ -3,10 +3,9 @@ import SortableLink from "../utils/SortableLink";
 import Pagination from "../utils/Pagination";
 import { expenseCategoryColors, expenseTypes, formatDate } from "../utils";
 import CategorySelection from "../utils/CategorySelection";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 const ViewExpenses = () => {
-  const [loading, setLoading] = useState(false);
-  const [refetch, setRefetch] = useState(false);
 
   const [limit, setLimit] = useState(10);
   const [page, setPage] = useState(1);
@@ -16,33 +15,26 @@ const ViewExpenses = () => {
 
   const steps = [10, 20, 50, 100];
 
-  const [results, setResults] = useState();
-
-  useEffect(() => {
-    const fetchExpenses = async () => {
-      try {
-        setLoading(true);
-        const response = await fetch(
-          `${
-            import.meta.env.VITE_BACKEND_URL
-          }/api/v1/expenses?sort=${sort}&category=${category}&sortType=${sortType}&limit=${limit}&page=${page}`,
-          {
-            credentials: "include",
-          }
-        );
-        const data = await response.json();
-        if (!response.ok) {
-          throw new Error(data.message || "Something went wrong");
+  const queryClient = useQueryClient();
+  const refetch = () => {
+    queryClient.invalidateQueries({ queryKey: ["expenses"] });
+  };
+  const { data: results, isFetching: loading } = useQuery({
+    queryKey: ["expenses", { sort, category, sortType, limit, page }],
+    queryFn: async () => {
+      const response = await fetch(
+        `${
+          import.meta.env.VITE_BACKEND_URL
+        }/api/v1/expenses?sort=${sort}&category=${category}&sortType=${sortType}&limit=${limit}&page=${page}`,
+        {
+          credentials: "include",
         }
-        setResults(data);
-      } catch (error) {
-        console.log(error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchExpenses();
-  }, [refetch, limit, page, sort, sortType, category]);
+      );
+      return await response.json();
+    },
+    staleTime: 5 * 60 * 1000,
+  })
+
   return (
     <div className="p-3 rounded-md flex h-full flex-col gap-2 border border-neutral-500/50 bg-[var(--color-sidebar)]">
       <div className="top flex w-full justify-between flex-wrap my-2">
@@ -52,7 +44,7 @@ const ViewExpenses = () => {
             className={`${
               loading && "animate-spin"
             } w-4 aspect-square rounded-full border-t border-b border-accent/90 cursor-pointer`}
-            onClick={() => setRefetch((p) => !p)}
+            onClick={() => refetch()}
           ></p>
         </div>
         <CategorySelection
@@ -130,7 +122,7 @@ const ViewExpenses = () => {
                   >
                     <div className="w-1/5 min-w-[50px] px-2 capitalize">
                       <span
-                        className={`px-3 rounded-lg text-xs border truncate text-ellipsis ${bg} ${border} ${text}`}
+                        className={`px-3 rounded-lg border truncate text-ellipsis ${bg} ${border} ${text}`}
                       >
                         {expense?.category || "N/A"}
                       </span>
@@ -147,7 +139,7 @@ const ViewExpenses = () => {
                     <div className="w-[15%] min-w-[50px] px-2 capitalize">
                       {expense?.signedBy?.name || "N/A"}
                     </div>
-                    <div className="w-1/5 min-w-[50px] px-2 text-sm max-sm:text-xs">
+                    <div className="w-1/5 min-w-[50px] px-2 ">
                       {formatDate(expense?.createdAt) || "N/A"}
                     </div>
                   </div>
@@ -164,8 +156,8 @@ const ViewExpenses = () => {
             <div className="flex items-center justify-start">
               <span>
                 Showing {(page - 1) * limit + 1} -{" "}
-                {Math.min(page * limit, results?.totalResults) || 1} of{" "}
-                {results?.totalResults} results.
+                {Math.min(page * limit, results?.totalExpenses) || 1} of{" "}
+                {results?.totalExpenses} results.
               </span>
               <div className="flex items-center gap-1 mx-2">
                 <button
@@ -199,7 +191,7 @@ const ViewExpenses = () => {
                   }}
                   disabled={
                     limit === steps[steps.length - 1] ||
-                    results?.totalPurchases < limit
+                    results?.totalExpenses < limit
                   }
                   className="px-3 flex items-center justify-center rounded-md bg-[var(--color-primary)] w-6 aspect-square border border-neutral-500/50 hover:opacity-75 disabled:opacity-50 disabled:cursor-not-allowed disabled:border-neutral-500/20"
                 >

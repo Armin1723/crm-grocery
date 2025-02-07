@@ -1,6 +1,6 @@
 {
   "name": "crm-grocery",
-  "version": "1.0.5",
+  "version": "1.0.4",
   "description": "Grocery Store CRM App.",
   "author": "CRM",
   "main": "main.js",
@@ -18,6 +18,7 @@
   },
   "dependencies": {
     "child_process": "^1.0.0",
+    "electron-log": "^5.3.0",
     "electron-updater": "^6.3.9",
     "tcp-port-used": "^1.0.2"
   },
@@ -27,15 +28,19 @@
     "productName": "CRM Grocery",
     "extraResources": [
       {
-        "from": "./client/dist/assets/index-BLOOFAwj.css",
+        "from": "./client/dist/assets/index-D5h_5yIn.css",
         "to": "./assets/index.css"
+      },
+      {
+        "from": "build/icon.png",
+        "to": "icon.png"
       }
     ],
     "extraMetadata": {
       "name": "CRM Grocery",
       "description": "Grocery Store CRM App.",
       "author": "CRM",
-      "version": "1.0.5"
+      "version": "1.0.4"
     },
     "directories": {
       "output": "dist"

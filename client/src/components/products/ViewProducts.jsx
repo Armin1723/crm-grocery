@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import Pagination from "../utils/Pagination";
 import SortableLink from "../utils/SortableLink";
 import ProductActionButton from "./ProductActionButton";
@@ -9,11 +9,9 @@ import HoverCard from "../shared/HoverCard";
 import { Link } from "react-router-dom";
 import { categories } from "../utils";
 import CategorySelection from "../utils/CategorySelection";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 const ViewProducts = () => {
-  const [loading, setLoading] = useState(false);
-  const [refetch, setRefetch] = useState(false);
-
   const [limit, setLimit] = useState(10);
   const [page, setPage] = useState(1);
   const [sort, setSort] = useState("name");
@@ -23,34 +21,38 @@ const ViewProducts = () => {
 
   const steps = [10, 20, 50, 100];
 
-  const [results, setResults] = useState();
-
-  useEffect(() => {
-    const fetchProducts = async () => {
+  const queryClient = useQueryClient();
+  const refetch = () => {
+    queryClient.invalidateQueries({ queryKey: ["products"] });
+  };
+  const {
+    data: results,
+    isFetching: loading,
+  } = useQuery({
+    queryKey: ["products", { sort, sortType, limit, page, category, query }],
+    queryFn: async () => {
       try {
-        setLoading(true);
         const response = await fetch(
           `${
             import.meta.env.VITE_BACKEND_URL
           }/api/v1/products?sort=${sort}&sortType=${sortType}&limit=${limit}&query=${query}&page=${page}${
             category ? `&category=${category}` : ""
-          }`,{
-            credentials: 'include',
+          }`,
+          {
+            credentials: "include",
           }
         );
         const data = await response.json();
         if (!response.ok) {
           throw new Error(data.message || "Something went wrong");
         }
-        setResults(data);
+        return data;
       } catch (error) {
         console.log(error);
-      } finally {
-        setLoading(false);
       }
-    };
-    fetchProducts();
-  }, [refetch, limit, page, sort, sortType, category, query]);
+    },
+    staleTime: 1000 * 60 * 5,
+  });
 
   return (
     <div className="p-3 rounded-md flex h-full min-h-fit flex-1 flex-col gap-2 border border-neutral-500/50 bg-[var(--color-sidebar)]">
@@ -61,7 +63,7 @@ const ViewProducts = () => {
             className={`${
               loading && "animate-spin"
             } w-4 aspect-square rounded-full border-t border-b border-accent/90 cursor-pointer`}
-            onClick={() => setRefetch((p) => !p)}
+            onClick={() => refetch()}
           ></p>
           <CategorySelection
             category={category}
@@ -72,7 +74,7 @@ const ViewProducts = () => {
         <SearchBar query={query} setQuery={setQuery} />
       </div>
 
-      <div className="table-wrapper flex relative flex-1 my-2 overflow-x-scroll">
+      <div className="table-wrapper flex relative flex-1 my-2 overflow-x-auto">
         <div
           className={`table-container w-full min-w-[700px] bg-[var(--bg-card)] h-full flex flex-col flex-nowrap overflow-x-auto shadow-md rounded-md max-sm:text-xs text-wrap relative px-2 ${
             loading && "overflow-hidden"
@@ -180,7 +182,7 @@ const ViewProducts = () => {
                     <div className="actions w-[10%] min-w-[50px] flex items-center justify-center gap-2">
                       <ProductActionButton
                         product={product}
-                        setRefetch={setRefetch}
+                        setRefetch={refetch}
                       />
                     </div>
                   </div>

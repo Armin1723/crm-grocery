@@ -48,6 +48,10 @@ const TitleBar = () => {
     window.electron.ipcRenderer.send("open-in-browser", url);
   };
 
+  const checkUpdate = () => {
+    window.electron.ipcRenderer.send("check-updates");
+  };
+
   return (
     <div
       style={{
@@ -61,10 +65,7 @@ const TitleBar = () => {
         className="absolute w-1/4 right-0 object-cover h-full"
       />
       {/* App Title */}
-      <div
-        className="flex items-center gap-2 relative text-white"
-      >
-
+      <div className="flex items-center gap-2 relative text-white">
         <img
           src="./logo.png"
           alt="logo"
@@ -107,9 +108,10 @@ const TitleBar = () => {
               <ul className="w-full">
                 <li className="hover:bg-[var(--color-primary)] hover:text-[var(--color-accent)] transition-all duration-200 ease-in my-1 py-1 px-2">
                   <button
-                    onClick={() =>
-                      openInBrowser("https://example.com/tutorials")
-                    }
+                    onClick={() => {
+                      openInBrowser("https://example.com/tutorials");
+                      setIsMenuOpen(false);
+                    }}
                     target="_blank"
                     rel="noopener noreferrer"
                   >
@@ -118,7 +120,10 @@ const TitleBar = () => {
                 </li>
                 <li className="hover:bg-[var(--color-primary)] hover:text-[var(--color-accent)] transition-all duration-200 ease-in my-1 py-1 px-2">
                   <button
-                    onClick={() => openInBrowser("https://example.com/privacy")}
+                    onClick={() => {
+                      openInBrowser("https://example.com/privacy");
+                      setIsMenuOpen(false);
+                    }}
                     target="_blank"
                     rel="noopener noreferrer"
                   >
@@ -127,7 +132,10 @@ const TitleBar = () => {
                 </li>
                 <li className="hover:bg-[var(--color-primary)] hover:text-[var(--color-accent)] transition-all duration-200 ease-in my-1 py-1 px-2">
                   <button
-                    onClick={() => openInBrowser("https://example.com/help")}
+                    onClick={() => {
+                      openInBrowser("https://example.com/help");
+                      setIsMenuOpen(false);
+                    }}
                     target="_blank"
                     rel="noopener noreferrer"
                   >
@@ -135,9 +143,19 @@ const TitleBar = () => {
                   </button>
                 </li>
                 <li className="hover:bg-[var(--color-primary)] hover:text-[var(--color-accent)] transition-all duration-200 ease-in my-1 py-1 px-2">
-                  <p>
-                    Version : {appVersion || "Loading..."}
-                  </p>
+                  <button
+                    onClick={() => {
+                      checkUpdate();
+                      setIsMenuOpen(false);
+                    }}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    Check for Updates 🔄
+                  </button>
+                </li>
+                <li className="hover:bg-[var(--color-primary)] hover:text-[var(--color-accent)] transition-all duration-200 ease-in my-1 py-1 px-2">
+                  <p>Version : {appVersion || "Loading..."}</p>
                 </li>
               </ul>
             </div>

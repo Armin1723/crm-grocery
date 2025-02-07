@@ -1,8 +1,9 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import Card from "./Card";
 import { FaChartLine, FaShoppingCart } from "react-icons/fa";
 import { AiFillProduct } from "react-icons/ai";
 import { BsInboxesFill } from "react-icons/bs";
+import { useQuery } from "@tanstack/react-query";
 
 const Cards = () => {
   const cardsData = [
@@ -40,36 +41,22 @@ const Cards = () => {
     },
   ];
 
-  const [expanded, setExpanded] = useState(true);
-
-  const [stats, setStats] = useState(null);
-
-  useEffect(() => {
-    const fetchStats = async () =>{
-    try{
+  const { data: stats, isFetching: loading} = useQuery({
+    queryKey: ["cardStats"],
+    queryFn: async () => {
       const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/v1/stats`,{
         credentials: 'include',
       });
-      if(response.ok){
-        const data = await response.json();
-        setStats(data.stats);
-      }else{
-        const data = await response.json();
-        throw new Error(data.message || 'Something went wrong');
-      }
-    }catch(err){
-      console.log(err);
-    }
-  }
-  fetchStats();
-  },[]);
+      const data = await response.json();
+      return data.stats;
+    },
+    staleTime: 1000 * 60 * 5,
+  })
   
   return (
     <div className="cards-page flex flex-col gap-2 mt-2 w-full">
       <div
-        className={` ${
-          expanded ? "max-h-screen" : "max-h-0 "
-        } transition-all duration-500 ease-in-out max-w-screen overflow-hidden flex items-center overflow-x-scroll snap-x snap-mandatory hide-scrollbar my-2 select-none`}
+        className={`transition-all duration-500 ease-in-out max-w-screen overflow-hidden flex items-center overflow-x-scroll snap-x snap-mandatory hide-scrollbar my-2 select-none`}
       >
         {cardsData.map((item, index) => {
           const chartData = stats ? stats[item?.title?.toLowerCase()] : [];

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { formatDate } from "../utils";
 import Pagination from "../utils/Pagination";
 import SortableLink from "../utils/SortableLink";
@@ -7,11 +7,9 @@ import Modal from "../utils/Modal";
 import { Link } from "react-router-dom";
 import HoverCard from "../shared/HoverCard";
 import PurchaseDetails from "./PurchaseDetails";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 const ViewPurchaseReturns = () => {
-  const [loading, setLoading] = useState(false);
-  const [refetch, setRefetch] = useState(false);
-
   const [selectedPurchaseId, setSelectedPurchaseId] = useState("");
 
   const [limit, setLimit] = useState(10);
@@ -20,33 +18,26 @@ const ViewPurchaseReturns = () => {
   const [sortType, setSortType] = useState("desc");
 
   const steps = [10, 20, 50, 100];
-  const [results, setResults] = useState({});
 
-  useEffect(() => {
-    const fetchPurchaseReturns = async () => {
-      try {
-        setLoading(true);
-        const response = await fetch(
-          `${
-            import.meta.env.VITE_BACKEND_URL
-          }/api/v1/purchases/return?sort=${sort}&sortType=${sortType}&page=${page}`,
-          {
-            credentials: "include",
-          }
-        );
-        const data = await response.json();
-        if (!response.ok) {
-          throw new Error(data.message || "Something went wrong");
+  const queryClient = useQueryClient();
+  const refetch = () => {
+    queryClient.invalidateQueries({ queryKey: ["purchaseReturns"] });
+  };
+  const { data: results, isFetching: loading } = useQuery({
+    queryKey: ["purchaseReturns", { sort, sortType, page }],
+    queryFn: async () => {
+      const response = await fetch(
+        `${
+          import.meta.env.VITE_BACKEND_URL
+        }/api/v1/purchases/return?sort=${sort}&sortType=${sortType}&page=${page}`,
+        {
+          credentials: "include",
         }
-        setResults(data);
-      } catch (error) {
-        console.log(error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchPurchaseReturns();
-  }, [refetch, page, sort, sortType]);
+      );
+      return await response.json();
+    },
+    staleTime: 5 * 60 * 1000,
+  });
 
   return (
     <div className="p-3 rounded-md flex h-full flex-col gap-2 border border-neutral-500/50 bg-[var(--color-sidebar)]">
@@ -59,7 +50,7 @@ const ViewPurchaseReturns = () => {
             className={`${
               loading && "animate-spin"
             } w-4 aspect-square rounded-full border-t border-b border-accent/90 cursor-pointer`}
-            onClick={() => setRefetch((p) => !p)}
+            onClick={() => refetch()}
           ></p>
         </div>
       </div>

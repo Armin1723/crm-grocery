@@ -1,14 +1,12 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import SortableLink from "../utils/SortableLink";
 import Pagination from "../utils/Pagination";
 import { formatDate } from "../utils";
 import PurchaseActionButton from "./PurchaseActionButton";
 import { Link } from "react-router-dom";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 const ViewPurchases = () => {
-  const [loading, setLoading] = useState(false);
-  const [refetch, setRefetch] = useState(false);
-
   const [limit, setLimit] = useState(10);
   const [page, setPage] = useState(1);
   const [sort, setSort] = useState("createdAt");
@@ -16,33 +14,28 @@ const ViewPurchases = () => {
 
   const steps = [10, 20, 50, 100];
 
-  const [results, setResults] = useState();
-
-  useEffect(() => {
-    const fetchPurchases = async () => {
-      try {
-        setLoading(true);
-        const response = await fetch(
-          `${
-            import.meta.env.VITE_BACKEND_URL
-          }/api/v1/purchases?sort=${sort}&sortType=${sortType}&limit=${limit}&page=${page}`,
-          {
-            credentials: "include",
-          }
-        );
-        const data = await response.json();
-        if (!response.ok) {
-          throw new Error(data.message || "Something went wrong");
+  const queryClient = useQueryClient();
+  const refetch = () => {
+    queryClient.invalidateQueries({queryKey : ["purchases"]});
+  };
+  const {
+    data: results,
+    isFetching: loading,
+  } = useQuery({
+    queryKey: ["purchases", { limit, page, sort, sortType }],
+    queryFn: async ({ queryKey }) => {
+      const [_key, { limit, page, sort, sortType }] = queryKey;
+      const response = await fetch(
+        `${
+          import.meta.env.VITE_BACKEND_URL
+        }/api/v1/purchases?limit=${limit}&page=${page}&sort=${sort}&sortType=${sortType}`,{
+          credentials: "include",
         }
-        setResults(data);
-      } catch (error) {
-        console.log(error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchPurchases();
-  }, [refetch, limit, page, sort, sortType]);
+      );
+      return await response.json();
+    },
+    staleTime: 5 * 60 * 1000,
+  });
   return (
     <div className="p-3 rounded-md flex h-full flex-col gap-2 border border-neutral-500/50 bg-[var(--color-sidebar)]">
       <div className="top flex w-full justify-between flex-wrap my-2">
@@ -52,7 +45,7 @@ const ViewPurchases = () => {
             className={`${
               loading && "animate-spin"
             } w-4 aspect-square rounded-full border-t border-b border-accent/90 cursor-pointer`}
-            onClick={() => setRefetch((p) => !p)}
+            onClick={() => refetch()}
           ></p>
         </div>
       </div>
@@ -75,10 +68,14 @@ const ViewPurchases = () => {
             </div>
             <div className="w-[15%] min-w-[80px] flex items-center  ">
               <SortableLink
-                title={<p>Total <span className="max-md:hidden">Amount</span></p>}
+                title={
+                  <p>
+                    Total <span className="max-md:hidden">Amount</span>
+                  </p>
+                }
                 isActive={sort === "totalAmount"}
                 sortType={sortType}
-                setSort={()=>setSort("totalAmount")}
+                setSort={() => setSort("totalAmount")}
                 setSortType={setSortType}
               />
             </div>
@@ -140,13 +137,13 @@ const ViewPurchases = () => {
                     <div className="w-[15%] min-w-[50px] px-2 capitalize">
                       {purchase?.signedBy?.name || "N/A"}
                     </div>
-                    <div className="w-1/5 min-w-[50px] px-2 text-sm max-sm:text-xs">
+                    <div className="w-1/5 min-w-[50px] px-2">
                       {formatDate(purchase?.createdAt) || "N/A"}
                     </div>
                     <div className="actions w-[10%] min-w-[50px] flex items-center justify-center gap-2">
                       <PurchaseActionButton
                         purchase={purchase}
-                        setRefetch={setRefetch}
+                        setRefetch={refetch}
                       />
                     </div>
                   </div>
@@ -179,9 +176,7 @@ const ViewPurchases = () => {
                       return prev;
                     });
                   }}
-                  disabled={
-                    limit === steps[0] 
-                  }
+                  disabled={limit === steps[0]}
                   className="px-3 flex items-center justify-center rounded-md bg-[var(--color-primary)] w-6 aspect-square border border-neutral-500/50 hover:opacity-75 disabled:opacity-50 disabled:cursor-not-allowed disabled:border-neutral-500/20"
                 >
                   -
@@ -198,7 +193,10 @@ const ViewPurchases = () => {
                       return prev;
                     });
                   }}
-                  disabled={limit === steps[steps.length - 1] || results?.totalPurchases < limit}
+                  disabled={
+                    limit === steps[steps.length - 1] ||
+                    results?.totalPurchases < limit
+                  }
                   className="px-3 flex items-center justify-center rounded-md bg-[var(--color-primary)] w-6 aspect-square border border-neutral-500/50 hover:opacity-75 disabled:opacity-50 disabled:cursor-not-allowed disabled:border-neutral-500/20"
                 >
                   +

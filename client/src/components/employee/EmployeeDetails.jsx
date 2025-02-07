@@ -8,6 +8,7 @@ import { MdEdit, MdFilePresent, MdImage } from "react-icons/md";
 import { FaChevronCircleDown } from "react-icons/fa";
 import EmployeeForm from "./EmployeeForm";
 import Modal from "../utils/Modal";
+import { toast } from "react-toastify";
 
 const EmployeeDetails = () => {
   const { id } = useParams();
@@ -17,6 +18,7 @@ const EmployeeDetails = () => {
   const [employee, setEmployee] = useState(null);
   const [refetch, setRefetch] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [showId, setShowId] = useState(false);
 
   const [employeeModalOpen, setEmployeeModalOpen] = useState(false);
@@ -34,6 +36,8 @@ const EmployeeDetails = () => {
         if (res.ok) {
           setEmployee(data.employee);
         } else {
+          toast.error(data.message || "Something went wrong");
+          setError(data.message || "Something went wrong");
           throw new Error(data.message || "Something went wrong");
         }
       } catch (error) {
@@ -47,7 +51,15 @@ const EmployeeDetails = () => {
 
   return (
     <div className="p-3 rounded-md flex h-full flex-col gap-4 border border-neutral-500/50 bg-[var(--color-sidebar)] overflow-y-auto flex-1 px-2">
-      {employee && !loading ? (
+      {loading ? (
+        <div className="w-full h-full flex items-center justify-center">
+          <div className="spinner"></div>
+        </div>
+      ) : error ? (
+        <div className="text-center text-red-500 py-8 flex-1 flex items-center justify-center w-full">
+          {error.message || "Something went wrong."}
+        </div>
+      ) : (
         <div className="wrapper flex flex-col overflow-y-auto gap-3">
           <Divider
             title={
@@ -120,10 +132,6 @@ const EmployeeDetails = () => {
             <Divider title="Sales History" />
             <EmployeeSales uuid={id} />
           </div>
-        </div>
-      ) : (
-        <div className="w-full h-full flex items-center justify-center">
-          <div className="spinner"></div>
         </div>
       )}
       {employeeModalOpen && (

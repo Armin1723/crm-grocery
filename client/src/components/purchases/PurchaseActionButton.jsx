@@ -11,7 +11,7 @@ const PurchaseActionButton = ({ purchase, setRefetch = () => {} }) => {
 
   const [invoiceModalOpen, setInvoiceModalOpen] = useState(false);
   const [followUpModalOpen, setFollowUpModalOpen] = useState(false);
-
+  
   // Close menu when clicking outside
   useEffect(() => {
     const handleOutsideClick = (event) => {

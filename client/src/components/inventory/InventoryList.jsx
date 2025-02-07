@@ -5,42 +5,34 @@ import Divider from "../utils/Divider";
 import Avatar from "../utils/Avatar";
 import { Link } from "react-router-dom";
 import { useSelector } from "react-redux";
+import { useQuery } from "@tanstack/react-query";
 
 const InventoryList = () => {
   const [category, setCategory] = React.useState("");
   const [query, setQuery] = React.useState("");
-  const [refetch, setRefetch] = React.useState(false);
-  const [loading, setLoading] = React.useState(false);
-  const [results, setResults] = React.useState([]);
 
   const user = useSelector((state) => state.user);
   const isAdmin = user && user.role && user?.role === "admin";
 
-  useEffect(() => {
-    setLoading(true);
-    const fetchInventoryList = async () => {
-      try {
-        const response = await fetch(
-          `${
-            import.meta.env.VITE_BACKEND_URL
-          }/api/v1/inventory/list?query=${query}&category=${category}`,
-          {
-            credentials: "include",
-          }
-        );
-        const data = await response.json();
-        if (!response.ok) {
-          throw new Error(data.message || "Something went wrong");
+  const { data: results, refetch, isFetching: loading } = useQuery({
+    queryKey: ["inventory", query, category],
+    queryFn: async () => {
+      const response = await fetch(
+        `${
+          import.meta.env.VITE_BACKEND_URL
+        }/api/v1/inventory/list?query=${query}&category=${category}`,
+        {
+          credentials: "include",
         }
-        setResults(data.inventory);
-      } catch (error) {
-        console.error("Error fetching inventory:", error.message);
-      } finally {
-        setLoading(false);
+      );
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.message || "Something went wrong");
       }
-    };
-    fetchInventoryList();
-  }, [refetch, query, category]);
+      return data.inventory;
+    },
+    staleTime: 2 * 60 * 1000,
+  })
 
   return (
     <>
@@ -51,7 +43,7 @@ const InventoryList = () => {
               Inventory List
             </p>
             <div
-              onClick={() => setRefetch((prev) => !prev)}
+              onClick={() => refetch()}
               className={`w-4 aspect-square border-l-2 border-r-2 rounded-full border-accent cursor-pointer ${
                 loading && "animate-spin"
               }`}
@@ -62,12 +54,12 @@ const InventoryList = () => {
         <SearchBar query={query} setQuery={setQuery} />
       </div>
       <div className="flex flex-col flex-1 w-full overflow-y-auto px-2">
-        {results.length > 0 && loading ? (
+        {results?.length > 0 && loading ? (
           <div className="flex items-center justify-center w-full h-full">
             <div className="spinner" />
           </div>
         ) : (
-          results.map((category, index) => {
+          results?.map((category, index) => {
             return (
               <div
                 key={index}
@@ -129,13 +121,13 @@ const InventoryList = () => {
           })
         )}
 
-        {loading && results.length === 0 && (
+        {loading && results?.length === 0 && (
           <div className="flex items-center justify-center w-full h-full">
             <div className="spinner" />
           </div>
         )}
 
-        {results.length === 0 && !loading && (
+        {results?.length === 0 && !loading && (
           <div className="w-full my-2 h-full flex items-center justify-center text-sm text-[var(--colorr-text-light)]">No such inventory found.</div>
         )}
       </div>

@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import React, { useState } from "react";
 import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
 
 const CategoryChart = () => {
@@ -15,8 +16,7 @@ const CategoryChart = () => {
             color: "var(--color-text-light)",
           }}
         >
-          {data[payload[0].name]._id} :
-          {' '}{payload[0].value}
+          {data[payload[0].name]._id} : {payload[0].value}
         </div>
       );
     }
@@ -33,26 +33,21 @@ const CategoryChart = () => {
     { _id: "Others", value: 100 },
   ];
   const [activeIndex, setActiveIndex] = useState(null);
-  const [data, setData] = useState(dataCopy);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await fetch(
-          `${import.meta.env.VITE_BACKEND_URL}/api/v1/stats/products-chart`,{
-            credentials: "include", 
-          }
-        );
-        const data = await response.json();
-        if (response.ok) {
-          setData(data.data);
-        } else throw new Error(data.message);
-      } catch (err) {
-        console.log(err);
-      }
-    };
-    fetchData();
-  }, []);
+  const { data = dataCopy } = useQuery({
+    queryKey: ["categoryChart"],
+    queryFn: async () => {
+      const response = await fetch(
+        `${import.meta.env.VITE_BACKEND_URL}/api/v1/stats/products-chart`,
+        {
+          credentials: "include",
+        }
+      );
+      const data = await response.json();
+      return data.data;
+    },
+    staleTime: 1000 * 60 * 5,
+  });
 
   const onPieEnter = (_, index) => {
     setActiveIndex(index);
@@ -69,44 +64,42 @@ const CategoryChart = () => {
 
   return (
     <div className="w-full h-2/3 min-h-[40vh] lg:min-h-fit relative flex flex-col justify-center py-3 px-4 bg-[var(--color-sidebar)] border border-neutral-500/50 rounded-md">
-        <div className="title px-3 py-2 ">
-          <p className="text-xl font-bold">Stocks</p>
-          <p className="text-xs text-neutral-500">by category</p>
-        </div>
+      <div className="title px-3 py-2 ">
+        <p className="text-xl font-bold">Stocks</p>
+        <p className="text-xs text-neutral-500">by category</p>
+      </div>
 
-        <div className="chart w-full relative cursor-pointer flex-1 flex text-xs md:text-sm">
-          <ResponsiveContainer width="99%" height="99%">
-            <PieChart>
-              <Pie
-                data={data}
-                innerRadius={30}
-                outerRadius={60}
-                fill="#8884d8"
-                paddingAngle={3}
-                dataKey="value"
-                onMouseEnter={onPieEnter}
-              >
-                {data?.map((entry, index) => (
-                  <Cell
-                    key={`cell-${index}`}
-                    fill={COLORS[index % COLORS.length]}
-                    cursor="pointer"
-                    stroke={
-                      index === activeIndex
-                        ? COLORS[index % COLORS.length]
-                        : "none"
-                    }
-                    strokeWidth={index === activeIndex ? 2 : 0.5}
-                  />
-                ))}
-              </Pie>
-              {/* Tooltip for displaying values */}
-              <Tooltip
-              content={<CustomTooltip />}
-              />
-            </PieChart>
-          </ResponsiveContainer>
-        </div>
+      <div className="chart w-full relative cursor-pointer flex-1 flex text-xs md:text-sm">
+        <ResponsiveContainer width="99%" height="99%">
+          <PieChart>
+            <Pie
+              data={data}
+              innerRadius={30}
+              outerRadius={60}
+              fill="#8884d8"
+              paddingAngle={3}
+              dataKey="value"
+              onMouseEnter={onPieEnter}
+            >
+              {data?.map((entry, index) => (
+                <Cell
+                  key={`cell-${index}`}
+                  fill={COLORS[index % COLORS.length]}
+                  cursor="pointer"
+                  stroke={
+                    index === activeIndex
+                      ? COLORS[index % COLORS.length]
+                      : "none"
+                  }
+                  strokeWidth={index === activeIndex ? 2 : 0.5}
+                />
+              ))}
+            </Pie>
+            {/* Tooltip for displaying values */}
+            <Tooltip content={<CustomTooltip />} />
+          </PieChart>
+        </ResponsiveContainer>
+      </div>
 
       {/* Legends */}
       <div className="flex overflow-x-auto items-start space-x-2">

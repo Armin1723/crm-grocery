@@ -7,6 +7,7 @@ import { toast } from "react-toastify";
 
 const Register = ({}) => {
   const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
 
   // Form state
   const {
@@ -48,6 +49,7 @@ const Register = ({}) => {
 
   // Handle form submission
   const registerUser = async (values) => {
+    setLoading(true);
 
     const id = toast.loading("Registering you in...");
     const formData = new FormData();
@@ -91,6 +93,8 @@ const Register = ({}) => {
         isLoading: false,
         autoClose: 2000,
       });
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -225,7 +229,9 @@ const Register = ({}) => {
               Phone*{" "}
             </label>
             {errors?.phone && (
-              <p className="text-red-500 text-xs mt-1">{errors?.phone?.message}</p>
+              <p className="text-red-500 text-xs mt-1">
+                {errors?.phone?.message}
+              </p>
             )}
           </div>
 
@@ -279,6 +285,7 @@ const Register = ({}) => {
 
         <button
           type="submit"
+          disabled={Object.keys(errors).length > 0 || loading}
           className="px-3 py-1.5 my-2 capitalize rounded-md bg-accent hover:bg-accentDark text-white disabled:opacity-50 disabled:cursor-not-allowed"
         >
           Register

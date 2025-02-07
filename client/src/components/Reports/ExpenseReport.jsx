@@ -15,6 +15,8 @@ import ExpenseTable from "./ExpenseTable";
 import ReportHeader from "./ReportHeader";
 import { FaChevronCircleDown } from "react-icons/fa";
 import { useReport } from "../../context/ReportContext";
+import { useQuery } from "@tanstack/react-query";
+import { toast } from "react-toastify";
 
 const ExpenseSummary = ({
   totalPurchases = 0,
@@ -104,55 +106,40 @@ const COLORS = [
 ];
 
 const ExpenseReport = () => {
-  const [data, setData] = useState({
-    totalExpenses: 0,
-    totalOtherExpenses: 0,
-    expensesByCategory: [],
-    expensesBySupplier: [],
-    expenseList: [],
-  });
-
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState(null);
   const [activeIndex, setActiveIndex] = useState(null);
 
   const { dateRange } = useReport();
 
   const printRef = useRef(null);
 
-  useEffect(() => {
-    const fetchExpenseReport = async () => {
-      setIsLoading(true);
-      setError(null);
-
-      try {
-        const response = await fetch(
-          `${
-            import.meta.env.VITE_BACKEND_URL
-          }/api/v1/reports/expense?startDate=${dateRange?.startDate}&endDate=${
-            dateRange?.endDate
-          }`,
-          {
-            credentials: "include",
-          }
-        );
-
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
+  const {
+    data,
+    isFetching: loading,
+    error,
+  } = useQuery({
+    queryKey: [
+      "expenseReport",
+      { startDate: dateRange?.startDate, endDate: dateRange?.endDate },
+    ],
+    queryFn: async () => {
+      const response = await fetch(
+        `${import.meta.env.VITE_BACKEND_URL}/api/v1/reports/expense?startDate=${
+          dateRange?.startDate
+        }&endDate=${dateRange?.endDate}`,
+        {
+          credentials: "include",
         }
+      );
 
-        const result = await response.json();
-        setData(result.data);
-      } catch (error) {
-        setError("Failed to fetch expense report. Please try again later.");
-        console.error("Error fetching expense report:", error);
-      } finally {
-        setIsLoading(false);
+      const actualData = await response.json();
+      if (!response.ok) {
+        toast.error(actualData.message);
+        throw new Error(actualData.message);
       }
-    };
-
-    fetchExpenseReport();
-  }, [dateRange]);
+      return actualData.data;
+    },
+    retry: false,
+  });
 
   const handleDownload = () => {
     const headers = [
@@ -198,8 +185,6 @@ const ExpenseReport = () => {
       item?.amount,
     ]);
 
-
-
     const csvRows = [
       ["Purchase Data"], // Table title
       headers,
@@ -214,7 +199,6 @@ const ExpenseReport = () => {
       ...(purchaseReturnRows || []),
     ];
 
-
     // Convert rows into a CSV string
     const csvString = csvRows?.map((row) => row.join(",")).join("\n");
 
@@ -227,25 +211,27 @@ const ExpenseReport = () => {
   };
 
   return (
-    <div className="w-full p-6 h-fit max-sm:p-3 bg-[var(--color-sidebar)] rounded-lg">
-      <div className="mx-auto space-y-3 rounded-lg p-2">
+    <div className="w-full p-6 flex-1 max-sm:p-3 bg-[var(--color-sidebar)] rounded-lg">
+      <div className="mx-auto space-y-3 rounded-lg p-2 flex flex-col h-full overflow-y-auto">
         <ReportHeader
           title="expense"
           printRef={printRef}
           handleDownload={handleDownload}
         />
 
-        {isLoading ? (
+        {loading ? (
           <div className="text-center py-8 w-full flex-1 flex justify-center items-center">
             <div className="spinner"></div>
           </div>
         ) : error ? (
-          <div className="text-center text-red-500 py-8">{error}</div>
+          <div className="text-center text-red-500 py-8 flex-1 flex items-center justify-center w-full">
+            {error.message || "Something went wrong."}
+          </div>
         ) : (
           <>
             <div className="flex flex-col gap-2 w-full" ref={printRef}>
               <ExpenseSummary
-                totalPurchases={data.totalPurchases}
+                totalPurchases={data?.totalPurchases}
                 totalOtherExpenses={data?.totalOtherExpenses}
                 totalReturns={data?.totalReturns}
               />
@@ -257,7 +243,7 @@ const ExpenseReport = () => {
 
             {/* Charts */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 no-print">
-              {data.expensesByCategory?.length > 0 && (
+              {data?.expensesByCategory?.length > 0 && (
                 <div className="bg-[var(--color-card)] rounded-lg shadow p-6">
                   <h2 className="text-xl font-bold pb-4 mb-3 border-b border-neutral-500/50">
                     Purchases by Category
@@ -265,7 +251,7 @@ const ExpenseReport = () => {
                   <ResponsiveContainer width="100%" height={300}>
                     <PieChart>
                       <Pie
-                        data={data.expensesByCategory}
+                        data={data?.expensesByCategory}
                         dataKey="total"
                         nameKey="category"
                         cx="50%"
@@ -279,7 +265,7 @@ const ExpenseReport = () => {
                         }
                         onMouseEnter={() => setActiveIndex((_, index) => index)}
                       >
-                        {data.expensesByCategory.map((entry, index) => (
+                        {data?.expensesByCategory.map((entry, index) => (
                           <Cell
                             key={`cell-${index}`}
                             fill={COLORS[index % COLORS.length]}
@@ -330,13 +316,13 @@ const ExpenseReport = () => {
                 </div>
               )}
 
-              {data.expensesBySupplier?.length > 0 && (
+              {data?.expensesBySupplier?.length > 0 && (
                 <div className="bg-[var(--color-card)] rounded-lg shadow p-6">
                   <h2 className="text-xl font-bold pb-4 mb-3 border-b border-neutral-500/50">
                     Purchases by Suppliers
                   </h2>
                   <ResponsiveContainer width="100%" height={300}>
-                    <BarChart data={data.expensesBySupplier.slice(0, 5)}>
+                    <BarChart data={data?.expensesBySupplier.slice(0, 5)}>
                       <XAxis dataKey="supplier" />
                       <YAxis />
                       <Tooltip
@@ -353,7 +339,7 @@ const ExpenseReport = () => {
                   </ResponsiveContainer>
                   {/* Legends */}
                   <div className="flex overflow-x-auto max-sm:items-start items-center space-x-2 w-full justify-center">
-                    {data?.expensesBySupplier.map((entry, index) => (
+                    {data?.expensesBySupplier?.map((entry, index) => (
                       <div
                         key={index}
                         className="flex items-center space-x-2 shrink-0"

@@ -7,12 +7,15 @@ const {
   Tray,
   Menu,
   Notification,
+  nativeImage,
 } = require("electron");
 const { autoUpdater } = require("electron-updater");
 const path = require("path");
 const { handlePrintSalesInvoice, handlePrintReport } = require("./print");
+const log = require("electron-log");
 
 let mainWindow;
+let isQuitting = false;
 
 // Function to create the main Electron window
 function createWindow() {
@@ -28,7 +31,7 @@ function createWindow() {
       nodeIntegration: false,
       contextIsolation: true,
       nativeWindowOpen: false,
-      devTools: !app.isPackaged,
+      // devTools: !app.isPackaged,
       enableAutofill: true,
       spellcheck: true,
     },
@@ -63,14 +66,16 @@ function createWindow() {
 
   // Add a custom confirmation dialog before quitting
   mainWindow.on("close", function (e) {
-    let response = dialog.showMessageBoxSync(this, {
-      type: "question",
-      buttons: ["Yes", "No"],
-      title: "Confirm",
-      message: "Are you sure you want to quit?",
-    });
+    if (!isQuitting) {
+      let response = dialog.showMessageBoxSync(this, {
+        type: "question",
+        buttons: ["Yes", "No"],
+        title: "Confirm",
+        message: "Are you sure you want to quit?",
+      });
 
-    if (response == 1) e.preventDefault();
+      if (response == 1) e.preventDefault();
+    }
   });
 
   mainWindow.on("closed", () => {
@@ -83,10 +88,18 @@ ipcMain.on("open-in-browser", (event, url) => {
   shell.openExternal(url);
 });
 
+// Check for updates (triggered from frontend)
+ipcMain.on("check-updates", () => {
+  autoUpdater.checkForUpdatesAndNotify();
+});
+
 // Create tray icon
 let tray = null;
 const createTray = () => {
-  tray = new Tray(path.join(__dirname, "build", "icon.png"));
+  const iconPath = app.isPackaged
+    ? path.join(process.resourcesPath, "icon.png")
+    : path.join(__dirname, "build", "icon.png");
+  tray = new Tray(nativeImage.createFromPath(iconPath));
   tray.setToolTip("CRM Application");
 
   const contextMenu = Menu.buildFromTemplate([
@@ -118,47 +131,56 @@ const createTray = () => {
   });
 };
 
-// Initialize app
 app.whenReady().then(async () => {
-  // await backend.startBackend();
   createWindow();
   createTray();
 
-  // Check for updates
-  autoUpdater.checkForUpdatesAndNotify();
+  // Attach logger to autoUpdater
+  autoUpdater.logger = log;
+  autoUpdater.logger.transports.file.level = "info";
+  log.info("AutoUpdater is starting...");
 
+  // Set up all event listeners
   autoUpdater.on("checking-for-update", () => {
+    log.info("Checking for update...");
     console.log("Checking for update...");
   });
 
   autoUpdater.on("update-available", () => {
+    log.info("Update available. Downloading...");
     console.log("Update available. Downloading...");
     mainWindow.webContents.send("update-log", "update-available");
   });
 
   autoUpdater.on("update-not-available", () => {
+    log.info("No updates available.");
+    console.log("No updates available.");
+    mainWindow.webContents.send("update-log", "update-not-available");
     new Notification({
       title: "CRM Application",
       body: "No updates available",
+      icon: path.join(process.resourcesPath, "icon.png"),
     }).show();
-    console.log("No updates available.");
-    mainWindow.webContents.send("update-log", "update-not-available");
   });
 
   autoUpdater.on("update-downloaded", () => {
+    log.info("Update downloaded. Quitting and installing...");
     console.log("Update downloaded. Quitting and installing...");
     mainWindow.webContents.send("update-log", "update-downloaded");
+    isQuitting = true;
     autoUpdater.quitAndInstall();
   });
 
   autoUpdater.on("error", (error) => {
+    log.error("Error in auto-updater:", error);
     console.error("Error in auto-updater:", error);
     mainWindow.webContents.send("update-log", error.message);
   });
 
+  autoUpdater.checkForUpdatesAndNotify();
+
   app.on("activate", async () => {
     if (mainWindow === null) {
-      // await startBackend();
       createWindow();
       autoUpdater.checkForUpdatesAndNotify();
     }

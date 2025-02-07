@@ -7,7 +7,10 @@ const AddCompany = () => {
   const user = useSelector((state) => state.user);
 
   useEffect(() => {
-    toast.info("Enter company details", { type: "info" });
+    toast({
+      message: "Please fill in the company details",
+      type: "info",
+    });
   }, [user]);
 
   return (

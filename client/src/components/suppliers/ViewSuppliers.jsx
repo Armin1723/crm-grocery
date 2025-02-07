@@ -4,10 +4,9 @@ import SortableLink from "../utils/SortableLink";
 import { Link } from "react-router-dom";
 import SupplierActionButton from "./SupplierActionButton";
 import { FaArrowDown, FaArrowUp } from "react-icons/fa";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 const ViewSuppliers = () => {
-  const [loading, setLoading] = useState(false);
-  const [refetch, setRefetch] = useState(false);
 
   const [limit, setLimit] = useState(10);
   const [page, setPage] = useState(1);
@@ -17,33 +16,25 @@ const ViewSuppliers = () => {
 
   const steps = [10, 20, 50, 100];
 
-  const [results, setResults] = useState();
-
-  useEffect(() => {
-    const fetchSuppliers = async () => {
-      try {
-        setLoading(true);
-        const response = await fetch(
-          `${
-            import.meta.env.VITE_BACKEND_URL
-          }/api/v1/suppliers?sort=${sort}&sortType=${sortType}&limit=${limit}&query=${query}&page=${page}`,
-          {
-            credentials: "include",
-          }
-        );
-        const data = await response.json();
-        if (!response.ok) {
-          throw new Error(data.message || "Something went wrong");
+  const queryClient = useQueryClient();
+  const refetch = () => {
+    queryClient.invalidateQueries({ queryKey: ["suppliers"] });
+  };
+  const { data: results, isFetching: loading } = useQuery({
+    queryKey: ["suppliers", { sort, sortType, limit, page, query }],
+    queryFn: async () => {
+      const response = await fetch(
+        `${
+          import.meta.env.VITE_BACKEND_URL
+        }/api/v1/suppliers?sort=${sort}&sortType=${sortType}&limit=${limit}&query=${query}&page=${page}`,
+        {
+          credentials: "include",
         }
-        setResults(data);
-      } catch (error) {
-        console.log(error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchSuppliers();
-  }, [refetch, limit, page, sort, sortType, query]);
+      );
+      return await response.json();
+    },
+    staleTime: 5 * 60 * 1000,
+  });
 
   return (
     <div className="p-3 rounded-md flex h-full flex-col gap-2 border border-neutral-500/50 bg-[var(--color-sidebar)]">
@@ -54,7 +45,7 @@ const ViewSuppliers = () => {
             className={`${
               loading && "animate-spin"
             } w-4 aspect-square rounded-full border-t border-b border-accent/90 cursor-pointer`}
-            onClick={() => setRefetch((p) => !p)}
+            onClick={() => refetch()}
           ></p>
         </div>
       </div>
@@ -141,7 +132,7 @@ const ViewSuppliers = () => {
                     <div className="actions w-[10%] min-w-[50px] flex items-center justify-center gap-2">
                       <SupplierActionButton
                         supplier={supplier}
-                        setRefetch={setRefetch}
+                        setRefetch={refetch}
                       />
                     </div>
                   </div>

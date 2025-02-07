@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useRef } from "react";
 import {
   BarChart,
   Bar,
@@ -14,51 +14,55 @@ import PLData from "./PLData";
 import CountUp from "react-countup";
 import { getMonthName } from "../utils";
 import { useReport } from "../../context/ReportContext";
+import { useQuery } from "@tanstack/react-query";
+import { toast } from "react-toastify";
 
 const ProfitLossReport = () => {
   const printRef = useRef(null);
-  const [reportData, setReportData] = useState(null);
-  const [loading, setLoading] = useState(false);
 
   const { dateRange } = useReport();
 
-  useEffect(() => {
-    const fetchPLReport = async () => {
-      setLoading(true);
-      // Fetch data for the report
-      try {
-        const res = await fetch(
-          `${
-            import.meta.env.VITE_BACKEND_URL
-          }/api/v1/reports/profit-loss?startDate=${
-            dateRange?.startDate
-          }&endDate=${dateRange?.endDate}`,
-          {
-            credentials: "include",
-          }
-        );
-        const data = await res.json();
-        if (!res.ok) {
-          throw new Error(data.message || "Failed to fetch data");
-        } else {
-          setReportData(data);
+  const {
+    data: reportData,
+    isFetching: loading,
+    error,
+  } = useQuery({
+    queryKey: [
+      "plReport",
+      { startDate: dateRange?.startDate, endDate: dateRange?.endDate },
+    ],
+    queryFn: async () => {
+      const response = await fetch(
+        `${
+          import.meta.env.VITE_BACKEND_URL
+        }/api/v1/reports/profit-loss?startDate=${
+          dateRange?.startDate
+        }&endDate=${dateRange?.endDate}`,
+        {
+          credentials: "include",
         }
-      } catch (error) {
-        console.error("Error fetching profit/loss report data:", error.message);
-      } finally {
-        setLoading(false);
+      );
+      const data = await response.json();
+      if (!response.ok) {
+        toast.error(data.message);
+        throw new Error(data.message);
       }
-    };
-    fetchPLReport();
-  }, [dateRange]);
+      return data;
+    },
+    retry: false,
+  });
 
   return (
-    <div className="w-full p-1 min-h-fit bg-[var(--color-sidebar)] rounded-lg ">
-      <div className="mx-auto space-y-2 rounded-lg p-1">
+    <div className="w-full p-6 flex-1 max-sm:p-3 bg-[var(--color-sidebar)] rounded-lg">
+      <div className="mx-auto space-y-3 rounded-lg p-2 flex flex-col h-full overflow-y-auto">
         <ReportHeader title="P/L" printRef={printRef} handleDownload={null} />
         {loading ? (
           <div className="w-full p-6 min-h-fit max-sm:p-3 bg-[var(--color-sidebar)] rounded-lg flex items-center justify-center">
             <div className="spinner"></div>
+          </div>
+        ) : error ? (
+          <div className="text-center text-red-500 py-8 flex-1 flex flex-col items-center justify-center">
+            {error.message || "Something went wrong."}
           </div>
         ) : (
           <div className="flex flex-col gap-2" ref={printRef}>

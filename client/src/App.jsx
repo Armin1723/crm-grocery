@@ -98,12 +98,12 @@ const TaxReport = lazy(() => import("./components/Reports/TaxReport"));
 
 const ProtectedRoute = ({ children }) => {
   const user = useSelector((state) => state.user);
-  const isAuthenticated = user && user?.avatar;
+  const isAuthenticated = user && user?.name;
   const location = useLocation();
 
   if (!isAuthenticated) {
     return <Navigate to="/auth/login" state={{ from: location }} replace />;
-  } else if(!user.company){
+  } else if (!user.company) {
     return <Navigate to="/company/add" state={{ from: location }} replace />;
   }
 
@@ -140,6 +140,7 @@ const App = () => {
   return (
     <HashRouter>
       <ToastContainer
+        stacked
         theme={theme}
         portal={document.body}
         toastStyle={{
@@ -160,7 +161,6 @@ const App = () => {
           }
         >
           <Routes>
-            
             {/* Base Route for adding company on the first login */}
             <Route path="/company/add" element={<AddCompany />} />
 

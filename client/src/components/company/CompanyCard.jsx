@@ -54,7 +54,6 @@ const CompanyCard = ({ company, otherClasses = "", isAdmin = false }) => {
                 {company?.subscription || "No Plan"}
               </p>
             </div>
-            <p className="text-xs italic text-[var(--color-text-light)]">{company?.licenseKey}</p>
             <p className="text-xs">Branch: {company?.branch}</p>
           </div>
         </div>
