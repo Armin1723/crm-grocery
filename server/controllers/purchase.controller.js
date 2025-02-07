@@ -21,7 +21,7 @@ const getPurchases = async (req, res) => {
     sortType = "desc",
   } = req.query;
 
-  const query = { company : req.user.company };
+  const query = { company: req.user.company };
   if (supplierId) {
     query.supplier = supplierId;
   }
@@ -46,7 +46,10 @@ const getPurchases = async (req, res) => {
 
 const getEmployeePurchases = async (req, res) => {
   const { limit = 10, page = 1, employeeId = { $exists: true } } = req.query;
-  const purchases = await Purchase.find({ signedBy: employeeId, company: req.user.company })
+  const purchases = await Purchase.find({
+    signedBy: employeeId,
+    company: req.user.company,
+  })
 
     .limit(limit)
     .skip((page - 1) * limit);
@@ -164,13 +167,17 @@ const getPurchaseReturns = async (req, res) => {
     sort = "createdAt",
     sortType = "desc",
   } = req.query;
-  const purchaseReturns = await PurchaseReturn.find({company: req.user.company})
+  const purchaseReturns = await PurchaseReturn.find({
+    company: req.user.company,
+  })
     .populate("products.product supplier signedBy")
     .limit(limit)
     .skip((page - 1) * limit)
     .sort({ [sort]: sortType });
 
-  const totalPurchaseReturns = await PurchaseReturn.countDocuments({company: req.user.company});
+  const totalPurchaseReturns = await PurchaseReturn.countDocuments({
+    company: req.user.company,
+  });
   res.status(200).json({
     success: true,
     purchaseReturns,
@@ -306,17 +313,17 @@ const addPurchase = async (req, res) => {
         company: req.user.company,
       });
     } else {
-        inventory.batches.push({
-          quantity: product.quantity,
-          purchaseRate: product.purchaseRate,
-          sellingRate: product.sellingRate,
-          expiry: product.expiry,
-          mrp: product.mrp,
-        });
-        inventory.totalQuantity = inventory.totalQuantity + product.quantity;
-        inventory.batches = await mergeBatchesHelper(inventory.batches);
-        await inventory.save();
-      }
+      inventory.batches.push({
+        quantity: product.quantity,
+        purchaseRate: product.purchaseRate,
+        sellingRate: product.sellingRate,
+        expiry: product.expiry,
+        mrp: product.mrp,
+      });
+      inventory.totalQuantity = inventory.totalQuantity + product.quantity;
+      inventory.batches = await mergeBatchesHelper(inventory.batches);
+      await inventory.save();
+    }
 
     // Set MRP of product if not already set
     if (product.mrp) {
@@ -336,7 +343,7 @@ const addPurchase = async (req, res) => {
 
 const getRecentPurchase = async (req, res) => {
   // Find the most recent purchase by sorting by date descending
-  const recentPurchase = await Purchase.findOne({company: req.user.company})
+  const recentPurchase = await Purchase.findOne({ company: req.user.company })
     .sort({ createdAt: -1 })
     .populate("products.product")
     .populate("supplier")
@@ -387,7 +394,10 @@ const getRecentPurchase = async (req, res) => {
 
 const addPayment = async (req, res) => {
   const { paidAmount, notes } = req.body;
-  const purchase = await Purchase.findById(req.params.id);
+  const purchase = await Purchase.findOne({
+    _id: req.params.id,
+    company: req.user.company,
+  });
 
   if (!purchase) {
     return res.status(404).json({ error: "Purchase not found." });
