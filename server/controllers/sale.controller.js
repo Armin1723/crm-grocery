@@ -187,7 +187,14 @@ const getSaleReturns = async (req, res) => {
 
 const addSale = async (req, res) => {
   const {
-    products = [],
+    products = [
+      {
+        product: "",
+        quantity: 0,
+        sellingRate: 0,
+        expiry: "",
+      },
+    ],
     customerMobile,
     discount = 0,
     subTotal = 0,
@@ -199,7 +206,7 @@ const addSale = async (req, res) => {
     return res.status(400).json({ message: "Products are required." });
   }
 
-  const sale = new Sale({
+  const sale = await Sale.create({
     products,
     signedBy: req.user.id,
     company: req.user.company,
@@ -209,58 +216,64 @@ const addSale = async (req, res) => {
     paymentMode,
   });
 
-  // Run customer lookup and creation in parallel
-  let customerPromise = customerMobile
-    ? Customer.findOneAndUpdate(
-        { phone: customerMobile, company: req.user.company },
-        { phone: customerMobile, company: req.user.company },
-        { upsert: true, new: true } 
-      )
-    : null;
-
-  let inventoryProducts = products.map((p) => p.product);
-  let inventoryPromise = Inventory.find({
-    product: { $in: inventoryProducts },
-  }).populate("product");
-
-  // Resolve both promises
-  const [customer, inventories] = await Promise.all([
-    customerPromise,
-    inventoryPromise,
-  ]);
-
-  if (customer) sale.customer = customer._id;
-
-  // Process inventory updates in parallel
-  let inventoryUpdates = inventories.map((inventory) => {
-    const productData = products.find(
-      (p) => String(p.product) === String(inventory.product._id)
-    );
-    if (!productData) return null;
-
-    let batchToUpdate = inventory.batches.find(
-      (batch) =>
-        (!batch.expiry ||
-          !productData.expiry ||
-          new Date(batch.expiry).getTime() ===
-            new Date(productData.expiry).getTime()) &&
-        batch.sellingRate === productData.sellingRate
-    );
-
-    if (batchToUpdate) {
-      batchToUpdate.quantity -= productData.quantity;
-      if (batchToUpdate.quantity === 0)
-        inventory.batches.pull(batchToUpdate._id);
+  let customer = null;
+  if (customerMobile) {
+    customer = await Customer.findOne({
+      phone: customerMobile,
+      company: req.user.company,
+    });
+    if (!customer) {
+      customer = await Customer.create({
+        phone: customerMobile,
+        company: req.user.company,
+      });
     }
-    inventory.totalQuantity -= productData.quantity;
+    sale.customer = customer._id;
+  }
 
-    return inventory.save();
-  });
+  // Update Inventory
+  for (const product of products) {
+    const inventory = await Inventory.findOne({
+      product: product.product,
+    }).populate("product");
 
-  // Bulk update all inventories
-  await Promise.all(inventoryUpdates, sale.save());
+    for (const batch of inventory?.batches || []) {
+      const sameBatch =
+        (!batch.expiry ||
+          !product.expiry ||
+          new Date(batch?.expiry).getTime() ===
+            new Date(product?.expiry).getTime()) &&
+        batch.purchaseRate === product.purchaseRate &&
+        (!product.mrp || !batch.mrp || batch.mrp === product?.mrp);
+      if (sameBatch) {
+        batch.quantity -= product.quantity;
+        if (batch.quantity === 0) {
+          inventory.batches.pull(batch._id);
+        }
+        inventory.totalQuantity -= product.quantity;
+        await inventory.save();
+        break;
+      }
+    }
 
-  // Generate invoice in background
+    // Send Mail to Admin if stockPreference set
+    if (inventory?.product?.stockAlert?.preference) {
+      if (inventory.totalQuantity < inventory?.product?.stockAlert.quantity) {
+        const company = await Company.findById(req.user.company)
+          .select("email")
+          .lean();
+        sendMail(
+          (to = company.email),
+          (subject = "Low Stock Alert"),
+          (message = lowStockMailTemplate(
+            inventory.product.name,
+            inventory.totalQuantity
+          ))
+        );
+      }
+    }
+  }
+
   sale.invoice = await generateSaleInvoice(sale._id);
   await sale.save();
 
@@ -278,22 +291,6 @@ const addSale = async (req, res) => {
         saleInvoiceMailTemplate(updatedSale, updatedSale.company)
       );
     }
-
-    // Stock alert notifications
-    inventories.forEach(async (inventory) => {
-      if (
-        inventory.product?.stockAlert?.preference &&
-        inventory.totalQuantity < inventory.product.stockAlert.quantity
-      ) {
-        const company = await Company.findById(req.user.company)
-          .lean();
-        sendMail(
-          company.email,
-          "Low Stock Alert",
-          lowStockMailTemplate(inventory.product.name, inventory.totalQuantity, company)
-        );
-      }
-    });
   });
 };
 
@@ -355,8 +352,8 @@ const addSaleReturn = async (req, res) => {
   });
 
   // Update Inventory
-  products.forEach(async (product) => {
-    const inventory = await Inventory.findOne({
+  for (const product of products) {
+    let inventory = await Inventory.findOne({
       product: product.product,
     }).populate("product");
     if (!inventory) {
@@ -372,35 +369,38 @@ const addSaleReturn = async (req, res) => {
           },
         ],
       });
-    }
-    inventory.batches.push({
-      quantity: product.quantity,
-      mrp: product.mrp,
-      sellingRate: product.sellingRate,
-      expiry: product.expiry,
-    });
-    inventory.totalQuantity += product.quantity;
+    } else {
+      inventory.batches.push({
+        quantity: product.quantity,
+        mrp: product.mrp,
+        sellingRate: product.sellingRate,
+        expiry: product.expiry,
+      });
+      inventory.totalQuantity += product.quantity;
 
-    inventory.batches = await mergeBatchesHelper(inventory.batches);
-    await inventory.save();
-  });
+      inventory.batches = await mergeBatchesHelper(inventory.batches);
+      await inventory.save();
+    }
+  }
 
   // Generate a sales return invoice
   saleReturn.invoice = await generateSalesReturnInvoice(saleReturn._id);
 
   await saleReturn.save();
 
-  // Send the invoice to the customer
-  if (saleReturn?.customer?.email) {
-    const company = await Company.findById(req.body.company).lean();
-    sendMail(
-      saleReturn?.customer?.email,
-      "Sales Return Invoice",
-      (message = saleReturnInvoiceMailTemplate(saleReturn, company))
-    );
-  }
-
   res.json({ success: true, saleReturn });
+
+  process.nextTick(async () => {
+    // Send the invoice to the customer
+    if (saleReturn?.customer?.email) {
+      const company = await Company.findById(req.body.company).lean();
+      sendMail(
+        saleReturn?.customer?.email,
+        "Sales Return Invoice",
+        (message = saleReturnInvoiceMailTemplate(saleReturn, company))
+      );
+    }
+  });
 };
 
 const getRecentSale = async (req, res) => {
