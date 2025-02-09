@@ -90,7 +90,7 @@ const SaleForm = ({ setRefetch = () => {}, closeModal = () => {} }) => {
         {
           method: "POST",
           headers: {
-            "Content-Type": "application/json",
+          "Content-Type": "application/json",
           },
           body: JSON.stringify({
             customerMobile: values.customerMobile,

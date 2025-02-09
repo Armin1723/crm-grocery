@@ -29,7 +29,7 @@ const AddByBarcode = ({ getValues = [], setValue = () => {} }) => {
           ? {
               ...p,
               quantity: p.quantity + 1,
-              price: p.sellingRate * (p.quantity + 1),
+              price: p.sellingRate * (p.quantity + 1), 
             }
           : p
       );
