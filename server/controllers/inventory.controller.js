@@ -72,6 +72,7 @@ const getProductsFromInventory = async (req, res) => {
         mrp: "$batches.mrp",
         expiry: "$batches.expiry",
         maxQuantity: "$batches.quantity",
+        batchId: "$batches._id",
       },
     },
     { $skip: skip },

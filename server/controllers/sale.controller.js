@@ -230,6 +230,7 @@ const addSale = async (req, res) => {
     }
     sale.customer = customer._id;
   }
+  
 
   // Update Inventory
   for (const product of products) {
@@ -237,24 +238,21 @@ const addSale = async (req, res) => {
       product: product.product,
     }).populate("product");
 
-    for (const batch of inventory?.batches || []) {
-      const sameBatch =
-        (!batch.expiry ||
-          !product.expiry ||
-          new Date(batch?.expiry).getTime() ===
-            new Date(product?.expiry).getTime()) &&
-        batch.purchaseRate === product.purchaseRate &&
-        (!product.mrp || !batch.mrp || batch.mrp === product?.mrp);
-      if (sameBatch) {
-        batch.quantity -= product.quantity;
-        if (batch.quantity === 0) {
-          inventory.batches.pull(batch._id);
-        }
-        inventory.totalQuantity -= product.quantity;
-        await inventory.save();
-        break;
-      }
+    const batchToUpdate = inventory.batches.find(
+      (batch) => batch._id.toString() === product.batchId
+    );
+
+    if (batchToUpdate) {
+      batchToUpdate.quantity -= product.quantity;
+    } else {
+      return res.status(400).json({ message: "Batch not found." });
     }
+    // Delete empty batches
+    if (batchToUpdate.quantity === 0) {
+      inventory.batches.pull(batchToUpdate._id);
+    }
+    inventory.totalQuantity -= product.quantity;
+    await inventory.save();
 
     // Send Mail to Admin if stockPreference set
     if (inventory?.product?.stockAlert?.preference) {
