@@ -19,6 +19,8 @@ router.use(isAdmin);
 
 router.get("/", asyncHandler(getEmployees));
 
+router.put("/update-preferences", asyncHandler(updatePrefences));
+
 router.use(isSubscriptionActive);
 
 router.post(
@@ -33,7 +35,6 @@ router.put(
   asyncHandler(editEmployee)
 );
 
-router.put("/update-preferences", asyncHandler(updatePrefences));
 
 router.get("/:uuid", asyncHandler(getEmployee));
 

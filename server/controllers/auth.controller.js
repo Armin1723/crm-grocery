@@ -26,7 +26,10 @@ const loginUser = async (req, res) => {
   }
 
   const user = await User.findOne({
-    $or: [{ email: email }, { uuid: { $regex: new RegExp(email, "i") } }],
+    $or: [
+      { email: email.toString() },
+      { uuid: email.toString().toUpperCase() },
+    ],
   })
     .select("+password +otp")
     .populate("company");
@@ -54,7 +57,7 @@ const loginUser = async (req, res) => {
   }
 
   //Do not send OTP for no-company users
-  if(!user.company) { 
+  if (!user.company) {
     return res.status(200).json({
       success: true,
       message: "Logged in successfully",
@@ -63,8 +66,8 @@ const loginUser = async (req, res) => {
   }
 
   //Check for 2FA and send OTP
-  if(user.preferences.twoFactorAuth) {
-    if(user.otp) {
+  if (user.preferences.twoFactorAuth) {
+    if (user.otp) {
       return res.status(200).json({
         success: true,
         message: "OTP already sent to your email",
@@ -100,7 +103,9 @@ const loginUser = async (req, res) => {
     sameSite: "None",
   });
   user.password = undefined;
-  res.status(200).json({ success: true, user, message: "Logged in successfully" });
+  res
+    .status(200)
+    .json({ success: true, user, message: "Logged in successfully" });
 };
 
 const verifyOtp = async (req, res) => {
@@ -116,7 +121,8 @@ const verifyOtp = async (req, res) => {
   }
 
   const user = await User.findOne({
-    otp}).populate("company");
+    otp,
+  }).populate("company");
 
   if (!user) {
     return res.status(400).json({
@@ -127,7 +133,6 @@ const verifyOtp = async (req, res) => {
       success: false,
     });
   }
-
 
   // const subscriptionActive =
   //   !user.company || user?.company?.subscriptionEndDate > Date.now();
@@ -159,7 +164,9 @@ const verifyOtp = async (req, res) => {
     sameSite: "None",
   });
   user.password = undefined;
-  res.status(200).json({ success: true, user, message: "Logged in successfully" });
+  res
+    .status(200)
+    .json({ success: true, user, message: "Logged in successfully" });
 };
 
 const registerUser = async (req, res) => {
@@ -242,7 +249,7 @@ const forgotPassword = async (req, res) => {
   }
   const user = await User.findOne({
     email,
-  })
+  });
   if (!user) {
     return res.status(400).json({ message: "User not found", success: false });
   }
