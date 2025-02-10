@@ -60,17 +60,27 @@ const Login = () => {
         throw new Error(data.message || "Autorization failed");
       } else {
         const data = await response.json();
-        dispatch(setUser(data.user));
-        toast.update(id, {
-          render: "Login successful",
-          type: "success",
-          isLoading: false,
-          autoClose: 2000,
-        });
-        if (data.user.role === "admin") {
-          navigate("/");
-        } else if (data.user.role === "employee") {
-          navigate("/seller");
+        if (!data.user) {
+          toast.update(id, {
+            render: data.message,
+            type: "success",
+            isLoading: false,
+            autoClose: 2000,
+          });
+          navigate("/auth/otp");
+        } else {
+          dispatch(setUser(data.user));
+          toast.update(id, {
+            render: "Login successful",
+            type: "success",
+            isLoading: false,
+            autoClose: 2000,
+          });
+          if (data.user.role === "admin") {
+            navigate("/");
+          } else if (data.user.role === "employee") {
+            navigate("/seller");
+          }
         }
       }
     } catch (error) {
@@ -160,8 +170,18 @@ const Login = () => {
       </div>
 
       <div className="forgot-pass text-sm flex justify-between">
-        <Link to="/auth/forgot-password" className="text-[var(--color-text-light)]">Forgot Password?</Link>
-        <Link to="/auth/register" className="text-[var(--color-accent)] hover:text-[var(--color-accent-dark)] hover:underline transition-all duration-300 ease-in">New here?</Link>
+        <Link
+          to="/auth/forgot-password"
+          className="text-[var(--color-text-light)]"
+        >
+          Forgot Password?
+        </Link>
+        <Link
+          to="/auth/register"
+          className="text-[var(--color-accent)] hover:text-[var(--color-accent-dark)] hover:underline transition-all duration-300 ease-in"
+        >
+          New here?
+        </Link>
       </div>
 
       <button

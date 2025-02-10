@@ -47,6 +47,10 @@ function createWindow() {
     mainWindow.minimize();
   });
 
+  ipcMain.on("minimize-to-tray", () => {
+    mainWindow.hide();
+  });
+
   ipcMain.on("maximize-window", () => {
     if (mainWindow.isMaximized()) {
       mainWindow.unmaximize();

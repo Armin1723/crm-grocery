@@ -15,6 +15,7 @@ import Company from "./components/home/Company";
 import ViewCompany from "./components/company/ViewCompany";
 import AddCompany from "./components/company/AddCompany";
 import Register from "./components/auth/Register";
+import Otp from "./components/auth/Otp";
 const Seller = lazy(() => import("./pages/Seller"));
 const TopLoadingBar = lazy(() => import("./components/shared/TopLoadingBar"));
 const SellerSales = lazy(() => import("./components/seller/sales/SellerSales"));
@@ -243,6 +244,7 @@ const App = () => {
             <Route path="/auth" element={<Auth />}>
               <Route path="" element={<Login />} />
               <Route path="login" element={<Login />} />
+              <Route path="otp" element={<Otp />} />
               <Route path="register" element={<Register />} />
               <Route path="forgot-password" element={<ForgotPassword />} />
               <Route path="reset-password" element={<ResetPassword />} />

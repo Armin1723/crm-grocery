@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { FaPhoneAlt, FaBars } from "react-icons/fa";
+import { MdOutlineSystemUpdateAlt } from "react-icons/md";
 
 const TitleBar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -34,6 +35,10 @@ const TitleBar = () => {
 
   const minimizeWindow = () => {
     window.electron.ipcRenderer.send("minimize-window");
+  };
+
+  const minimizeToTray = () => {
+    window.electron.ipcRenderer.send("minimize-to-tray");
   };
 
   const maximizeWindow = () => {
@@ -161,7 +166,16 @@ const TitleBar = () => {
             </div>
           )}
         </div>
-
+        
+        {/* Minimize to tray Button */}
+        <button
+          onClick={minimizeToTray}
+          className="w-8 aspect-square flex items-center justify-center hover:bg-violet-500 rounded focus:outline-none"
+          title="Minimize to tray"
+        >
+          <MdOutlineSystemUpdateAlt />
+        </button>
+        
         {/* Minimize Button */}
         <button
           onClick={minimizeWindow}

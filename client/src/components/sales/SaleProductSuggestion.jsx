@@ -41,10 +41,7 @@ const SaleProductSuggestion = ({
   const handleAddProduct = (product) => {
     const isMatch = getValues("products").some(
       (p) =>
-        p.name === product.name &&
-        p.sellingRate === product.sellingRate &&
-        p.purchaseRate === product.purchaseRate &&
-        p?.expiry === product?.expiry
+        p.batchId === product.batchId
     );
 
     if (isMatch) {
