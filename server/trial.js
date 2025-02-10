@@ -24,6 +24,7 @@ const saleInvoiceMailTemplate = require("./templates/email/saleInvoiceMailTempla
 const saleReturnInvoiceMailTemplate = require("./templates/email/saleReturnInvoiceMailTemplate");
 const stockAlertMailTemplate = require("./templates/email/stockAlertMailTemplate");
 const welcomeEmployeeMail = require("./templates/email/welcomeEmployeeMail");
+const loginOtpMailTemplate = require("./templates/email/loginOtpMailTemplate");
 
 const updateLastPurchaseInvoice = async () => {
   const purchase = await Purchase.findOne().sort({ createdAt: -1 });
@@ -56,7 +57,7 @@ const updatePurchaseReturnInvoice = async () => {
 };
 
 const updateSaleInvoice = async (limit = 1) => {
-  const sales = await Sale.find().sort({ createdAt: -1 })
+  const sales = await Sale.find().sort({ createdAt: -1 });
 
   for (const sale of sales) {
     sale.invoice = await generateSaleInvoice(sale._id);
@@ -69,14 +70,13 @@ const updateSaleInvoice = async (limit = 1) => {
 const updateSalesReturnInvoice = async () => {
   const saleReturns = await SalesReturn.find();
 
-  for(const salesReturn of saleReturns) {
+  for (const salesReturn of saleReturns) {
     salesReturn.invoice = await generateSalesReturnInvoice(salesReturn._id);
     console.log("Updated sale return invoice for", salesReturn._id);
     await salesReturn.save();
   }
   console.log("Updated all sale return invoices");
 };
-
 
 const addCompanyToEverything = async () => {
   const company = await Company.findOne();
@@ -146,19 +146,25 @@ const addCompanyToEverything = async () => {
   );
 };
 
-const sendTestMails = async () => {  
+const sendTestMails = async () => {
   const recipient = "alam.airuz23@gmail.com";
   const purchase = await Purchase.findOne().sort({ createdAt: -1 }).lean();
-  const sale = await Sale.findOne().sort({ createdAt: -1 }).populate("products.product customer").lean();
-  const saleReturn = await SalesReturn.findOne().sort({ createdAt: -1 }).populate("products.product customer").lean();
+  const sale = await Sale.findOne()
+    .sort({ createdAt: -1 })
+    .populate("products.product customer")
+    .lean();
+  const saleReturn = await SalesReturn.findOne()
+    .sort({ createdAt: -1 })
+    .populate("products.product customer")
+    .lean();
   const product = await Product.findOne().lean();
-  const employee = await User.findOne({role: "employee"}).lean();
+  const employee = await User.findOne({ role: "employee" }).lean();
   const company = await Company.findOne().lean();
 
   // sendMail(
   //   recipient,
   //   "Follow Up Payment Reminder",
-  //   followUpPaymentMailTemplate("AR Enterprises", 1000, purchase._id, company) 
+  //   followUpPaymentMailTemplate("AR Enterprises", 1000, purchase._id, company)
   // );
 
   // sendMail(
@@ -177,7 +183,7 @@ const sendTestMails = async () => {
   //   recipient,
   //   "Register Mail",
   //   registerMailTemplate("Test User", company)
-  // );  
+  // );
 
   sendMail(
     recipient,
@@ -204,6 +210,22 @@ const sendTestMails = async () => {
   // );
 };
 
+const addPreferences = async () => {
+  const users = await User.find();
+
+  for (const user of users) {
+    user.preferences = {
+      twoFactorAuth: true,
+    };
+    await user.save();
+    console.log("Added preferences to user", user.name);
+  }
+};
+
+const sendOtpMail = async () => {
+  const company = await Company.findOne();
+  sendMail("a-8278@kmclu.ac.in", "OTP Verification", loginOtpMailTemplate(334534, "Uzair Alam", company));
+};
 
 module.exports = {
   updateLastPurchaseInvoice,
@@ -213,4 +235,6 @@ module.exports = {
   updateSalesReturnInvoice,
   addCompanyToEverything,
   sendTestMails,
+  addPreferences,
+  sendOtpMail,
 };

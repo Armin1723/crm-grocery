@@ -120,6 +120,14 @@ const deleteSale = async (req, res) => {
     return res.status(404).json({ success: false, message: "Sale not found." });
   }
 
+  const saleReturn = await SalesReturn.findOne({ saleId: sale._id });
+  if (saleReturn) {
+    return res.status(400).json({
+      success: false,
+      message: "Sale has a return. Cannot delete sale.",
+    });
+  }
+
   // Update Inventory
   for (const product of sale.products) {
     const inventory = await Inventory.findOne({

@@ -10,6 +10,7 @@ const cloudinary = require("../config/cloudinary");
 const { sendMail } = require("../helpers");
 const registerMailTemplate = require("../templates/email/registerMailTemplate");
 const passwordResetMailTemplate = require("../templates/email/passwordResetMailTemplate");
+const loginOtpMailTemplate = require("../templates/email/loginOtpMailTemplate");
 
 const loginUser = async (req, res) => {
   const { email, password } = req.body;
@@ -27,7 +28,7 @@ const loginUser = async (req, res) => {
   const user = await User.findOne({
     $or: [{ email: email }, { uuid: { $regex: new RegExp(email, "i") } }],
   })
-    .select("+password")
+    .select("+password +otp")
     .populate("company");
 
   if (!user) {
@@ -52,15 +53,36 @@ const loginUser = async (req, res) => {
     });
   }
 
-  // const subscriptionActive =
-  //   !user.company || user?.company?.subscriptionEndDate > Date.now();
-  // if (!subscriptionActive) {
-  //   return res.status(400).json({
-  //     success: false,
-  //     message: "Subscription Expired",
-  //     errors: { company: "Subscription Expired" },
-  //   });
-  // }
+  //Do not send OTP for no-company users
+  if(!user.company) { 
+    return res.status(200).json({
+      success: true,
+      message: "Logged in successfully",
+      user,
+    });
+  }
+
+  //Check for 2FA and send OTP
+  if(user.preferences.twoFactorAuth) {
+    if(user.otp) {
+      return res.status(200).json({
+        success: true,
+        message: "OTP already sent to your email",
+      });
+    }
+    const otp = Math.floor(100000 + Math.random() * 900000);
+    user.otp = otp;
+    await user.save();
+    sendMail(
+      user.email,
+      (subject = "Login OTP"),
+      (message = loginOtpMailTemplate(otp, user?.name, user?.company))
+    );
+    return res.status(200).json({
+      success: true,
+      message: "OTP sent to your email",
+    });
+  }
 
   const token = jwt.sign(
     {
@@ -78,7 +100,66 @@ const loginUser = async (req, res) => {
     sameSite: "None",
   });
   user.password = undefined;
-  res.status(200).json({ success: true, user });
+  res.status(200).json({ success: true, user, message: "Logged in successfully" });
+};
+
+const verifyOtp = async (req, res) => {
+  const { otp } = req.body;
+
+  if (!otp) {
+    return res.status(400).json({
+      success: false,
+      errors: {
+        otp: "OTP is required",
+      },
+    });
+  }
+
+  const user = await User.findOne({
+    otp}).populate("company");
+
+  if (!user) {
+    return res.status(400).json({
+      message: "User not found",
+      errors: {
+        otp: "Invalid OTP",
+      },
+      success: false,
+    });
+  }
+
+
+  // const subscriptionActive =
+  //   !user.company || user?.company?.subscriptionEndDate > Date.now();
+  // if (!subscriptionActive) {
+  //   return res.status(400).json({
+  //     success: false,
+  //     message: "Subscription Expired",
+  //     errors: { company: "Subscription Expired" },
+  //   });
+  // }
+
+  // Delete OTP
+  user.otp = undefined;
+  await user.save();
+
+  const token = jwt.sign(
+    {
+      id: user._id,
+      role: user.role,
+      company: user?.company?._id,
+    },
+    process.env.JWT_SECRET,
+    { expiresIn: process.env.JWT_EXPIRES_IN }
+  );
+  res.cookie("token", token, {
+    maxAge: 7 * 24 * 60 * 60 * 1000,
+    httpOnly: true,
+    secure: true,
+    sameSite: "None",
+  });
+  user.password = undefined;
+  res.status(200).json({ success: true, user, message: "Logged in successfully" });
 };
 
 const registerUser = async (req, res) => {
@@ -240,6 +321,7 @@ const validateUser = async (req, res) => {
 
 module.exports = {
   loginUser,
+  verifyOtp,
   registerUser,
   forgotPassword,
   resetPassword,

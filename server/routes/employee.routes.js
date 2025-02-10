@@ -5,6 +5,7 @@ const {
   editEmployee,
   deleteEmployee,
   getEmployeeSales,
+  updatePrefences,
 } = require("../controllers/employee.controller");
 const { isAdmin, isSubscriptionActive } = require("../middleware");
 const { asyncHandler } = require("../middleware/errorHandler");
@@ -31,6 +32,8 @@ router.put(
   upload.fields([{ name: "avatar" }, { name: "identityProof" }]),
   asyncHandler(editEmployee)
 );
+
+router.put("/update-preferences", asyncHandler(updatePrefences));
 
 router.get("/:uuid", asyncHandler(getEmployee));
 

@@ -172,6 +172,17 @@ const editEmployee = async (req, res) => {
   res.json({ success: true, employee });
 };
 
+const updatePrefences = async (req, res) => {
+  const { preferences, uuid } = req.body;
+  const employee = await User.findOne({ uuid: uuid }).populate("company");
+  if (!employee) {
+    return res.json({ success: false, message: "User not found" });
+  }
+  employee.preferences = preferences;
+  await employee.save();
+  res.json({ success: true, user: employee });
+};
+
 const deleteEmployee = async (req, res) => {
   const employee = await User.findOne({ uuid: req.params.uuid, company: req.user.company });
   if (!employee) {
@@ -212,6 +223,7 @@ module.exports = {
   getEmployee,
   addEmployee,
   editEmployee,
+  updatePrefences,
   getEmployeeSales,
   deleteEmployee,
 };

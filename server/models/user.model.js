@@ -60,10 +60,20 @@ const userSchema = new mongoose.Schema(
       type: Date,
       select: false,
     },
+    otp: {
+      type: String,
+      select: false,
+    },
     company: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Company",
       index: true,
+    },
+    preferences: {
+      twoFactorAuth: {
+        type: Boolean,
+        default: true,
+      },
     },
   },
   { timestamps: true }
