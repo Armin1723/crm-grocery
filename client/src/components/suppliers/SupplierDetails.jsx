@@ -5,6 +5,7 @@ import SupplierCard from "./SupplierCard";
 import SupplierPurchaseTable from "./SupplierPurchaseTable";
 import SupplierProductCarousel from "./SupplierProductCarousel";
 import { toast } from "react-toastify";
+import SubscriptionOverlay from "../utils/SubscriptionOverlay";
 
 const SupplierDetails = () => {
   const { id } = useParams();
@@ -24,9 +25,16 @@ const SupplierDetails = () => {
         );
         const data = await res.json();
         if (!res.ok) {
-          toast.error(data.message || "Something went wrong");
-          setError(data.message || "Something went wrong");
-          throw new Error(data.message || "Something went wrong");
+          if (res.status === 403) {
+            setError({
+              subscription: "Expired",
+              message:
+                data.message || "Your subscription has expired. Please renew",
+            });
+          } else {
+            setError({ message: data.message || "Something went wrong" });
+            throw new Error(data.message || "Something went wrong");
+          }
         }
         setSupplier(data.supplier);
       } catch (error) {
@@ -57,9 +65,13 @@ const SupplierDetails = () => {
           <div className="spinner"></div>
         </div>
       ) : error ? (
-        <div className="flex-1 space-y-6 overflow-y-auto px-2 w-full flex flex-col items-center justify-center text-red-600">
-          {error?.message || "Something went wrong."}
-        </div>
+        error?.subscription ? (
+          <SubscriptionOverlay />
+        ) : (
+          <div className="flex-1 space-y-6 overflow-y-auto px-2 w-full flex flex-col items-center justify-center text-red-600">
+            {error?.message || "Something went wrong."}
+          </div>
+        )
       ) : (
         <div className="wrapper flex-1 space-y-6 overflow-y-auto px-2 w-full">
           {/* Supplier Card */}

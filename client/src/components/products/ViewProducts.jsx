@@ -25,10 +25,7 @@ const ViewProducts = () => {
   const refetch = () => {
     queryClient.invalidateQueries({ queryKey: ["products"] });
   };
-  const {
-    data: results,
-    isFetching: loading,
-  } = useQuery({
+  const { data: results, isFetching: loading } = useQuery({
     queryKey: ["products", { sort, sortType, limit, page, category, query }],
     queryFn: async () => {
       try {
@@ -44,8 +41,11 @@ const ViewProducts = () => {
         );
         const data = await response.json();
         if (!response.ok) {
-          throw new Error(data.message || "Something went wrong");
-        }
+            throw {
+              message:
+                data.message || "Something went wrong. Please try again later.",
+            };
+          }
         return data;
       } catch (error) {
         console.log(error);

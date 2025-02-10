@@ -132,10 +132,10 @@ const SettingsButton = () => {
             <button
               type="submit"
               disabled={!isChanged || loading}
-              className={`w-full py-1 text-center text-white font-semibold rounded-lg transition-all ${
+              className={`w-full py-1 text-center text-sm rounded-lg transition-all ${
                 isChanged
-                  ? "bg-accent hover:bg-accentDark"
-                  : "bg-gray-600 cursor-not-allowed"
+                  ? "bg-accent hover:bg-accentDark text-white"
+                  : "bg-[var(--color-card-overlay)] cursor-not-allowed"
               }`}
             >
               {loading ? <p className="animate-pulse">Saving</p> : "Save Changes"}

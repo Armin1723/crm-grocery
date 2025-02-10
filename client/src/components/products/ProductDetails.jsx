@@ -6,11 +6,12 @@ import ProductPurchases from "./ProductPurchases";
 import ProductBarcode from "./ProductBarcode";
 import InventoryCard from "../inventory/InventoryCard";
 import ProductSales from "./ProductSales";
-import { toast } from "react-toastify";
+import SubscriptionOverlay from "../utils/SubscriptionOverlay";
 
 const ProductDetails = ({ idBackup = "" }) => {
   let { id } = useParams();
   if (!id) id = idBackup;
+  
   const [product, setProduct] = useState([]);
   const [refetch, setRefetch] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -27,13 +28,21 @@ const ProductDetails = ({ idBackup = "" }) => {
           }
         );
         const data = await res.json();
-        if (res.ok) {
-          setProduct(data.product);
-        } else {
-          toast.error(data.message || "Something went wrong");
-          setError(data.message || "Something went wrong");
-          throw new Error(data.message || "Something went wrong");
+        if (!res.ok) {
+          if (res.status === 403) {
+            setError({ subscription: "Expired", message: data.message });
+            throw new Error({
+              subscription: "Expired",
+              message: "Your subscription has expired. Please renew",
+            });
+          } else {
+            setError(data);
+            throw new Error({
+              message: data.message || "Something went wrong.",
+            });
+          }
         }
+        setProduct(data.data);
       } catch (error) {
         console.error(error.message);
       } finally {
@@ -50,11 +59,15 @@ const ProductDetails = ({ idBackup = "" }) => {
           <div className="spinner"></div>
         </div>
       ) : error ? (
-        <div className="flex-1 flex flex-col items-center justify-center">
-          <p className="text-red-500">
-            {error.message || "Something went wrong."}
-          </p>
-        </div>
+        error.subscription ? (
+          <SubscriptionOverlay />
+        ) : (
+          <div className="flex-1 flex flex-col items-center justify-center">
+            <p className="text-red-500">
+              {error.message || "Something went wrong."}
+            </p>
+          </div>
+        )
       ) : (
         <div className="wrapper flex flex-col flex-1">
           <div className="flex flex-col gap-4 w-full">

@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useRef, useState } from "react";
 import {
   PieChart,
   Pie,
@@ -17,6 +17,7 @@ import { FaChevronCircleDown } from "react-icons/fa";
 import { useReport } from "../../context/ReportContext";
 import { useQuery } from "@tanstack/react-query";
 import { toast } from "react-toastify";
+import SubscriptionOverlay from "../utils/SubscriptionOverlay";
 
 const ExpenseSummary = ({
   totalPurchases = 0,
@@ -133,8 +134,16 @@ const ExpenseReport = () => {
 
       const actualData = await response.json();
       if (!response.ok) {
-        toast.error(actualData.message);
-        throw new Error(actualData.message);
+        if (response.status === 403) {
+          throw {
+            subscription: true,
+            message: actualData.message || "Subscription Expired",
+          };
+        }
+        throw {
+          subscription: false,
+          message: actualData.message || "Something went wrong.",
+        };
       }
       return actualData.data;
     },
@@ -224,9 +233,13 @@ const ExpenseReport = () => {
             <div className="spinner"></div>
           </div>
         ) : error ? (
-          <div className="text-center text-red-500 py-8 flex-1 flex items-center justify-center w-full">
-            {error.message || "Something went wrong."}
-          </div>
+          error.subscription ? (
+            <SubscriptionOverlay />
+          ) : (
+            <div className="text-center text-red-500 py-8 flex-1 flex items-center justify-center w-full">
+              {error.message || "Something went wrong."}
+            </div>
+          )
         ) : (
           <>
             <div className="flex flex-col gap-2 w-full" ref={printRef}>

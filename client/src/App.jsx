@@ -149,6 +149,8 @@ const App = () => {
           color: "var(--color-text)",
           border: "1px solid var(--color-card)",
           top: "22px",
+          fontSize: "14px",
+          padding: "8px",
         }}
       />
       <TopLoadingBar style={{ zIndex: 1000 }} />

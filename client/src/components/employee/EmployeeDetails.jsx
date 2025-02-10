@@ -8,7 +8,7 @@ import { MdEdit, MdFilePresent, MdImage } from "react-icons/md";
 import { FaChevronCircleDown } from "react-icons/fa";
 import EmployeeForm from "./EmployeeForm";
 import Modal from "../utils/Modal";
-import { toast } from "react-toastify";
+import SubscriptionOverlay from "../utils/SubscriptionOverlay";
 
 const EmployeeDetails = () => {
   const { id } = useParams();
@@ -33,13 +33,19 @@ const EmployeeDetails = () => {
           }
         );
         const data = await res.json();
-        if (res.ok) {
-          setEmployee(data.employee);
-        } else {
-          toast.error(data.message || "Something went wrong");
-          setError(data.message || "Something went wrong");
-          throw new Error(data.message || "Something went wrong");
+        if (!res.ok) {
+          if (res.status === 403) {
+            setError({
+              subscription: "Expired",
+              message:
+                data.message || "Your subscription has expired. Please renew",
+            });
+          } else {
+            setError({ message: data.message || "Something went wrong" });
+            throw new Error(data.message || "Something went wrong");
+          }
         }
+        setEmployee(data.employee);
       } catch (error) {
         console.error(error.message);
       } finally {
@@ -56,9 +62,13 @@ const EmployeeDetails = () => {
           <div className="spinner"></div>
         </div>
       ) : error ? (
-        <div className="text-center text-red-500 py-8 flex-1 flex items-center justify-center w-full">
-          {error.message || "Something went wrong."}
-        </div>
+        error?.subscription ? (
+          <SubscriptionOverlay />
+        ) : (
+          <div className="text-center text-red-500 py-8 flex-1 flex items-center justify-center w-full">
+            {error.message || "Something went wrong."}
+          </div>
+        )
       ) : (
         <div className="wrapper flex flex-col overflow-y-auto gap-3">
           <Divider

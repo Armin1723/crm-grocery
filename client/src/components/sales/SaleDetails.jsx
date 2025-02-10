@@ -8,6 +8,7 @@ import SaleCard from "./SaleCard";
 import EmployeeCard from "../employee/EmployeeCard";
 import SaleReturnCard from "./SaleReturnCard";
 import { pluralizeWord } from "../utils";
+import SubscriptionOverlay from "../utils/SubscriptionOverlay";
 
 const SaleDetails = ({ idBackup = "" }) => {
   let { id } = useParams();
@@ -30,7 +31,14 @@ const SaleDetails = ({ idBackup = "" }) => {
         );
         const data = await res.json();
         if (!res.ok) {
-          setError(data.message || "Something went wrong");
+          if (res.status === 403) {
+            setError({
+              subscription: "expired",
+              message: "Your subscription has expired. Please renew.",
+            });
+          } else {
+            setError(data.message || "Something went wrong");
+          }
           throw new Error(data.message || "Something went wrong");
         }
         setSale(data.sale);
@@ -49,14 +57,15 @@ const SaleDetails = ({ idBackup = "" }) => {
         <div className="spinner "></div>
       </div>
     );
-  else if (error)
-    return (
-      <div className="p-3 rounded-md flex h-full flex-col items-center justify-center gap-2 min-h-[40vh] bg-[var(--color-sidebar)] w-full">
-        <p className="text-red-500">
-          {error.message || "Something went wrong"}
-        </p>
-      </div>
-    );
+  else if (error && !error.subscription) {
+      return (
+        <div className="p-3 rounded-md flex h-full flex-col items-center justify-center gap-2 min-h-[40vh] bg-[var(--color-sidebar)] w-full">
+          <p className="text-red-500">
+            {error.message || "Something went wrong"}
+          </p>
+        </div>
+      );
+  }
 
   return (
     <div className="p-3 rounded-md flex h-full flex-1 flex-col gap-2 bg-[var(--color-sidebar)] overflow-y-auto">
@@ -73,72 +82,76 @@ const SaleDetails = ({ idBackup = "" }) => {
         <SaleDetailActions sale={sale} />
       </div>
 
-      <div className="wrapper flex-1 overflow-y-auto px-2">
-        <p className="text-sm text-[var(--color-text-light)]">
-          Invoice ID: {sale?._id}
-        </p>
+      {error && error.subscription ? (
+        <SubscriptionOverlay />
+      ) : (
+        <div className="wrapper flex-1 overflow-y-auto px-2">
+          <p className="text-sm text-[var(--color-text-light)]">
+            Invoice ID: {sale?._id}
+          </p>
 
-        {/* Sale Products */}
-        <Divider title="Sale Products" />
-        <div className="saleProducts flex flex-col gap-2 w-full rounded-md p-3 bg-[var(--color-card)] overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead className="bg-[var(--color-primary)] text-neutral-600">
-              <tr>
-                <th className="py-2 text-left pl-4">Image</th>
-                <th className="py-2 text-left pl-4">Product</th>
-                <th className="py-2 text-left pl-4">Quantity</th>
-                <th className="py-2 text-left pl-4">Price</th>
-                <th className="py-2 text-left pl-4">Total</th>
-              </tr>
-            </thead>
-            <tbody>
-              {sale?.products.map((product) => (
-                <tr
-                  key={product?._id}
-                  className="border-b border-neutral-500/50"
-                >
-                  <td className="py-2 pl-4">
-                    <Avatar
-                      image={product?.image}
-                      withBorder={false}
-                      fallbackImage="./utils/product-placeholder.png"
-                    />
-                  </td>
-                  <td className="py-2 pl-4">{product.name}</td>
-                  <td className="py-2 pl-4">
-                    {product.quantity}{" "}
-                    {pluralizeWord(product.quantity, product.secondaryUnit)}
-                  </td>
-                  <td className="py-2 pl-4">₹{product.sellingRate}</td>
-                  <td className="py-2 pl-4">
-                    ₹{Math.ceil(product.sellingRate * product.quantity)}
-                  </td>
+          {/* Sale Products */}
+          <Divider title="Sale Products" />
+          <div className="saleProducts flex flex-col gap-2 w-full rounded-md p-3 bg-[var(--color-card)] overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead className="bg-[var(--color-primary)] text-neutral-600">
+                <tr>
+                  <th className="py-2 text-left pl-4">Image</th>
+                  <th className="py-2 text-left pl-4">Product</th>
+                  <th className="py-2 text-left pl-4">Quantity</th>
+                  <th className="py-2 text-left pl-4">Price</th>
+                  <th className="py-2 text-left pl-4">Total</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-          <div className="totalAmount flex justify-end items-center gap-2">
-            <p className="">Total Amount:</p>
-            <p className="">₹{sale?.totalAmount}</p>
+              </thead>
+              <tbody>
+                {sale?.products.map((product) => (
+                  <tr
+                    key={product?._id}
+                    className="border-b border-neutral-500/50"
+                  >
+                    <td className="py-2 pl-4">
+                      <Avatar
+                        image={product?.image}
+                        withBorder={false}
+                        fallbackImage="./utils/product-placeholder.png"
+                      />
+                    </td>
+                    <td className="py-2 pl-4">{product.name}</td>
+                    <td className="py-2 pl-4">
+                      {product.quantity}{" "}
+                      {pluralizeWord(product.quantity, product.secondaryUnit)}
+                    </td>
+                    <td className="py-2 pl-4">₹{product.sellingRate}</td>
+                    <td className="py-2 pl-4">
+                      ₹{Math.ceil(product.sellingRate * product.quantity)}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            <div className="totalAmount flex justify-end items-center gap-2">
+              <p className="">Total Amount:</p>
+              <p className="">₹{sale?.totalAmount}</p>
+            </div>
           </div>
+
+          {/* Sale Information */}
+          <Divider title="Sale Summary" />
+          <SaleCard sale={sale} />
+
+          {/* Supplier Information */}
+          <Divider title="Biller Information" />
+          <EmployeeCard employee={sale?.signedBy} />
+
+          {/* Return Information */}
+          {sale?.saleReturn && (
+            <>
+              <Divider title="Return Information" />
+              <SaleReturnCard saleReturn={sale?.saleReturn} />
+            </>
+          )}
         </div>
-
-        {/* Sale Information */}
-        <Divider title="Sale Summary" />
-        <SaleCard sale={sale} />
-
-        {/* Supplier Information */}
-        <Divider title="Biller Information" />
-        <EmployeeCard employee={sale?.signedBy} />
-
-        {/* Return Information */}
-        {sale?.saleReturn && (
-          <>
-            <Divider title="Return Information" />
-            <SaleReturnCard saleReturn={sale?.saleReturn} />
-          </>
-        )}
-      </div>
+      )}
     </div>
   );
 };
