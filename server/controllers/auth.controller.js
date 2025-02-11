@@ -197,8 +197,8 @@ const registerUser = async (req, res) => {
     role: "admin",
   });
 
-  const password =
-    user.name.split(" ")[0].toLowerCase() + "@" + user.phone.slice(-4);
+  const random = Math.floor(1000 + Math.random() * 9000);
+  const password = user.name.split(" ")[0].toLowerCase() + "@" + random;
   const hashedPassword = await bcrypt.hash(password, 12);
   user.password = hashedPassword;
 
@@ -235,7 +235,7 @@ const registerUser = async (req, res) => {
   sendMail(
     user.email,
     (subject = "Welcome to CRM App"),
-    (message = registerMailTemplate(user?.name))
+    (message = registerMailTemplate(user?.name, random))
   );
   res.status(200).json({ success: true, message: "User created successfully" });
 };

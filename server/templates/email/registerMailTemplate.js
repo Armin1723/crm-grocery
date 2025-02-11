@@ -1,4 +1,4 @@
-const registerMailTemplate = (name) => {
+const registerMailTemplate = (name, random) => {
   return `
     <!DOCTYPE html>
     <html lang="en">
@@ -29,7 +29,7 @@ const registerMailTemplate = (name) => {
       <div class="container">
         <h2>Welcome ${name}!</h2>
         <p>We are excited to have you on board.</p>
-        <p>Your initial password is your first name followed by '@' and the last four digits of your mobile number. Please change your password after logging in.</p>
+        <p>Your initial password is your first name followed by @${random}. Please change your password after logging in.</p>
         <p>Log in to continue.</p>
       </div>
     </body>
