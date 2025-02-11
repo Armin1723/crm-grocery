@@ -42,7 +42,7 @@ const ProductDetails = ({ idBackup = "" }) => {
             });
           }
         }
-        setProduct(data.data);
+        setProduct(data.product);
       } catch (error) {
         console.error(error.message);
       } finally {

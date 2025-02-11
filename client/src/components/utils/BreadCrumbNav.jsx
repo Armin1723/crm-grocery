@@ -7,7 +7,7 @@ const BreadCrumbNav = () => {
 
   const pathnames = pathname.split("/").filter((x) => x);
   return (
-    <div className="flex w-full text-sm max-sm:text-xs justify-start items-center gap-2 font-sans breadcrumb-container px-12 max-lg:px-6 max-sm:px-3 py-3 bg-[var(--color-sidebar)]">
+    <div className="flex w-full text-xs justify-start items-center gap-2 font-sans breadcrumb-container px-12 max-lg:px-6 max-sm:px-3 py-3 bg-[var(--color-sidebar)]">
           <Link
             to="/"
             className="hover:text-accent transition-all duration-300 ease-in"

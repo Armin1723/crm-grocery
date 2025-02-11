@@ -5,6 +5,8 @@ import FormInput from "../utils/FormInput";
 import { MdClose } from "react-icons/md";
 import Divider from "../utils/Divider";
 import { parseDate } from "../utils";
+import { setUser } from "../../redux/features/user/userSlice";
+import { useDispatch, useSelector } from "react-redux";
 
 const EmployeeForm = ({
   employee = {},
@@ -21,6 +23,10 @@ const EmployeeForm = ({
   const [previewType, setPreviewType] = React.useState(
     employee.identityProof?.endsWith?.(".pdf") ? "pdf" : "image"
   );
+
+  const user = useSelector((state) => state.user);
+  const isSelf = title == "edit" && user && user.uuid === employee?.uuid;
+  const dispatch = useDispatch();
 
   const {
     register,
@@ -121,8 +127,8 @@ const EmployeeForm = ({
         }
       );
 
+      const data = await response.json();
       if (!response.ok) {
-        const data = await response.json();
         toast.update(id, {
           render: data.message || `Failed to ${title} employee`,
           type: "error",
@@ -145,6 +151,9 @@ const EmployeeForm = ({
         } else {
           closeModal();
           setRefetch((prev) => !prev);
+          if (isSelf) {
+            dispatch(setUser(data.employee));
+          }
         }
       }
     } catch (error) {

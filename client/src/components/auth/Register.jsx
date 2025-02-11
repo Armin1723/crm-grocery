@@ -139,7 +139,7 @@ const Register = ({}) => {
               </div>
             ) : (
               <img
-                src="https://github.com/shadcn.png"
+                src="https://api.dicebear.com/7.x/avataaars/png?seed=JohnDoe"
                 loading="lazy"
                 alt="Upload"
                 onClick={() => document.getElementById("avatar-upload").click()}

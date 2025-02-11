@@ -6,8 +6,7 @@ const ProductCardSmall = ({
 }) => {
 
   return (
-    <>
-      <div className="bg-[var(--color-card)] flex-shrink-0 w-full h-full rounded-md p-4 transition-all flex flex-col justify-between border border-neutral-500/50">
+      <div className="bg-[var(--color-card)] flex-shrink-0 w-full h-full rounded-md p-4 transition-all flex flex-col justify-between border border-neutral-500/50 min-w-[30vw]">
         {/* Product Image */}
         <div className="w-full h-48 bg-[var(--color-sidebar)] rounded-md overflow-hidden">
           <img
@@ -78,7 +77,6 @@ const ProductCardSmall = ({
           </p>
         )}
       </div>
-    </>
   );
 };
 

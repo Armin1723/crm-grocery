@@ -51,17 +51,11 @@ const SubscriptionOverlay = () => {
         </div>
         <div className="mt-4 flex flex-col gap-3">
           <Link
-            to="mailto:alam.airuz23@gmail.com"
+            to="mailto:alam.airuz23@gmail.com?subject=Subscription Renewal Inquiry"
             className="px-4 py-2 rounded bg-[var(--color-accent)] text-white hover:bg-[var(--color-accent-dark)] transition"
           >
             Contact Sales
           </Link>
-          <button
-            onClick={() => openInBrowser("https://crm-grocery.netlify.app/")}
-            className="px-4 py-2 rounded bg-accent/10 border border-accentDark/30 hover:bg-accent/20 transition"
-          >
-            Learn More
-          </button>
         </div>
       </motion.div>
     </div>

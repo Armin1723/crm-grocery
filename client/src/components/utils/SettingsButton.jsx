@@ -14,7 +14,7 @@ const SettingsButton = () => {
   const dispatch = useDispatch();
   const user = useSelector((state) => state.user);
 
-  const { register, handleSubmit, watch, reset, getValues } = useForm({
+  const { register, handleSubmit, watch, getValues } = useForm({
     defaultValues: {
       twoFactorAuth: user?.preferences?.twoFactorAuth || false,
     },
@@ -74,7 +74,10 @@ const SettingsButton = () => {
           isLoading: false,
           autoClose: 3000,
         });
-        dispatch(setUser(data.user));
+        dispatch(setUser({
+          ...user,
+          preferences: data.user.preferences,
+        }));
         setIsOpen(false);
       }
     } catch (error) {

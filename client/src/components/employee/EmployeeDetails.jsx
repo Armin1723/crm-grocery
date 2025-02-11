@@ -9,6 +9,7 @@ import { FaChevronCircleDown } from "react-icons/fa";
 import EmployeeForm from "./EmployeeForm";
 import Modal from "../utils/Modal";
 import SubscriptionOverlay from "../utils/SubscriptionOverlay";
+import SecuritySettings from "./SecuritySettings";
 
 const EmployeeDetails = () => {
   const { id } = useParams();
@@ -84,6 +85,14 @@ const EmployeeDetails = () => {
           />
           <EmployeeCard employee={employee} setRefetch={setRefetch} />
 
+          {/* Security Settings     */}
+          {isSelf && (
+            <div className="flex flex-col gap-2">
+              <SecuritySettings />
+            </div>
+          )}
+
+          {/* Id proof to be shown for admin or self     */}
           {(isAdmin || isSelf) && employee?.identityProof && (
             <div className="flex flex-col gap-2">
               <Divider

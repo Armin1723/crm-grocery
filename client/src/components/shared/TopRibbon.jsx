@@ -3,7 +3,6 @@ import ThemeToggle from "../utils/ThemeToggle";
 import NavSmall from "./NavSmall";
 import { useSelector } from "react-redux";
 import FullScreenToggle from "../utils/FullScreenToggle";
-import SettingsButton from "../utils/SettingsButton";
 
 const TopRibbon = ({ pageRef }) => {
   const user = useSelector((state) => state.user);
@@ -19,7 +18,6 @@ const TopRibbon = ({ pageRef }) => {
       <div className="right flex items-center justify-center gap-3">
         <FullScreenToggle pageRef={pageRef}/>
         <ThemeToggle />
-        <SettingsButton />
       </div>
     </div>
   );

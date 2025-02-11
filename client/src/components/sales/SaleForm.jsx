@@ -10,6 +10,7 @@ import Divider from "../utils/Divider";
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import CustomerSuggestion from "../utils/CustomerSuggestion";
+import { useQueryClient } from "@tanstack/react-query";
 
 const SaleForm = ({ setRefetch = () => {}, closeModal = () => {} }) => {
   const [suggestedProducts, setSuggestedProducts] = useState([]);
@@ -20,6 +21,8 @@ const SaleForm = ({ setRefetch = () => {}, closeModal = () => {} }) => {
   const navigate = useNavigate();
   const user = useSelector((state) => state.user);
   const isAdmin = user && user?.role === "admin";
+
+  const queryClient = useQueryClient();
 
   const {
     register,
@@ -121,6 +124,8 @@ const SaleForm = ({ setRefetch = () => {}, closeModal = () => {} }) => {
         });
         reset();
         setRefetch((prev) => !prev);
+        queryClient.invalidateQueries("sales");
+        queryClient.invalidateQueries("inventory");
         navigate(
           isAdmin
             ? `/sales/${data?.sale?._id}`
