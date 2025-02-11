@@ -73,7 +73,7 @@ const getExpiringProducts = async (type) => {
   return expiringProducts;
 };
 
-const scheduleProductExpiryNotifications = () => {
+const expiringProductsCron = () => {
   // Run every day at 6:00 AM
   cron.schedule("* 6 * * *", async () => {
     try {
@@ -119,4 +119,4 @@ const scheduleProductExpiryNotifications = () => {
   });
 };
 
-module.exports = scheduleProductExpiryNotifications;
+module.exports = expiringProductsCron;

@@ -6,6 +6,8 @@ const connectToDB = require('./db');
 const cookieParser = require('cookie-parser');
 const { errorHandler } = require('./middleware/errorHandler.js');
 const { loadSubscriptionsToCache } = require('./helpers/subscriptionCache.js');
+const dailySubscriptionsCacheLoadCron = require('./crons/dailySubscriptionsCacheLoadCron.js');
+const expiringProductsCron = require('./crons/expiringProductsCron.js');
 const app = express();
 
 const port = process.env.PORT || 8000;
@@ -43,6 +45,10 @@ app.get('/', (req, res) => {
 
 // Load Subscription Cache
 loadSubscriptionsToCache();
+
+// Cron Jobs
+dailySubscriptionsCacheLoadCron();
+expiringProductsCron();
 
 // Error Handler middleware
 app.use(errorHandler);
