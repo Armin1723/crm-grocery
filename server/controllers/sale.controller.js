@@ -135,6 +135,7 @@ const deleteSale = async (req, res) => {
     }).populate("product");
 
     if (!inventory) {
+      // Create a new inventory if not found
       await Inventory.create({
         product: product.product,
         totalQuantity: product.quantity,
@@ -148,14 +149,25 @@ const deleteSale = async (req, res) => {
         ],
       });
     } else {
-      inventory.batches.push({
-        quantity: product.quantity,
-        mrp: product.mrp,
-        sellingRate: product.sellingRate,
-        expiry: product.expiry,
-      });
-      inventory.totalQuantity += product.quantity;
-      await inventory.save();
+      const sameBatch = inventory.batches.find(
+        (batch) =>
+          (product?.mrp || batch.mrp === product.mrp) &&
+          (product?.expiry || batch.expiry === product.expiry)
+      );
+      // If same batch exists, add the quantity
+      if (sameBatch) {
+        sameBatch.quantity += product.quantity;
+      } else {
+        // Create a new batch if not found
+        inventory.batches.push({
+          quantity: product.quantity,
+          mrp: product.mrp,
+          sellingRate: product.sellingRate,
+          expiry: product.expiry,
+        });
+        inventory.totalQuantity += product.quantity;
+        await inventory.save();
+      }
     }
   }
   await sale.deleteOne();
@@ -238,7 +250,6 @@ const addSale = async (req, res) => {
     }
     sale.customer = customer._id;
   }
-  
 
   // Update Inventory
   for (const product of products) {
@@ -363,6 +374,7 @@ const addSaleReturn = async (req, res) => {
       product: product.product,
     }).populate("product");
     if (!inventory) {
+      // Create a new inventory if not found
       await Inventory.create({
         product: product.product,
         totalQuantity: product.quantity,
@@ -376,16 +388,27 @@ const addSaleReturn = async (req, res) => {
         ],
       });
     } else {
-      inventory.batches.push({
-        quantity: product.quantity,
-        mrp: product.mrp,
-        sellingRate: product.sellingRate,
-        expiry: product.expiry,
-      });
-      inventory.totalQuantity += product.quantity;
+      const sameBatch = inventory.batches.find(
+        (batch) =>
+          (product?.mrp || batch.mrp === product.mrp) &&
+          (product?.expiry || batch.expiry === product.expiry)
+      );
+      // If same batch exists, add the quantity
+      if (sameBatch) {
+        sameBatch.quantity += product.quantity;
+      } else {
+        // Create a new batch if not found
+        inventory.batches.push({
+          quantity: product.quantity,
+          mrp: product.mrp,
+          sellingRate: product.sellingRate,
+          expiry: product.expiry,
+        });
+        inventory.totalQuantity += product.quantity;
 
-      inventory.batches = await mergeBatchesHelper(inventory.batches);
-      await inventory.save();
+        inventory.batches = await mergeBatchesHelper(inventory.batches);
+        await inventory.save();
+      }
     }
   }
 
