@@ -4,6 +4,8 @@ const { sendMail } = require("../helpers");
 const expiringProductsTemplateMail = require("../templates/email/expiringProductsTemplateMail");
 
 const Inventory = require("../models/inventory.model");
+const Company = require("../models/company.model");
+const User = require("../models/user.model");
 
 const matchStage = {
   $match: {
@@ -12,7 +14,7 @@ const matchStage = {
 };
 
 //Helper function getExpiringProducts
-const getExpiringProducts = async (type) => {
+const getExpiringProducts = async (type, companyId) => {
   const today = new Date();
   let endDate = new Date(today);
   let startDate = new Date(today);
@@ -32,7 +34,8 @@ const getExpiringProducts = async (type) => {
 
   const pipeline = [
     matchStage,
-    {$unwind: "$batches"},
+    {$match: {company: companyId}},
+    { $unwind: "$batches" },
     {
       $lookup: {
         from: "products",
@@ -75,44 +78,67 @@ const getExpiringProducts = async (type) => {
 
 const expiringProductsCron = () => {
   // Run every day at 6:00 AM
-  cron.schedule("* 6 * * *", async () => {
+  cron.schedule("0 6 * * *", async () => {
     try {
-      const productsExpiringToday = await getExpiringProducts("today");
+      const companies = await Company.find({
+        subscriptionEndDate: { $gte: new Date() },
+      });
 
-      let productsExpiringThisWeek = [];
-      let productsExpiringThisMonth = [];
+      companies.forEach(async (company) => {
+        const productsExpiringToday = await getExpiringProducts(
+          "today",
+          company._id
+        );
+        const admin = await User.findOne({
+          company: company._id,
+          role: "admin",
+        }).select("email");
 
-      // Additional checks for Monday and first day of month
+        let productsExpiringThisWeek = [];
+        let productsExpiringThisMonth = [];
+
+        const currentDate = new Date().getDate();
+        const currentDay = new Date().getDay();
+
+        // Additional checks for Monday and first day of month
         if (currentDay === 1) {
-      // Monday
-      productsExpiringThisWeek = await getExpiringProducts("week");
+          // Monday
+          productsExpiringThisWeek = await getExpiringProducts(
+            "week",
+            company._id
+          );
         }
 
         if (currentDate === 1) {
-      // First day of month
-      productsExpiringThisMonth = await getExpiringProducts("month");
+          // First day of month
+          productsExpiringThisMonth = await getExpiringProducts(
+            "month",
+            company._id
+          );
         }
-      // Only send email if there are expiring products
-      if (
-        productsExpiringToday.length ||
-        productsExpiringThisWeek.length ||
-        productsExpiringThisMonth.length
-      ) {
-        const emailContent = expiringProductsTemplateMail(
-          productsExpiringToday,
-          productsExpiringThisWeek,
-          productsExpiringThisMonth
-        );
-        await sendMail(
-          process.env.ADMIN_EMAIL,
-          (subject = "Products Expiry Notification"),
-          (message = emailContent),
-        );
+        // Only send email if there are expiring products
+        if (
+          productsExpiringToday.length ||
+          productsExpiringThisWeek.length ||
+          productsExpiringThisMonth.length
+        ) {
+          const emailContent = expiringProductsTemplateMail(
+            productsExpiringToday,
+            productsExpiringThisWeek,
+            productsExpiringThisMonth,
+            company
+          );
+          await sendMail(
+            admin.email,
+            (subject = "Products Expiry Notification"),
+            (message = emailContent)
+          );
 
-        console.log("Product expiry notification sent successfully");
-      } else {
-        console.log("No Products Expiring");
-      }
+          console.log("Product expiry notification sent successfully");
+        } else {
+          console.log("No Products Expiring");
+        }
+      });
     } catch (error) {
       console.error("Error in product expiry notification:", error);
     }

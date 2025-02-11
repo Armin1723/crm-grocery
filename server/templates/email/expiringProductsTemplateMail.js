@@ -67,10 +67,8 @@ const expiringProductsTemplateMail = (
             padding: 20px;
           }
           .section {
-            margin-bottom: 20px;
             background-color: #f8f9fa;
             padding: 15px;
-            border-radius: 5px;
           }
           .section h2 {
             color: #5d3fd3;
