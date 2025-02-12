@@ -52,7 +52,7 @@ const getTicket = async (req, res) => {
   }
 
   const response = await fetch(
-    `${process.env.CRM_BACKEND_URL}/api/v1/employees/${ticket.createdBy}`
+    `${process.env.CRM_BACKEND_URL}/api/v1/employees/id/${ticket.createdBy}`
   );
 
   if (!response.ok) {

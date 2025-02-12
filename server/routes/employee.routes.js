@@ -17,7 +17,7 @@ const upload = multer({ dest: "/tmp" });
 const router = require("express").Router();
 
 //Support Panel Routes
-router.get("/:id", asyncHandler(getEmployeeById));
+router.get("/id/:id", asyncHandler(getEmployeeById));
 
 router.use(isAdmin);
 
