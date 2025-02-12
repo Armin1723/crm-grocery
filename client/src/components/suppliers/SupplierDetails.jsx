@@ -4,7 +4,6 @@ import Divider from "../utils/Divider";
 import SupplierCard from "./SupplierCard";
 import SupplierPurchaseTable from "./SupplierPurchaseTable";
 import SupplierProductCarousel from "./SupplierProductCarousel";
-import { toast } from "react-toastify";
 import SubscriptionOverlay from "../utils/SubscriptionOverlay";
 
 const SupplierDetails = () => {

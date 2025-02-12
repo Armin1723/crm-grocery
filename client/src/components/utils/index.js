@@ -10,7 +10,6 @@ import {
   FaUser,
 } from "react-icons/fa";
 import { BiSolidReport } from "react-icons/bi";
-import { MdSettings } from "react-icons/md";
 
 export const links = [
   {
