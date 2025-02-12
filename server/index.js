@@ -38,9 +38,6 @@ app.use('/api/v1/expenses', require('./routes/expense.routes.js'));
 app.use('/api/v1/customers', require('./routes/customer.routes.js'));
 app.use('/api/v1/companies', require('./routes/company.routes.js'));
 
-// Support Panel Routes
-app.use('/api/v1/support/tickets', require('./routes/support/ticket.routes.js'));
-
 // Server
 app.get('/', (req, res) => {
     res.send('Hello World from CRM API');
