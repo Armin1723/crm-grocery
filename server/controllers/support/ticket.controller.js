@@ -1,7 +1,6 @@
-const Ticket = require("../models/ticket.model");
-const User = require("../models/user.model");
+const Ticket = require("../../models/ticket.model");
 
-const cloudinary = require("../config/cloudinary");
+const cloudinary = require("../../config/cloudinary");
 
 const getTickets = async (req, res) => {
   const {
@@ -42,7 +41,7 @@ const getTickets = async (req, res) => {
 
 const getTicket = async (req, res) => {
   const { id } = req.params;
-  const ticket = await Ticket.findById(id).populate("assignedTo");
+  const ticket = await Ticket.findById(id).populate("assignedTo createdBy");
 
   if (!ticket) {
     return res.status(404).json({
@@ -51,22 +50,9 @@ const getTicket = async (req, res) => {
     });
   }
 
-  const response = await fetch(
-    `${process.env.CRM_BACKEND_URL}/api/v1/employees/${ticket.createdBy}`
-  );
-
-  if (!response.ok) {
-    throw {
-      status: response.status,
-      statusText: response.statusText,
-    };
-  }
-  const createdBy = await response.json();
-
   res.status(200).json({
     success: true,
     data: ticket,
-    user: createdBy,
   });
 };
 
@@ -81,7 +67,9 @@ const createTicket = async (req, res) => {
   }
 
   //TODO: Implement round robin in the future
-  const assignedTo = await User.findOne().select("_id").lean();
+  const assignedTo = await User.findOne({ role: "support" })
+    .select("_id")
+    .lean();
 
   const ticket = new Ticket({
     ...req.body,
