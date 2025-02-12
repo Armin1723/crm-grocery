@@ -56,6 +56,16 @@ const loginUser = async (req, res) => {
     });
   }
 
+  // Check if user is active
+  if (user.status !== "active") {
+    return res.status(400).json({
+      success: false,
+      errors: {
+        email: "User is inactive. Verify mail.",
+      },
+    });
+  }
+
   //Do not send OTP for no-company users
   if (!user.company) {
     return res.status(200).json({
@@ -146,6 +156,7 @@ const verifyOtp = async (req, res) => {
 
   // Delete OTP
   user.otp = undefined;
+  user.status = "active";
   await user.save();
 
   const token = jwt.sign(
