@@ -1,14 +1,15 @@
-const { sendMail, mergeBatchesHelper } = require("../helpers");
+const { sendMail } = require("../helpers");
 const Inventory = require("../models/inventory.model");
 const Sale = require("../models/sale.model");
 const Customer = require("../models/customer.model");
 const SalesReturn = require("../models/salesReturn.model");
+const Company = require("../models/company.model");
+
 const lowStockMailTemplate = require("../templates/email/lowStockMailTemplate");
 const generateSalesReturnInvoice = require("../templates/invoice/saleReturnInvoice");
 const generateSaleInvoice = require("../templates/invoice/saleInvoice");
 const saleReturnInvoiceMailTemplate = require("../templates/email/saleReturnInvoiceMailTemplate");
 const saleInvoiceMailTemplate = require("../templates/email/saleInvoiceMailTemplate");
-const Company = require("../models/company.model");
 
 const getSales = async (req, res) => {
   const {

@@ -6,6 +6,7 @@ const {
   deleteEmployee,
   getEmployeeSales,
   updatePrefences,
+  getEmployeeById,
 } = require("../controllers/employee.controller");
 const { isAdmin, isSubscriptionActive } = require("../middleware");
 const { asyncHandler } = require("../middleware/errorHandler");
@@ -14,6 +15,9 @@ const multer = require("multer");
 const upload = multer({ dest: "/tmp" });
 
 const router = require("express").Router();
+
+//Support Panel Routes
+router.get("/:id", asyncHandler(getEmployeeById));
 
 router.use(isAdmin);
 

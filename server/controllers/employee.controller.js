@@ -6,12 +6,12 @@ const Company = require("../models/company.model");
 
 const getEmployees = async (req, res) => {
   const { limit = 10, page = 1, sort = "name", sortType = "asc" } = req.query;
-  const employees = await User.find({company: req.user.company})
+  const employees = await User.find({ company: req.user.company })
     .sort({ [sort]: sortType })
     .limit(limit)
     .skip((page - 1) * limit);
 
-  const totalResults = await User.countDocuments({company: req.user.company});
+  const totalResults = await User.countDocuments({ company: req.user.company });
 
   const totalPages = Math.ceil(totalResults / limit) || 1;
 
@@ -19,7 +19,18 @@ const getEmployees = async (req, res) => {
 };
 
 const getEmployee = async (req, res) => {
-  const employee = await User.findOne({ uuid: req.params.uuid, company: req.user.company });
+  const employee = await User.findOne({
+    uuid: req.params.uuid,
+    company: req.user.company,
+  });
+  if (!employee) {
+    return res.json({ success: false, message: "Employee not found" });
+  }
+  res.json({ success: true, employee });
+};
+
+const getEmployeeById = async (req, res) => {
+  const employee = await User.findById(req.params.id).populate("company");
   if (!employee) {
     return res.json({ success: false, message: "Employee not found" });
   }
@@ -29,7 +40,9 @@ const getEmployee = async (req, res) => {
 const addEmployee = async (req, res) => {
   const employee = req.body;
 
-  const company = await Company.findById(req.user.company).select("initials").lean();
+  const company = await Company.findById(req.user.company)
+    .select("initials")
+    .lean();
 
   const generateUUID = async () => {
     let uuid =
@@ -108,7 +121,10 @@ const addEmployee = async (req, res) => {
 
 const editEmployee = async (req, res) => {
   const { name, email, phone, address, uuid } = req.body;
-  const employee = await User.findOne({ uuid: uuid , company: req.user.company});
+  const employee = await User.findOne({
+    uuid: uuid,
+    company: req.user.company,
+  });
   if (!employee) {
     return res.json({ success: false, message: "Employee not found" });
   }
@@ -117,7 +133,9 @@ const editEmployee = async (req, res) => {
   employee.phone = phone;
   employee.address = address;
 
-  const company = await Company.findById(req.user.company).select("licenseKey").lean();
+  const company = await Company.findById(req.user.company)
+    .select("licenseKey")
+    .lean();
 
   // Upload Image if exists
   if (req.files) {
@@ -184,7 +202,10 @@ const updatePrefences = async (req, res) => {
 };
 
 const deleteEmployee = async (req, res) => {
-  const employee = await User.findOne({ uuid: req.params.uuid, company: req.user.company });
+  const employee = await User.findOne({
+    uuid: req.params.uuid,
+    company: req.user.company,
+  });
   if (!employee) {
     return res.json({ success: false, message: "Employee not found" });
   }
@@ -193,7 +214,10 @@ const deleteEmployee = async (req, res) => {
 };
 
 const getEmployeeSales = async (req, res) => {
-  const employee = await User.findOne({ uuid: req.params.uuid, company: req.user.company });
+  const employee = await User.findOne({
+    uuid: req.params.uuid,
+    company: req.user.company,
+  });
   if (!employee) {
     return res.json({ success: false, message: "Employee not found" });
   }
@@ -205,13 +229,19 @@ const getEmployeeSales = async (req, res) => {
     sort = "createdAt",
     sortType = "asc",
   } = req.query;
-  const sales = await Sale.find({ signedBy: employee._id, company: req.user.company })
+  const sales = await Sale.find({
+    signedBy: employee._id,
+    company: req.user.company,
+  })
     .limit(limit)
     .skip(limit * (page - 1))
     .sort({ [sort]: sortType })
     .populate("signedBy");
 
-  const totalResults = await Sale.countDocuments({ signedBy: employee._id, company: req.user.company });
+  const totalResults = await Sale.countDocuments({
+    signedBy: employee._id,
+    company: req.user.company,
+  });
 
   const totalPages = Math.ceil(totalResults / limit) || 1;
 
@@ -221,6 +251,7 @@ const getEmployeeSales = async (req, res) => {
 module.exports = {
   getEmployees,
   getEmployee,
+  getEmployeeById,
   addEmployee,
   editEmployee,
   updatePrefences,
