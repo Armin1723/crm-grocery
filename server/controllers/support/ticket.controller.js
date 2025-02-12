@@ -1,6 +1,7 @@
 const Ticket = require("../../models/ticket.model");
 
 const cloudinary = require("../../config/cloudinary");
+const User = require("../../models/user.model");
 
 const getTickets = async (req, res) => {
   const {
@@ -57,12 +58,12 @@ const getTicket = async (req, res) => {
 };
 
 const createTicket = async (req, res) => {
-  const { description, createdBy } = req.body;
+  const { title, description, createdBy } = req.body;
 
-  if (!description || !createdBy) {
+  if (!title || !description || !createdBy) {
     return res.status(400).json({
       success: false,
-      message: "Please provide description",
+      message: "Please provide title and description",
     });
   }
 
