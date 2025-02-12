@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 const sanitizeHtml = require("sanitize-html");
 const validator = require("validator");
+const { roles } = require("../utils");
 
 const userSchema = new mongoose.Schema(
   {
@@ -69,6 +70,7 @@ const userSchema = new mongoose.Schema(
       ref: "Company",
       index: true,
     },
+    permissions: [{ type: String }],
     preferences: {
       twoFactorAuth: {
         type: Boolean,
@@ -78,6 +80,14 @@ const userSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
+
+//Pre Save hook to assign permission
+userSchema.pre("save", function (next) {
+  if (this.isNew || this.isModified("role")) {
+    this.permissions = roles[this.role] || [];
+  }
+  next();
+});
 
 const User = mongoose.model("User", userSchema);
 
