@@ -27,6 +27,7 @@ app.get('/', (req, res) => {
 //Routes
 app.use('/api/v1/auth', require('./routes/auth.routes'));
 app.use('/api/v1/tickets', require('./routes/ticket.routes'));
+app.use('/api/v1/leads', require('./routes/lead.routes'));
 
 //Error Handler middleware
 app.use(errorHandler);

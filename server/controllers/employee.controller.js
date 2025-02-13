@@ -5,13 +5,19 @@ const Sale = require("../models/sale.model");
 const Company = require("../models/company.model");
 
 const getEmployees = async (req, res) => {
-  const { limit = 10, page = 1, sort = "name", sortType = "asc" } = req.query;
-  const employees = await User.find({ company: req.user.company })
+  const { limit = 10, page = 1, sort = "name", sortType = "asc", role } = req.query;
+  const query = { company: req.user.company };
+
+  if (role) {
+    query.role = role;
+  }
+
+  const employees = await User.find(query)
     .sort({ [sort]: sortType })
     .limit(limit)
     .skip((page - 1) * limit);
 
-  const totalResults = await User.countDocuments({ company: req.user.company });
+  const totalResults = await User.countDocuments(query);
 
   const totalPages = Math.ceil(totalResults / limit) || 1;
 
