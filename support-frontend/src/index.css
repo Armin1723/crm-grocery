@@ -1,0 +1,164 @@
+@import url("https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap");
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --color-sidebar: #fafafa;
+  --color-primary: #f4f2f8;
+  --color-card: #ffffff;
+  --color-card-overlay: #ffffffe0;
+  --color-text: #000000;
+  --color-text-light: #3c3f47;
+  --color-accent: #5d3fd3;
+  --color-accent-dark: #4c1d95;
+
+  .dark {
+    --color-primary: #111827;
+    --color-sidebar: #070e1e;
+    --color-card: #1f2939;
+    --color-card-overlay: #1f2937e0;
+    --color-text: #ffffffe0;
+    --color-text-light: #d1d5dbd0; 
+  }
+}
+
+body {
+  font-family: "Outfit", sans-serif;
+}
+input.checkbox {
+  accent-color: var(--color-accent);
+}
+
+.table-wrapper{
+  @apply text-xs md:text-sm;
+}
+
+.table-footer, input, table{
+  @apply text-xs md:text-sm placeholder:text-xs md:placeholder:text-sm;
+}
+
+#nprogress .bar {
+  background: var(--color-accent-dark) !important;
+  height: 5px !important;
+  z-index: 9999999 !important;
+}
+
+*::selection {
+  background-color: var(--color-accent);
+  color: var(--color-primary);
+}
+
+/* Custom Scrollbar */
+*::-webkit-scrollbar {
+  width: 3px;
+  height: 0px;
+  background: var(--color-primary);
+}
+
+*::-webkit-scrollbar-thumb {
+  background: var(--color-accent);
+  border-radius: 10px;
+}
+
+*::-webkit-scrollbar-track {
+  background: var(--color-primary);
+}
+
+.horizontal-scrollbar::-webkit-scrollbar{
+  height: 3px !important;
+}
+
+/* Input Field */
+.input {
+  @apply outline-none border border-neutral-500/50 rounded-md p-2 !z-[10] bg-transparent focus:border-[var(--color-accent-dark)] transition-all duration-300 accent-[var(--color-accent-dark)];
+}
+
+.input-label {
+  @apply absolute appearance-none text-[var(--color-text)] transition-all duration-300 ease-in -translate-y-full -translate-x-3 scale-90 start-1;
+}
+
+/* For Chrome, Edge, and Safari */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* For Firefox */
+input[type="number"] {
+  appearance: textfield;
+  -moz-appearance: textfield;
+}
+
+/* Spinner */
+.spinner {
+  --size: 30px;
+  --first-block-clr: var(--color-accent);
+  --second-block-clr: var(--color-accent-dark);
+  --clr: #111;
+  width: 100px;
+  height: 100px;
+  position: relative;
+}
+
+.spinner::after,
+.spinner::before {
+  box-sizing: border-box;
+  position: absolute;
+  content: "";
+  width: var(--size);
+  height: var(--size);
+  top: 50%;
+  animation: up 2.4s cubic-bezier(0, 0, 0.24, 1.21) infinite;
+  left: 50%;
+  background: var(--first-block-clr);
+  opacity: 0.75;
+}
+
+.spinner::after {
+  background: var(--second-block-clr);
+  opacity: 0.75;
+  top: calc(50% - var(--size));
+  left: calc(50% - var(--size));
+  animation: down 2.4s cubic-bezier(0, 0, 0.24, 1.21) infinite;
+}
+
+@keyframes down {
+  0%,
+  100% {
+    transform: none;
+  }
+
+  25% {
+    transform: translateX(100%);
+  }
+
+  50% {
+    transform: translateX(100%) translateY(100%);
+  }
+
+  75% {
+    transform: translateY(100%);
+  }
+}
+
+@keyframes up {
+  0%,
+  100% {
+    transform: none;
+  }
+
+  25% {
+    transform: translateX(-100%);
+  }
+
+  50% {
+    transform: translateX(-100%) translateY(-100%);
+  }
+
+  75% {
+    transform: translateY(-100%);
+  }
+}
