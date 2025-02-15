@@ -26,6 +26,9 @@ import Leads from "./components/home/Leads";
 import Clients from "./components/home/Clients";
 import NotFound from "./pages/NotFOund";
 import Tickets from "./components/home/Tickets";
+import ViewLeads from "./components/leads/ViewLeads";
+import AddLead from "./components/leads/AddLead";
+import LeadDetails from "./components/leads/LeadDetails";
 
 const ProtectedRoute = ({ children }) => {
   const user = useSelector((state) => state.user);
@@ -83,7 +86,14 @@ const App = () => {
               }
             >
               <Route path="" element={<Stats />} />
-              <Route path="leads" element={<Leads />} />
+
+              {/* Lead Routes */}
+              <Route path="leads" element={<Leads />}>
+                <Route path="" element={<ViewLeads />} />
+                <Route path="add" element={<AddLead />} />
+                <Route path=":id" element={<LeadDetails />} />
+              </Route>
+
               <Route path="customers" element={<Clients />} />
               <Route path="tickets" element={<Tickets />} />
             </Route>

@@ -6,6 +6,8 @@ import { useSelector } from "react-redux";
 import LogoutButton from "../utils/LogoutButton";
 import { links } from "../utils";
 import Logo from "./Logo";
+import UserCard from "../user/UserCard";
+import HoverCard from "../shared/HoverCard";
 
 const Sidebar = () => {
   const user = useSelector((state) => state.user);
@@ -92,7 +94,7 @@ const Sidebar = () => {
       </div>
 
       <div className="bottom flex flex-col gap-1 cursor-pointer items-center border-t border-neutral-500/50 pt-4 px-4">
-        <div className="pofile flex items-center gap-2">
+        <HoverCard title={<div className="pofile flex items-center gap-2">
           <Avatar image={user?.avatar} width={40} withBorder={false} />
           <p
             className={` ${
@@ -100,9 +102,10 @@ const Sidebar = () => {
             } overflow-hidden transition-all duration-300 ease-in flex flex-col capitalize`}
           >
             <span className="font-semibold">{user?.name}</span>
-            <span className="font-light text-xs">{user?.uuid}</span>
           </p>
-        </div>
+        </div>}>
+        <UserCard user={user} />
+        </HoverCard>
         <LogoutButton expanded={expanded} />
       </div>
     </div>

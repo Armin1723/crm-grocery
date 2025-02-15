@@ -34,7 +34,7 @@ const LeadsChart = () => {
   }, [groupBy]);
 
   return (
-    <div className="h-full flex flex-col rounded-md shadow-lg bg-[var(--color-sidebar)]">
+    <div className="h-[50vh] flex flex-col rounded-md shadow-lg bg-[var(--color-sidebar)]">
       <div className="px-3 py-4 flex items-center justify-between gap-4 flex-wrap">
         <div className="flex items-center gap-2 flex-wrap">
           <p className="font-bold text-xl max-lg:text-lg">Leads Overview</p>
@@ -56,10 +56,9 @@ const LeadsChart = () => {
         </div>
       ) : (
         <div className="px-2 flex-1 text-xs md:text-sm">
-          <ResponsiveContainer width="100%" height="100%">
+          <ResponsiveContainer width="100%" height="99%">
             <AreaChart
-              data={data}
-              key={data.length}
+              data={data || []}
               margin={{ top: 10, right: 30, left: 0, bottom: 10 }}
             >
               <defs>

@@ -1,16 +1,8 @@
-import { AiFillProduct } from "react-icons/ai";
-import { BsInboxesFill } from "react-icons/bs";
 import {
-  FaChartLine,
   FaHome,
-  FaList,
-  FaPlus,
-  FaShoppingCart,
-  FaStore,
   FaTicketAlt,
   FaUser,
 } from "react-icons/fa";
-import { BiSolidReport } from "react-icons/bi";
 import { MdPersonSearch } from "react-icons/md";
 
 export const links = [

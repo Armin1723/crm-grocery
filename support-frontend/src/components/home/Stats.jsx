@@ -1,10 +1,10 @@
 import React from "react";
 import Cards from "./Cards";
-import LeadsChart from "./leadsChart";
+import LeadsChart from "./LeadsChart";
 
 const Stats = () => {
   return (
-    <div className="flex-1 h-full flex flex-col px-2 w-full">
+    <div className="flex-1 h-full overflow-y-auto flex flex-col p-2 w-full">
       <div className="line-1 flex w-full ">
         <Cards />
       </div>

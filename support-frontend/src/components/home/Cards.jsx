@@ -20,9 +20,10 @@ const TICKET_COLORS = {
 };
 
 const LEAD_COLORS = {
-  new: "#2E8B57",
+  new: "#5D3FD3",
+  open: "#FFA500",
   contacted: "#800080",
-  converted: "#4CAF50",
+  converted: "#004F23",
   lost: "#DC143C",
 };
 
@@ -38,7 +39,7 @@ const StatCard = ({ title, total, data, colors, icon: Icon }) => {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
-      className="bg-[var(--color-card)] rounded-xl shadow-lg p-3 px-8 w-full flex flex-col md:flex-row gap-6"
+      className="bg-[var(--color-sidebar)] rounded-xl shadow-lg p-3 px-8 w-full flex flex-col md:flex-row gap-6"
     >
       {/* Left side - Total */}
       <div className="flex-1 flex flex-col justify-center">
@@ -51,13 +52,13 @@ const StatCard = ({ title, total, data, colors, icon: Icon }) => {
         <div className="flex items-baseline gap-2">
           <span className="text-[var(--color-text-light)]">Total</span>
           <span className="text-4xl font-bold">
-            <CountUp to={total} duration={2} />
+            <CountUp end={total} duration={2} />
           </span>
         </div>
       </div>
 
       {/* Right side - Chart */}
-      <div className="flex-1 h-[150px]">
+      <div className="flex-1 h-[150px] max-sm:h-[250px]">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={chartData} barGap={20}>
             <XAxis
@@ -65,7 +66,7 @@ const StatCard = ({ title, total, data, colors, icon: Icon }) => {
               axisLine={false}
               tickLine={false}
               tick={{ fontSize: 10 }}
-               interval={0}
+              interval={0}
             />
 
             <YAxis hide={true} domain={[0, "dataMax + 1"]} />
@@ -75,9 +76,9 @@ const StatCard = ({ title, total, data, colors, icon: Icon }) => {
                 if (active && payload && payload.length) {
                   return (
                     <div className="bg-[var(--color-card)] px-3 py-2 rounded-lg shadow-lg border border-accent/10">
-                      <p className="text-sm font-medium">
+                      <p className="text-sm">
                         {payload[0].payload.name}:{" "}
-                        <span className="font-bold">{payload[0].value}</span>
+                        <span className="">{payload[0].value}</span>
                       </p>
                     </div>
                   );
@@ -123,25 +124,19 @@ const Cards = () => {
 
   if (!stats) return null;
 
-  const totalTickets = Object.values(stats.ticketStatus).reduce(
-    (a, b) => a + b,
-    0
-  );
-  const totalLeads = Object.values(stats.leadStatus).reduce((a, b) => a + b, 0);
-
   return (
     <div className="w-full p-3">
       <div className="flex items-center justify-between max-lg:flex-wrap gap-6">
         <StatCard
           title="Tickets Overview"
-          total={totalTickets}
+          total={stats?.tickets[0]?.total}
           data={stats.ticketStatus}
           colors={TICKET_COLORS}
           icon={FaTicketAlt}
         />
         <StatCard
           title="Leads Overview"
-          total={totalLeads}
+          total={stats?.leads[0]?.total}
           data={stats.leadStatus}
           colors={LEAD_COLORS}
           icon={FaUsers}
