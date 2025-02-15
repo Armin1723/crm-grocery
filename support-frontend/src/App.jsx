@@ -29,6 +29,8 @@ import Tickets from "./components/home/Tickets";
 import ViewLeads from "./components/leads/ViewLeads";
 import AddLead from "./components/leads/AddLead";
 import LeadDetails from "./components/leads/LeadDetails";
+import ViewTickets from "./components/tickets/ViewTickets";
+import TicketDetails from "./components/tickets/TicketDetails";
 
 const ProtectedRoute = ({ children }) => {
   const user = useSelector((state) => state.user);
@@ -94,9 +96,17 @@ const App = () => {
                 <Route path=":id" element={<LeadDetails />} />
               </Route>
 
+              {/* Ticket Routes */}
+              <Route path="tickets" element={<Tickets />}>
+                <Route path="" element={<ViewTickets />} />
+                <Route path=":id" element={<TicketDetails />} />
+              </Route>
+
+              {/* Client Routes */}
               <Route path="customers" element={<Clients />} />
-              <Route path="tickets" element={<Tickets />} />
             </Route>
+
+            {/* Auth Routes */}
             <Route path="/auth" element={<Auth />}>
               <Route path="" element={<Login />} />
               <Route path="login" element={<Login />} />
@@ -104,7 +114,7 @@ const App = () => {
               <Route path="reset-password" element={<ResetPassword />} />
             </Route>
 
-            <Route path='*' element={<NotFound/>} />
+            <Route path="*" element={<NotFound />} />
           </Routes>
         </Suspense>
       </div>

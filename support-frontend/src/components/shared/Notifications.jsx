@@ -116,6 +116,7 @@ const Notifications = () => {
                 >
                   <Link
                     to={`/leads/${lead._id}`}
+                    onClick={() => setIsOpen(false)}
                     className="hover:underline flex-1"
                   >
                     <span className="font-semibold">{lead.phone}</span> new lead

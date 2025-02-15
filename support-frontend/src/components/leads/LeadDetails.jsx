@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import Modal from "../utils/Modal";
 import UserCard from "../user/UserCard";
 import { formatDate, formatDateIntl } from "../utils";
 import Divider from "../utils/Divider";

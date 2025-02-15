@@ -7,7 +7,7 @@ const UserCard = ({ user }) => {
     <div
       className={` ${
         user?.role == "admin" ? "bg-red-500/10" : "bg-green-500/10"
-      } p-6 w-full rounded-lg shadow-lg bg-[var(--color-card)] text-[var(--color-text)] mx-auto`}
+      } p-6 w-full rounded-lg shadow-lg bg-[var(--color-card)] text-[var(--color-text)] mx-auto text-sm`}
     >
       {/* Card Layout */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-4 sm:space-y-0">
