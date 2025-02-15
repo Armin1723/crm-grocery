@@ -1,7 +1,11 @@
 const companyRegistrationMailTemplate = (user, company) => {
-    const { name } = user;
-    const { companyName, startDate, endDate } = company;
-    return `
+  const { name } = user;
+  const {
+    name: companyName,
+    subscriptionStartDate: startDate,
+    subscriptionEndDate: endDate,
+  } = company;
+  return `
       <!DOCTYPE html>
       <html lang="en">
       <head>
@@ -38,7 +42,6 @@ const companyRegistrationMailTemplate = (user, company) => {
       </body>
       </html>
     `;
-  };
-  
-  module.exports = companyRegistrationMailTemplate;
-  
+};
+
+module.exports = companyRegistrationMailTemplate;

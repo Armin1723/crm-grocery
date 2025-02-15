@@ -29,12 +29,10 @@ const isAdmin = async (req, res, next) => {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     const userRole = await User.findById(decoded.id).select("role");
     if (userRole.role !== "admin") {
-      return res
-        .status(403)
-        .json({
-          success: false,
-          message: "You are not authorized for this action.",
-        });
+      return res.status(403).json({
+        success: false,
+        message: "You are not authorized for this action.",
+      });
     }
     req.user = decoded;
 
@@ -62,4 +60,14 @@ const isSubscriptionActive = async (req, res, next) => {
   next();
 };
 
-module.exports = { isLoggedIn, isAdmin, isSubscriptionActive };
+const verifyApiKey = (req, res, next) => {
+  const apiKey = req.headers["x-api-key"];
+
+  if (!apiKey || apiKey !== process.env.SUPPORT_API_KEY) {
+    return res.status(403).json({ success: false, message: "Unauthorized" });
+  }
+
+  next();
+};
+
+module.exports = { isLoggedIn, isAdmin, isSubscriptionActive, verifyApiKey };

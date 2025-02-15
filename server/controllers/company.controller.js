@@ -101,18 +101,20 @@ const addCompany = async (req, res) => {
   };
   
   // Update user with company id and initials
-  const user = await User.findById(req.user.id).populate("company");
+  const user = await User.findByIdAndUpdate(req.user.id);
   user.company = company._id;
   if(!user.uuid){
     user.uuid = await generateUUID();
   }
   await user.save();
 
+  const populatedUser = await User.findById(user._id).populate("company").lean();
+
   const token = jwt.sign(
       {
         id: user._id,
         role: user.role,
-        company: user?.company?._id,
+        company: populatedUser?.company?._id,
       },
       process.env.JWT_SECRET,
       { expiresIn: process.env.JWT_EXPIRES_IN }
@@ -127,8 +129,7 @@ const addCompany = async (req, res) => {
 
   res.status(201).json({
     message: "Company created successfully.",
-    user,
-    company,
+    user: populatedUser,
   });
 
   // Send emails in background
@@ -137,7 +138,7 @@ const addCompany = async (req, res) => {
       user?.email,
       "Company Registration Successful",
       companyRegistrationMailTemplate(
-        user, company
+        populatedUser, company
       )
     )
   });

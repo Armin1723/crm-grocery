@@ -68,6 +68,22 @@ const loginUser = async (req, res) => {
 
   //Do not send OTP for no-company users
   if (!user.company) {
+    user.password = undefined;
+    const token = jwt.sign(
+      {
+        id: user._id,
+        role: user.role,
+        company: user?.company?._id,
+      },
+      process.env.JWT_SECRET,
+      { expiresIn: process.env.JWT_EXPIRES_IN }
+    );
+    res.cookie("token", token, {
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+      httpOnly: true,
+      secure: true,
+      sameSite: "None",
+    });
     return res.status(200).json({
       success: true,
       message: "Logged in successfully",
@@ -156,7 +172,6 @@ const verifyOtp = async (req, res) => {
 
   // Delete OTP
   user.otp = undefined;
-  user.status = "active";
   await user.save();
 
   const token = jwt.sign(
@@ -241,6 +256,21 @@ const registerUser = async (req, res) => {
   }
 
   await user.save();
+
+  // Generate a new lead on the backend
+  await fetch(`${process.env.SUPPORT_BACKEND_URL}/api/v1/leads`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      email: user.email,
+      name: user.name,
+      phone: user.phone,
+      dob: user.dob,
+      description: `Lead Generated organically through user signup form on ${new Date().toDateString()}`,
+    }),
+  });
 
   // Send email to user with password
   sendMail(
