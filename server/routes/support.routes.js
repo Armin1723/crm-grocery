@@ -7,18 +7,20 @@ const {
 } = require("../controllers/support.controller");
 const { verifyApiKey } = require("../middleware");
 
+const { asyncHandler } = require("../middleware/errorHandler");
+
 const router = require("express").Router();
 
 router.use(verifyApiKey);
 
-router.get("/clients", getClients);
+router.get("/clients", asyncHandler(getClients));
 
-router.get("/clients/:id", getClientById);
+router.get("/clients/:id", asyncHandler(getClientById));
 
-router.post("/clients/:id/activate", activateClient);
+router.post("/clients/:id/activate", asyncHandler(activateClient));
 
-router.post("/clients/:id/deactivate", deactivateClient);
+router.post("/clients/:id/deactivate", asyncHandler(deactivateClient));
 
-router.get("/company/leads/:id", getLeadsCompany);  
+router.get("/company/leads/:id", asyncHandler(getLeadsCompany)); 
 
 module.exports = router;
