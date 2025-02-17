@@ -62,7 +62,7 @@ const activateClient = async (req, res) => {
     
     const { id } = req.params;
 
-    const {endDate, subscription} = req.body;
+    const {subscriptionEndDate, subscription} = req.body;
 
     const clientCompany = await Company.findOne({
         admin: id,
@@ -80,7 +80,7 @@ const activateClient = async (req, res) => {
     // Activate client
     clientCompany.subscription = subscription;
     clientCompany.subscriptionStartDate = new Date();
-    clientCompany.subscriptionEndDate = endDate;
+    clientCompany.subscriptionEndDate = new Date(subscriptionEndDate);
     await clientCompany.save();
 
     // Reload subscriptions cache
