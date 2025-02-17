@@ -1,5 +1,6 @@
 const Company = require("../models/company.model");
 const User = require("../models/user.model");
+const { loadSubscriptionsToCache } = require("../helpers/subscriptionCache");
 
 const getClients = async (req, res) => {
     const { page = 1, limit = 10 } = req.query;
@@ -81,6 +82,9 @@ const activateClient = async (req, res) => {
     clientCompany.subscriptionStartDate = new Date();
     clientCompany.subscriptionEndDate = endDate;
     await clientCompany.save();
+
+    // Reload subscriptions cache
+    loadSubscriptionsToCache(); 
 
     res.status(200).json({
         success: true,
