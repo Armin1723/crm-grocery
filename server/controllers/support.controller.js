@@ -3,10 +3,10 @@ const User = require("../models/user.model");
 const { loadSubscriptionsToCache } = require("../helpers/subscriptionCache");
 
 const getClients = async (req, res) => {
-  const { page = 1, limit = 10 } = req.query;
+  const { page = 1, limit = 10, sort = "name", sortType = "desc"} = req.query;
 
   const clients = await User.find({ role: "admin" })
-    .populate("company", "subscription name phone")
+    .populate("company", "subscription name phone subscriptionEndDate")
     .limit(limit)
     .skip((page - 1) * limit)
     .sort({
