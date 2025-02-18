@@ -14,12 +14,12 @@ import Home from "./pages/Home";
 import Auth from "./pages/Auth";
 import "./index.css";
 
-const Login = React.lazy(() => import("./Components/auth/Login"));
+const Login = React.lazy(() => import("./components/auth/Login"));
 const ForgotPassword = React.lazy(() =>
-  import("./Components/auth/ForgotPassword")
+  import("./components/auth/ForgotPassword")
 );
 const ResetPassword = React.lazy(() =>
-  import("./Components/auth/ResetPassword")
+  import("./components/auth/ResetPassword")
 );
 
 const Stats = React.lazy(() => import("./components/home/Stats"));
