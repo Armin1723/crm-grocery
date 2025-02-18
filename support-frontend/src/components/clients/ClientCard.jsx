@@ -36,7 +36,7 @@ const CompanyCard = ({ company, otherClasses = "", isAdmin = true }) => {
               <p
                 className={`text-xs px-3 py-0.5 inline-block rounded-full capitalize text-white
                   ${
-                    company?.subscription
+                    company?.subscription && company?.subscription === "premium"
                       ? "bg-[var(--color-accent-dark)]"
                       : "bg-gray-500"
                   }`}
@@ -115,20 +115,17 @@ const CompanyCard = ({ company, otherClasses = "", isAdmin = true }) => {
   );
 };
 
-const ClientCard = ({ client }) => {
-  const isAdmin = client && client.role && client.role === "admin";
+const ClientCard = ({ client, otherClasses }) => {
   return (
     <div
-      className={` ${
-        client?.role == "admin" ? "bg-red-500/10" : "bg-green-500/10"
-      } p-6 w-full rounded-lg shadow-lg bg-[var(--color-card)] text-[var(--color-text)] mx-auto`}
+      className={` p-6 w-full rounded-lg shadow-lg bg-[var(--color-card)] text-[var(--color-text)] mx-auto`}
     >
       {/* Card Layout */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-4 sm:space-y-0">
         <div className="flex items-center space-x-4">
           <div className="rounded-full bg-[var(--color-sidebar)] overflow-hidden flex-shrink-0">
             <Avatar
-              image={client?.avatar.replace(
+              image={client?.avatar?.replace(
                 "/uploads/",
                 "/uploads/w_100,h_100,c_thumb"
               )}
@@ -208,10 +205,14 @@ const ClientCard = ({ client }) => {
         </div>
       </div>
 
-      {client.company && (
+      {client.company ? (
         <div className="mt-4">
           <Divider title="Company Details" />
           <CompanyCard company={client?.company} />
+        </div>
+      ) : (
+        <div className="my-4 p-3 rounded-lg shadow-md bg-[var(--color-card)] text-[var(--color-text-light)]">
+          No Company Created
         </div>
       )}
     </div>

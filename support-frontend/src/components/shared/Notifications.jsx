@@ -32,12 +32,19 @@ const Notifications = () => {
     }
   };
 
+  const playSound = () => {
+    const audio = new Audio("/sound/notification.mp3");
+    audio.play();
+  };
+
   useEffect(() => {
     fetchLeads();
-    socket.on("new-lead", ()=>{
+    socket.on("new-lead", () => {
+      playSound();
       fetchLeads();
     });
-    socket.on("status-change", ()=>{
+    socket.on("status-change", () => {
+      playSound();
       fetchLeads();
     });
   }, []);
@@ -88,7 +95,9 @@ const Notifications = () => {
       {/* Notification Icon */}
       <div
         className="cursor-pointer relative"
-        onClick={() => setIsOpen((prev) => !prev)}
+        onClick={() => {
+          setIsOpen((prev) => !prev);
+        }}
       >
         <IoMdNotifications className="text-2xl hover:fill-accentDark transition-all duration-300 ease-in" />
         {leads.length > 0 && (

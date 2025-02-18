@@ -1,7 +1,7 @@
 import React from "react";
 import ChipNav from "../utils/ChipNav";
 import { Outlet } from "react-router-dom";
-import { FaTicketAlt } from "react-icons/fa";
+import { FaTicketAlt, FaTimes } from "react-icons/fa";
 
 const Tickets = () => {
   const chipData = [
@@ -10,6 +10,11 @@ const Tickets = () => {
       label: "View Tickets",
       icon: FaTicketAlt,
     },
+    {
+      to: "/tickets/closed",
+      label: "Closed Tickets",
+      icon: FaTimes,
+    }
   ];
   return (
     <div className="flex-1 overflow-y-scroll md:overflow-y-hidden flex flex-col p-3 w-full">

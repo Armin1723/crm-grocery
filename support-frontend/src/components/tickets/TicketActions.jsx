@@ -1,13 +1,13 @@
 import React, { useState, useEffect, useRef } from "react";
 import { HiDotsVertical } from "react-icons/hi";
-import { FaEdit, FaExchangeAlt } from "react-icons/fa";
+import { FaPaperPlane, FaExchangeAlt } from "react-icons/fa";
 import Modal from "../utils/Modal";
-import LeadForm from "./LeadForm";
-import LeadStatusForm from "./LeadStatusForm";
+import TicketResponseForm from "./TicketResponseForm";
+import TicketStatusForm from "./TicketStatusForm";
 
-const LeadActions = ({ lead, setRefetch = () => {} }) => {
+const TicketActions = ({ ticket, setRefetch = () => {} }) => {
   const [menuOpen, setMenuOpen] = useState(false);
-  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [responseModalOpen, setResponseModalOpen] = useState(false);
   const [statusModalOpen, setStatusModalOpen] = useState(false);
   const menuRef = useRef(null);
 
@@ -56,18 +56,20 @@ const LeadActions = ({ lead, setRefetch = () => {} }) => {
         role="menu"
         aria-hidden={!menuOpen}
       >
-        <div
-          className="menu-item px-4 py-1 text-sm text-center hover:bg-accentDark/10 cursor-pointer transition-all duration-200 ease-in flex items-center gap-2"
-          role="menuitem"
-          tabIndex={0}
-          onClick={() => {
-            setMenuOpen(false);
-            setEditModalOpen(true);
-          }}
-        >
-          <FaEdit />
-          <p className="capitalize">Edit Lead</p>
-        </div>
+        {!ticket.response && (
+          <div
+            className="menu-item px-4 py-1 text-sm text-center hover:bg-accentDark/10 cursor-pointer transition-all duration-200 ease-in flex items-center gap-2"
+            role="menuitem"
+            tabIndex={0}
+            onClick={() => {
+              setMenuOpen(false);
+              setResponseModalOpen(true);
+            }}
+          >
+            <FaPaperPlane />
+            <p className="capitalize">Send Response</p>
+          </div>
+        )}
 
         <div
           className="menu-item px-4 py-1 text-sm text-center hover:bg-accentDark/10 cursor-pointer transition-all duration-200 ease-in flex items-center gap-2"
@@ -83,16 +85,15 @@ const LeadActions = ({ lead, setRefetch = () => {} }) => {
         </div>
       </div>
 
-      {editModalOpen && (
+      {responseModalOpen && (
         <Modal
-          isOpen={editModalOpen}
-          onClose={() => setEditModalOpen(false)}
-          title="Edit Lead"
+          isOpen={responseModalOpen}
+          onClose={() => setResponseModalOpen(false)}
+          title="Send Response"
         >
-          <LeadForm
-            lead={lead}
-            title="edit"
-            closeModal={() => setEditModalOpen(false)}
+          <TicketResponseForm
+            ticket={ticket}
+            closeModal={() => setResponseModalOpen(false)}
             setRefetch={setRefetch}
           />
         </Modal>
@@ -102,10 +103,10 @@ const LeadActions = ({ lead, setRefetch = () => {} }) => {
         <Modal
           isOpen={statusModalOpen}
           onClose={() => setStatusModalOpen(false)}
-          title="Change Lead Status"
+          title="Change Ticket Status"
         >
-          <LeadStatusForm
-            lead={lead}
+          <TicketStatusForm
+            ticket={ticket}
             closeModal={() => setStatusModalOpen(false)}
             setRefetch={setRefetch}
           />
@@ -115,4 +116,4 @@ const LeadActions = ({ lead, setRefetch = () => {} }) => {
   );
 };
 
-export default LeadActions;
+export default TicketActions;

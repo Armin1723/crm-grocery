@@ -2,9 +2,10 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Pagination from "../utils/Pagination";
 import SortableLink from "../utils/SortableLink";
-import { formatDate } from "../utils";
+import { formatDate, formatDateIntl } from "../utils";
+import Avatar from "../utils/Avatar";
 
-const ViewTickets = () => {
+const ViewClients = () => {
   const [results, setResults] = useState();
   const [loading, setLoading] = useState(false);
   const [page, setPage] = useState(1);
@@ -22,7 +23,7 @@ const ViewTickets = () => {
         const res = await fetch(
           `${
             import.meta.env.VITE_BACKEND_URL
-          }/api/v1/tickets?page=${page}&sort=${sort}&sortType=${sortType}${status && `&status=${status}`}`,
+          }/api/v1/clients?page=${page}&sort=${sort}&sortType=${sortType}&status=${status}`,
           {
             credentials: "include",
           }
@@ -46,27 +47,13 @@ const ViewTickets = () => {
     <div className="flex flex-col gap-4 rounded-lg p-3 border border-neutral-500/50 h-full bg-[var(--color-sidebar)]">
       <div className="flex items-center flex-wrap justify-between">
         <div className="flex  items-center gap-2">
-          <h1 className="text-xl font-bold">View Tickets</h1>
+          <h1 className="text-xl font-bold">View Clients</h1>
           <button
             className={`w-4 aspect-square rounded-full border-b-2 border-t-2 border-accent ${
               loading && "animate-spin"
             }`}
             onClick={() => setRefetch((prev) => !prev)}
           ></button>
-        </div>
-        <div className="flex items-center gap-4 text-sm">
-          <select
-            className="input"
-            value={status}
-            onChange={(e) => setStatus(e.target.value)}
-          >
-            <option value="" className="text-[var(--color-text-light)]">
-              Choose Status
-            </option>
-            <option value="new">New</option>
-            <option value="open">Open</option>
-            <option value="in progress">In Progress</option>
-          </select>
         </div>
       </div>
 
@@ -75,96 +62,107 @@ const ViewTickets = () => {
           <table className="min-w-full text-sm">
             <thead className="bg-[var(--color-card)] border-b border-neutral-500/50 sticky top-0">
               <tr className="">
+                <th className="p-3 pl-0">Avatar</th>
                 <th className="p-3">
                   <SortableLink
                     title="ID"
                     setSort={() => setSort("_id")}
                     sortType={sortType}
                     setSortType={setSortType}
-                    isActive={sort == "_id"}
+                    isActive={sort === "_id"}
                   />
                 </th>
                 <th className="p-3 pl-0 text-left min-w-[80px]">
                   <SortableLink
-                    title="Date"
+                    title="Name"
+                    setSort={() => setSort("name")}
+                    sortType={sortType}
+                    setSortType={setSortType}
+                    isActive={sort == "name"}
+                  />
+                </th>
+                <th className="p-3 pl-0 text-left">Phone</th>
+                <th className="p-3 pl-0 text-left min-w-[80px]">
+                  <SortableLink
+                    title="Joined"
                     setSort={() => setSort("createdAt")}
                     sortType={sortType}
                     setSortType={setSortType}
                     isActive={sort == "createdAt"}
                   />
                 </th>
-                <th className="p-3 text-left">Title</th>
-                <th className="p-3 text-left">Tags</th>
                 <th className="p-3 text-left">Status</th>
-                <th className="p-3 text-left">Assigned To</th>
+                <th className="p-3 text-left">End Date</th>
               </tr>
             </thead>
 
             <tbody>
-              {results?.tickets?.length > 0 &&
-                results?.tickets?.map((ticket, index) => {
+              {results?.clients?.length > 0 &&
+                results?.clients?.map((client, index) => {
                   return (
                     <tr
                       key={index}
-                      onClick={() => navigate(`/tickets/${ticket?._id}`)}
+                      onClick={() => navigate(`/clients/${client?._id}`)}
                       className="border-b border-neutral-500/20 hover:bg-[var(--color-card)] hover:bg-opacity-60 cursor-pointer"
                     >
-                      <td className="p-3">{ticket?._id}</td>
+                      <td className="p-3 text-center">
+                        <Avatar
+                          image={client?.avatar}
+                          alt={client?.name}
+                          width={32}
+                          withBorder={false}
+                        />
+                      </td>
+                      <td className="p-3">{client?._id}</td>
+                      <td className="p-3 capitalize">{client?.name}</td>
+                      <td className="p-3">{client?.phone}</td>
                       <td className="p-3 min-w-[80px]">
-                        {formatDate(ticket?.createdAt)}
-                      </td>
-                      <td className="p-3 truncate text-ellipsis max-w-[400px]">
-                        {ticket?.title || "N/A"}
-                      </td>
-                      <td className="p-3 flex flex-wrap gap-2">
-                        {ticket?.tags?.map((tag, index) => {
-                          return (
-                            <span
-                              key={index}
-                              className="flex text-xs px-2 rounded-lg w-fit capitalize border bg-accent/10 border-accent text-accent"
-                            >
-                              {tag}
-                            </span>
-                          );
-                        })}
+                        {formatDate(client?.createdAt)}
                       </td>
                       <td className="p-3">
                         <p
                           className={`text-xs  px-3 rounded-lg w-fit capitalize border ${
-                            ticket?.status === "new"
-                              ? "bg-accent/10 border-accent text-accent"
-                              : ticket?.status === "open"
-                              ? "bg-yellow-500/10 border-yellow-500 text-yellow-500"
-                              : ticket?.status === "in progress"
-                              ? "bg-blue-500/10 border-blue-500 text-blue-500"
-                              : "bg-green-500/10 border-green-500 text-green-500"
+                            client?.company?.subscription === "premium"
+                              ? "bg-green-500/10 border-green-500 text-green-500"
+                              : client?.company?.subscription === "trial"
+                              ? "bg-orange-500/10 border-orange-500 text-orange-500"
+                              : "bg-red-500/10 border-red-500 text-red-500"
                           } `}
                         >
-                          {ticket?.status}
+                          {client?.company?.subscription || "N/A"}
                         </p>
                       </td>
-                      <td className="p-3 truncate text-ellipsis max-w-[100px] capitalize">
-                        {ticket?.assignedTo?.name}
+                      <td className="p-3">
+                        <span
+                          className={`${
+                            new Date(client?.company?.subscriptionEndDate) < new Date() &&
+                            "!text-red-600"
+                          }`}
+                        >
+                          {formatDateIntl(
+                            client?.company?.subscriptionEndDate
+                          ) || "-"}
+                        </span>
                       </td>
                     </tr>
                   );
                 })}
 
-              {!results?.tickets?.length && (
+              {!results?.clients?.length && (
                 <tr className="flex-1 flex min-h-[40vh] w-full p-3">
-                  <td>No Tickets Found.</td>
+                  <td>No Clients Found.</td>
                 </tr>
               )}
 
               <tr className="bg-[var(--color-card)] sticky -bottom-1">
                 <td
                   className="p-3 text-sm text-[var(--color-text-light)]"
-                  colSpan={4}
+                  colSpan={5}
                 >
                   <span>
                     Showing {(results?.page - 1) * 10 + 1} -{" "}
-                    {results?.tickets?.length + (results?.page - 1) * 10} of{" "}
-                    {results?.totalResults} tickets.
+                    {results?.clients?.length + (results?.page - 1) * 10} of{" "}
+                    {results?.totalResults} clients.
                   </span>
                 </td>
                 <td
@@ -190,4 +188,4 @@ const ViewTickets = () => {
   );
 };
 
-export default ViewTickets;
+export default ViewClients;

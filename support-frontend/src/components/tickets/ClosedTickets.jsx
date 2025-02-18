@@ -4,13 +4,12 @@ import Pagination from "../utils/Pagination";
 import SortableLink from "../utils/SortableLink";
 import { formatDate } from "../utils";
 
-const ViewTickets = () => {
+const ClosedTickets = () => {
   const [results, setResults] = useState();
   const [loading, setLoading] = useState(false);
   const [page, setPage] = useState(1);
   const [sort, setSort] = useState("createdAt");
   const [sortType, setSortType] = useState("desc");
-  const [status, setStatus] = useState("");
   const [refetch, setRefetch] = useState(false);
 
   const navigate = useNavigate();
@@ -22,7 +21,7 @@ const ViewTickets = () => {
         const res = await fetch(
           `${
             import.meta.env.VITE_BACKEND_URL
-          }/api/v1/tickets?page=${page}&sort=${sort}&sortType=${sortType}${status && `&status=${status}`}`,
+          }/api/v1/tickets?page=${page}&sort=${sort}&sortType=${sortType}&status=closed`,
           {
             credentials: "include",
           }
@@ -40,33 +39,19 @@ const ViewTickets = () => {
       }
     };
     fetchTickets();
-  }, [page, sort, sortType, status, refetch]);
+  }, [page, sort, sortType, refetch]);
 
   return (
     <div className="flex flex-col gap-4 rounded-lg p-3 border border-neutral-500/50 h-full bg-[var(--color-sidebar)]">
       <div className="flex items-center flex-wrap justify-between">
         <div className="flex  items-center gap-2">
-          <h1 className="text-xl font-bold">View Tickets</h1>
+          <h1 className="text-xl font-bold">Closed Tickets</h1>
           <button
             className={`w-4 aspect-square rounded-full border-b-2 border-t-2 border-accent ${
               loading && "animate-spin"
             }`}
             onClick={() => setRefetch((prev) => !prev)}
           ></button>
-        </div>
-        <div className="flex items-center gap-4 text-sm">
-          <select
-            className="input"
-            value={status}
-            onChange={(e) => setStatus(e.target.value)}
-          >
-            <option value="" className="text-[var(--color-text-light)]">
-              Choose Status
-            </option>
-            <option value="new">New</option>
-            <option value="open">Open</option>
-            <option value="in progress">In Progress</option>
-          </select>
         </div>
       </div>
 
@@ -152,7 +137,7 @@ const ViewTickets = () => {
 
               {!results?.tickets?.length && (
                 <tr className="flex-1 flex min-h-[40vh] w-full p-3">
-                  <td>No Tickets Found.</td>
+                  <td>No Closed Tickets.</td>
                 </tr>
               )}
 
@@ -190,4 +175,4 @@ const ViewTickets = () => {
   );
 };
 
-export default ViewTickets;
+export default ClosedTickets;

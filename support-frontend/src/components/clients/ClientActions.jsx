@@ -1,14 +1,12 @@
 import React, { useState, useEffect, useRef } from "react";
 import { HiDotsVertical } from "react-icons/hi";
-import { FaEdit, FaExchangeAlt } from "react-icons/fa";
+import { FaUserCheck } from "react-icons/fa";
 import Modal from "../utils/Modal";
-import LeadForm from "./LeadForm";
-import LeadStatusForm from "./LeadStatusForm";
+import SubscriptionForm from "./SubscriptionForm";
 
-const LeadActions = ({ lead, setRefetch = () => {} }) => {
+const ClientActions = ({ client, setRefetch = () => {} }) => {
   const [menuOpen, setMenuOpen] = useState(false);
-  const [editModalOpen, setEditModalOpen] = useState(false);
-  const [statusModalOpen, setStatusModalOpen] = useState(false);
+  const [subscriptionModalOpen, setSubscriptionModalOpen] = useState(false);
   const menuRef = useRef(null);
 
   useEffect(() => {
@@ -62,52 +60,24 @@ const LeadActions = ({ lead, setRefetch = () => {} }) => {
           tabIndex={0}
           onClick={() => {
             setMenuOpen(false);
-            setEditModalOpen(true);
+            setSubscriptionModalOpen(true);
           }}
         >
-          <FaEdit />
-          <p className="capitalize">Edit Lead</p>
-        </div>
-
-        <div
-          className="menu-item px-4 py-1 text-sm text-center hover:bg-accentDark/10 cursor-pointer transition-all duration-200 ease-in flex items-center gap-2"
-          role="menuitem"
-          tabIndex={0}
-          onClick={() => {
-            setMenuOpen(false);
-            setStatusModalOpen(true);
-          }}
-        >
-          <FaExchangeAlt />
-          <p className="capitalize">Change Status</p>
+          <FaUserCheck />
+          <p className="capitalize">Activate Client</p>
         </div>
       </div>
 
-      {editModalOpen && (
+      {subscriptionModalOpen && (
         <Modal
-          isOpen={editModalOpen}
-          onClose={() => setEditModalOpen(false)}
-          title="Edit Lead"
+          isOpen={subscriptionModalOpen}
+          onClose={() => setSubscriptionModalOpen(false)}
+          title="Activate Client"
         >
-          <LeadForm
-            lead={lead}
-            title="edit"
-            closeModal={() => setEditModalOpen(false)}
+          <SubscriptionForm
+            client={client}
             setRefetch={setRefetch}
-          />
-        </Modal>
-      )}
-
-      {statusModalOpen && (
-        <Modal
-          isOpen={statusModalOpen}
-          onClose={() => setStatusModalOpen(false)}
-          title="Change Lead Status"
-        >
-          <LeadStatusForm
-            lead={lead}
-            closeModal={() => setStatusModalOpen(false)}
-            setRefetch={setRefetch}
+            closeModal={() => setSubscriptionModalOpen(false)}
           />
         </Modal>
       )}
@@ -115,4 +85,4 @@ const LeadActions = ({ lead, setRefetch = () => {} }) => {
   );
 };
 
-export default LeadActions;
+export default ClientActions;

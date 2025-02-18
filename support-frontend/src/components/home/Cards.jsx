@@ -11,20 +11,21 @@ import {
 } from "recharts";
 import { FaTicketAlt, FaUsers } from "react-icons/fa";
 import CountUp from "react-countup";
+import { Link } from "react-router-dom";
 
 const TICKET_COLORS = {
-  new: "#00CED1",
-  open: "#4169E1",
-  "in progress": "#FFA500",
-  closed: "#808080",
+  new: "#3B82F6", // blue-500
+  open: "#F59E0B", // yellow-500
+  "in progress": "#10B981", // green-500
+  closed: "#6B7280", // gray-500
 };
 
 const LEAD_COLORS = {
-  new: "#5D3FD3",
-  open: "#FFA500",
-  contacted: "#800080",
-  converted: "#004F23",
-  lost: "#DC143C",
+  new: "#3B82F6", // blue-500
+  open: "#F59E0B", // yellow-500
+  contacted: "#FBBF24", // amber-400
+  converted: "#10B981", // green-500
+  lost: "#DC2626", // red-500
 };
 
 const StatCard = ({ title, total, data, colors, icon: Icon }) => {
@@ -39,7 +40,7 @@ const StatCard = ({ title, total, data, colors, icon: Icon }) => {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
-      className="bg-[var(--color-sidebar)] rounded-xl shadow-lg p-3 px-8 w-full flex flex-col md:flex-row gap-6"
+      className="bg-[var(--color-sidebar)] rounded-xl shadow-lg p-3 px-8 w-full flex flex-col justify-between md:flex-row gap-4"
     >
       {/* Left side - Total */}
       <div className="flex-1 flex flex-col justify-center">
@@ -47,20 +48,28 @@ const StatCard = ({ title, total, data, colors, icon: Icon }) => {
           <div className="p-3 rounded-lg bg-accent/30">
             <Icon className="w-6 h-6 text-accent" />
           </div>
-          <h2 className="text-xl font-semibold">{title}</h2>
+          <h2 className="text-lg lg:text-xl font-semibold">{title}</h2>
         </div>
-        <div className="flex items-baseline gap-2">
-          <span className="text-[var(--color-text-light)]">Total</span>
-          <span className="text-4xl font-bold">
-            <CountUp end={total} duration={2} />
-          </span>
+        <div className="flex items-baseline gap-2 justify-between px-3">
+          <div className="flex gap-2 items-baseline">
+            <span className="text-[var(--color-text-light)]">Total</span>
+            <span className="text-4xl font-bold">
+              <CountUp end={total} duration={2} />
+            </span>
+          </div>
+          <Link
+            to={`/${title.split(" ")[0].toLowerCase()}`}
+            className="text-xs hover:underline text-accent hover:text-accentDark transition-all duration-300"
+          >
+            ... View All
+          </Link>
         </div>
       </div>
 
       {/* Right side - Chart */}
-      <div className="flex-1 h-[150px] max-sm:h-[250px]">
-        <ResponsiveContainer width="100%" height="100%">
-          <BarChart data={chartData} barGap={20}>
+      <div className="flex-1 min-h-[150px] flex flex-col justify-end">
+        <ResponsiveContainer width="100%" height="99%">
+          <BarChart data={chartData} key={chartData?.length} barGap={20}>
             <XAxis
               dataKey="name"
               axisLine={false}
@@ -76,7 +85,7 @@ const StatCard = ({ title, total, data, colors, icon: Icon }) => {
                 if (active && payload && payload.length) {
                   return (
                     <div className="bg-[var(--color-card)] px-3 py-2 rounded-lg shadow-lg border border-accent/10">
-                      <p className="text-sm">
+                      <p className="text-xs md:text-sm">
                         {payload[0].payload.name}:{" "}
                         <span className="">{payload[0].value}</span>
                       </p>
@@ -130,14 +139,14 @@ const Cards = () => {
         <StatCard
           title="Tickets Overview"
           total={stats?.tickets[0]?.total}
-          data={stats.ticketStatus}
+          data={stats.ticketStatus || {}}
           colors={TICKET_COLORS}
           icon={FaTicketAlt}
         />
         <StatCard
           title="Leads Overview"
           total={stats?.leads[0]?.total}
-          data={stats.leadStatus}
+          data={stats.leadStatus || {}}
           colors={LEAD_COLORS}
           icon={FaUsers}
         />

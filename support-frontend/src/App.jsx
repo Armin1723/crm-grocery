@@ -8,6 +8,8 @@ import {
 } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { useSelector } from "react-redux";
+
 import Home from "./pages/Home";
 import Auth from "./pages/Auth";
 import "./index.css";
@@ -20,17 +22,19 @@ const ResetPassword = React.lazy(() =>
   import("./Components/auth/ResetPassword")
 );
 
-import { useSelector } from "react-redux";
-import Stats from "./components/home/Stats";
-import Leads from "./components/home/Leads";
-import Clients from "./components/home/Clients";
-import NotFound from "./pages/NotFOund";
-import Tickets from "./components/home/Tickets";
-import ViewLeads from "./components/leads/ViewLeads";
-import AddLead from "./components/leads/AddLead";
-import LeadDetails from "./components/leads/LeadDetails";
-import ViewTickets from "./components/tickets/ViewTickets";
-import TicketDetails from "./components/tickets/TicketDetails";
+const Stats = React.lazy(() => import("./components/home/Stats"));
+const Leads = React.lazy(() => import("./components/home/Leads"));
+const Clients = React.lazy(() => import("./components/home/Clients"));
+const NotFound = React.lazy(() => import("./pages/NotFound"));
+const Tickets = React.lazy(() => import("./components/home/Tickets"));
+const ViewLeads = React.lazy(() => import("./components/leads/ViewLeads"));
+const AddLead = React.lazy(() => import("./components/leads/AddLead"));
+const LeadDetails = React.lazy(() => import("./components/leads/LeadDetails"));
+const ViewTickets = React.lazy(() => import("./components/tickets/ViewTickets"));
+const ClosedTickets = React.lazy(() => import("./components/tickets/ClosedTickets"));
+const TicketDetails = React.lazy(() => import("./components/tickets/TicketDetails"));
+const ViewClients = React.lazy(() => import("./components/clients/ViewClients"));
+const ClientDetails = React.lazy(() => import("./components/clients/ClientDetails"));
 
 const ProtectedRoute = ({ children }) => {
   const user = useSelector((state) => state.user);
@@ -99,11 +103,15 @@ const App = () => {
               {/* Ticket Routes */}
               <Route path="tickets" element={<Tickets />}>
                 <Route path="" element={<ViewTickets />} />
+                <Route path="closed" element={<ClosedTickets />} />
                 <Route path=":id" element={<TicketDetails />} />
               </Route>
 
               {/* Client Routes */}
-              <Route path="customers" element={<Clients />} />
+              <Route path="clients" element={<Clients />} >
+                <Route path="" element={<ViewClients />} />
+                <Route path=":id" element={<ClientDetails />} />  
+              </Route>
             </Route>
 
             {/* Auth Routes */}

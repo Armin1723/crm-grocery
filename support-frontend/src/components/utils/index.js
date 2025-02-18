@@ -26,8 +26,8 @@ export const links = [
   },
   {
     icon: FaUser,
-    title: "Customers",
-    to: '/customers',
+    title: "Clients",
+    to: '/clients',
     protected: false,
   }
 ];

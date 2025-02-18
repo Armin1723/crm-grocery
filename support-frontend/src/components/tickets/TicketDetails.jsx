@@ -3,6 +3,7 @@ import { useParams } from "react-router-dom";
 import UserCard from "../user/UserCard";
 import Divider from "../utils/Divider";
 import ClientCard from "../clients/ClientCard";
+import TicketActions from "./TicketActions";
 
 const TicketDetails = () => {
   const [ticket, setTicket] = useState({});
@@ -49,6 +50,7 @@ const TicketDetails = () => {
                 <h2 className="text-xl font-semibold capitalize">
                   {ticket?.title || "Untitled"}
                 </h2>
+                <p className="text-sm text-[var(--color-text-light)] my-1">Ticket ID: {ticket._id}</p>
               </div>
               <div className="flex items-center">
                 <p
@@ -64,6 +66,7 @@ const TicketDetails = () => {
                 >
                   {ticket?.status || "Unknown"}
                 </p>
+                <TicketActions ticket={ticket} setRefetch={setRefetch}/>
               </div>
             </div>
 
@@ -71,7 +74,7 @@ const TicketDetails = () => {
 
             {/* Description Section */}
             <div>
-              <p className="mt-3 text-sm">
+              <p className="mt-3 text-base">
                 <span className="font-semibold text-[var(--color-text-light)]">
                   Description:
                 </span>{" "}
@@ -84,7 +87,8 @@ const TicketDetails = () => {
               <div className="mt-4 flex items-center justify-center flex-col">
                 <Divider title="Screenshot" />
                 <img
-                  src={ticket.screenshot}
+                  src={ticket?.screenshot?.replace('/uploads/', '/uploads/w_full/')} 
+                  loading="lazy"
                   alt="Ticket Screenshot"
                   className="mt-2 rounded-lg shadow-md max-w-full h-auto"
                 />
@@ -105,6 +109,14 @@ const TicketDetails = () => {
                     </span>
                   ))}
                 </div>
+              </div>
+            )}
+
+            {/* Response Section */}
+            {ticket?.response && (
+              <div className="mt-4">
+                <Divider title="Response" />
+                <p className="mt-2">{ticket?.response}</p>
               </div>
             )}
           </div>
@@ -128,7 +140,7 @@ const TicketDetails = () => {
       )}
 
       {loading && (
-        <div className="flex-1 flex items-center justify-center h-full w-full min-h-[60vh]">
+        <div className="flex-1 flex items-center justify-center h-full w-full ">
           <div className="spinner"></div>
         </div>
       )}
