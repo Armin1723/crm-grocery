@@ -1,6 +1,8 @@
 const Company = require("../models/company.model");
 const User = require("../models/user.model");
 const { loadSubscriptionsToCache } = require("../helpers/subscriptionCache");
+const { sendMail } = require("../helpers");
+const activationMailTemplate = require("../templates/email/activationMailTemplate");
 
 const getClients = async (req, res) => {
   const { page = 1, limit = 10, sort = "name", sortType = "desc"} = req.query;
@@ -86,6 +88,13 @@ const activateClient = async (req, res) => {
 
   // Reload subscriptions cache
   loadSubscriptionsToCache();
+
+  //Send Mail to client
+  sendMail(
+    to = clientCompany.email,
+    subject =  "Subscription Activated",
+    message = activationMailTemplate(clientCompany),
+  );
 
   res.status(200).json({
     success: true,
