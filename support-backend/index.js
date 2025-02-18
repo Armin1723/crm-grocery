@@ -4,14 +4,25 @@ const connectToDB = require('./db');
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
 const { errorHandler } = require('./middleware/errorHandler');
+const http = require('http');
+const { Server } = require('socket.io');
+const leadRoutes = require('./routes/lead.routes');
 
 const app = express();
+
+const server = http.createServer(app);
+const io = new Server(server, {
+  cors: {
+    origin: [process.env.FRONTEND_URL, 'http://localhost:5174'],
+    credentials: true,
+  },
+});
 
 // Middlewares
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));    
 app.use(cors({
-    origin: [process.env.FRONTEND_URL, 'http://localhost:5173'],
+    origin: [process.env.FRONTEND_URL, 'http://localhost:5174'],
     credentials: true
 }));
 app.use(cookieParser());
@@ -25,14 +36,16 @@ app.get('/', (req, res) => {
 );
 
 //Routes
+app.use('/api/v1/stats', require('./routes/stat.routes'));
 app.use('/api/v1/auth', require('./routes/auth.routes'));
 app.use('/api/v1/tickets', require('./routes/ticket.routes'));
-app.use('/api/v1/leads', require('./routes/lead.routes'));
+app.use('/api/v1/leads', leadRoutes(io));
+app.use('/api/v1/clients', require('./routes/client.routes'));
 
 //Error Handler middleware
 app.use(errorHandler);
 
-app.listen(process.env.PORT || 8001, () => {
+server.listen(process.env.PORT || 8001, () => {
     console.log(`Server is running on port ${process.env.PORT || 8001}`);
     }
 );

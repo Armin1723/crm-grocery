@@ -4,19 +4,32 @@ const {
   addLead,
   editLead,
   deleteLead,
+  changeStatus,
 } = require("../controller/lead.controller");
 const { asyncHandler } = require("../middleware/errorHandler");
 
 const router = require("express").Router();
 
-router.get("/", asyncHandler(getLeads));
+const leadRoutes = (io) => {
+  router.get("/", asyncHandler(getLeads));
 
-router.get("/:id", asyncHandler(getLead));
+  router.get("/:id", asyncHandler(getLead));
 
-router.post("/", asyncHandler(addLead));
+  router.post(
+    "/",
+    asyncHandler((req, res, next) => addLead(req, res, next, io))
+  );
 
-router.put("/:id", asyncHandler(editLead));
+  router.put("/:id", asyncHandler(editLead));
 
-router.delete("/:id", asyncHandler(deleteLead));
+  router.post(
+    "/:id/status",
+    asyncHandler((req, res, next) => changeStatus(req, res, next, io))
+  );
 
-module.exports = router;
+  router.delete("/:id", asyncHandler(deleteLead));
+
+  return router;
+};
+
+module.exports = leadRoutes;

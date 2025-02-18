@@ -7,7 +7,7 @@ const getTickets = async (req, res) => {
   const {
     sort = "createdAt",
     sortType = "desc",
-    status,
+    status = { $ne: "closed" },
     page = 1,
     limit = 10,
     createdBy,
@@ -24,6 +24,7 @@ const getTickets = async (req, res) => {
   }
 
   const tickets = await Ticket.find(query)
+    .populate("assignedTo", "name email")
     .sort({ [sort]: sortType })
     .limit(limit)
     .skip((page - 1) * limit);
@@ -35,6 +36,7 @@ const getTickets = async (req, res) => {
   res.status(200).json({
     success: true,
     tickets,
+    page,
     totalResults,
     totalPages,
   });
@@ -42,7 +44,7 @@ const getTickets = async (req, res) => {
 
 const getTicket = async (req, res) => {
   const { id } = req.params;
-  const ticket = await Ticket.findById(id).populate("assignedTo");
+  const ticket = await Ticket.findOne({ _id: id }).populate("assignedTo");
 
   if (!ticket) {
     return res.status(404).json({
@@ -52,7 +54,12 @@ const getTicket = async (req, res) => {
   }
 
   const response = await fetch(
-    `${process.env.CRM_BACKEND_URL}/api/v1/employees/id/${ticket.createdBy}`
+    `${process.env.CRM_BACKEND_URL}/api/v1/support/clients/${ticket.createdBy}`,
+    {
+      headers: {
+        "x-api-key": process.env.SUPPORT_API_KEY,
+      },
+    }
   );
 
   if (!response.ok) {
@@ -65,8 +72,8 @@ const getTicket = async (req, res) => {
 
   res.status(200).json({
     success: true,
-    data: ticket,
-    user: createdBy,
+    ticket,
+    client: createdBy.client,
   });
 };
 
@@ -152,7 +159,9 @@ const sendResponse = async (req, res) => {
 
   const ticket = await Ticket.findByIdAndUpdate(
     id,
-    { response, status: "closed" },
+    { 
+      response,
+    },
     {
       new: true,
       runValidators: true,

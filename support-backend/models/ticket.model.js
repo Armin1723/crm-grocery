@@ -7,14 +7,14 @@ const ticketSchema = new mongoose.Schema(
       required: true,
       trim: true,
       minlength: 2,
-      maxlength: 32,
+      maxlength: 100,
     },
     description: {
       type: String,
       required: true,
       trim: true,
       minlength: 2,
-      maxlength: 500,
+      maxlength: 1000,
     },
     screenshot: {
       type: String,

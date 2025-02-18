@@ -16,11 +16,11 @@ const {
 
 router.get("/", asyncHandler(getTickets));
 
+router.post("/", upload.fields([{name: "screenshot"}]), asyncHandler(createTicket));
+
 router.use(isLoggedIn);
 
 router.get("/:id", asyncHandler(getTicket));
-
-router.post("/", upload.fields([{name: "screenshot"}]), asyncHandler(createTicket));
 
 router.put("/:id", asyncHandler(updateTicket));
 

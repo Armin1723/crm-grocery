@@ -1,6 +1,6 @@
 const { sendMail } = require("../helpers");
 const User = require("../models/user.model");
-const forgotPasswordMailTemplate = require("../template/email/forgotPasswordMailTenplate");
+const forgotPasswordMailTemplate = require("../template/email/forgotPasswordMailTemplate");
 const registrationMailTemplate = require("../template/email/registrationMailTemplate");
 
 const login = async (req, res) => {
@@ -106,6 +106,20 @@ const register = async (req, res) => {
       "Two Factor Authentication OTP",
       registrationMailTemplate(newUser.name, newUser.email, otp)
     );
+  });
+};
+
+const logout = async (req, res) => {
+  res.cookie("token", "", {
+    maxAge: 0,
+    httpOnly: true,
+    secure: true,
+    sameSite: "None",
+  });
+
+  res.status(200).json({
+    success: true,
+    message: "Logged out successfully",
   });
 };
 
@@ -221,4 +235,4 @@ const resetPassword = async (req, res) => {
   });
 };
 
-module.exports = { login, register, verifyOTP, forgotPassword, resetPassword };
+module.exports = { login, register, logout, verifyOTP, forgotPassword, resetPassword };

@@ -21,11 +21,24 @@ const leadSchema = new mongoose.Schema(
     description: {
       type: String,
     },
+    dob: {
+      type: Date,
+    },
     status: {
       type: String,
-      enum: ["new", "contacted", "converted", "lost"],
+      enum: ["new", "open", "contacted", "converted", "lost"],
       default: "new",
     },
+    timeline: [
+      {
+        description: {
+          type: String,
+        },
+        on: {
+          type: Date,
+        },
+      }
+    ],
     assignedTo: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
