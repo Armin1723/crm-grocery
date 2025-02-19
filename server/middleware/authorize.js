@@ -21,11 +21,16 @@ const authorize = (requiredPermissions) => {
           });
       }
 
+      if(decoded?.role === 'admin'){
+        req.user = decoded;
+        return next();
+      }
+
       const user = await User.findById(decoded.id).select("permissions").lean();
 
       // If permissions have changed, clear token & force logout
-      const tokenPermissions = decoded?.permissions?.sort().join(",");
-      const dbPermissions = user?.permissions?.sort().join(",");
+      const tokenPermissions = decoded?.permissions.sort().join(",");
+      const dbPermissions = user.permissions?.sort().join(",");
 
       if (tokenPermissions !== dbPermissions) {
         res.cookie("token", "", { httpOnly: true, expires: new Date(0) });
