@@ -65,7 +65,7 @@ const TrendingProducts = () => {
   if (error)
     return (
       <div className="bg-[var(--color-sidebar)] p-4 rounded-md border border-red-500 w-full h-full flex flex-col items-center justify-center">
-        <p className="text-red-500 text-sm">{error}</p>
+        <p className="text-red-500 text-sm">{error.message || 'Some error occured.'}</p>
       </div>
     );
 

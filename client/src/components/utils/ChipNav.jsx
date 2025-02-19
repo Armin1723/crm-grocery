@@ -32,6 +32,8 @@ const ChipNav = ({ chips, baseUrl = "/" }) => {
               to={chip.to}
               className={`px-3 py-1.5 ${
                 isActive ? "bg-accent/20" : "bg-[var(--color-sidebar)]"
+              } ${
+                chip?.hidden && "hidden"
               } rounded-full flex flex-shrink-0 items-center gap-2 h-fit w-fit hover:bg-accent/10 border border-neutral-500/30 transition-all duration-300 ease-in`}
             >
               <chip.icon className="text-accent" />

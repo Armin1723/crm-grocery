@@ -61,7 +61,7 @@ const SalesChart = () => {
           <ResponsiveContainer width="100%" height="100%">
             <AreaChart
               data={data}
-              key={data.length}
+              key={data?.length}
               margin={{
                 top: 10,
                 right: 30,

@@ -31,7 +31,7 @@ function createWindow() {
       nodeIntegration: false,
       contextIsolation: true,
       nativeWindowOpen: false,
-      // devTools: !app.isPackaged,
+      devTools: !app.isPackaged,
       enableAutofill: true,
       spellcheck: true,
     },

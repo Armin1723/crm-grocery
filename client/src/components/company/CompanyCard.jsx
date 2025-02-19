@@ -2,13 +2,40 @@ import React from "react";
 import { Link } from "react-router-dom";
 import Avatar from "../utils/Avatar";
 import { formatDateIntl } from "../utils";
+import { useQuery } from "@tanstack/react-query";
 
-const CompanyCard = ({ company, otherClasses = "", isAdmin = false }) => {
+const CompanyCard = ({ companyId, otherClasses = "", isAdmin = false }) => {
+
   const getSubscriptionStatus = () => {
     const now = new Date();
     const endDate = new Date(company?.subscriptionEndDate);
-    return company.subscription && now > endDate ? "inactive" : "active";
+    return company?.subscription && now > endDate ? "inactive" : "active";
   };
+
+  const {data: company, isFetching: loading} = useQuery({
+    queryKey: ["company", companyId],
+    queryFn: async () => {
+      const res = await fetch(
+        `${import.meta.env.VITE_BACKEND_URL}/api/v1/companies/${companyId}`,
+        {
+          method: "GET",
+          credentials: "include",
+        }
+      );
+      const data = await res.json();
+      if (!res.ok) throw ({
+        status: res.status,
+        message: data.message,
+      });
+      return data.company;
+    },
+    staleTime: 1000 * 60 * 5,
+    retry: false,
+  })
+
+  if (loading) return <div className="min-h-[30vh] aspect-video flex items-center justify-center w-full">
+    <div className="spinner"></div>
+  </div>
 
   return (
     <div
@@ -105,7 +132,8 @@ const CompanyCard = ({ company, otherClasses = "", isAdmin = false }) => {
               Address:
             </span>{" "}
             <span className="truncate text-ellipsis text-wrap">
-              {`${company?.address?.split(" ").slice(0,4).join(" ")}...` || "N/A"}
+              {`${company?.address?.split(" ").slice(0, 4).join(" ")}...` ||
+                "N/A"}
             </span>
           </p>
         </div>

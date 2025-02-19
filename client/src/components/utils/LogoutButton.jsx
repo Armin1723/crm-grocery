@@ -6,7 +6,7 @@ import { toast } from "react-toastify";
 import { setUser } from "../../redux/features/user/userSlice";
 import { useQueryClient } from "@tanstack/react-query";
 
-const LogoutButton = ({ expanded = true }) => {
+const LogoutButton = ({ expanded = true, otherClasses }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
@@ -49,7 +49,7 @@ const LogoutButton = ({ expanded = true }) => {
   return (
     <button
       onClick={handleLogout}
-      className={` flex justify-center gap-1 items-center text-sm group mt-2 rounded-md bg-[var(--color-accent)] hover:bg-[var(--color-accent-dark)] w-fit py-1.5 px-4 text-primary transition-all duration-300 ease-in ${!expanded && '!px-2'}`}
+      className={` flex justify-center gap-1 items-center text-sm group mt-2 rounded-md bg-[var(--color-accent)] hover:bg-[var(--color-accent-dark)] w-fit py-1.5 px-4 text-primary transition-all duration-300 ease-in ${!expanded && '!px-2'} ${otherClasses}`}
     >
       <IoLogOut className="transition-all duration-300 ease-in font-bold text-xl" />
       <span

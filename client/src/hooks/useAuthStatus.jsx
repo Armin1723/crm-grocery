@@ -11,9 +11,6 @@ const useAuthStatus = () => {
   useEffect(() => {
     const checkAuthStatus = async () => {
       if (user && user?.name) {
-        if(user?.role === 'employee') {
-          navigate('/seller');
-        }
         try {
           const response = await fetch(
             `${import.meta.env.VITE_BACKEND_URL}/api/v1/auth/validate`,
@@ -21,14 +18,15 @@ const useAuthStatus = () => {
               credentials: 'include',
             }
           );
-
           if (response.status === 200) {
             return; 
-          } else {
+          } else if(response.status === 401) {
             localStorage.removeItem('user');
             dispatch(setUser(null));
             navigate('/auth');
-          }
+          } else {
+            throw new Error('Failed to validate user');
+          } 
         } catch (error) {
           console.error('Error validating user:', error);
           localStorage.removeItem('user');

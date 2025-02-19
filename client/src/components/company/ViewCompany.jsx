@@ -30,7 +30,7 @@ const ViewCompany = () => {
         }
       />
       <CompanyCard
-        company={user.company}
+        companyId={user?.company?._id}
         isAdmin={user && user?.role == "admin"}
       />
 

@@ -1,21 +1,13 @@
-import React, { useEffect, useRef } from "react";
-import { useSelector } from "react-redux";
-import { Outlet, useNavigate } from "react-router-dom";
+import React, { useRef } from "react";
+import { Outlet } from "react-router-dom";
 import SellerTopRibbon from "../components/seller/shared/SellerTopRibbon";
 import Footer from "../components/shared/Footer";
+import useAuthStatus from "../hooks/useAuthStatus";
 
 const Seller = () => {
-  const user = useSelector((state) => state.user);
-  const navigate = useNavigate();
   const pageRef = useRef(null);
 
-  useEffect(() => {
-    if (!user) {
-      navigate("/auth/login");
-    } else if (user.role !== "employee") {
-      navigate("/");
-    }
-  }, []);
+  useAuthStatus();
 
   return (
     <div ref={pageRef} className="w-full flex-1 flex flex-col overflow-hidden items-center justify-center bg-[var(--color-sidebar)] text-[var(--color-text)]">

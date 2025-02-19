@@ -4,6 +4,7 @@ import { toast } from "react-toastify";
 import { MdClose } from "react-icons/md";
 import FormInput from "../utils/FormInput";
 import { useSelector } from "react-redux";
+import TagInput from "../utils/TagInput";
 
 const TicketForm = ({ closeModal = () => {} }) => {
   const [screenshotPreview, setScreenshotPreview] = React.useState(null);
@@ -15,16 +16,25 @@ const TicketForm = ({ closeModal = () => {} }) => {
     handleSubmit,
     formState: { errors },
     setValue,
+    getValues,
     reset,
+    watch,
   } = useForm({
     mode: "onChange",
+    defaultValues: {
+      title: "",
+      description: "",
+      tags: [],
+    },
   });
+
+  const tags = watch("tags", getValues("tags") || []);
 
   // Handle screenshot change
   const handleScreenshotChange = (event) => {
     const file = event.target.files[0];
     if (file) {
-      if (file.size > 50000) {
+      if (file.size > 500000) {
         event.target.value = null;
         toast.error("Image size should be less than 500kb");
         return;
@@ -59,6 +69,11 @@ const TicketForm = ({ closeModal = () => {} }) => {
     if (values.screenshot instanceof File) {
       formData.append("screenshot", values.screenshot);
     }
+
+    //Append Tags
+    values.tags.forEach((tag) => {
+      formData.append("tags[]", tag);
+    });
 
     try {
       const response = await fetch(
@@ -158,6 +173,10 @@ const TicketForm = ({ closeModal = () => {} }) => {
             {errors.description.message}
           </p>
         )}
+      </div>
+
+      <div className="space-y-2 text-[var(--color-text-light)]">
+        <TagInput tags={tags} setTags={(tags) => setValue("tags", tags)} />
       </div>
 
       <div className="space-y-2 text-[var(--color-text-light)]">

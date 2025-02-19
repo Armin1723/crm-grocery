@@ -1,8 +1,10 @@
 import React from "react";
 import { FaHome } from "react-icons/fa";
+import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 
 const NotFound = () => {
+  const user = useSelector((state) => state.user);
   return (
     <div
       className="bg-[var(--color-primary)] text-[var(--color-text)] h-full"
@@ -126,7 +128,7 @@ const NotFound = () => {
           Let's get you back.
         </div>
         <Link
-          to="/"
+          to={user?.role === "admin" ? "/" : "/seller"}
           className="bg-accent hover:bg-accentDark text-white px-6 py-2 my-2 text-bold rounded-md transition flex items-center gap-2"
         >
           <p>Return to Home </p>

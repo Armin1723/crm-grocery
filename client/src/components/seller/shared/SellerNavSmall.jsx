@@ -2,7 +2,7 @@ import React, { useRef, useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { links } from "../../utils";
 import ReactDOM from "react-dom";
-import { IoIosCloseCircle, IoIosArrowUp } from "react-icons/io";
+import { IoIosCloseCircle } from "react-icons/io";
 import Avatar from "../../utils/Avatar";
 import { useSelector } from "react-redux";
 import LogoutButton from "../../utils/LogoutButton";
@@ -13,12 +13,13 @@ import Logo from "../../shared/Logo";
 const SellerNavSmall = () => {
   const pathname = useLocation().pathname;
   const [navOpen, setNavOpen] = useState(false);
-  const [openSubmenus, setOpenSubmenus] = useState({});
 
   const navRef = useRef(null);
   const hamRef = useRef(null);
 
   const user = useSelector((state) => state.user);
+
+  const hasPermission = user?.permissions?.includes("companies") || false;
 
   // Close nav when clicking outside
   useEffect(() => {
@@ -38,13 +39,6 @@ const SellerNavSmall = () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
-
-  const toggleSubmenu = (linkTitle) => {
-    setOpenSubmenus((prev) => ({
-      ...prev,
-      [linkTitle]: !prev[linkTitle],
-    }));
-  };
 
   return (
     <>
@@ -83,7 +77,18 @@ const SellerNavSmall = () => {
           {/* Top Section */}
           <div className="top flex w-full justify-between px-4 relative pb-2 border-b border-neutral-500/50">
             <div className="top-sub flex items-center justify-between w-full gap-2">
-              <Logo />
+              {hasPermission ? (
+                <Logo />
+              ) : (
+                <div className="flex items-center gap-2">
+                  <Avatar width={42} image={user?.company?.logo} withBorder={false}/>
+                  <p
+                    className={`text-lg font-bold transition-all duration-300 ease-in overflow-hidden `}
+                  >
+                    {user?.company?.name}
+                  </p>
+                </div>
+              )}
               <div
                 className="close cursor-pointer text-xl"
                 onClick={() => setNavOpen(false)}
@@ -102,13 +107,14 @@ const SellerNavSmall = () => {
                     ? pathname === "/seller/"
                     : pathname.startsWith(`/seller${link.to}`);
 
-                const hasSublinks = link.sublinks && link.sublinks.length > 0;
-                const isSubmenuOpen = openSubmenus[link.title];
-
                 return (
                   <li
                     key={index}
-                    className={`link ${link.protected && "hidden"}`}
+                    className={`link ${
+                      !user?.permissions?.includes(link.title.toLowerCase()) &&
+                      link.to !== "/" &&
+                      "hidden"
+                    }`}
                   >
                     <div className="actualLink flex flex-col justify-between items-center w-full">
                       <div
@@ -123,7 +129,6 @@ const SellerNavSmall = () => {
                           to={`/seller${link.to}`}
                           onClick={() => {
                             setNavOpen(false);
-                            setOpenSubmenus({});
                           }}
                           className="link relative flex flex-1 items-center gap-4 py-2 group"
                         >
@@ -141,63 +146,7 @@ const SellerNavSmall = () => {
                             {link.title}
                           </p>
                         </Link>
-
-                        {hasSublinks && (
-                          <div
-                            onClick={() => toggleSubmenu(link.title)}
-                            className={`cursor-pointer p-2 ${
-                              isSubmenuOpen && "transform rotate-180"
-                            } transition-all duration-300`}
-                          >
-                            <IoIosArrowUp
-                              className={` transition-all duration-300`}
-                            />
-                          </div>
-                        )}
                       </div>
-
-                      {hasSublinks && (
-                        <ul
-                          className={`w-full overflow-hidden ${
-                            isSubmenuOpen ? "max-h-screen" : "max-h-0"
-                          } transition-all duration-300 ease-in  
-                        `}
-                        >
-                          {link.sublinks.map((sublink, subIndex) => {
-                            const isSubActive =
-                              pathname === `/seller${sublink.to}`;
-                            return (
-                              <li
-                                key={`${index}-${subIndex}`}
-                                className={`py-2 pl-8 transition-all duration-300 
-                                ${
-                                  isSubActive
-                                    ? "text-accent font-bold bg-accent/10"
-                                    : ""
-                                }`}
-                              >
-                                <Link
-                                  to={`/seller${sublink.to}`}
-                                  onClick={() => {
-                                    setNavOpen(false);
-                                    setOpenSubmenus({});
-                                  }}
-                                  className="flex items-center gap-2 
-                                  hover:text-accent transition-colors"
-                                >
-                                  {sublink.icon && (
-                                    <sublink.icon
-                                      className={`mr-2 overflow-hidden
-                                    ${isSubActive ? "text-accent" : ""}`}
-                                    />
-                                  )}
-                                  {sublink.title}
-                                </Link>
-                              </li>
-                            );
-                          })}
-                        </ul>
-                      )}
                     </div>
                   </li>
                 );

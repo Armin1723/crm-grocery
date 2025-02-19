@@ -16,6 +16,9 @@ import ViewCompany from "./components/company/ViewCompany";
 import AddCompany from "./components/company/AddCompany";
 import Register from "./components/auth/Register";
 import Otp from "./components/auth/Otp";
+import SellerProducts from "./components/seller/products/SellerProducts";
+import SellerPurchases from "./components/seller/purchases/SellerPurchases";
+import SellerSuppliers from "./components/seller/suppliers/SellerSupplier";
 const Seller = lazy(() => import("./pages/Seller"));
 const TopLoadingBar = lazy(() => import("./components/shared/TopLoadingBar"));
 const SellerSales = lazy(() => import("./components/seller/sales/SellerSales"));
@@ -272,6 +275,32 @@ const App = () => {
               <Route path="inventory" element={<SellerInventory />}>
                 <Route path="" element={<InventoryList />} />
                 <Route path="grid" element={<InventoryGrid />} />
+              </Route>
+              <Route path="purchases" element={<SellerPurchases />}>
+                <Route path="" element={<ViewPurchases />} />
+                <Route path="add" element={<AddPurchase />} />
+                <Route path=":id" element={<PurchaseDetails />} />
+                <Route path="expenses" element={<ViewExpenses />} />
+                <Route path="expenses/add" element={<AddExpense />} />
+                <Route path="returns" element={<ViewPurchaseReturns />} />
+                <Route path="returns/add" element={<AddPurchaseReturn />} />
+              </Route>
+              <Route path="products" element={<SellerProducts />}>
+                <Route path="" element={<ViewProducts />} />
+                <Route path="add" element={<AddProduct />} />
+                <Route path=":id" element={<ProductDetails />} />
+              </Route>
+              <Route path="suppliers" element={<SellerSuppliers />}>
+                <Route path="" element={<ViewSuppliers />} />
+                <Route path="add" element={<AddSuppliers />} />
+                <Route path=":id" element={<SupplierDetails />} />
+              </Route>
+              <Route path="reports" element={<Reports />}>
+                <Route path="" element={<ExpenseReport />} />
+                <Route path="expense" element={<ExpenseReport />} />
+                <Route path="sales" element={<SalesReport />} />
+                <Route path="tax" element={<TaxReport />} />
+                <Route path="profit-loss" element={<ProfitLossReport />} />
               </Route>
               <Route path="employees" element={<SellerEmployee />}>
                 <Route path=":id" element={<EmployeeDetails />} />

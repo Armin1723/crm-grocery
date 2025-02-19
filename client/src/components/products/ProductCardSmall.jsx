@@ -1,14 +1,17 @@
 import React from "react";
+import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 
 const ProductCardSmall = ({
   product = {},
 }) => {
 
+  const user = useSelector((state) => state.user);
+
   return (
-      <div className="bg-[var(--color-card)] flex-shrink-0 w-full h-full rounded-md p-4 transition-all flex flex-col justify-between border border-neutral-500/50 min-w-[30vw]">
+      <div className="bg-[var(--color-card)] flex-shrink-0 w-full h-full rounded-md p-4 transition-all flex flex-col justify-between border border-neutral-500/50 min-w-[20vw]">
         {/* Product Image */}
-        <div className="w-full h-48 bg-[var(--color-sidebar)] rounded-md overflow-hidden">
+        <div className="w-full h-48 bg-[var(--color-sidebar)] rounded-md overflow-hidden flex ">
           <img
             src={product?.image || "./utils/product-placeholder.png"}
             alt={product?.name}
@@ -21,7 +24,7 @@ const ProductCardSmall = ({
         <div className="flex flex-col mt-4 flex-grow">
           {/* Product Name */}
           <Link
-            to={`/products/${product?.upid}`}
+            to={`${user?.role === 'admin' ? '' : '/seller'}/products/${product?.upid}`}
             className="text-[var(--color-text)] text-lg text-wrap font-semibold truncate flex items-center gap-2 hover:underline"
           >
             {product?.name}

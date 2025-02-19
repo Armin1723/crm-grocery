@@ -28,7 +28,7 @@ const Logo = ({ expanded = "true" }) => {
       className="logo flex items-center justify-between gap-2 overflow-hidden"
     >
       <CompanyCard
-        company={user.company}
+        companyId={user?.company?._id}
         isAdmin={user && user?.role == "admin"}
       />
     </HoverCard>

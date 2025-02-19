@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import Avatar from "../utils/Avatar";
-import { MdChevronRight, MdSettings } from "react-icons/md";
+import { MdChevronRight } from "react-icons/md";
 import { Link, useLocation } from "react-router-dom";
 import { useSelector } from "react-redux";
 import LogoutButton from "../utils/LogoutButton";
@@ -110,7 +110,6 @@ const Sidebar = () => {
             } overflow-hidden transition-all duration-300 ease-in flex flex-col capitalize`}
           >
             <span className="font-semibold">{user?.name}</span>
-            <span className="font-light text-xs">{user?.uuid}</span>
           </p>
         </div>
         <LogoutButton expanded={expanded} />

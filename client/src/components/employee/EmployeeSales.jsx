@@ -32,7 +32,6 @@ const EmployeeSales = () => {
           console.error(data.message || "Something went wrong");
         } else {
           setResults(data);
-          setLoading(false);
         }
       } catch (error) {
         console.error(error.message);
@@ -45,7 +44,7 @@ const EmployeeSales = () => {
 
   return (
     <div className="overflow-y-auto w-full">
-      {results?.sales?.length && !loading ? (
+      {!loading ? (
         <table className="min-w-full text-sm">
           <thead className="bg-[var(--color-card)] border-b border-neutral-500/50 sticky top-0">
             <tr className="">

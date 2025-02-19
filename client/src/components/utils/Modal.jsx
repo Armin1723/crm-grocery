@@ -27,7 +27,7 @@ const Modal = ({ isOpen, onClose, title, children }) => {
         className="bg-[var(--color-sidebar)] rounded-md p-6 w-[90%] md:w-2/3 flex flex-col overflow-hidden max-h-[80vh] max-sm:px-6"
       >
         <div className="flex items-center gap-2 w-full justify-between py-4 bg-[var(--color-sidebar)]">
-          <h2 className="text-lg font-bold">{title}</h2>
+          <h2 className="text-lg font-bold capitalize">{title}</h2>
           <button
             className="bg-red-500 hover:bg-red-600/90 transition-all duration-200 text-white px-3 py-1 rounded-md"
             onClick={onClose}

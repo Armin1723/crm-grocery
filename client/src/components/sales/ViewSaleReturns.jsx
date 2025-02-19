@@ -8,9 +8,10 @@ import { Link } from "react-router-dom";
 import SaleDetails from "./SaleDetails";
 import HoverCard from "../shared/HoverCard";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useSelector } from "react-redux";
 
 const ViewSaleReturns = () => {
-
+  const user = useSelector((state) => state.user);
   const [selectedSaleId, setSelectedSaleId] = useState("");
 
   const [limit, setLimit] = useState(10);
@@ -124,9 +125,17 @@ const ViewSaleReturns = () => {
                     <div className="w-[15%] min-w-[80px] px-2 truncate text-ellipsis">
                       <HoverCard
                         title={
-                          <Link to={`/sales/${saleReturn?.saleId}`}>
+                          <Link
+                            to={
+                              user?.role === "admin"
+                                ? `/sales/${saleReturn?.saleId}`
+                                : `/seller/sales/${saleReturn?.saleId}`
+                            }
+                            className="hover:underline"
+                          >
                             {" "}
-                            {`${saleReturn?.saleId.slice(0,10)}...` || "N/A"}{" "}
+                            {`${saleReturn?.saleId.slice(0, 10)}...` ||
+                              "N/A"}{" "}
                           </Link>
                         }
                       >
@@ -191,7 +200,9 @@ const ViewSaleReturns = () => {
                       return prev;
                     });
                   }}
-                  disabled={limit === steps[0] || results?.totalSalesReturns < limit}
+                  disabled={
+                    limit === steps[0] || results?.totalSalesReturns < limit
+                  }
                   className="px-3 flex items-center justify-center rounded-md bg-[var(--color-primary)] w-6 aspect-square border border-neutral-500/50 hover:opacity-75 disabled:opacity-50 disabled:cursor-not-allowed disabled:border-neutral-500/20"
                 >
                   -
@@ -208,7 +219,10 @@ const ViewSaleReturns = () => {
                       return prev;
                     });
                   }}
-                  disabled={limit === steps[steps.length - 1] || limit >= results?.totalSalesReturns}
+                  disabled={
+                    limit === steps[steps.length - 1] ||
+                    limit >= results?.totalSalesReturns
+                  }
                   className="px-3 flex items-center justify-center rounded-md bg-[var(--color-primary)] w-6 aspect-square border border-neutral-500/50 hover:opacity-75 disabled:opacity-50 disabled:cursor-not-allowed disabled:border-neutral-500/20"
                 >
                   +

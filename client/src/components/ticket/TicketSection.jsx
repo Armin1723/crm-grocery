@@ -6,7 +6,7 @@ const TicketSection = ({ closeModal = () => {} }) => {
   const [activeTab, setActiveTab] = useState("add");
 
   return (
-    <div className="bg-[var(--color-primary)] h-full flex flex-col gap-6 rounded-lg shadow-lg overflow-y-auto relative">
+    <div className="flex flex-col gap-6 rounded-lg overflow-y-auto relative">
       {/* Tabs */}
       <div className="flex border-b border-accent w-full">
         <button

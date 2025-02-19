@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 import ChipNav from "../utils/ChipNav";
 import { Outlet } from "react-router-dom";
 import { BiReceipt } from "react-icons/bi";
@@ -8,28 +8,33 @@ import {
   FaFileInvoiceDollar,
 } from "react-icons/fa";
 import { ReportProvider } from "../../context/ReportContext";
+import { useSelector } from "react-redux";
 
 const Reports = () => {
+  const user = useSelector((state) => state.user);
+
+  const baseUrl = user?.role === 'admin' ? '' : '/seller';
+
   const navData = [
     {
       label: "Expense",
       icon: BiReceipt,
-      to: "/reports",
+      to: `${baseUrl}/reports`,
     },
     {
       label: "Sales",
       icon: FaChartLine,
-      to: "/reports/sales",
+      to: `${baseUrl}/reports/sales`,
     },
     {
       label: "Tax",
       icon: FaFileInvoiceDollar,
-      to: "/reports/tax",
+      to: `${baseUrl}/reports/tax`,
     },
     {
       label: "Profit/Loss",
       icon: FaBalanceScale,
-      to: "/reports/profit-loss",
+      to: `${baseUrl}/reports/profit-loss`,
     },
   ];
 

@@ -21,7 +21,7 @@ const TagInput = ({ tags = [], setTags = () => {} }) => {
         {tags.map((tag, index) => (
           <div
             key={index}
-            className="flex items-center gap-1 px-3 py-1 bg-[#5D3FD3] text-white text-sm hover:opacity-85 transition-all duration-200 rounded-full"
+            className="flex items-center gap-1 px-3 py-1 bg-accent text-white text-sm hover:opacity-85 transition-all duration-200 rounded-full"
           >
             <span>{tag}</span>
             <button className="text-sm" onClick={(e) => removeTag(e, index)}>

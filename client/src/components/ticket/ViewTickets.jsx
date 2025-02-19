@@ -32,7 +32,7 @@ const ViewTickets = () => {
     retry: false,
   });
   return (
-    <div className="space-y-6 flex-1 text-[var(--color-text)] overflow-y-auto">
+    <div className="space-y-6 flex-1 text-[var(--color-text)] overflow-y-auto px-3">
       {loading ? (
         <div className="w-full h-full min-h-[40vh] flex items-center justify-center">
           <div className="spinner"></div>
@@ -54,25 +54,28 @@ const ViewTickets = () => {
             <div className="flex justify-between items-start">
               <div>
                 <h3 className="text-lg font-medium">{ticket.title}</h3>
+                <p className="text-xs text-[var(--color-text-light)]">
+                  ID: {ticket._id}
+                </p>
+                <span className="text-xs italic text-gray-500">
+                  Submitted on {formatDate(ticket.createdAt)}
+                </span>
                 <p className="mt-1 text-sm text-[var(--color-text-light)]">
                   {ticket.description}
                 </p>
               </div>
               <span
-                className={`px-2 py-1 text-xs font-medium rounded-full capitalize ${
-                  ticket.status === "open"
-                    ? "bg-blue-100 text-blue-800"
+                className={`px-2 py-1 text-xs font-medium rounded-full capitalize border ${
+                  ticket.status === "new"
+                    ? "bg-blue-500/10 text-blue-500 border-blue-500"
+                    : ticket.status === "open"
+                    ? "bg-yellow-500/10 text-yellow-500 border-yellow-500"
                     : ticket.status === "in progress"
-                    ? "bg-purple-100 text-purple-800"
-                    : "bg-green-100 text-green-800"
+                    ? "bg-purple-500/10 text-purple-500 border-purple-500"
+                    : "bg-green-500/10 text-green-500 border-green-500"
                 }`}
               >
                 {ticket.status}
-              </span>
-            </div>
-            <div className="mt-4 flex justify-between items-center">
-              <span className="text-sm text-gray-500">
-                Submitted on {formatDate(ticket.createdAt)}
               </span>
             </div>
             {ticket.response && (
