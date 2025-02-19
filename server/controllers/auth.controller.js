@@ -61,7 +61,7 @@ const loginUser = async (req, res) => {
     return res.status(400).json({
       success: false,
       errors: {
-        email: "User is inactive. Verify mail.",
+        email: "User is inactive.",
       },
     });
   }

@@ -13,15 +13,13 @@ const authorize = (requiredPermissions) => {
 
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
       if (!decoded || decoded.exp < Date.now().valueOf() / 1000) {
-        return res
-          .status(401)
-          .json({
-            success: false,
-            message: "Token Expired. Please Login Again",
-          });
+        return res.status(401).json({
+          success: false,
+          message: "Token Expired. Please Login Again",
+        });
       }
 
-      if(decoded?.role === 'admin'){
+      if (decoded?.role === "admin") {
         req.user = decoded;
         return next();
       }
@@ -33,13 +31,16 @@ const authorize = (requiredPermissions) => {
       const dbPermissions = user.permissions?.sort().join(",");
 
       if (tokenPermissions !== dbPermissions) {
-        res.cookie("token", "", { httpOnly: true, expires: new Date(0) });
-        return res
-          .status(401)
-          .json({
-            success: false,
-            message: "Permissions changed. Please log in again.",
-          });
+        res.cookie("token", "", {
+          httpOnly: true,
+          secure: true,
+          sameSite: "None",
+          expires: new Date(0),
+        });
+        return res.status(401).json({
+          success: false,
+          message: "Permissions changed. Please log in again.",
+        });
       }
 
       // Check if user has at least one required permission
