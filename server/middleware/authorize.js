@@ -34,7 +34,7 @@ const authorize = (requiredPermissions) => {
         res.cookie("token", "", {
           httpOnly: true,
           secure: true,
-          sameSite: "None",
+          sameSite: "Strict",
           expires: new Date(0),
         });
         return res.status(401).json({
