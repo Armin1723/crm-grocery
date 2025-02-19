@@ -9,12 +9,13 @@ const {
   getExpiringInventory,
   getInventoryListGroupedByCategory,
 } = require("../controllers/inventory.controller");
-const { isAdmin, isLoggedIn, isSubscriptionActive } = require("../middleware");
+const { isSubscriptionActive } = require("../middleware");
+const authorize = require("../middleware/authorize");
 const { asyncHandler } = require("../middleware/errorHandler");
 
 const router = require("express").Router();
 
-router.use(isLoggedIn);
+router.use(authorize(["inventory"]));
 
 router.get("/products", asyncHandler(getProductsFromInventory));
 
@@ -31,9 +32,17 @@ router.use(isSubscriptionActive);
 
 router.get("/:upid/rates", asyncHandler(getRates));
 
-router.patch("/:upid/batches", isAdmin, asyncHandler(editBatch));
+router.patch(
+  "/:upid/batches",
+  authorize("edit_inventory"),
+  asyncHandler(editBatch)
+);
 
-router.put("/:upid/batches/merge", isAdmin, asyncHandler(mergeBatches));
+router.put(
+  "/:upid/batches/merge",
+  authorize("edit_inventory"),
+  asyncHandler(mergeBatches)
+);
 
 router.put("/:upid/batches/merge/hard", asyncHandler(hardMergeBatches));
 

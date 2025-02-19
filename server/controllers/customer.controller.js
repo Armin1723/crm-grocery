@@ -1,7 +1,7 @@
 const Customer = require("../models/customer.model");
 
 const escapeRegExp = (string) => {
-  return string.replace(/[.*+?^=!:${}()|\[\]\/\\]/g, "\\$&"); // Escapes special regex characters
+  return string.replace(/[.*+?^=!:${}()|\[\]\/\\]/g, "\\$&");
 };
 
 const getCustomer = async (req, res) => {

@@ -114,6 +114,7 @@ const addCompany = async (req, res) => {
       {
         id: user._id,
         role: user.role,
+        permissions: user.permissions,
         company: populatedUser?.company?._id,
       },
       process.env.JWT_SECRET,

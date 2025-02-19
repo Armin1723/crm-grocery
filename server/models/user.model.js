@@ -1,7 +1,6 @@
 const mongoose = require("mongoose");
 const sanitizeHtml = require("sanitize-html");
 const validator = require("validator");
-const { roles } = require("../utils");
 
 const userSchema = new mongoose.Schema(
   {
@@ -83,8 +82,25 @@ const userSchema = new mongoose.Schema(
 
 //Pre Save hook to assign permission
 userSchema.pre("save", function (next) {
+  const allPermissions = {
+    admin: [
+      "products",
+      "sales",
+      "inventory",
+      "salesReturns",
+      "customers",
+      "purchases",
+      "suppliers",
+      "expenses",
+      "purchaseReturns",
+      "employees",
+      "companies",
+      "reports",
+    ],
+    employee: ["products", "sales", "customers", "inventory", "salesReturns"],
+  };
   if (this.isNew || this.isModified("role")) {
-    this.permissions = roles[this.role] || [];
+    this.permissions = allPermissions[this.role] || [];
   }
   next();
 });

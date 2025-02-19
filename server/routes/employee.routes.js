@@ -7,8 +7,10 @@ const {
   getEmployeeSales,
   updatePrefences,
   getEmployeeById,
+  updatePermissions,
 } = require("../controllers/employee.controller");
-const { isAdmin, isSubscriptionActive } = require("../middleware");
+const { isSubscriptionActive } = require("../middleware");
+const authorize = require("../middleware/authorize");
 const { asyncHandler } = require("../middleware/errorHandler");
 const multer = require("multer");
 
@@ -16,14 +18,17 @@ const upload = multer({ dest: "/tmp" });
 
 const router = require("express").Router();
 
-//Support Panel Routes
-router.use(isAdmin);
+// Employee Routes
+router.use(authorize(["employees"]));
 
 router.get("/id/:id", asyncHandler(getEmployeeById));
 
 router.get("/", asyncHandler(getEmployees));
 
 router.put("/update-preferences", asyncHandler(updatePrefences));
+
+
+router.put("/update-permissions", asyncHandler(updatePermissions));
 
 router.use(isSubscriptionActive);
 
@@ -38,7 +43,6 @@ router.put(
   upload.fields([{ name: "avatar" }, { name: "identityProof" }]),
   asyncHandler(editEmployee)
 );
-
 
 router.get("/:uuid", asyncHandler(getEmployee));
 

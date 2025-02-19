@@ -227,6 +227,25 @@ const sendOtpMail = async () => {
   sendMail("a-8278@kmclu.ac.in", "OTP Verification", loginOtpMailTemplate(334534, "Uzair Alam", company));
 };
 
+const addPermissions = async () => {
+  const users = await User.find();
+
+  const permissions = {
+    admin : ["products", "sales", "purchases", "customers", "suppliers", "expenses", "inventory", "salesReturns", "purchaseReturns", "employees", "companies", "reports"],
+    employee : ["products", "sales", "customers", "inventory", "salesReturns"],
+  }
+
+  for (const user of users) {
+    const allPermissions = permissions[user.role];
+
+    for (const permission of allPermissions) {
+      user.permissions.push(permission);
+    }
+    await user.save();
+    console.log("Added permissions to user", user.name);
+  }
+};
+
 module.exports = {
   updateLastPurchaseInvoice,
   updatePurchaseInvoice,
@@ -237,4 +256,5 @@ module.exports = {
   sendTestMails,
   addPreferences,
   sendOtpMail,
+  addPermissions,
 };

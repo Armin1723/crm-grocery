@@ -8,7 +8,6 @@ const {
 const { isLoggedIn, isSubscriptionActive } = require("../middleware");
 
 router.use(isLoggedIn);
-
 router.use(isSubscriptionActive);
 
 router.get("/:phone", getCustomer);

@@ -11,7 +11,8 @@ const {
   productPurchases,
   productSales,
 } = require("../controllers/product.controller");
-const { isAdmin, isSubscriptionActive } = require("../middleware");
+const { isSubscriptionActive } = require("../middleware");
+const authorize = require("../middleware/authorize");
 const { asyncHandler } = require("../middleware/errorHandler");
 const multer = require("multer");
 
@@ -19,7 +20,7 @@ const upload = multer({ dest: "/tmp" });
 
 const router = require("express").Router();
 
-router.use(isAdmin);
+router.use(authorize(["products"]));
 
 router.get("/", asyncHandler(getProducts));
 

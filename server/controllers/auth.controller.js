@@ -73,6 +73,7 @@ const loginUser = async (req, res) => {
       {
         id: user._id,
         role: user.role,
+        permissions: user.permissions,
         company: user?.company?._id,
       },
       process.env.JWT_SECRET,
@@ -117,6 +118,7 @@ const loginUser = async (req, res) => {
     {
       id: user._id,
       role: user.role,
+      permissions: user.permissions,
       company: user?.company?._id,
     },
     process.env.JWT_SECRET,
@@ -178,6 +180,7 @@ const verifyOtp = async (req, res) => {
     {
       id: user._id,
       role: user.role,
+      permissions: user.permissions,
       company: user?.company?._id,
     },
     process.env.JWT_SECRET,

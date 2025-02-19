@@ -9,11 +9,12 @@ const {
 } = require("../controllers/supplier.controller");
 const { asyncHandler } = require("../middleware/errorHandler");
 
-const { isLoggedIn, isSubscriptionActive } = require("../middleware");
+const { isSubscriptionActive } = require("../middleware");
+const authorize = require("../middleware/authorize");
 
 const router = require("express").Router();
 
-router.use(isLoggedIn);
+router.use(authorize(["suppliers"]));
 
 router.get("/", asyncHandler(getSuppliers));
 

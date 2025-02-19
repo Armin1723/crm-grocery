@@ -6,10 +6,11 @@ const {
   getProfitLossReport,
   getTaxReport,
 } = require("../controllers/report.controller.js");
+const authorize = require("../middleware/authorize.js");
 const { asyncHandler } = require("../middleware/errorHandler.js");
-const { isLoggedIn, isSubscriptionActive } = require("../middleware/index.js");
+const { isSubscriptionActive } = require("../middleware/index.js");
 
-router.use(isLoggedIn);
+router.use(authorize(["reports"]));
 
 router.use(isSubscriptionActive);
 

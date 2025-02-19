@@ -14,9 +14,13 @@ const multer = require("multer");
 const upload = multer({ dest: "/tmp" });
 
 const { asyncHandler } = require("../middleware/errorHandler");
-const { isAdmin } = require("../middleware/index");
+const authorize = require("../middleware/authorize");
 
-router.use(isAdmin);
+// Retrieve a single Company with id
+router.get("/:id", asyncHandler(getCompany));
+
+// Middleware (permission based access control)
+router.use(authorize(["companies"]));
 
 // Create a new Company
 router.post("/", upload.fields([{name: "logo"}]), asyncHandler(addCompany));
@@ -29,9 +33,6 @@ router.get("/", asyncHandler(getCompanies));
 
 // Activate a Company
 router.put(":id/activate", asyncHandler(activateCompany));
-
-// Retrieve a single Company with id
-router.get("/:id", asyncHandler(getCompany));
 
 // Delete a Company with id
 router.delete("/:id", asyncHandler(deleteCompany));

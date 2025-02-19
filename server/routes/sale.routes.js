@@ -37,5 +37,4 @@ router.get("/employee/:id", asyncHandler(getEmployeeSales));
 
 router.post("/", asyncHandler(addSale));
 
-
 module.exports = router;

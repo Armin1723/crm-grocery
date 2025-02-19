@@ -8,12 +8,13 @@ const {
   getPurchaseReturns,
   addPurchaseReturn,
 } = require("../controllers/purchase.controller");
-const { isLoggedIn, isSubscriptionActive } = require("../middleware");
+const { isSubscriptionActive } = require("../middleware");
+const authorize = require("../middleware/authorize");
 const { asyncHandler } = require("../middleware/errorHandler");
 
 const router = require("express").Router();
 
-router.use(isLoggedIn);
+router.use(authorize(["purchases"]));
 
 router.get("/", asyncHandler(getPurchases));
 

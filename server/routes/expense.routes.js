@@ -1,9 +1,10 @@
 const router = require("express").Router();
-const { isAdmin, isSubscriptionActive } = require("../middleware");
+const { isSubscriptionActive } = require("../middleware");
 
 const { addExpense, getExpenses } = require("../controllers/expense.controller");
+const authorize = require("../middleware/authorize");
 
-router.use(isAdmin);
+router.use(authorize(["expenses"]));
 
 router.get("/", getExpenses);
 
