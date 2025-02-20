@@ -191,6 +191,7 @@ const SalesReport = () => {
       }
       return data.data;
     },
+    staleTime: 5 * 60 * 1000,
     retry: false,
   });
 

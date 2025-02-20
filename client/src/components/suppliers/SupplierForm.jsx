@@ -105,7 +105,7 @@ const SupplierForm = ({
         <div className="name-input w-full flex flex-col relative group my-2">
           <input
             type="text"
-            placeholder=" "
+            placeholder="Name"
             className={`input peer ${
               errors && errors.name && "border-red-500 focus:!border-red-500"
             }`}
@@ -130,7 +130,7 @@ const SupplierForm = ({
         <div className="address-input w-full flex flex-col relative group my-2">
           <input
             type="text"
-            placeholder=" "
+            placeholder="Address (Optional)"
             className={`input peer ${
               errors && errors.address && "border-red-500 focus:!border-red-500"
             }`}
@@ -152,7 +152,7 @@ const SupplierForm = ({
         <div className="email-input w-full flex flex-col relative group my-2">
           <input
             type="email"
-            placeholder=" "
+            placeholder="Email (Optional)"
             className={`input peer ${
               errors && errors.email && "border-red-500 focus:!border-red-500"
             }`}
@@ -175,7 +175,7 @@ const SupplierForm = ({
         <div className="phone-input w-full flex flex-col relative group my-2">
           <input
             type="number"
-            placeholder=" "
+            placeholder="Phone Number"
             className={`input peer ${
               errors && errors.phone && "border-red-500 focus:!border-red-500"
             }`}
@@ -211,7 +211,7 @@ const SupplierForm = ({
         <div className="gstin-input w-full flex flex-col relative group my-2">
           <input
             type="text"
-            placeholder=" "
+            placeholder="GST Number (Optional)"
             className={`input peer ${
               errors && errors.gstin && "border-red-500 focus:!border-red-500"
             }`}
@@ -231,7 +231,7 @@ const SupplierForm = ({
         <div className="pan-input w-full flex flex-col relative group my-2">
           <input
             type="text"
-            placeholder=" "
+            placeholder="PAN Number (Optional)"
             className={`input peer ${
               errors && errors.pan && "border-red-500 focus:!border-red-500"
             }`}

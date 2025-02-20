@@ -1,6 +1,6 @@
 {
   "name": "crm-grocery",
-  "version": "1.0.9",
+  "version": "1.0.10",
   "description": "Grocery Store CRM App.",
   "author": "CRM",
   "main": "main.js",
@@ -40,7 +40,7 @@
       "name": "CRM Grocery",
       "description": "Grocery Store CRM App.",
       "author": "CRM",
-      "version": "1.0.9"
+      "version": "1.0.10"
     },
     "directories": {
       "output": "dist"

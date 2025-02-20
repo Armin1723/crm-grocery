@@ -94,6 +94,7 @@ const TaxReport = () => {
       }
       return data;
     },
+    staleTime: 5 * 60 * 1000,
     retry: false,
   });
 

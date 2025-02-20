@@ -48,7 +48,7 @@ const ExpenseForm = () => {
   };
 
   return (
-    <form onSubmit={handleSubmit(addExpense)} className="flex flex-col gap-3 flex-1">
+    <form onSubmit={handleSubmit(addExpense)} className="flex flex-col gap-3 flex-1 text-sm">
       <Divider title="Expense Details" />
       <div className="amount-category w-full flex flex-col md:flex-row gap-2">
         <div className="amount-input w-full flex flex-col relative group my-2">
@@ -121,7 +121,7 @@ const ExpenseForm = () => {
       <Divider title="Description" />
       <div className="flex-1">
         <textarea
-          placeholder="Expense Description"
+          placeholder="Expense Description (optional)"
           className={`input w-full h-full peer placeholder:text-xs ${
             errors &&
             errors.description &&

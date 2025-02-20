@@ -8,12 +8,12 @@ const Expenses = () => {
     {
         label: "View Expenses",
         icon: FaWallet,
-        to: "",
+        to: "/expenses",
       },
       {
         label: "Add Expense",
         icon: FaPlus,
-        to: "add",
+        to: "/expenses/add",
       },
   ];
   return (

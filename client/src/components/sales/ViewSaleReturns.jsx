@@ -25,7 +25,7 @@ const ViewSaleReturns = () => {
   const refetch = () => {
     queryClient.invalidateQueries({ queryKey: ["salesReturns"] });
   };
-  const { data: results, loading } = useQuery({
+  const { data: results, isFetching: loading } = useQuery({
     queryKey: ["salesReturns", sort, sortType, limit, page],
     queryFn: async () => {
       const response = await fetch(
@@ -110,7 +110,11 @@ const ViewSaleReturns = () => {
             <p className="w-[10%] min-w-[50px] py-1">Actions</p>
           </div>
           <div className="table-row-goup flex-1 border-l border-r border-neutral-500/50 flex flex-col ">
-            {results?.salesReturns?.length ? (
+            {loading ? (
+              <div className="flex items-center justify-center w-full min-h-[40vh]">
+                <div className="spinner" />
+              </div>
+            ) : results?.salesReturns?.length ? (
               results?.salesReturns?.map((saleReturn, index) => {
                 return (
                   <div

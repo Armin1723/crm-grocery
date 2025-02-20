@@ -469,21 +469,21 @@ export const expenseTypes = [
 ];
 
 export const expenseCategoryColors = {
-  electricity: { bg: "bg-yellow-100", border: "border-yellow-400", text: "text-yellow-700" },
-  insurance: { bg: "bg-blue-100", border: "border-blue-400", text: "text-blue-700" },
-  internet: { bg: "bg-purple-100", border: "border-purple-400", text: "text-purple-700" },
-  legal: { bg: "bg-red-100", border: "border-red-400", text: "text-red-700" },
-  logistics: { bg: "bg-green-100", border: "border-green-400", text: "text-green-700" },
-  maintenance: { bg: "bg-gray-100", border: "border-gray-400", text: "text-gray-700" },
-  marketing: { bg: "bg-orange-100", border: "border-orange-400", text: "text-orange-700" },
-  "office supplies": { bg: "bg-teal-100", border: "border-teal-400", text: "text-teal-700" },
-  "petty expense": { bg: "bg-pink-100", border: "border-pink-400", text: "text-pink-700" },
-  rent: { bg: "bg-indigo-100", border: "border-indigo-400", text: "text-indigo-700" },
-  salary: { bg: "bg-cyan-100", border: "border-cyan-400", text: "text-cyan-700" },
-  travel: { bg: "bg-red-100", border: "border-red-400", text: "text-red-700" },
-  miscellaneous: { bg: "bg-lime-100", border: "border-lime-400", text: "text-lime-700" },
+  electricity: { bg: "bg-yellow-500/10", border: "border-yellow-400", text: "text-yellow-500" },
+  insurance: { bg: "bg-blue-500/10", border: "border-blue-400", text: "text-blue-500" },
+  internet: { bg: "bg-purple-500/10", border: "border-purple-400", text: "text-purple-500" },
+  legal: { bg: "bg-red-500/10", border: "border-red-400", text: "text-red-500" },
+  logistics: { bg: "bg-green-500/10", border: "border-green-400", text: "text-green-500" },
+  maintenance: { bg: "bg-gray-500/10", border: "border-gray-400", text: "text-gray-500" },
+  marketing: { bg: "bg-orange-500/10", border: "border-orange-400", text: "text-orange-500" },
+  "office supplies": { bg: "bg-teal-500/10", border: "border-teal-400", text: "text-teal-500" },
+  "petty expense": { bg: "bg-pink-500/10", border: "border-pink-400", text: "text-pink-500" },
+  rent: { bg: "bg-indigo-500/10", border: "border-indigo-400", text: "text-indigo-500" },
+  salary: { bg: "bg-cyan-500/10", border: "border-cyan-400", text: "text-cyan-500" },
+  travel: { bg: "bg-red-500/10", border: "border-red-400", text: "text-red-500" },
+  miscellaneous: { bg: "bg-lime-500/10", border: "border-lime-400", text: "text-lime-500" },
   // Default for undefined categories
-  default: { bg: "bg-gray-100", border: "border-gray-400", text: "text-gray-700" },
+  default: { bg: "bg-gray-500/10", border: "border-gray-400", text: "text-gray-500" },
 };
 
 export const pluralizeWord = (count, word) => {

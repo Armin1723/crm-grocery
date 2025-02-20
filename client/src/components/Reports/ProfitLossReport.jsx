@@ -16,6 +16,7 @@ import { getMonthName } from "../utils";
 import { useReport } from "../../context/ReportContext";
 import { useQuery } from "@tanstack/react-query";
 import { toast } from "react-toastify";
+import HelpTooltip from "../utils/HelpTooltip";
 
 const ProfitLossReport = () => {
   const printRef = useRef(null);
@@ -49,6 +50,7 @@ const ProfitLossReport = () => {
       }
       return data;
     },
+    staleTime: 5 * 60 * 1000,
     retry: false,
   });
 
@@ -157,9 +159,16 @@ const ProfitLossReport = () => {
                       : "bg-green-600/20"
                   }`}
                 >
-                  <h3 className="text-sm text-[var(--color-text-light)]">
-                    Gross Profit/Loss
-                  </h3>
+                  <div className="flex items-center gap-2">
+                    <h3 className="text-sm text-[var(--color-text-light)]">
+                      Gross Profit/Loss
+                    </h3>
+                    <HelpTooltip
+                      position="right"
+                      message="Gross Profit = Net Sales - Net Purchases"
+                    />
+                  </div>
+
                   <CountUp
                     className={`text-lg lg:text-xl font-bold ${
                       reportData?.grossProfit < 0
@@ -181,9 +190,15 @@ const ProfitLossReport = () => {
                       : "bg-green-600/20"
                   }`}
                 >
-                  <h3 className="text-sm text-[var(--color-text-light)]">
-                    Net Profit/Loss
-                  </h3>
+                  <div className="flex items-center gap-2">
+                    <h3 className="text-sm text-[var(--color-text-light)]">
+                      Net Profit/Loss
+                    </h3>
+                    <HelpTooltip
+                      position="right"
+                      message="Net Profit = Gross Profit - Total Expenses"
+                    />
+                  </div>
                   <CountUp
                     className={`text-lg lg:text-xl font-bold ${
                       reportData?.netProfit < 0
