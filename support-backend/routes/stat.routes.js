@@ -1,7 +1,7 @@
 const router = require('express').Router();
 
-const { isLoggedIn } = require('../../server/middleware');
 const { getStats, getLeadsChart } = require('../controller/stat.controller');
+const { isLoggedIn } = require('../middleware');
 
 router.use(isLoggedIn);
 

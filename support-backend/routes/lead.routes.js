@@ -1,4 +1,4 @@
-const { isLoggedIn } = require("../../server/middleware");
+
 const {
   getLeads,
   getLead,
@@ -7,6 +7,7 @@ const {
   deleteLead,
   changeStatus,
 } = require("../controller/lead.controller");
+const { isLoggedIn } = require("../middleware");
 const { asyncHandler } = require("../middleware/errorHandler");
 
 const router = require("express").Router();
