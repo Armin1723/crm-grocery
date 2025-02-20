@@ -1,3 +1,4 @@
+const { isLoggedIn } = require("../../server/middleware");
 const {
   getClients,
   getClient,
@@ -7,6 +8,8 @@ const {
 const router = require("express").Router();
 
 const { asyncHandler } = require("../middleware/errorHandler");
+
+router.use(isLoggedIn);
 
 router.get("/", asyncHandler(getClients));
 

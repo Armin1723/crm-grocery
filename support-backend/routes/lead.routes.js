@@ -1,3 +1,4 @@
+const { isLoggedIn } = require("../../server/middleware");
 const {
   getLeads,
   getLead,
@@ -9,6 +10,8 @@ const {
 const { asyncHandler } = require("../middleware/errorHandler");
 
 const router = require("express").Router();
+
+router.use(isLoggedIn);
 
 const leadRoutes = (io) => {
   router.get("/", asyncHandler(getLeads));

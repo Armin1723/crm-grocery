@@ -13,7 +13,6 @@ const {
   sendResponse,
 } = require("../controller/ticket.controller");
 
-
 router.get("/", asyncHandler(getTickets));
 
 router.post("/", upload.fields([{name: "screenshot"}]), asyncHandler(createTicket));
