@@ -8,11 +8,13 @@ const mongoose = require("mongoose");
 
 const getMatchStage = (req) => ({
   $match: {
-    $and: [{
-    totalQuantity: { $gt: 0 },
-    company: new mongoose.Types.ObjectId(req.user.company),
-  }],
-}
+    $and: [
+      {
+        totalQuantity: { $gt: 0 },
+        company: new mongoose.Types.ObjectId(req.user.company),
+      },
+    ],
+  },
 });
 
 // Basic stats of sales, purchases, and inventory for recharts
@@ -513,7 +515,7 @@ const salesPurchaseChart = async (req, res) => {
     let purchaseData = [];
     if (user.role === "admin") {
       purchaseData = await Purchase.aggregate([
-        { $match: { company:  new mongoose.Types.ObjectId(req.user.company) } },
+        { $match: { company: new mongoose.Types.ObjectId(req.user.company) } },
         {
           $group: {
             _id: groupFormat,
@@ -558,36 +560,95 @@ const salesPurchaseChart = async (req, res) => {
 };
 
 const getSellerStats = async (req, res) => {
-  const user = await User.findById(req.user.id);
-  const totalUserMonthlySales = await Sale.aggregate([
+  const totalUserSales = await Sale.aggregate([
     {
       $match: {
-        signedBy: user._id,
-        company: req.user.company,
+        signedBy: new mongoose.Types.ObjectId(req?.user?.id),
+        company: new mongoose.Types.ObjectId(req.user.company),
         createdAt: { $gte: new Date(new Date().setHours(0, 0, 0, 0)) },
       },
     },
     {
-      $group: {
-        _id: { $month: "$createdAt" },
-        totalAmount: { $sum: "$totalAmount" },
-      },
-    },
+      $project: {
+        totalAmount: 1,
+      }
+    }
   ]);
   const totalInventoryItems = await Inventory.countDocuments({
     totalQuantity: { $gt: 0 },
+    company: req.user.company,
   });
 
   return res.status(200).json({
     success: true,
     stats: {
-      totalSales: totalUserMonthlySales.reduce(
-        (acc, curr) => acc + curr.totalAmount,
-        0
-      ),
+      totalSales: totalUserSales[0]?.totalAmount || 0,
       totalInventory: totalInventoryItems,
     },
   });
+};
+
+const getSellerSalesChart = async (req, res) => {
+  try {
+    // Fetch user details
+    const user = await User.findById(req.user.id);
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    // Sales/Purchase chart data
+    const { groupBy = "daily" } = req.query; // 'daily', 'weekly', or 'monthly'
+
+    if (!groupBy || !["daily", "weekly", "monthly"].includes(groupBy)) {
+      return res.status(400).json({ error: "Invalid 'groupBy' parameter" });
+    }
+
+    // Set the grouping format based on the query param
+    let groupFormat;
+    switch (groupBy) {
+      case "daily":
+        groupFormat = {
+          $dateToString: { format: "%Y-%m-%d", date: "$createdAt" },
+        };
+        break;
+      case "weekly":
+        groupFormat = {
+          $concat: [
+            { $toString: { $isoWeekYear: "$createdAt" } }, // Year of the ISO week
+            "-",
+            { $toString: { $isoWeek: "$createdAt" } }, // ISO week number
+          ],
+        };
+        break;
+      case "monthly":
+        groupFormat = {
+          $dateToString: { format: "%Y-%m", date: "$createdAt" },
+        };
+        break;
+    }
+
+    // Build the Sales Aggregation Pipeline
+    const salesPipeline = [];
+    salesPipeline.push({ $match: { signedBy: new mongoose.Types.ObjectId(user._id) } });
+    salesPipeline.push(
+      { $match: { company: new mongoose.Types.ObjectId(req.user.company) } },
+      {
+        $group: {
+          _id: groupFormat,
+          totalSales: { $sum: "$totalAmount" },
+        },
+      },
+      { $sort: { _id: 1 } } // Sort by date ascending
+    );
+
+    // Fetch Sales Data
+    const salesData = await Sale.aggregate(salesPipeline);
+
+    res.json({ success: true, stats: salesData });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Server error" });
+  }
 };
 
 module.exports = {
@@ -596,6 +657,7 @@ module.exports = {
   getProductStats,
   getSaleStats,
   salesPurchaseChart,
+  getSellerSalesChart,
   getInventoryGroupedByCategory,
   getProductsGroupedByCategory,
   getSellerStats,

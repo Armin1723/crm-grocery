@@ -24,12 +24,23 @@ const addExpense = async (req, res) => {
 };
 
 const getExpenses = async (req, res) => {
-  const { page = 1, limit = 10, category } = req.query;
+  const { page = 1, limit = 10, sort = "createdAt", sortType = "desc", category, startDate, endDate } = req.query;
   const query = { company: req.user.company };
   if (category) {
     query.category = { $regex: category, $options: "i" };
+  };
+
+  if (startDate && endDate) {
+    const end = new Date(endDate);
+    end.setHours(23, 59, 59, 999);
+    query.createdAt = {
+      $gte: new Date(startDate),
+      $lte: end,
+    };
   }
   const expenses = await Expense.find(query)
+    .populate("signedBy", "name")
+    .sort({ [sort]: sortType })
     .skip((page - 1) * limit)
     .limit(limit);
   const totalExpenses = await Expense.countDocuments(query);

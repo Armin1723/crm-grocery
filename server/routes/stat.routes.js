@@ -1,4 +1,4 @@
-const { getBasicStats, getPurchaseStats, getSaleStats, getProductStats, getInventoryGroupedByCategory, salesPurchaseChart, getProductsGroupedByCategory, getSellerStats } = require('../controllers/stat.controller');
+const { getBasicStats, getPurchaseStats, getSaleStats, getProductStats, getInventoryGroupedByCategory, salesPurchaseChart, getProductsGroupedByCategory, getSellerStats, getSellerSalesChart } = require('../controllers/stat.controller');
 const { asyncHandler } = require('../middleware/errorHandler');
 const { isLoggedIn } = require('../middleware');
 
@@ -9,6 +9,8 @@ router.use(isLoggedIn);
 router.get('/', asyncHandler(getBasicStats));
 
 router.get('/sales-chart', asyncHandler(salesPurchaseChart));
+
+router.get('/seller/sales-chart', asyncHandler(getSellerSalesChart));
 
 router.get('/products-chart', asyncHandler(getProductsGroupedByCategory));
 
