@@ -83,7 +83,7 @@ const loginUser = async (req, res) => {
       maxAge: 7 * 24 * 60 * 60 * 1000,
       httpOnly: true,
       secure: true,
-      sameSite: "Lax",
+      sameSite: "None",
     });
     return res.status(200).json({
       success: true,
@@ -128,7 +128,7 @@ const loginUser = async (req, res) => {
     maxAge: 7 * 24 * 60 * 60 * 1000,
     httpOnly: true,
     secure: true,
-    sameSite: "Lax",
+    sameSite: "None",
   });
   user.password = undefined;
   res
@@ -190,7 +190,7 @@ const verifyOtp = async (req, res) => {
     maxAge: 7 * 24 * 60 * 60 * 1000,
     httpOnly: true,
     secure: true,
-    sameSite: "Lax",
+    sameSite: "None",
   });
   user.password = undefined;
   res
@@ -352,7 +352,7 @@ const logoutUser = async (req, res) => {
   res.cookie("token", "", {
     httpOnly: true,
     expires: new Date(0),
-    sameSite: "Strict",
+    sameSite: "None",
     secure: process.env.ENVIRONMENT === "prod",
   });
   res.status(200).json({ success: true, message: "Logged out successfully" });

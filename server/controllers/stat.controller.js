@@ -569,10 +569,11 @@ const getSellerStats = async (req, res) => {
       },
     },
     {
-      $project: {
-        totalAmount: 1,
-      }
-    }
+      $group: {
+        _id: null, 
+        totalSales: { $sum: "$totalAmount" }
+      },
+    },
   ]);
   const totalInventoryItems = await Inventory.countDocuments({
     totalQuantity: { $gt: 0 },
@@ -582,7 +583,7 @@ const getSellerStats = async (req, res) => {
   return res.status(200).json({
     success: true,
     stats: {
-      totalSales: totalUserSales[0]?.totalAmount || 0,
+      totalSales: totalUserSales[0]?.totalSales || 0,
       totalInventory: totalInventoryItems,
     },
   });
