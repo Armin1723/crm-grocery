@@ -14,7 +14,9 @@ const LeadDetails = () => {
     const fetchLead = async () => {
       try {
         const res = await fetch(
-          `${import.meta.env.VITE_BACKEND_URL}/api/v1/leads/${id}`
+          `${import.meta.env.VITE_BACKEND_URL}/api/v1/leads/${id}`,{
+            credentials: "include",
+          }
         );
         const data = await res.json();
         if (!res.ok) {

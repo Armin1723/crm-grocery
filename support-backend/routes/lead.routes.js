@@ -11,9 +11,11 @@ const { asyncHandler } = require("../middleware/errorHandler");
 
 const router = require("express").Router();
 
-router.use(isLoggedIn);
 
 const leadRoutes = (io) => {
+  
+  router.use(isLoggedIn);
+
   router.get("/", asyncHandler(getLeads));
 
   router.get("/:id", asyncHandler(getLead));
