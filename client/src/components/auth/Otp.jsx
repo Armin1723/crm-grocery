@@ -5,6 +5,7 @@ import { toast } from "react-toastify";
 import { setUser } from "../../redux/features/user/userSlice";
 import { useDispatch } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
+import { useQueryClient } from "@tanstack/react-query";
 
 const Otp = () => {
   const [otp, setOtp] = useState(new Array(6).fill(""));
@@ -12,6 +13,8 @@ const Otp = () => {
   const [errors, setErrors] = useState({
     otp: null,
   });
+
+  const queryClient = useQueryClient();
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -70,6 +73,8 @@ const Otp = () => {
         if (!data.user) {
           throw new Error(data.message || "OTP verification failed");
         }
+        //invalidate all queries
+        queryClient.invalidateQueries();
         dispatch(setUser(data.user));
         toast.update(id, {
           render: "Login Successful.",

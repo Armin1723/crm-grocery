@@ -9,7 +9,6 @@ import {
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useSelector } from "react-redux";
-import ViewExpenses from "./components/purchases/ViewExpenses";
 import TitleBar from "./components/shared/TitleBar";
 import Company from "./components/home/Company";
 import ViewCompany from "./components/company/ViewCompany";
@@ -19,6 +18,10 @@ import Otp from "./components/auth/Otp";
 import SellerProducts from "./components/seller/products/SellerProducts";
 import SellerPurchases from "./components/seller/purchases/SellerPurchases";
 import SellerSuppliers from "./components/seller/suppliers/SellerSupplier";
+import Expenses from "./components/home/Expenses";
+import ViewExpenses from "./components/expenses/ViewExpenses";
+import AddExpense from "./components/expenses/AddExpense";
+import SellerExpenses from "./components/seller/expenses/SellerExpenses";
 const Seller = lazy(() => import("./pages/Seller"));
 const TopLoadingBar = lazy(() => import("./components/shared/TopLoadingBar"));
 const SellerSales = lazy(() => import("./components/seller/sales/SellerSales"));
@@ -87,7 +90,6 @@ const EmployeeDetails = lazy(() =>
 );
 const Reports = lazy(() => import("./components/home/Reports"));
 const ExpenseReport = lazy(() => import("./components/Reports/ExpenseReport"));
-const AddExpense = lazy(() => import("./components/purchases/AddExpense"));
 const SalesReport = lazy(() => import("./components/Reports/SalesReport"));
 const ProfitLossReport = lazy(() =>
   import("./components/Reports/ProfitLossReport")
@@ -193,10 +195,14 @@ const App = () => {
                 <Route path="" element={<ViewPurchases />} />
                 <Route path="add" element={<AddPurchase />} />
                 <Route path=":id" element={<PurchaseDetails />} />
-                <Route path="expenses" element={<ViewExpenses />} />
-                <Route path="expenses/add" element={<AddExpense />} />
                 <Route path="returns" element={<ViewPurchaseReturns />} />
                 <Route path="returns/add" element={<AddPurchaseReturn />} />
+              </Route>
+              
+              {/* Expense Routes */}
+              <Route path="expenses" element={<Expenses />}>
+                <Route path="" element={<ViewExpenses />} />
+                <Route path="add" element={<AddExpense />} />
               </Route>
 
               {/* Sales Routes */}
@@ -280,10 +286,12 @@ const App = () => {
                 <Route path="" element={<ViewPurchases />} />
                 <Route path="add" element={<AddPurchase />} />
                 <Route path=":id" element={<PurchaseDetails />} />
-                <Route path="expenses" element={<ViewExpenses />} />
-                <Route path="expenses/add" element={<AddExpense />} />
                 <Route path="returns" element={<ViewPurchaseReturns />} />
                 <Route path="returns/add" element={<AddPurchaseReturn />} />
+              </Route>
+              <Route path="expenses" element={<SellerExpenses />}>
+                <Route path="" element={<ViewExpenses />} />
+                <Route path="add" element={<AddExpense />} /> 
               </Route>
               <Route path="products" element={<SellerProducts />}>
                 <Route path="" element={<ViewProducts />} />

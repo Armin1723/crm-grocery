@@ -207,7 +207,7 @@ const Register = ({}) => {
         </div>
 
         {/* Phone and DOB */}
-        <div className="phone-dob-group flex max-sm:flex-col gap-2 w-full ">
+        <div className="phone-dob-group flex max-sm:flex-col items-end gap-2 w-full ">
           <div className="w-1/2 max-sm:w-full relative group my-2">
             <input
               type="tel"
@@ -236,9 +236,12 @@ const Register = ({}) => {
           </div>
 
           <div className="w-1/2 max-sm:w-full relative group my-2">
+            <label for="dob" className="text-[var(--color-text-light)] text-xs">
+              Date of Birth*
+            </label>
             <input
               type="date"
-              placeholder=" "
+              placeholder=" "   
               title="Date of Birth"
               aria-invalid={errors?.dob ? "true" : "false"}
               className={`outline-none peer border-b border-[var(--color-accent)] w-full z-[10] bg-transparent focus:border-[var(--color-accent-dark)] ${

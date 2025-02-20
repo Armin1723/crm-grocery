@@ -4,6 +4,7 @@ import Pagination from "../utils/Pagination";
 import { expenseCategoryColors, expenseTypes, formatDate } from "../utils";
 import CategorySelection from "../utils/CategorySelection";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import DateRangeSelection from "../utils/DateRangeSelection";
 
 const ViewExpenses = () => {
 
@@ -13,6 +14,11 @@ const ViewExpenses = () => {
   const [sortType, setSortType] = useState("desc");
   const [category, setCategory] = useState("");
 
+  const [dateRange, setDateRange] = useState({
+    startDate: new Date().toISOString().slice(0, 10),
+    endDate: new Date().toISOString().slice(0, 10),
+  });
+
   const steps = [10, 20, 50, 100];
 
   const queryClient = useQueryClient();
@@ -20,12 +26,12 @@ const ViewExpenses = () => {
     queryClient.invalidateQueries({ queryKey: ["expenses"] });
   };
   const { data: results, isFetching: loading } = useQuery({
-    queryKey: ["expenses", { sort, category, sortType, limit, page }],
+    queryKey: ["expenses", { sort, category, sortType, limit, page, dateRange }],
     queryFn: async () => {
       const response = await fetch(
         `${
           import.meta.env.VITE_BACKEND_URL
-        }/api/v1/expenses?sort=${sort}&category=${category}&sortType=${sortType}&limit=${limit}&page=${page}`,
+        }/api/v1/expenses?sort=${sort}&category=${category}&sortType=${sortType}&limit=${limit}&page=${page}&startDate=${dateRange?.startDate}&endDate=${dateRange?.endDate}`,
         {
           credentials: "include",
         }
@@ -52,6 +58,7 @@ const ViewExpenses = () => {
           setCategory={setCategory}
           categories={expenseTypes}
         />
+        <DateRangeSelection dateRange={dateRange} setDateRange={setDateRange}/>
       </div>
 
       <div className="table-wrapper flex relative flex-1 my-2 overflow-y-auto">
@@ -122,7 +129,7 @@ const ViewExpenses = () => {
                   >
                     <div className="w-1/5 min-w-[50px] px-2 capitalize">
                       <span
-                        className={`px-3 rounded-lg border truncate text-ellipsis ${bg} ${border} ${text}`}
+                        className={`px-3 rounded-lg border truncate text-ellipsis text-xs ${bg} ${border} ${text}`}
                       >
                         {expense?.category || "N/A"}
                       </span>

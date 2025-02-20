@@ -8,6 +8,7 @@ import {
   FaShoppingCart,
   FaStore,
   FaUser,
+  FaWallet,
 } from "react-icons/fa";
 import { BiSolidReport } from "react-icons/bi";
 
@@ -40,6 +41,12 @@ export const links = [
     icon: FaShoppingCart,
     title: "Purchases",
     to: "/purchases",
+    protected: true,
+  },
+  {
+    icon: FaWallet,
+    title: "Expenses",
+    to: "/expenses",
     protected: true,
   },
   {

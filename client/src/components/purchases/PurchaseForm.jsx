@@ -242,9 +242,9 @@ const PurchaseForm = ({ setRefetch = () => {}, closeModal = () => {} }) => {
         />
       </div>
 
-      <div className="table-wrapper flex relative max-h-[55vh] min-h-fit flex-1 my-2 overflow-x-scroll">
+      <div className="table-wrapper flex relative max-h-[55vh] min-h-fit flex-1 my-2 min-w-full overflow-x-scroll">
         {watchedProducts.length > 0 ? (
-          <div className="products-container overflow-x-scroll table flex-col min-w-[1000px] max-sm:text-sm">
+          <div className="products-container overflow-x-scroll table flex-col min-w-[1000px] w-full max-sm:text-sm">
             <div className="th flex w-fit min-w-full flex-1 justify-between items-center gap-4 border border-neutral-500/50 bg-[var(--color-card)] font-semibold rounded-t-md px-2 py-1 sticky top-0 z-[99]">
               <p className="w-[5%] min-w-[30px]">*</p>
               <p className="w-1/5 min-w-[100px]">Name</p>

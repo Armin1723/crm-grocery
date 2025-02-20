@@ -7,8 +7,11 @@ import { toast } from "react-toastify";
 import { useDispatch } from "react-redux";
 import { setUser } from "../../redux/features/user/userSlice";
 import { IoLogIn } from "react-icons/io5";
+import { useQueryClient } from "@tanstack/react-query";
 
 const Login = () => {
+  const queryClient = useQueryClient();
+
   const [passVisible, setPassVisible] = React.useState(false);
   const [loading, setLoading] = React.useState(false);
 
@@ -69,6 +72,8 @@ const Login = () => {
           });
           navigate("/auth/otp");
         } else {
+          // Invalidate all queries
+          queryClient.invalidateQueries();
           dispatch(setUser(data.user));
           toast.update(id, {
             render: "Login successful",

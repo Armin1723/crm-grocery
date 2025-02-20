@@ -64,7 +64,7 @@ const SellerSalesChart = () => {
         const response = await fetch(
           `${
             import.meta.env.VITE_BACKEND_URL
-          }/api/v1/stats/sales-chart?groupBy=${groupBy}`,{
+          }/api/v1/stats/seller/sales-chart?groupBy=${groupBy}`,{
             credentials: 'include',
           }
         );
@@ -115,7 +115,7 @@ const SellerSalesChart = () => {
               </linearGradient>
             </defs>
             <XAxis
-              dataKey="name"
+              dataKey="_id"
               tickFormatter={(value) => {
                 if (groupBy === "daily") return value;
                 if (groupBy === "weekly") return `Wk ${value}`;
@@ -140,7 +140,7 @@ const SellerSalesChart = () => {
             />
             <Area
               type="monotone"
-              dataKey="sales"
+              dataKey="totalSales"
               stackId="1"
               stroke="#5d3fd3"
               fillOpacity={1}

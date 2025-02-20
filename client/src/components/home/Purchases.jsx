@@ -27,16 +27,6 @@ const Purchases = () => {
       icon: FaPlus,
       to: "/purchases/returns/add",
     },
-    {
-      label: "View Expenses",
-      icon: FaWallet,
-      to: "/purchases/expenses",
-    },
-    {
-      label: "Add Expense",
-      icon: FaPlus,
-      to: "/purchases/expenses/add",
-    },
   ];
   return (
     <div className="flex-1 overflow-y-scroll md:overflow-y-hidden flex flex-col p-3 w-full">
