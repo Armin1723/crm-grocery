@@ -40,7 +40,7 @@ const StatCard = ({ title, total, data, colors, icon: Icon }) => {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
-      className="bg-[var(--color-sidebar)] rounded-xl shadow-lg p-3 px-8 w-full flex flex-col justify-between md:flex-row gap-4"
+      className="bg-[var(--color-sidebar)] rounded-xl shadow-lg p-3 px-8 w-full min-h-fit flex flex-col justify-between md:flex-row gap-4"
     >
       {/* Left side - Total */}
       <div className="flex-1 flex flex-col justify-center">
@@ -138,14 +138,14 @@ const Cards = () => {
       <div className="flex items-center justify-between max-lg:flex-wrap gap-6">
         <StatCard
           title="Tickets Overview"
-          total={stats?.tickets[0]?.total}
+          total={stats?.tickets[0]?.total || 0}
           data={stats.ticketStatus || {}}
           colors={TICKET_COLORS}
           icon={FaTicketAlt}
         />
         <StatCard
           title="Leads Overview"
-          total={stats?.leads[0]?.total}
+          total={stats?.leads[0]?.total || 0}
           data={stats.leadStatus || {}}
           colors={LEAD_COLORS}
           icon={FaUsers}

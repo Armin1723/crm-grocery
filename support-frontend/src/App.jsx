@@ -77,7 +77,7 @@ const App = () => {
       <div className="w-screen h-screen flex flex-col">
         <Suspense
           fallback={
-            <div className="w-screen h-screen bg-[var(--color-primary)] flex flex-col items-center justify-center">
+            <div className="w-screen min-h-screen bg-[var(--color-primary)] flex flex-col items-center justify-center">
               <div className="spinner"></div>
             </div>
           }
