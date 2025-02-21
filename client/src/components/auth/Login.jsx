@@ -123,6 +123,7 @@ const Login = () => {
           type="text"
           name="email"
           placeholder=" "
+          autoComplete="email"
           aria-invalid={errors.email ? "true" : "false"}
           className={`outline-none peer border-b border-[var(--color-accent)] z-[10] bg-transparent focus:border-[var(--color-accent-dark)] ${
             errors.email && "!border-red-500 focus:!border-red-500"
@@ -145,8 +146,8 @@ const Login = () => {
         <input
           type={passVisible ? "text" : "password"}
           name="password"
+          autoComplete="current-password"
           placeholder=" "
-          autoComplete="off"
           aria-invalid={errors.password ? "true" : "false"}
           className={`outline-none peer border-b border-[var(--color-accent)] z-[5] bg-transparent focus:border-[var(--color-accent-dark)] ${
             errors.password && "!border-red-500 focus:!border-red-500"

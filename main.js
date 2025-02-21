@@ -11,7 +11,7 @@ const {
 } = require("electron");
 const { autoUpdater } = require("electron-updater");
 const path = require("path");
-const { handlePrintSalesInvoice, handlePrintReport } = require("./print");
+const { handlePrintSalesInvoice, handlePrintReport, handlePrintPLReport } = require("./print");
 const log = require("electron-log");
 
 let mainWindow;
@@ -30,15 +30,15 @@ function createWindow() {
       preload: path.join(__dirname, "preload.js"),
       nodeIntegration: false,
       contextIsolation: true,
-      nativeWindowOpen: false,
-      devTools: !app.isPackaged,
       enableAutofill: true,
       spellcheck: true,
+      nativeWindowOpen: false,
+      devTools: !app.isPackaged,
     },
   });
 
   const startURL = app.isPackaged
-    ? `file://${path.join(__dirname, "./client/dist/index.html")}`
+    ? `file://${path.join(__dirname, "./client/dist-obfuscated/index.html")}`
     : `http://localhost:5173`;
   mainWindow.loadURL(startURL);
 
@@ -154,17 +154,17 @@ app.whenReady().then(async () => {
     log.info("Update available. Downloading...");
     console.log("Update available. Downloading...");
     mainWindow.webContents.send("update-log", "update-available");
+    new Notification({
+      title: "CRM Application",
+      body: "New Update Available",
+      icon: path.join(process.resourcesPath, "icon.png"),
+    }).show();
   });
 
   autoUpdater.on("update-not-available", () => {
     log.info("No updates available.");
     console.log("No updates available.");
     mainWindow.webContents.send("update-log", "update-not-available");
-    new Notification({
-      title: "CRM Application",
-      body: "No updates available",
-      icon: path.join(process.resourcesPath, "icon.png"),
-    }).show();
   });
 
   autoUpdater.on("update-downloaded", () => {
@@ -193,6 +193,10 @@ app.whenReady().then(async () => {
 
 //print report
 ipcMain.on("print-report", (event, report) => handlePrintReport(report));
+
+// print pdf report
+ipcMain.on("print-pl-report", (event, report) =>  handlePrintPLReport(report));
+ 
 
 // Print sales invoice
 ipcMain.on("print-sales-invoice", (event, sale) =>

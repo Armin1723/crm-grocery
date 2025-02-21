@@ -1,6 +1,6 @@
 {
   "name": "crm-grocery",
-  "version": "1.0.10",
+  "version": "1.0.11",
   "description": "Grocery Store CRM App.",
   "author": "CRM",
   "main": "main.js",
@@ -23,12 +23,23 @@
     "tcp-port-used": "^1.0.2"
   },
   "build": {
-    "asar": true,
     "appId": "com.crm.grocery",
     "productName": "CRM Grocery",
+    "files": [
+      "main.js",
+      "client/dist-obfuscated/**/*",
+      "build/**/*",
+      "node_modules/**/*",
+      "package.json",
+      "package-lock.json",
+      "print.js",
+      "preload.js",
+      "img/**/*",
+      "build/**/*"
+    ],
     "extraResources": [
       {
-        "from": "./client/dist/assets/index-CxQQLfeg.css",
+        "from": "./client/dist-obfuscated/assets/index-C9UAdrsG.css",
         "to": "./assets/index.css"
       },
       {
@@ -40,7 +51,7 @@
       "name": "CRM Grocery",
       "description": "Grocery Store CRM App.",
       "author": "CRM",
-      "version": "1.0.10"
+      "version": "1.0.11"
     },
     "directories": {
       "output": "dist"

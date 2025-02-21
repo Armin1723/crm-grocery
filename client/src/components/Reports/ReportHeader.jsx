@@ -1,5 +1,4 @@
 import { FaFileDownload, FaPrint } from "react-icons/fa";
-import { formatDate } from "../utils";
 import { useReport } from "../../context/ReportContext";
 
 const ReportHeader = ({

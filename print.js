@@ -3,9 +3,14 @@ const path = require("path");
 const fs = require("fs");
 
 // Print a report
-const handlePrintReport = (
-  { title, startDate, endDate, content, tailwindCSS, tailwindCSSStyles }
-) => {
+const handlePrintReport = ({
+  title,
+  startDate,
+  endDate,
+  content,
+  tailwindCSS,
+  tailwindCSSStyles,
+}) => {
   const tailwindPath = `file://${path.join(__dirname, "../assets/index.css")}`;
 
   const tailwindCSSAlternate = fs.readFileSync(
@@ -189,7 +194,9 @@ const handlePrintSalesInvoice = (sale) => {
                     item?.mrp ? `MRP: ${formatCurrency(item.mrp)}` : ""
                   }</td>
                     <td class="right">${item.quantity}</td>
-                    <td class="right">${formatCurrency(item.sellingRate || 0)}</td>
+                    <td class="right">${formatCurrency(
+                      item.sellingRate || 0
+                    )}</td>
                     <td class="right">${formatCurrency(
                       item.quantity * item.sellingRate || 0
                     )}</td>
@@ -288,7 +295,225 @@ const handlePrintSalesInvoice = (sale) => {
   });
 };
 
+// Print PL report
+const handlePrintPLReport = (data) => {
+  // Create a new BrowserWindow for the report
+  let printWindow = new BrowserWindow({
+    width: 800,
+    height: 900,
+    show: true,
+    webPreferences: {
+      nodeIntegration: true,
+    },
+  });
+
+  // Convert data into a rich HTML structure
+  let htmlContent = `
+        <html>
+        <head>
+            <title>Business Report</title>
+            <style>
+                @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&display=swap');
+                
+                * { 
+                    box-sizing: border-box;
+                    font-family: 'Outfit', sans-serif;
+                    -webkit-print-color-adjust: exact;
+                    print-color-adjust: exact;
+                }
+                
+                body {
+                    background: #f4f4f9;
+                    color: #333;
+                    margin: 0;
+                    padding: 20px;
+                }
+                
+                .container {
+                    max-width: 850px;
+                    margin: auto;
+                    background: white;
+                    padding: 20px;
+                    border-radius: 12px;
+                    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+                }
+                
+                h1 {
+                    text-align: center;
+                    color: #2c3e50;
+                    font-weight: 600;
+                    font-size: 22px;
+                }
+
+                h2 {
+                    font-size: 18px;
+                    color: #2c3e50;
+                    border-bottom: 2px solid #ddd;
+                    padding-bottom: 5px;
+                    margin-bottom: 15px;
+                }
+
+                .date-range{
+                    margin-bottom: 20px;
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    width: 100%;
+                  }
+                
+                .summary {
+                    display: flex;
+                    justify-content: space-between;
+                    margin-bottom: 20px;
+                }
+
+                table {
+                    width: 100%;
+                    border-collapse: collapse;
+                    margin-bottom: 20px;
+                }
+
+                th, td {
+                    border: 1px solid #ddd;
+                    padding: 10px;
+                    text-align: left;
+                    font-size: 14px;
+                }
+
+                th {
+                    background: #2c3e50;
+                    color: white;
+                    font-weight: 600;
+                }
+
+                .totals {
+                    font-weight: bold;
+                    background: #ecf0f1;
+                }
+
+                .footer {
+                    text-align: center;
+                    margin-top: 20px;
+                    font-size: 12px;
+                    color: #777;
+                }
+
+                .print-button {
+                    display: block;
+                    width: 100%;
+                    text-align: center;
+                    background: #2c3e50;
+                    color: white;
+                    border: none;
+                    padding: 10px;
+                    font-size: 14px;
+                    border-radius: 5px;
+                    cursor: pointer;
+                    margin-top: 20px;
+                }
+
+                .print-button:hover {
+                    background: #34495e;
+                }
+
+                @media print {
+                    .print-button { display: none; }
+                }
+            </style>
+        </head>
+        <body>
+            <div class="container">
+                <h1>📊 Business Financial Report</h1>
+                <p style="text-align:center;"><strong>Date:</strong> ${new Date().toLocaleDateString()}</p>
+
+                <div class="date-range">
+                    <h2>Date Range</h2>
+                    <p><strong>Start Date:</strong> ${data.startDate}</p>
+                    <p><strong>End Date:</strong> ${data.endDate}</p>
+                </div>
+                <div class="summary">
+                    
+                    <div class="sales">
+                        <h2>Sales Summary</h2>
+                        <table>
+                            <tr><th>Total Sales</th><td>${data.sales.sales.toLocaleString()}₹</td></tr>
+                            <tr><th>Returns</th><td>${data.sales.returns.toLocaleString()}₹</td></tr>
+                            <tr class="totals"><th>Net Sales</th><td>${data.sales.netSales.toLocaleString()}₹</td></tr>
+                        </table>
+                    </div>
+
+                    <div class="expenses">
+                        <h2>Expenses Summary</h2>
+                        <table>
+                            <tr><th>Total Expenses</th><td>${data.expenses.expenses.toLocaleString()}₹</td></tr>
+                            <tr><th>Returns</th><td>${data.expenses.returns.toLocaleString()}₹</td></tr>
+                            <tr class="totals"><th>Net Expenses</th><td>${data.expenses.netExpenses.toLocaleString()}₹</td></tr>
+                        </table>
+                    </div>
+                </div>
+
+                <h2>Profit Calculation</h2>
+                <table>
+                    <tr><th>Gross Profit</th><td>${data.grossProfit.toLocaleString()}₹</td></tr>
+                    <tr class="totals"><th>Net Profit</th><td>${data.netProfit.toLocaleString()}₹</td></tr>
+                </table>
+
+                <h2>Sales by Category</h2>
+                <table>
+                    <tr><th>Category</th><th>Total Sales</th></tr>
+                    ${data.charts.salesByCategory
+                      .map(
+                        (cat) =>
+                          `<tr><td>${
+                            cat.category
+                          }</td><td>${cat.total.toLocaleString()}₹</td></tr>`
+                      )
+                      .join("")}
+                </table>
+
+                <h2>Expenses by Category</h2>
+                <table>
+                    <tr><th>Category</th><th>Total Expenses</th></tr>
+                    ${data.charts.expensesByCategory
+                      .map(
+                        (exp) =>
+                          `<tr><td>${
+                            exp.category
+                          }</td><td>${exp.total.toLocaleString()}₹</td></tr>`
+                      )
+                      .join("")}
+                </table>
+
+                <div class="footer">
+                    <p>Generated by CRM Grocery Store System</p>
+                    <button class="print-button" onclick="window.print()">🖨 Print Report</button>
+                </div>
+            </div>
+        </body>
+        </html>
+    `;
+
+  // Load the HTML content
+  printWindow.loadURL(
+    `data:text/html;charset=utf-8,${encodeURIComponent(htmlContent)}`
+  );
+
+  // When the content is fully loaded, trigger print
+  printWindow.webContents.once("did-finish-load", () => {
+    printWindow.webContents.print(
+      {
+        silent: false,
+        printBackground: true,
+      },
+      () => {
+        printWindow.close();
+      }
+    );
+  });
+};
+
 module.exports = {
   handlePrintReport,
+  handlePrintPLReport,
   handlePrintSalesInvoice,
 };

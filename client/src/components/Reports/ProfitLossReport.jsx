@@ -17,6 +17,7 @@ import { useReport } from "../../context/ReportContext";
 import { useQuery } from "@tanstack/react-query";
 import { toast } from "react-toastify";
 import HelpTooltip from "../utils/HelpTooltip";
+import { FaDownload } from "react-icons/fa";
 
 const ProfitLossReport = () => {
   const printRef = useRef(null);
@@ -53,6 +54,15 @@ const ProfitLossReport = () => {
     staleTime: 5 * 60 * 1000,
     retry: false,
   });
+
+  const handleDownload = () => {
+    const data = {
+      ...reportData,
+      startDate: dateRange?.startDate,
+      endDate: dateRange?.endDate,
+    }
+    window.electron.ipcRenderer.send("print-pl-report", data);
+  };
 
   return (
     <div className="w-full p-6 flex-1 max-sm:p-3 bg-[var(--color-sidebar)] rounded-lg">
@@ -147,9 +157,13 @@ const ProfitLossReport = () => {
 
             {/* Profit / Loss Section */}
             <div className="bg-[var(--color-card)] rounded-lg p-6 shadow-sm">
-              <h2 className="text-xl font-bold text-[var(--color-text)] my-3">
-                Profit / Loss Overview
-              </h2>
+              <div className="flex items-center justify-between gap-2 ">
+                <Divider title="Profit / Loss Overview" />
+                <FaDownload
+                  onClick={handleDownload}
+                  className="cursor-pointer text-[var(--color-text-light)]"
+                />
+              </div>
 
               <div className="grid grid-cols-2 gap-3 my-2">
                 <div
