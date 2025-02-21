@@ -5,7 +5,13 @@ const Sale = require("../models/sale.model");
 const Company = require("../models/company.model");
 
 const getEmployees = async (req, res) => {
-  const { limit = 10, page = 1, sort = "name", sortType = "asc", role } = req.query;
+  const {
+    limit = 10,
+    page = 1,
+    sort = "name",
+    sortType = "asc",
+    role,
+  } = req.query;
   const query = { company: req.user.company };
 
   if (role) {
@@ -193,7 +199,11 @@ const editEmployee = async (req, res) => {
   }
 
   await employee.save();
-  res.json({ success: true, employee });
+  if (employee._id === req.user.id) {
+    res.json({ success: true, user: employee });
+  } else {
+    res.json({ success: true, employee });
+  }
 };
 
 const updatePrefences = async (req, res) => {
