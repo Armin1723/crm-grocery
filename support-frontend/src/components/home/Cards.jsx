@@ -39,14 +39,14 @@ const StatCard = ({ title, total, data, colors, icon: Icon, loading }) => {
     <div className="flex-1 flex flex-col justify-center animate-pulse h-full">
       {/* Skeleton Icon & Title */}
       <div className="flex items-center gap-3 mb-4">
-        <div className="w-10 h-10 bg-gray-300 dark:bg-gray-700 rounded-lg"></div>
-        <div className="w-32 h-5 bg-gray-300 dark:bg-gray-700 rounded"></div>
+        <div className="w-10 h-10 bg-[var(--color-card-overlay)] rounded-lg"></div>
+        <div className="w-32 h-5 bg-[var(--color-card-overlay)] rounded"></div>
       </div>
 
       {/* Skeleton Total & View Link */}
       <div className="flex items-center justify-between px-3">
-        <div className="w-20 h-8 bg-gray-300 dark:bg-gray-700 rounded"></div>
-        <div className="w-16 h-4 bg-gray-300 dark:bg-gray-700 rounded"></div>
+        <div className="w-20 h-8 bg-[var(--color-card-overlay)] rounded"></div>
+        <div className="w-16 h-4 bg-[var(--color-card-overlay)] rounded"></div>
       </div>
     </div>
   ) : (
