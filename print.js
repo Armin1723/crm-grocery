@@ -301,7 +301,7 @@ const handlePrintPLReport = (data) => {
   let printWindow = new BrowserWindow({
     width: 800,
     height: 900,
-    show: true,
+    show: false,
     webPreferences: {
       nodeIntegration: true,
     },

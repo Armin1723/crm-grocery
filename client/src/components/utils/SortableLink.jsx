@@ -11,7 +11,7 @@ const SortableLink = ({
   return (
     <div
       onClick={() => setSort(title)}
-      className={`sortable cursor-pointer w-fit flex items-center gap-2 ${
+      className={`sortable select-none cursor-pointer w-fit flex items-center gap-2 ${
         isActive && "bg-accent/10"
       } px-2 py-1 rounded-md`}
     >

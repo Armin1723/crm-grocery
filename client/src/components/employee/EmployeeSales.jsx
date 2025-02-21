@@ -70,7 +70,7 @@ const EmployeeSales = () => {
               <th className="p-3 text-left">Products</th>
               <th className="p-3 text-left">
                 <SortableLink
-                  title="SignedBy"
+                  title="Signed By"
                   setSort={() => setSort("signedBy")}
                   sortType={sortType}
                   setSortType={setSortType}
@@ -81,7 +81,7 @@ const EmployeeSales = () => {
           </thead>
 
           <tbody>
-            {results?.sales?.length &&
+            {(results?.sales?.length > 0) &&
               !loading &&
               results?.sales?.map((sale, index) => {
                 return (
@@ -121,7 +121,7 @@ const EmployeeSales = () => {
                 <span>
                   Showing {(results?.page - 1) * 10 + 1} -{" "}
                   {results?.sales?.length + (results?.page - 1) * 10} of{" "}
-                  {results?.totalResults} sales
+                  {results?.totalResults} sales.
                 </span>
               </td>
               <td

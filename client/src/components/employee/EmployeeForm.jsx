@@ -28,6 +28,8 @@ const EmployeeForm = ({
   const isSelf = title == "edit" && user && user.uuid === employee?.uuid;
   const dispatch = useDispatch();
 
+  const [loading, setLoading] = React.useState(false);
+
   const {
     register,
     handleSubmit,
@@ -97,6 +99,7 @@ const EmployeeForm = ({
   };
 
   const addEmployee = async (values) => {
+    setLoading(true);
     const id = toast.loading(
       `${title === "edit" ? "Updating" : "Adding"} employee...`
     );
@@ -106,6 +109,7 @@ const EmployeeForm = ({
     formData.append("phone", values.phone);
     formData.append("dob", values.dob);
     formData.append("address", values.address);
+    formData.append("uuid", employee.uuid);
 
     // Append avatar photo to FormData object
     if (values.avatar instanceof File) {
@@ -163,6 +167,8 @@ const EmployeeForm = ({
         isLoading: false,
         autoClose: 2000,
       });
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -391,7 +397,7 @@ const EmployeeForm = ({
 
       <button
         type="submit"
-        disabled={Object.keys(errors).length > 0}
+        disabled={Object.keys(errors).length > 0 || loading}
         className="px-3 py-1.5 my-2 capitalize rounded-md bg-accent disabled:cursor-not-allowed disabled:opacity-30 hover:bg-accentDark text-white"
       >
         {title} Employee
