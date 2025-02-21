@@ -63,11 +63,11 @@ const ViewLeads = () => {
             <option value="" className="!bg-[var(--color-card)] text-[var(--color-text-light)]">
               Choose Status
             </option>
-            <option value="new" className="!-bg-[var(--color-card)]">New</option>
-            <option value="open" className="!-bg-[var(--color-card)]">Open</option>
-            <option value="contacted" className="!-bg-[var(--color-card)]">Contacted</option>
-            <option value="converted" className="!-bg-[var(--color-card)]">Converted</option>
-            <option value="lost" className="!-bg-[var(--color-card)]">Lost</option>
+            <option value="new" className="!bg-[var(--color-card)]">New</option>
+            <option value="open" className="!bg-[var(--color-card)]">Open</option>
+            <option value="contacted" className="!bg-[var(--color-card)]">Contacted</option>
+            <option value="converted" className="!bg-[var(--color-card)]">Converted</option>
+            <option value="lost" className="!bg-[var(--color-card)]">Lost</option>
           </select>
         </div>
       </div>
