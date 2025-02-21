@@ -60,14 +60,14 @@ const ViewLeads = () => {
             value={status}
             onChange={(e) => setStatus(e.target.value)}
           >
-            <option value="" className="text-[var(--color-text-light)]">
+            <option value="" className="!bg-[var(--color-card)] text-[var(--color-text-light)]">
               Choose Status
             </option>
-            <option value="new">New</option>
-            <option value="open">Open</option>
-            <option value="contacted">Contacted</option>
-            <option value="converted">Converted</option>
-            <option value="lost">Lost</option>
+            <option value="new" className="!-bg-[var(--color-card)]">New</option>
+            <option value="open" className="!-bg-[var(--color-card)]">Open</option>
+            <option value="contacted" className="!-bg-[var(--color-card)]">Contacted</option>
+            <option value="converted" className="!-bg-[var(--color-card)]">Converted</option>
+            <option value="lost" className="!-bg-[var(--color-card)]">Lost</option>
           </select>
         </div>
       </div>

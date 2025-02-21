@@ -60,12 +60,12 @@ const ViewTickets = () => {
             value={status}
             onChange={(e) => setStatus(e.target.value)}
           >
-            <option value="" className="text-[var(--color-text-light)]">
+            <option value="" className="!bg-[var(--color-card)] text-[var(--color-text-light)]">
               Choose Status
             </option>
-            <option value="new">New</option>
-            <option value="open">Open</option>
-            <option value="in progress">In Progress</option>
+            <option value="new" className="!bg-[var(--color-card)]">New</option>
+            <option value="open" className="!bg-[var(--color-card)]">Open</option>
+            <option value="in progress" className="!bg-[var(--color-card)]">In Progress</option>
           </select>
         </div>
       </div>
