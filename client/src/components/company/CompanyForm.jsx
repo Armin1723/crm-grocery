@@ -18,6 +18,8 @@ const CompanyForm = ({
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
+  const [loading, setLoading] = React.useState(false);
+
   const {
     register,
     handleSubmit,
@@ -63,15 +65,16 @@ const CompanyForm = ({
       `${title === "edit" ? "Updating" : "Adding"} company...`
     );
     const formData = new FormData();
-    
+
     // Append all form fields to formData
-    Object.keys(values).forEach(key => {
-      if (values[key] !== undefined && values[key] !== '') {
+    Object.keys(values).forEach((key) => {
+      if (values[key] !== undefined && values[key] !== "") {
         formData.append(key, values[key]);
       }
     });
 
     try {
+      setLoading(true);
       const response = await fetch(
         `${import.meta.env.VITE_BACKEND_URL}/api/v1/companies${
           title === "edit" ? "/" + company._id : ""
@@ -81,9 +84,9 @@ const CompanyForm = ({
           body: formData,
           credentials: "include",
         }
-    );
-    
-    const data = await response.json();
+      );
+
+      const data = await response.json();
       if (!response.ok) {
         toast.update(id, {
           render: data.message || `Failed to ${title} company`,
@@ -98,7 +101,9 @@ const CompanyForm = ({
         }
       } else {
         toast.update(id, {
-          render: `Company ${title === "edit" ? "updated" : "added"} successfully`,
+          render: `Company ${
+            title === "edit" ? "updated" : "added"
+          } successfully`,
           type: "success",
           isLoading: false,
           autoClose: 2000,
@@ -120,6 +125,8 @@ const CompanyForm = ({
         isLoading: false,
         autoClose: 2000,
       });
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -130,7 +137,9 @@ const CompanyForm = ({
     >
       {/* Logo Upload */}
       <div className="space-y-2">
-        <label htmlFor="image" className="my-2 font-semibold">Company Logo</label>
+        <label htmlFor="image" className="my-2 font-semibold">
+          Company Logo
+        </label>
         <div className="border-2 border-dashed border-neutral-500/50 rounded-lg p-4 text-center relative">
           {imagePreview ? (
             <div className="relative">
@@ -150,8 +159,8 @@ const CompanyForm = ({
               </div>
             </div>
           ) : (
-            <div 
-              onClick={() => document.querySelector('#logo-upload').click()} 
+            <div
+              onClick={() => document.querySelector("#logo-upload").click()}
               className="h-48 cursor-pointer flex items-center justify-center bg-[var(--color-card)] rounded-lg"
             >
               <span className="text-gray-500">Click to upload logo</span>
@@ -181,7 +190,9 @@ const CompanyForm = ({
             type="text"
             placeholder="Company Name"
             readOnly={title === "edit"}
-            className={`input peer ${errors.name && "border-red-500 focus:!border-red-500"}`}
+            className={`input peer ${
+              errors.name && "border-red-500 focus:!border-red-500"
+            }`}
             {...register("name", {
               required: "Company name is required",
             })}
@@ -199,7 +210,9 @@ const CompanyForm = ({
           <input
             type="text"
             placeholder="Company Initials"
-            className={`input peer uppercase placeholder:capitalize ${errors.initials && "border-red-500 focus:!border-red-500"}`}
+            className={`input peer uppercase placeholder:capitalize ${
+              errors.initials && "border-red-500 focus:!border-red-500"
+            }`}
             {...register("initials", {
               required: "Company initials are required",
               minLength: {
@@ -215,22 +228,24 @@ const CompanyForm = ({
         </FormInput>
       </div>
 
-        {/* Branch Input */}
-        <FormInput
-          label="Branch"
-          error={errors.branch}
-          otherClasses="w-full"
-          withAsterisk
-        >
-          <input
-            type="text"
-            placeholder="Branch Name"
-            className={`input peer ${errors.branch && "border-red-500 focus:!border-red-500"}`}
-            {...register("branch", {
-              required: "Branch is required",
-            })}
-          />
-        </FormInput>
+      {/* Branch Input */}
+      <FormInput
+        label="Branch"
+        error={errors.branch}
+        otherClasses="w-full"
+        withAsterisk
+      >
+        <input
+          type="text"
+          placeholder="Branch Name"
+          className={`input peer ${
+            errors.branch && "border-red-500 focus:!border-red-500"
+          }`}
+          {...register("branch", {
+            required: "Branch is required",
+          })}
+        />
+      </FormInput>
 
       <Divider title="Contact Information" />
 
@@ -246,7 +261,9 @@ const CompanyForm = ({
             type="email"
             placeholder="Email Address"
             readOnly={title === "edit"}
-            className={`input peer ${errors.email && "border-red-500 focus:!border-red-500"}`}
+            className={`input peer ${
+              errors.email && "border-red-500 focus:!border-red-500"
+            }`}
             {...register("email", {
               required: "Email is required",
               pattern: {
@@ -268,7 +285,9 @@ const CompanyForm = ({
             type="tel"
             readOnly={title === "edit"}
             placeholder="Phone Number"
-            className={`input peer ${errors.phone && "border-red-500 focus:!border-red-500"}`}
+            className={`input peer ${
+              errors.phone && "border-red-500 focus:!border-red-500"
+            }`}
             {...register("phone", {
               required: "Phone number is required",
             })}
@@ -277,15 +296,13 @@ const CompanyForm = ({
       </div>
 
       {/* Address Input */}
-      <FormInput
-        label="Address"
-        error={errors.address}
-        withAsterisk
-      >
+      <FormInput label="Address" error={errors.address} withAsterisk>
         <textarea
           placeholder="Company Address"
           rows={3}
-          className={`input text-sm peer ${errors.address && "border-red-500 focus:!border-red-500"}`}
+          className={`input text-sm peer ${
+            errors.address && "border-red-500 focus:!border-red-500"
+          }`}
           {...register("address", {
             required: "Address is required",
           })}
@@ -295,14 +312,13 @@ const CompanyForm = ({
       <Divider title="Business Information" />
 
       {/* GSTIN Input */}
-      <FormInput
-        label="GSTIN"
-        error={errors.gstin}
-      >
+      <FormInput label="GSTIN" error={errors.gstin}>
         <input
           type="text"
           placeholder="GSTIN Number"
-          className={`input peer ${errors.gstin && "border-red-500 focus:!border-red-500"}`}
+          className={`input peer ${
+            errors.gstin && "border-red-500 focus:!border-red-500"
+          }`}
           {...register("gstin")}
         />
       </FormInput>
@@ -310,7 +326,7 @@ const CompanyForm = ({
       {/* Submit Button */}
       <button
         type="submit"
-        disabled={Object.keys(errors).length > 0}
+        disabled={Object.keys(errors).length > 0 || loading}
         className="px-3 py-1.5 my-2 capitalize rounded-md bg-accent disabled:cursor-not-allowed disabled:opacity-30 hover:bg-accentDark text-white"
       >
         {title} Company

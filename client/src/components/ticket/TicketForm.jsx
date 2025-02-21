@@ -121,16 +121,19 @@ const TicketForm = ({ closeModal = () => {} }) => {
       onSubmit={handleSubmit(submitTicket)}
       className="flex flex-col gap-4 w-full flex-1 px-3 max-sm:px-1 space-y-2"
     >
-      <FormInput
-        label="Title"
-        error={errors && errors.title}
-        otherClasses="w-full"
-        withAsterisk
-      >
+      <div className="title-input w-full flex flex-col relative group my-2">
+        <label
+          htmlFor="description"
+          className={`input-label peer-focus:text-[var(--color-accent-dark)] ${
+            errors && errors.title && "!text-red-500"
+          }`}
+        >
+          Title*
+        </label>
         <input
           type="text"
           placeholder="Enter ticket title"
-          className={`input peer ${
+          className={`input peer text-[var(--color-text)] ${
             errors && errors.title && "!border-red-500 focus:!border-red-500"
           }`}
           {...register("title", {
@@ -141,7 +144,10 @@ const TicketForm = ({ closeModal = () => {} }) => {
             },
           })}
         />
-      </FormInput>
+        {errors?.title && (
+          <p className="text-red-500 text-xs mt-1">{errors.title.message}</p>
+        )}
+      </div>
 
       <div className="description-input w-full flex flex-col relative group">
         <label
@@ -155,7 +161,7 @@ const TicketForm = ({ closeModal = () => {} }) => {
         <textarea
           placeholder="Describe your issue in detail"
           rows={5}
-          className={`input peer ${
+          className={`input peer text-[var(--color-text)] ${
             errors &&
             errors.description &&
             "!border-red-500 focus:!border-red-500"

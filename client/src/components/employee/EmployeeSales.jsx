@@ -121,7 +121,7 @@ const EmployeeSales = () => {
                 <span>
                   Showing {(results?.page - 1) * 10 + 1} -{" "}
                   {results?.sales?.length + (results?.page - 1) * 10} of{" "}
-                  {results?.totalResults} purchases
+                  {results?.totalResults} sales
                 </span>
               </td>
               <td
