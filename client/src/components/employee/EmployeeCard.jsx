@@ -24,7 +24,7 @@ const EmployeeCard = ({ employee , otherClasses = ''}) => {
             <div className="title flex items-center gap-2">
               <h2 className="text-xl font-semibold capitalize">
                 <Link
-                  to={isAdmin ? `/employees/${employee?.uuid}` : ''}
+                  to={isAdmin ? `/employees/${employee?.uuid}` : '/seller/settings'}
                   className="hover:underline"
                 >
                   {employee?.name || "Unknown"}

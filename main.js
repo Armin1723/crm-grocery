@@ -42,6 +42,12 @@ function createWindow() {
     : `http://localhost:5173`;
   mainWindow.loadURL(startURL);
 
+  // Prevent new windows from opening
+  mainWindow.webContents.setWindowOpenHandler(({ url }) => {
+    mainWindow.loadURL(url); // Open link in the same window
+    return { action: 'deny' }; // Block new window creation
+  });
+
   // Handle custom window controls
   ipcMain.on("minimize-window", () => {
     mainWindow.minimize();

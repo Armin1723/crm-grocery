@@ -337,63 +337,65 @@ const EmployeeForm = ({
         )}
       </div>
 
-      {/* Identity Card Upload */}
-      <div className="space-y-2">
-        <label htmlFor="identityCard" className="my-2 font-semibold">
-          Identity Card (JPG or PDF, max 500kb)
-        </label>
-        <div className="border-2 border-dashed border-neutral-500/50 rounded-lg p-4 text-center relative">
-          {identityProofPreview ? (
-            <div className="relative">
-              {previewType === "pdf" ? (
-                <div className="h-96 w-full">
-                  <embed
-                    src={`${identityProofPreview}#toolbar=0&navpanes=0`}
-                    type="application/pdf"
-                    width="100%"
-                    height="100%"
-                    className="rounded-lg"
+      {/* Identity Card Upload (only for Admin Users) */}
+      {user?.role === "admin" && (
+        <div className="space-y-2">
+          <label htmlFor="identityCard" className="my-2 font-semibold">
+            Identity Card (JPG or PDF, max 500kb)
+          </label>
+          <div className="border-2 border-dashed border-neutral-500/50 rounded-lg p-4 text-center relative">
+            {identityProofPreview ? (
+              <div className="relative">
+                {previewType === "pdf" ? (
+                  <div className="h-96 w-full">
+                    <embed
+                      src={`${identityProofPreview}#toolbar=0&navpanes=0`}
+                      type="application/pdf"
+                      width="100%"
+                      height="100%"
+                      className="rounded-lg"
+                    />
+                  </div>
+                ) : (
+                  <img
+                    src={identityProofPreview}
+                    alt="Identity Card Preview"
+                    className="mx-auto h-48 w-96 object-contain"
                   />
+                )}
+                <div
+                  className="absolute top-2 right-2 cursor-pointer hover:opacity-75 bg-[var(--color-card)] px-3 rounded-lg py-1"
+                  onClick={() => {
+                    setIdentityProofPreview(null);
+                    setPreviewType(null);
+                    setValue("identityCard", null);
+                  }}
+                >
+                  <MdClose />
                 </div>
-              ) : (
-                <img
-                  src={identityProofPreview}
-                  alt="Identity Card Preview"
-                  className="mx-auto h-48 w-96 object-contain"
-                />
-              )}
-              <div
-                className="absolute top-2 right-2 cursor-pointer hover:opacity-75 bg-[var(--color-card)] px-3 rounded-lg py-1"
-                onClick={() => {
-                  setIdentityProofPreview(null);
-                  setPreviewType(null);
-                  setValue("identityCard", null);
-                }}
-              >
-                <MdClose />
               </div>
-            </div>
-          ) : (
-            <div
-              onClick={() =>
-                document.getElementById("identityProof-upload").click()
-              }
-              className="h-48 flex items-center justify-center bg-[var(--color-card)] rounded-lg cursor-pointer"
-            >
-              <span className="text-gray-500">
-                Click to upload identity card
-              </span>
-            </div>
-          )}
-          <input
-            type="file"
-            id="identityProof-upload"
-            accept=".jpg,.jpeg,.pdf"
-            className="w-full py-2"
-            onChange={handleIdentityProofChange}
-          />
+            ) : (
+              <div
+                onClick={() =>
+                  document.getElementById("identityProof-upload").click()
+                }
+                className="h-48 flex items-center justify-center bg-[var(--color-card)] rounded-lg cursor-pointer"
+              >
+                <span className="text-gray-500">
+                  Click to upload identity card
+                </span>
+              </div>
+            )}
+            <input
+              type="file"
+              id="identityProof-upload"
+              accept=".jpg,.jpeg,.pdf"
+              className="w-full py-2"
+              onChange={handleIdentityProofChange}
+            />
+          </div>
         </div>
-      </div>
+      )}
 
       <button
         type="submit"

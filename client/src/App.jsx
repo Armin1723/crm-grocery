@@ -22,14 +22,15 @@ import Expenses from "./components/home/Expenses";
 import ViewExpenses from "./components/expenses/ViewExpenses";
 import AddExpense from "./components/expenses/AddExpense";
 import SellerExpenses from "./components/seller/expenses/SellerExpenses";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
+import TermsOfUse from "./pages/TermsOfUse";
+import Settings from "./components/home/Settings";
+import ViewSettings from "./components/settings/ViewSettings";
 const Seller = lazy(() => import("./pages/Seller"));
 const TopLoadingBar = lazy(() => import("./components/shared/TopLoadingBar"));
 const SellerSales = lazy(() => import("./components/seller/sales/SellerSales"));
 const SellerInventory = lazy(() =>
   import("./components/seller/inventory/SellerInventory")
-);
-const SellerEmployee = lazy(() =>
-  import("./components/seller/employee/SellerEmployee")
 );
 const SellerHome = lazy(() => import("./components/seller/home/SellerHome"));
 const SaleInvoice = lazy(() => import("./components/sales/SaleInvoice"));
@@ -198,7 +199,7 @@ const App = () => {
                 <Route path="returns" element={<ViewPurchaseReturns />} />
                 <Route path="returns/add" element={<AddPurchaseReturn />} />
               </Route>
-              
+
               {/* Expense Routes */}
               <Route path="expenses" element={<Expenses />}>
                 <Route path="" element={<ViewExpenses />} />
@@ -250,6 +251,11 @@ const App = () => {
               <Route path="company" element={<Company />}>
                 <Route path="" element={<ViewCompany />} />
               </Route>
+
+              {/* Settings */}
+              <Route path="settings" element={<Settings />}>
+                <Route path="" element={<ViewSettings />} />
+              </Route>
             </Route>
 
             <Route path="/auth" element={<Auth />}>
@@ -291,7 +297,7 @@ const App = () => {
               </Route>
               <Route path="expenses" element={<SellerExpenses />}>
                 <Route path="" element={<ViewExpenses />} />
-                <Route path="add" element={<AddExpense />} /> 
+                <Route path="add" element={<AddExpense />} />
               </Route>
               <Route path="products" element={<SellerProducts />}>
                 <Route path="" element={<ViewProducts />} />
@@ -310,12 +316,18 @@ const App = () => {
                 <Route path="tax" element={<TaxReport />} />
                 <Route path="profit-loss" element={<ProfitLossReport />} />
               </Route>
-              <Route path="employees" element={<SellerEmployee />}>
-                <Route path=":id" element={<EmployeeDetails />} />
+              <Route path="settings" element={<Settings />}>
+                <Route path="" element={<ViewSettings />} />
               </Route>
             </Route>
 
+            {/* Privacy Policy */}
+            <Route path="privacy-policy" element={<PrivacyPolicy />} />
+            {/* Terms of Use */}
+            <Route path="terms-of-use" element={<TermsOfUse />} />
+            {/* Not Found */}
             <Route path="*" element={<NotFound />} />
+
           </Routes>
         </Suspense>
       </div>

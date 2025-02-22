@@ -62,7 +62,7 @@ const InventoryList = () => {
           results?.map((category, index) => {
             return (
               <div
-                key={index}
+                key={category._id}
                 className="flex flex-col items-center w-full h-full"
               >
                 <Divider

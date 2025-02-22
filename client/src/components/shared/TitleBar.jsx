@@ -4,6 +4,7 @@ import { MdOutlineSystemUpdateAlt } from "react-icons/md";
 import Modal from "../utils/Modal";
 import TicketSection from "../ticket/TicketSection";
 import { useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 
 const TitleBar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -13,6 +14,8 @@ const TitleBar = () => {
   const user = useSelector((state) => state.user);
 
   const [raiseTicketModal, setRaiseTicketModal] = useState(false);
+
+  const navigate = useNavigate();
 
   // Fetch app version when the menu is opened
   const toggleMenu = () => {
@@ -84,7 +87,7 @@ const TitleBar = () => {
             alt="logo"
             className="w-5 aspect-square inline-block py-1"
           />
-          <p>CRM Grocery</p>
+          {/* <p>CRM Grocery</p> */}
         </div>
 
         {/* Support Button */}
@@ -104,10 +107,11 @@ const TitleBar = () => {
           <div className="relative" ref={menuRef}>
             <button
               onClick={toggleMenu}
-              className="w-6 aspect-square flex items-center justify-center hover:bg-gray-700 rounded focus:outline-none"
+              className="flex items-center justify-center hover:bg-accentDark/50 focus:outline-none px-5 py-2"
               title="Menu"
             >
-              <FaBars />
+              {/* <FaBars /> */}
+              Help
             </button>
 
             {/* Dropdown Menu */}
@@ -119,41 +123,52 @@ const TitleBar = () => {
                 }}
               >
                 <ul className="w-full">
-                  <li className="hover:bg-[var(--color-primary)] hover:text-[var(--color-accent)] transition-all duration-200 ease-in my-1 py-1 px-2 ">
+                  <li
+                    onClick={() => {
+                      setRaiseTicketModal(true);
+                      setIsMenuOpen(false);
+                    }}
+                    className="hover:bg-[var(--color-primary)] hover:text-[var(--color-accent)] transition-all duration-200 ease-in my-1 py-1 px-2 "
+                  >
                     <button
                       disabled={!user}
                       className="disabled:opacity-50 disabled:hover:bg-none disabled:cursor-not-allowed"
-                      onClick={() => {
-                        setRaiseTicketModal(true);
-                        setIsMenuOpen(false);
-                      }}
                     >
                       Raise a Ticket
                     </button>
                   </li>
-                  <li className="hover:bg-[var(--color-primary)] hover:text-[var(--color-accent)] transition-all duration-200 ease-in my-1 py-1 px-2">
-                    <button
-                      onClick={() => {
-                        openInBrowser("https://example.com/help");
-                        setIsMenuOpen(false);
-                      }}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      Help
+                  <li
+                    onClick={() => {
+                      navigate("/privacy-policy");
+                      setIsMenuOpen(false);
+                    }}
+                    className="hover:bg-[var(--color-primary)] hover:text-[var(--color-accent)] transition-all duration-200 ease-in my-1 py-1 px-2"
+                  >
+                    <button>
+                      Privacy Policy
                     </button>
                   </li>
-                  <li className="hover:bg-[var(--color-primary)] hover:text-[var(--color-accent)] transition-all duration-200 ease-in my-1 py-1 px-2">
-                    <button
-                      onClick={() => {
-                        checkUpdate();
-                        setIsMenuOpen(false);
-                      }}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      Check for Updates 🔄
+                  <li
+                    onClick={() => {
+                      navigate("/terms-of-use");
+                      setIsMenuOpen(false);
+                    }}
+                    className="hover:bg-[var(--color-primary)] hover:text-[var(--color-accent)] transition-all duration-200 ease-in my-1 py-1 px-2"
+                  >
+                    <button>
+                      Terms of Use
                     </button>
+                  </li>
+                  <li
+                    onClick={() => {
+                      checkUpdate();
+                      setIsMenuOpen(false);
+                    }}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="hover:bg-[var(--color-primary)] hover:text-[var(--color-accent)] transition-all duration-200 ease-in my-1 py-1 px-2"
+                  >
+                    <button>Check for Updates 🔄</button>
                   </li>
                   <li className="hover:bg-[var(--color-primary)] hover:text-[var(--color-accent)] transition-all duration-200 ease-in my-1 py-1 px-2">
                     <p>Version : {appVersion || "Loading..."}</p>
@@ -164,13 +179,13 @@ const TitleBar = () => {
           </div>
 
           {/* Minimize to tray Button */}
-          <button
+          {/* <button
             onClick={minimizeToTray}
             className="w-8 aspect-square flex items-center justify-center hover:bg-violet-500 rounded focus:outline-none"
             title="Minimize to tray"
           >
             <MdOutlineSystemUpdateAlt />
-          </button>
+          </button> */}
 
           {/* Minimize Button */}
           <button

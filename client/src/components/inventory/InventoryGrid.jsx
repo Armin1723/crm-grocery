@@ -113,7 +113,7 @@ const InventoryGrid = () => {
         {inventory && inventory.length ? (
           inventory.map((categoryData) => {
             return (
-              <div key={categoryData?._id} className="flex flex-col gap-1">
+              <div key={categoryData._id} className="flex flex-col gap-1">
                 <p className="text-lg max-lg:text-base font-bold pl-2">
                   <Divider
                     title={`${categoryData?._id} (${

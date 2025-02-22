@@ -1,6 +1,7 @@
 import React, { useRef } from "react";
 import PurchaseForm from "./PurchaseForm";
 import FullScreenToggle from "../utils/FullScreenToggle";
+import BackupPurchaseForm from "./BackupPurchaseForm";
 
 const AddPurchase = () => {
   const pageRef = useRef(null);
@@ -10,7 +11,8 @@ const AddPurchase = () => {
         <p className="text-xl max-lg:text-lg font-bold ">Add Purchase</p>
         <FullScreenToggle pageRef={pageRef}/>
       </div>
-      <PurchaseForm />
+      {/* <PurchaseForm /> */}
+      <BackupPurchaseForm />
     </div>
   );
 };

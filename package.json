@@ -1,6 +1,6 @@
 {
   "name": "crm-grocery",
-  "version": "1.0.13",
+  "version": "1.0.14",
   "description": "Grocery Store CRM App.",
   "author": "CRM",
   "main": "main.js",
@@ -39,7 +39,7 @@
     ],
     "extraResources": [
       {
-        "from": "./client/dist-obfuscated/assets/index-C9UAdrsG.css",
+        "from": "./client/dist-obfuscated/assets/index-C3w9amx4.css",
         "to": "./assets/index.css"
       },
       {
@@ -51,7 +51,7 @@
       "name": "CRM Grocery",
       "description": "Grocery Store CRM App.",
       "author": "CRM",
-      "version": "1.0.13"
+      "version": "1.0.14"
     },
     "directories": {
       "output": "dist"

@@ -7,6 +7,7 @@ import Avatar from "../utils/Avatar";
 import { useSelector } from "react-redux";
 import LogoutButton from "../utils/LogoutButton";
 import Logo from "./Logo";
+import { MdSettings } from "react-icons/md";
 
 const NavSmall = () => {
   const pathname = useLocation().pathname;
@@ -41,7 +42,6 @@ const NavSmall = () => {
         >
           <div className="top flex w-full justify-between px-4 relative pb-2 border-b border-neutral-500/50 ">
             <div className="top-sub flex items-center justify-between w-full gap-2">
-            
               <Logo />
               <div
                 className="close cursor-pointer text-xl"
@@ -95,6 +95,29 @@ const NavSmall = () => {
                   </li>
                 );
               })}
+
+              {/* Settings Icon */}
+              <Link
+                to="/seller/settings"
+                onClick={() => setNavOpen(false)}
+                className={`${
+                  pathname.includes("/settings") ?
+                  "text-accent bg-accent/10 border-l-4 border-accent px-4" : 'px-5'
+                } link flex items-center gap-4 py-1 group hover:bg-accent/5 transition-all relative duration-300 ease-in group`}
+              >
+                <div
+                  className={`icon text-xl my-1 transition-all duration-300 ease-in group-hover:text-accent/80`}
+                >
+                  <MdSettings />
+                </div>
+                <p
+                  className={`${
+                    pathname.includes("/settings") && "font-bold"
+                  } overflow-hidden transition-all duration-300 ease-in group-hover:text-accent`}
+                >
+                  Settings
+                </p>
+              </Link>
             </ul>
           </div>
 

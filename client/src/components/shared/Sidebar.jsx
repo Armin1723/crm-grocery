@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import Avatar from "../utils/Avatar";
-import { MdChevronRight } from "react-icons/md";
+import { MdChevronRight, MdSettings } from "react-icons/md";
 import { Link, useLocation } from "react-router-dom";
 import { useSelector } from "react-redux";
 import LogoutButton from "../utils/LogoutButton";
@@ -92,6 +92,29 @@ const Sidebar = () => {
               </div>
             );
           })}
+
+          {/* Settings Icon */}
+          <Link
+            to="/settings"
+            className={`${
+              pathname.includes("/settings")
+                ? "border-l-4 border-accent bg-accent/10 px-4 text-accent"
+                : "px-5"
+            } link flex items-center gap-4 py-2 group hover:bg-accent/5 transition-all relative duration-300 ease-in group`}
+          >
+            <div
+              className={`icon text-xl my-1 transition-all duration-300 ease-in group-hover:text-accent/80`}
+            >
+              <MdSettings />
+            </div>
+            <p
+              className={`${expanded ? "max-w-full" : "max-w-0"} ${
+                pathname.includes("/settings") && "font-bold"
+              } overflow-hidden transition-all duration-300 ease-in group-hover:text-accent`}
+            >
+              Settings
+            </p>
+          </Link>
         </ul>
       </div>
 
