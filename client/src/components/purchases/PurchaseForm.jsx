@@ -10,8 +10,10 @@ import PurchaseProductSuggestion from "./PurchaseProductSuggestion";
 import HoverCard from "../shared/HoverCard";
 import AddPurchaseByBarcode from "./AddPurchaseByBarcode";
 import InventoryCard from "../inventory/InventoryCard";
+import { useQueryClient } from "@tanstack/react-query";
 
 const PurchaseForm = ({ setRefetch = () => {}, closeModal = () => {} }) => {
+  const [loading, setLoading] = useState(false);
   const [supplierId, setSupplierId] = useState("");
   const [suggestedSuppliers, setSuggestedSuppliers] = useState([]);
   const [suggestedProducts, setSuggestedProducts] = useState([]);
@@ -19,6 +21,7 @@ const PurchaseForm = ({ setRefetch = () => {}, closeModal = () => {} }) => {
   const [setProductPreviewModal] = useState(false);
 
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
   const {
     register,
@@ -63,28 +66,34 @@ const PurchaseForm = ({ setRefetch = () => {}, closeModal = () => {} }) => {
     setValue("paidAmount", calculatedSubTotal - discount + otherCharges);
   }, [watchedProducts, setValue, discount, otherCharges]);
 
-  const updateProductCalculations = (index) => {
+  const updateProductCalculations = (index, newProductUnits = productUnits) => {
     const product = getValues(`products.${index}`);
     const quantity = product.quantity;
     const price = product.price;
     const isPrimaryUnit =
-      !productUnits[index] || productUnits[index] == "primary";
+      !newProductUnits[index] || newProductUnits[index] === "primary";
 
     let purchaseRate;
     if (isPrimaryUnit) {
-      purchaseRate = (price / (quantity * product.conversionFactor)).toFixed(2);
-      const currentSellingRate = getValues(`products.${index}.sellingRate`);
-      setValue(
-        `products.${index}.sellingRate`,
-        parseFloat((currentSellingRate / product.conversionFactor).toFixed(2))
+      purchaseRate = (price / (quantity * product?.conversionFactor)).toFixed(
+        2
       );
+      const currentSellingRate = getValues(`products.${index}.sellingRate`);
+      currentSellingRate &&
+        setValue(
+          `products.${index}.sellingRate`,
+          parseFloat(
+            (currentSellingRate / product?.conversionFactor).toFixed(2)
+          )
+        );
     } else {
       purchaseRate = (price / quantity).toFixed(2);
       const currentSellingRate = getValues(`products.${index}.sellingRate`);
-      setValue(
-        `products.${index}.sellingRate`,
-        parseFloat((currentSellingRate * product.conversionFactor).toFixed(2))
-      );
+      currentSellingRate &&
+        setValue(
+          `products.${index}.sellingRate`,
+          parseFloat((currentSellingRate * product.conversionFactor).toFixed(2))
+        );
     }
 
     setValue(`products.${index}.purchaseRate`, parseFloat(purchaseRate));
@@ -96,14 +105,18 @@ const PurchaseForm = ({ setRefetch = () => {}, closeModal = () => {} }) => {
 
   const handleUnitToggle = (index) => {
     const currentUnit = productUnits[index] || "primary";
-    const newUnit = currentUnit === "secondary" ? "primary" : "secondary";
+    const updatedUnit = currentUnit === "primary" ? "secondary" : "primary";
 
-    setProductUnits((prev) => ({
-      ...prev,
-      [index]: newUnit,
-    }));
+    setProductUnits((prev) => {
+      const newProductUnits = {
+        ...prev,
+        [index]: updatedUnit,
+      };
 
-    updateProductCalculations(index);
+      // Move the calculation inside where we have access to the new value
+      updateProductCalculations(index, newProductUnits);
+      return newProductUnits;
+    });
   };
 
   const fetchSuggestedSuppliers = async (e) => {
@@ -159,6 +172,7 @@ const PurchaseForm = ({ setRefetch = () => {}, closeModal = () => {} }) => {
 
   const addPurchase = async (values) => {
     const id = toast.loading("Adding purchase...");
+    setLoading(true);
 
     try {
       const convertedProducts = values.products.map((product, index) => {
@@ -210,6 +224,8 @@ const PurchaseForm = ({ setRefetch = () => {}, closeModal = () => {} }) => {
         });
         reset();
         setRefetch((prev) => !prev);
+        queryClient.invalidateQueries("purchases");
+        closeModal();
         navigate("/purchases");
       }
     } catch (error) {
@@ -219,6 +235,8 @@ const PurchaseForm = ({ setRefetch = () => {}, closeModal = () => {} }) => {
         isLoading: false,
         autoClose: 2000,
       });
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -343,11 +361,11 @@ const PurchaseForm = ({ setRefetch = () => {}, closeModal = () => {} }) => {
                     <input
                       type="number"
                       readOnly
-                      title={`${product.purchaseRate}₹/${
-                        product.secondaryUnit
-                      }, ${product.purchaseRate * product.conversionFactor}₹/${
-                        product.primaryUnit
-                      }`}
+                      title={`${product?.purchaseRate}₹/${
+                        product?.secondaryUnit
+                      }, ${
+                        product?.purchaseRate * product?.conversionFactor
+                      }₹/${product?.primaryUnit}`}
                       className={`${
                         product?.purchaseRate > product?.mrp && "text-red-500"
                       } w-full border-b border-accent bg-transparent outline-none p-1`}
@@ -361,9 +379,9 @@ const PurchaseForm = ({ setRefetch = () => {}, closeModal = () => {} }) => {
                     <input
                       type="number"
                       title={`${product?.sellingRate}₹/${
-                        product.secondaryUnit
+                        product?.secondaryUnit
                       }, ${product?.sellingRate * product?.conversionFactor}₹/${
-                        product.primaryUnit
+                        product?.primaryUnit
                       }`}
                       step={product.secondaryUnit === "gram" ? 0.001 : 1}
                       className={`${
@@ -426,9 +444,10 @@ const PurchaseForm = ({ setRefetch = () => {}, closeModal = () => {} }) => {
                       title={`1 ${product?.primaryUnit} = ${product?.conversionFactor} ${product?.secondaryUnit}`}
                       className="absolute text-xs px-2 rounded-lg bg-accent hover:bg-accent-dark text-white right-2 top-1/2 -translate-y-1/2 capitalize cursor-pointer flex items-center gap-1"
                     >
-                      {productUnits[index] !== "primary"
+                      {!productUnits[index] || productUnits[index] === "primary"
                         ? product.primaryUnit
                         : product.secondaryUnit}
+
                       <span className="text-[10px]">↓</span>
                     </button>
                   </div>
@@ -556,7 +575,7 @@ const PurchaseForm = ({ setRefetch = () => {}, closeModal = () => {} }) => {
 
       <button
         type="submit"
-        disabled={Object.keys(errors).length > 0}
+        disabled={Object.keys(errors).length > 0 || loading}
         className="px-3 py-1.5 my-2 capitalize rounded-md disabled:bg-gray-600 disabled:opacity-35 disabled:cursor-not-allowed disabled:hover:none bg-accent hover:bg-accentDark text-white"
       >
         Add Purchase
