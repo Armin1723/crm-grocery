@@ -17,6 +17,9 @@ const saleSchema = new mongoose.Schema({
             sellingRate: {
                 type: Number,
             },
+            purchaseRate: {
+                type: Number,
+            },
             mrp: {
                 type: Number,
             },

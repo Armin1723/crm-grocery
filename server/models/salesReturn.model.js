@@ -28,6 +28,9 @@ const salesReturnSchema = new mongoose.Schema(
         sellingRate: {
           type: Number,
         },
+        purchaseRate: {
+          type: Number,
+        },
       },
     ],
     customer: {

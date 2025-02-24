@@ -131,7 +131,6 @@ const deleteSale = async (req, res) => {
 
   // Update Inventory
   for (const product of sale.products) {
-
     const inventory = await Inventory.findOne({
       product: product.product,
     }).populate("product");
@@ -139,7 +138,8 @@ const deleteSale = async (req, res) => {
     const sameBatch = inventory?.batches?.find(
       (batch) =>
         (!product?.mrp || batch.mrp === product.mrp) &&
-        (!product.expiry || batch.expiry.getTime() === new Date(product.expiry).getTime())
+        (!product.expiry ||
+          batch.expiry.getTime() === new Date(product.expiry).getTime())
     );
 
     if (!inventory) {
@@ -156,19 +156,19 @@ const deleteSale = async (req, res) => {
         ],
       });
     } else if (sameBatch) {
-        sameBatch.quantity += product.quantity;
-      } else {
-        // Create a new batch if not found
-        inventory.batches.push({
-          quantity: product.quantity,
-          mrp: product.mrp,
-          sellingRate: product.sellingRate,
-          expiry: product.expiry,
-        });
-      }
-      inventory.totalQuantity += product.quantity;
-      await inventory.save();
+      sameBatch.quantity += product.quantity;
+    } else {
+      // Create a new batch if not found
+      inventory.batches.push({
+        quantity: product.quantity,
+        mrp: product.mrp,
+        sellingRate: product.sellingRate,
+        expiry: product.expiry,
+      });
     }
+    inventory.totalQuantity += product.quantity;
+    await inventory.save();
+  }
   await sale.deleteOne();
   return res.json({ success: true, message: "Sale deleted successfully." });
 };
@@ -210,6 +210,8 @@ const addSale = async (req, res) => {
       {
         product: "",
         quantity: 0,
+        purchaseRate: 0,
+        mrp: 0,
         sellingRate: 0,
         expiry: "",
       },
@@ -369,7 +371,6 @@ const addSaleReturn = async (req, res) => {
 
   // Update Inventory
   for (const product of products) {
-
     let inventory = await Inventory.findOne({
       product: product.product,
     }).populate("product");
@@ -377,7 +378,9 @@ const addSaleReturn = async (req, res) => {
     const sameBatch = inventory?.batches?.find(
       (batch) =>
         (!product?.mrp || batch.mrp === product.mrp) &&
-        (!product.expiry || batch.expiry.getTime() === new Date(product.expiry).getTime())
+        batch.purchaseRate === product.purchaseRate &&
+        (!product.expiry ||
+          batch.expiry.getTime() === new Date(product.expiry).getTime())
     );
 
     if (!inventory) {
@@ -393,21 +396,21 @@ const addSaleReturn = async (req, res) => {
           },
         ],
       });
-    } else if (sameBatch) { 
+    } else if (sameBatch) {
       // If same batch exists, add the quantity
-        sameBatch.quantity += product.quantity;
-      } else {
-        // Create a new batch if not found
-        inventory.batches.push({
-          quantity: product.quantity,
-          mrp: product.mrp,
-          sellingRate: product.sellingRate,
-          expiry: product.expiry,
-        });
-      }
-      inventory.totalQuantity += product.quantity;
-      await inventory.save();
+      sameBatch.quantity += product.quantity;
+    } else {
+      // Create a new batch if not found
+      inventory.batches.push({
+        quantity: product.quantity,
+        mrp: product.mrp,
+        sellingRate: product.sellingRate,
+        expiry: product.expiry,
+      });
     }
+    inventory.totalQuantity += product.quantity;
+    await inventory.save();
+  }
 
   // Generate a sales return invoice
   saleReturn.invoice = await generateSalesReturnInvoice(saleReturn._id);
