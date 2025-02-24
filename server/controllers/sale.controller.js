@@ -220,6 +220,7 @@ const addSale = async (req, res) => {
     discount = 0,
     subTotal = 0,
     totalAmount = 0,
+    paidAmount = 0,
     paymentMode = "cash",
   } = req.body;
 
@@ -294,6 +295,12 @@ const addSale = async (req, res) => {
 
   sale.invoice = await generateSaleInvoice(sale._id);
   await sale.save();
+
+  // update customer balance
+  // if (customer) {
+  //   customer.balance += totalAmount - paidAmount;
+  //   await customer.save();
+  // }
 
   res.json({ success: true, sale });
 

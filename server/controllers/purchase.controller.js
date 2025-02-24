@@ -5,12 +5,13 @@ const Inventory = require("../models/inventory.model");
 const Supplier = require("../models/supplier.model");
 const PurchaseReturn = require("../models/purchaseReturn.model");
 const Product = require("../models/product.model");
+const Company = require("../models/company.model");
+const Expense = require("../models/expense.model");
 
 const followUpPaymentMailTemplate = require("../templates/email/followUpPaymentMailTemplate");
 const generatePurchaseInvoice = require("../templates/invoice/purchaseInvoice");
 const generatePurchaseReturnInvoice = require("../templates/invoice/purchaseReturnInvoice");
 const { sendMail, mergeBatchesHelper } = require("../helpers");
-const Company = require("../models/company.model");
 
 const getPurchases = async (req, res) => {
   const {
@@ -265,6 +266,12 @@ const addPurchase = async (req, res) => {
     paidAmount = 0,
   } = req.body;
 
+  if (!req.body.products.length) {
+    return res
+      .status(400)
+      .json({ error: "No products found in the purchase." });
+  }
+
   const purchase = await Purchase.create({
     products: req.body.products.map((product) => ({
       product: product._id,
@@ -276,13 +283,24 @@ const addPurchase = async (req, res) => {
     signedBy: req.user.id,
     supplier: supplierId,
     subTotal,
-    otherCharges,
     discount,
     totalAmount,
     paidAmount,
+    otherCharges,
     deficitAmount: totalAmount - paidAmount,
     company: req.user.company,
   });
+
+  // Create an expense if otherCharges exist
+  if(otherCharges > 0){
+    await Expense.create({
+      amount: otherCharges,
+      category: "Purchase",
+      description: `Purchase charges on Purchase ${purchase._id}`,
+      company: req.user.company,
+      signedBy: req.user.id,
+    });
+  }
 
   // Track the deficit amount and update the supplier's balance
   if (purchase.deficitAmount > 0) {
