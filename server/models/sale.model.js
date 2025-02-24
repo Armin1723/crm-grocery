@@ -1,67 +1,70 @@
 const mongoose = require("mongoose");
 
-const saleSchema = new mongoose.Schema({
+const saleSchema = new mongoose.Schema(
+  {
     customer: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Customer",
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Customer",
     },
     products: [
-        {
-            product: {
-                type: mongoose.Schema.Types.ObjectId,
-                ref: "Product",
-            },
-            quantity: {
-                type: Number,
-            },
-            sellingRate: {
-                type: Number,
-            },
-            purchaseRate: {
-                type: Number,
-            },
-            mrp: {
-                type: Number,
-            },
-            expiry: {
-                type: Date,
-            },
+      {
+        product: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "Product",
         },
+        quantity: {
+          type: Number,
+        },
+        sellingRate: {
+          type: Number,
+        },
+        purchaseRate: {
+          type: Number,
+        },
+        mrp: {
+          type: Number,
+        },
+        expiry: {
+          type: Date,
+        },
+      },
     ],
     subTotal: {
-        type: Number,
+      type: Number,
     },
     discount: {
-        type: Number,
+      type: Number,
     },
     totalAmount: {
-        type: Number,
+      type: Number,
     },
     paymentMode: {
-        type: String,
-        enum: ["cash", "card", "upi"],
-        required: true,
+      type: String,
+      enum: ["cash", "card", "upi"],
+      required: true,
     },
     invoice: {
-        type: String,
+      type: String,
     },
-    signedBy :{
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "User",
+    signedBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
     },
     transactionId: {
-        type: String,
+      type: String,
     },
     notes: {
-        type: String,
+      type: String,
     },
     company: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Company",
-        required: true,
-        index: true,
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Company",
+      required: true,
+      index: true,
     },
-}, { timestamps: true });
+  },
+  { timestamps: true }
+);
 
 const Sale = mongoose.model("Sale", saleSchema);
 

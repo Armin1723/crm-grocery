@@ -23,6 +23,10 @@ const customerSchema = new mongoose.Schema({
         required: true,
         validate: [validator.isMobilePhone, "Please provide a valid phone"],
     },
+    balance: {
+        type: Number,
+        default: 0,
+    },
     company: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Company",

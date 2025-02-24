@@ -1,12 +1,12 @@
 require("dotenv").config();
 
-const Purchase = require("../models/purchase.model");
-const Inventory = require("../models/inventory.model");
-const Supplier = require("../models/supplier.model");
-const PurchaseReturn = require("../models/purchaseReturn.model");
 const Product = require("../models/product.model");
 const Company = require("../models/company.model");
 const Expense = require("../models/expense.model");
+const Purchase = require("../models/purchase.model");
+const Supplier = require("../models/supplier.model");
+const Inventory = require("../models/inventory.model");
+const PurchaseReturn = require("../models/purchaseReturn.model");
 
 const followUpPaymentMailTemplate = require("../templates/email/followUpPaymentMailTemplate");
 const generatePurchaseInvoice = require("../templates/invoice/purchaseInvoice");
@@ -296,7 +296,7 @@ const addPurchase = async (req, res) => {
     await Expense.create({
       amount: otherCharges,
       category: "Purchase",
-      description: `Purchase charges on Purchase ${purchase._id}`,
+      description: `Purchase Charges: ${purchase._id}`,
       company: req.user.company,
       signedBy: req.user.id,
     });
