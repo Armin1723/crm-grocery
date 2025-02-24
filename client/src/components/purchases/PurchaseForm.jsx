@@ -15,6 +15,8 @@ const PurchaseForm = ({ setRefetch = () => {}, closeModal = () => {} }) => {
   const [supplierId, setSupplierId] = useState("");
   const [suggestedSuppliers, setSuggestedSuppliers] = useState([]);
   const [suggestedProducts, setSuggestedProducts] = useState([]);
+  const [productUnits, setProductUnits] = useState({});
+  const [setProductPreviewModal] = useState(false);
 
   const navigate = useNavigate();
 
@@ -60,6 +62,49 @@ const PurchaseForm = ({ setRefetch = () => {}, closeModal = () => {} }) => {
     setValue("totalAmount", calculatedSubTotal - discount + otherCharges);
     setValue("paidAmount", calculatedSubTotal - discount + otherCharges);
   }, [watchedProducts, setValue, discount, otherCharges]);
+
+  const updateProductCalculations = (index) => {
+    const product = getValues(`products.${index}`);
+    const quantity = product.quantity;
+    const price = product.price;
+    const isPrimaryUnit =
+      !productUnits[index] || productUnits[index] == "primary";
+
+    let purchaseRate;
+    if (isPrimaryUnit) {
+      purchaseRate = (price / (quantity * product.conversionFactor)).toFixed(2);
+      const currentSellingRate = getValues(`products.${index}.sellingRate`);
+      setValue(
+        `products.${index}.sellingRate`,
+        parseFloat((currentSellingRate / product.conversionFactor).toFixed(2))
+      );
+    } else {
+      purchaseRate = (price / quantity).toFixed(2);
+      const currentSellingRate = getValues(`products.${index}.sellingRate`);
+      setValue(
+        `products.${index}.sellingRate`,
+        parseFloat((currentSellingRate * product.conversionFactor).toFixed(2))
+      );
+    }
+
+    setValue(`products.${index}.purchaseRate`, parseFloat(purchaseRate));
+    setValue(
+      `products.${index}.displayUnit`,
+      isPrimaryUnit ? product.primaryUnit : product.secondaryUnit
+    );
+  };
+
+  const handleUnitToggle = (index) => {
+    const currentUnit = productUnits[index] || "primary";
+    const newUnit = currentUnit === "secondary" ? "primary" : "secondary";
+
+    setProductUnits((prev) => ({
+      ...prev,
+      [index]: newUnit,
+    }));
+
+    updateProductCalculations(index);
+  };
 
   const fetchSuggestedSuppliers = async (e) => {
     const value = e.target.value;
@@ -116,6 +161,18 @@ const PurchaseForm = ({ setRefetch = () => {}, closeModal = () => {} }) => {
     const id = toast.loading("Adding purchase...");
 
     try {
+      const convertedProducts = values.products.map((product, index) => {
+        const isPrimaryUnit = productUnits[index] === "primary";
+        const quantity = isPrimaryUnit
+          ? product.quantity * product.conversionFactor
+          : product.quantity;
+
+        return {
+          ...product,
+          quantity,
+        };
+      });
+
       const response = await fetch(
         `${import.meta.env.VITE_BACKEND_URL}/api/v1/purchases`,
         {
@@ -125,10 +182,7 @@ const PurchaseForm = ({ setRefetch = () => {}, closeModal = () => {} }) => {
           },
           body: JSON.stringify({
             supplierId: supplierId,
-            products: values?.products?.map((product) => ({
-              ...product,
-              quantity: product.quantity * product.conversionFactor,
-            })),
+            products: convertedProducts,
             subTotal: values.subTotal,
             otherCharges: values.otherCharges,
             discount: values.discount,
@@ -172,9 +226,8 @@ const PurchaseForm = ({ setRefetch = () => {}, closeModal = () => {} }) => {
     <form
       onSubmit={handleSubmit(addPurchase)}
       onKeyDown={handleKeyDown}
-      className="flex flex-col max-sm:px-2 gap-2 w-full flex-1 h-full min-h-[50vh] justify-between "
+      className="flex flex-col max-sm:px-2 gap-2 w-full flex-1 h-full min-h-[50vh] justify-between"
     >
-      {/* Supplier Input */}
       <p className="my-1 font-semibold text-lg max-sm:text-base">Supplier</p>
       <div className="supplier-input w-full flex flex-col relative group">
         <input
@@ -213,10 +266,8 @@ const PurchaseForm = ({ setRefetch = () => {}, closeModal = () => {} }) => {
         )}
       </div>
 
-      {/* Products Section */}
       <div className="title flex justify-between flex-wrap">
         <p className="my-1 font-semibold text-lg max-sm:text-base">Products</p>
-
         <SaveReload
           products={getValues("products")}
           setProducts={(products) => setValue("products", products)}
@@ -224,7 +275,7 @@ const PurchaseForm = ({ setRefetch = () => {}, closeModal = () => {} }) => {
         />
       </div>
 
-      <div className="add-product w-full relative flex items-center justify-between flex-wrap gap-2 ">
+      <div className="add-product w-full relative flex items-center justify-between flex-wrap gap-2">
         <div className="left flex items-center flex-wrap gap-2">
           <PurchaseProductSuggestion
             getValues={getValues}
@@ -256,175 +307,160 @@ const PurchaseForm = ({ setRefetch = () => {}, closeModal = () => {} }) => {
               <p className="w-1/5 min-w-[80px] flex justify-end">Price</p>
             </div>
             {watchedProducts &&
-              watchedProducts.map((product, index) => {
-                return (
-                  <div
-                    key={index}
-                    className={` ${
-                      index % 2 !== 0
-                        ? "bg-[var(--color-card)]"
-                        : "bg-[var(--color-primary)]"
-                    } tr min-w-full w-fit flex-1 px-2 py-3 gap-4 border-l border-r border-neutral-500/50 product-item flex justify-between items-center`}
+              watchedProducts.map((product, index) => (
+                <div
+                  key={index}
+                  className={`${
+                    index % 2 !== 0
+                      ? "bg-[var(--color-card)]"
+                      : "bg-[var(--color-primary)]"
+                  } tr min-w-full w-fit flex-1 px-2 py-3 gap-4 border-l border-r border-neutral-500/50 product-item flex justify-between items-center`}
+                >
+                  <button
+                    type="button"
+                    onClick={() => removeProduct(index)}
+                    className="w-[5%] min-w-[30px] text-red-500 hover:text-red-600 transition-all duration-300 ease-in"
                   >
+                    <IoCloseCircle />
+                  </button>
+                  <p
+                    onClick={() => setProductPreviewModal(true)}
+                    className="w-1/5 min-w-[100px] flex-wrap flex-grow"
+                  >
+                    <HoverCard title={product?.name} otherClasses="max-w-3xl">
+                      <InventoryCard upid={product?.upid} />
+                    </HoverCard>
+                  </p>
+                  <div className="w-1/5 min-w-[120px]">
+                    <input
+                      type="date"
+                      min={new Date().toISOString().split("T")[0]}
+                      className="border-b placeholder:text-sm bg-transparent border-[var(--color-accent)] outline-none p-1 w-full"
+                      {...register(`products.${index}.expiry`)}
+                    />
+                  </div>
+                  <div className="purchaseRate w-1/5 min-w-[120px] relative">
+                    <input
+                      type="number"
+                      readOnly
+                      title={`${product.purchaseRate}₹/${
+                        product.secondaryUnit
+                      }, ${product.purchaseRate * product.conversionFactor}₹/${
+                        product.primaryUnit
+                      }`}
+                      className={`${
+                        product?.purchaseRate > product?.mrp && "text-red-500"
+                      } w-full border-b border-accent bg-transparent outline-none p-1`}
+                      {...register(`products.${index}.purchaseRate`)}
+                    />
+                    <span className="text-xs absolute top-1/2 -translate-y-1/2 right-2 rounded-lg bg-accent text-white px-2">
+                      ₹/{product.secondaryUnit}
+                    </span>
+                  </div>
+                  <div className="selling-rate w-1/5 min-w-[120px] relative">
+                    <input
+                      type="number"
+                      title={`${product?.sellingRate}₹/${
+                        product.secondaryUnit
+                      }, ${product?.sellingRate * product?.conversionFactor}₹/${
+                        product.primaryUnit
+                      }`}
+                      step={product.secondaryUnit === "gram" ? 0.001 : 1}
+                      className={`${
+                        errors?.products?.[index]?.sellingRate &&
+                        "text-red-700 border-red-500"
+                      } border-b w-full placeholder:text-sm bg-transparent border-[var(--color-accent)] outline-none p-1`}
+                      {...register(`products.${index}.sellingRate`, {
+                        required: "Selling Rate is required",
+                        valueAsNumber: true,
+                        min: {
+                          value:
+                            productUnits[index] === "primary"
+                              ? getValues(`products.${index}.purchaseRate`) /
+                                product.conversionFactor
+                              : getValues(`products.${index}.purchaseRate`),
+                          message:
+                            "Selling rate should be greater than purchase rate",
+                        },
+                      })}
+                    />
+                    <span className="text-xs absolute top-1/2 -translate-y-1/2 right-2 rounded-lg bg-accent text-white px-2">
+                      ₹/{product.secondaryUnit}
+                    </span>
+                    {errors && errors?.products?.[index]?.sellingRate && (
+                      <span className="text-red-500 text-xs absolute top-full left-0">
+                        {errors.products[index].sellingRate.message}
+                      </span>
+                    )}
+                  </div>
+                  <div className="mrp w-1/5 min-w-[80px]">
+                    <input
+                      type="number"
+                      min={Math.ceil(product.purchaseRate)}
+                      placeholder="MRP"
+                      defaultValue={product.mrp}
+                      className="border-b placeholder:text-sm bg-transparent border-[var(--color-accent)] outline-none p-1 w-20"
+                      {...register(`products.${index}.mrp`)}
+                    />
+                  </div>
+                  <div className="quantity w-1/5 min-w-[80px] relative">
+                    <input
+                      type="number"
+                      min="1"
+                      className="border-b placeholder:text-sm bg-transparent border-[var(--color-accent)] outline-none p-1 w-full"
+                      {...register(`products.${index}.quantity`, {
+                        required: "Quantity is required",
+                        valueAsNumber: true,
+                        min: {
+                          value: 1,
+                          message: "Quantity should be greater than 0",
+                        },
+                        onChange: () => {
+                          updateProductCalculations(index);
+                        },
+                      })}
+                    />
                     <button
                       type="button"
-                      onClick={() => removeProduct(index)}
-                      className="w-[5%] min-w-[30px] text-red-500 hover:text-red-600 transition-all duration-300 ease-in"
+                      onClick={() => handleUnitToggle(index)}
+                      title={`1 ${product?.primaryUnit} = ${product?.conversionFactor} ${product?.secondaryUnit}`}
+                      className="absolute text-xs px-2 rounded-lg bg-accent hover:bg-accent-dark text-white right-2 top-1/2 -translate-y-1/2 capitalize cursor-pointer flex items-center gap-1"
                     >
-                      <IoCloseCircle />
+                      {productUnits[index] !== "primary"
+                        ? product.primaryUnit
+                        : product.secondaryUnit}
+                      <span className="text-[10px]">↓</span>
                     </button>
-                    <p
-                      onClick={() => setProductPreviewModal(true)}
-                      className="w-1/5 min-w-[100px] flex-wrap flex-grow"
-                    >
-                      <HoverCard title={product?.name} otherClasses="max-w-3xl">
-                        <InventoryCard upid={product?.upid} />
-                      </HoverCard>
-                    </p>
-                    <div className="w-1/5 min-w-[120px]">
-                      <input
-                        type="date"
-                        min={new Date().toISOString().split("T")[0]}
-                        className="border-b placeholder:text-sm bg-transparent border-[var(--color-accent)] outline-none p-1 w-full"
-                        {...register(`products.${index}.expiry`)}
-                      />
-                    </div>
-                    <div className="purchaseRate w-1/5 min-w-[120px] relative">
-                      <input
-                        type="number"
-                        readOnly
-                        className={`${
-                          product?.purchaseRate > product?.mrp && "text-red-500"
-                        } w-full border-b border-accent bg-transparent outline-none p-1`}
-                        {...register(`products.${index}.purchaseRate`)}
-                      />
-                      <span className="text-xs absolute top-1/2 -translate-y-1/2 right-2 rounded-lg bg-accent text-white px-2">
-                        ₹/{product.secondaryUnit}
-                      </span>
-                    </div>
-                    <div className="selling-rate w-1/5 min-w-[120px] relative">
-                      <input
-                        type="number"
-                        step={product.secondaryUnit === "gram" ? 0.001 : 1}
-                        className={` ${
-                          errors?.products?.[index]?.sellingRate &&
-                          "text-red-700 border-red-500"
-                        } border-b w-full placeholder:text-sm bg-transparent border-[var(--color-accent)] outline-none p-1 `}
-                        {...register(`products.${index}.sellingRate`, {
-                          required: "Selling Rate is required",
-                          valueAsNumber: true,
-                          min: {
-                            value: getValues(`products.${index}.purchaseRate`),
-                            message:
-                              "Selling rate should be greater than purchase rate",
-                          },
-                        })}
-                      />
-                      <span className="text-xs absolute top-1/2 -translate-y-1/2 right-2 rounded-lg bg-accent text-white px-2">
-                        ₹/{product.secondaryUnit}
-                      </span>
-                      {errors && errors?.products?.[index]?.sellingRate && (
-                        <span className="text-red-500 text-xs absolute top-full left-0">
-                          {errors.products[index].sellingRate.message}
-                        </span>
-                      )}
-                    </div>
-                    <div className="mrp w-1/5 min-w-[80px]">
-                      <input
-                        type="number"
-                        min={Math.ceil(product.purchaseRate)}
-                        placeholder="MRP"
-                        defaultValue={product.mrp}
-                        className="border-b placeholder:text-sm bg-transparent border-[var(--color-accent)] outline-none p-1 w-20 "
-                        {...register(`products.${index}.mrp`)}
-                      />
-                    </div>
-                    <div className="quantity w-1/5 min-w-[80px] relative">
-                      <input
-                        type="number"
-                        min="1"
-                        className="border-b placeholder:text-sm  bg-transparent border-[var(--color-accent)] outline-none p-1 w-full "
-                        {...register(`products.${index}.quantity`, {
-                          required: "Quantity is required",
-                          valueAsNumber: true,
-                          min: {
-                            value: 1,
-                            message: "Quantity should be greater than 0",
-                          },
-                          onChange: (e) => {
-                            const price = getValues(`products.${index}.price`);
-                            const conversionFactor = getValues(
-                              `products.${index}.conversionFactor`
-                            );
-                            const inputValue = e.target.value;
-
-                            const purchaseRate = (
-                              price /
-                              (inputValue * conversionFactor)
-                            ).toFixed(2);
-
-                            setValue(
-                              `products.${index}.purchaseRate`,
-                              parseFloat(purchaseRate)
-                            );
-                          },
-                        })}
-                      />
-                      <div
-                        title={`1 ${product?.primaryUnit} = ${product?.conversionFactor} ${product?.secondaryUnit}`}
-                        className="absolute text-xs px-1 rounded-lg bg-accent text-white right-2 top-1/2 -translate-y-1/2 capitalize cursor-pointer"
-                      >
-                        {product.primaryUnit}
-                      </div>
-                    </div>
-                    <div className="price w-1/5 min-w-[80px] flex justify-end relative">
-                      <input
-                        type="number"
-                        min="0"
-                        step="0.1"
-                        placeholder="Price"
-                        {...register(`products.${index}.price`, {
-                          required: "Price is required",
-                          valueAsNumber: true,
-                          min: {
-                            value: 1,
-                            message: "Price should be greater than 0",
-                          },
-                          onChange: (e) => {
-                            const quantity = getValues(
-                              `products.${index}.quantity`
-                            );
-                            const conversionFactor = getValues(
-                              `products.${index}.conversionFactor`
-                            );
-                            const inputValue = e.target.value;
-
-                            const purchaseRate = (
-                              inputValue /
-                              (quantity * conversionFactor)
-                            ).toFixed(2);
-
-                            setValue(
-                              `products.${index}.purchaseRate`,
-                              parseFloat(purchaseRate)
-                            );
-                          },
-                        })}
-                        className={` ${
-                          errors &&
-                          errors?.products?.[index]?.price &&
-                          "text-red-500 border-red-500"
-                        } border-b placeholder:text-sm bg-transparent text-right border-[var(--color-accent)] outline-none p-1 w-20`}
-                      />
-                      {errors && errors?.products?.[index]?.price && (
-                        <span className="text-red-500 text-xs absolute top-full">
-                          {errors.products[index].price.message}
-                        </span>
-                      )}
-                    </div>
                   </div>
-                );
-              })}
+                  <div className="price w-1/5 min-w-[80px] flex justify-end relative">
+                    <input
+                      type="number"
+                      placeholder="Price"
+                      {...register(`products.${index}.price`, {
+                        required: "Price is required",
+                        valueAsNumber: true,
+                        min: {
+                          value: 1,
+                          message: "Price should be greater than 0",
+                        },
+                        onChange: () => {
+                          updateProductCalculations(index);
+                        },
+                      })}
+                      className={`${
+                        errors &&
+                        errors?.products?.[index]?.price &&
+                        "text-red-500 border-red-500"
+                      } border-b placeholder:text-sm bg-transparent text-right border-[var(--color-accent)] outline-none p-1 w-20`}
+                    />
+                    {errors && errors?.products?.[index]?.price && (
+                      <span className="text-red-500 text-xs absolute top-full">
+                        {errors.products[index].price.message}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              ))}
 
             <div className="table-footer flex-1 flex flex-col items-end w-fit min-w-full py-1 bg-[var(--color-card)] px-2 border border-neutral-500/50 rounded-b-md">
               <div className="text-right flex items-center">
@@ -518,11 +554,10 @@ const PurchaseForm = ({ setRefetch = () => {}, closeModal = () => {} }) => {
         )}
       </div>
 
-      {/* Submit Button */}
       <button
         type="submit"
         disabled={Object.keys(errors).length > 0}
-        className="px-3 py-1.5 my-2 capitalize rounded-md disabled:bg-gray-600 disabled:opacity-35 disabled:cursor-not-allowed disabled:hover-none bg-accent hover:bg-accentDark text-white"
+        className="px-3 py-1.5 my-2 capitalize rounded-md disabled:bg-gray-600 disabled:opacity-35 disabled:cursor-not-allowed disabled:hover:none bg-accent hover:bg-accentDark text-white"
       >
         Add Purchase
       </button>
@@ -531,5 +566,3 @@ const PurchaseForm = ({ setRefetch = () => {}, closeModal = () => {} }) => {
 };
 
 export default PurchaseForm;
-
-

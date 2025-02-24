@@ -70,7 +70,7 @@ const BackupPurchaseForm = ({
     const product = getValues(`products.${index}`);
     const quantity = product.quantity;
     const price = product.price;
-    const isPrimaryUnit = productUnits[index] === "primary";
+    const isPrimaryUnit = !productUnits[index] || (productUnits[index] == "primary");
 
     let purchaseRate;
     if (isPrimaryUnit) {
@@ -97,7 +97,7 @@ const BackupPurchaseForm = ({
   };
 
   const handleUnitToggle = (index) => {
-    const currentUnit = productUnits[index] || "secondary";
+    const currentUnit = productUnits[index] || "primary";
     const newUnit = currentUnit === "secondary" ? "primary" : "secondary";
 
     setProductUnits((prev) => ({
@@ -427,8 +427,6 @@ const BackupPurchaseForm = ({
                   <div className="price w-1/5 min-w-[80px] flex justify-end relative">
                     <input
                       type="number"
-                      min="0"
-                      step="0.1"
                       placeholder="Price"
                       {...register(`products.${index}.price`, {
                         required: "Price is required",

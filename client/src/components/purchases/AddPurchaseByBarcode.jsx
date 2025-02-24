@@ -35,7 +35,7 @@ const AddPurchaseByBarcode = ({ getValues = [], setValue = () => {}, disabled = 
           quantity: 1,
           expiry: defaultExpiry(product.shelfLife),
           purchaseRate: product?.rate,
-          price: product?.rate, 
+          price: product?.rate * product?.conversionFactor, 
         },
       ]);
     }

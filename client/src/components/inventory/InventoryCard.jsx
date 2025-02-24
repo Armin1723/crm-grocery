@@ -14,6 +14,7 @@ import InventoryActions from "./InventoryActions";
 import { FaObjectGroup } from "react-icons/fa";
 import { toast } from "react-toastify";
 import { useSelector } from "react-redux";
+import HelpTooltip from "../utils/HelpTooltip";
 
 const InventoryCard = ({ upid = "", inventoryData = {}, editable = false }) => {
   const [inventory, setInventory] = useState({});
@@ -73,16 +74,16 @@ const InventoryCard = ({ upid = "", inventoryData = {}, editable = false }) => {
     // Skeleton loader
     <div className="flex flex-col min-w-full w-full md:w-1/2 md:min-w-[50%] lg:w-1/3 lg:min-w-[33%] rounded-md px-4 py-2 snap-start h-fit">
       <div className="flex flex-col gap-2">
-        <div className="animate-pulse w-12 aspect-square rounded-full flex flex-col gap-2 bg-[var(--color-card)] p-4 max-sm:text-sm"/>
+        <div className="animate-pulse w-12 aspect-square rounded-full flex flex-col gap-2 bg-[var(--color-card)] p-4 max-sm:text-sm" />
         <div className="flex flex-col gap-2 w-4/5">
-          <p className="w-4/5 py-2 bg-[var(--color-card)] animate-pulse rounded-md"/>
-          <p className="w-3/5 py-1 bg-[var(--color-card)] animate-pulse rounded-md"/>
+          <p className="w-4/5 py-2 bg-[var(--color-card)] animate-pulse rounded-md" />
+          <p className="w-3/5 py-1 bg-[var(--color-card)] animate-pulse rounded-md" />
         </div>
       </div>
       <div className="flex flex-col gap-3">
-        <div className="animate-pulse w-full h-20 bg-[var(--color-card)] rounded-md"/>
-        <div className="animate-pulse w-full h-20 bg-[var(--color-card)] rounded-md"/>
-        <div className="animate-pulse w-full h-20 bg-[var(--color-card)] rounded-md"/>
+        <div className="animate-pulse w-full h-20 bg-[var(--color-card)] rounded-md" />
+        <div className="animate-pulse w-full h-20 bg-[var(--color-card)] rounded-md" />
+        <div className="animate-pulse w-full h-20 bg-[var(--color-card)] rounded-md" />
       </div>
     </div>;
   }
@@ -144,7 +145,7 @@ const InventoryCard = ({ upid = "", inventoryData = {}, editable = false }) => {
                 <div className="batchCard bg-[var(--color-primary)] max-sm:py-2 rounded-md flex items-center h-full w-full justify-center relative">
                   {/* Batch details */}
                   <div
-                    className={`batch-left flex flex-col text-sm max-sm:text-xs p-2 text-ellipsis truncate }`}
+                    className={`batch-left flex flex-col text-sm max-sm:text-xs p-2 text-ellipsis truncate overflow-x-visible }`}
                   >
                     <div className="text-xs md:text-sm font-bold flex items-center justify-between gap-1">
                       <p>Batch: {index + 1}</p>
@@ -167,17 +168,50 @@ const InventoryCard = ({ upid = "", inventoryData = {}, editable = false }) => {
                       </span>
                     </p>
                     <p className="text-[var(--color-text-light)]">
-                      MRP: ₹{batch?.mrp}
+                      MRP: ₹{batch?.mrp} / {inventory?.secondaryUnit}
                     </p>
-                    <p className="text-[var(--color-text-light)]">
-                      Purchase Rate:{" "}
-                      {batch.purchaseRate
-                        ? `₹${batch?.purchaseRate}`
-                        : "Returned"}
-                    </p>
-                    <p className="text-[var(--color-text-light)]">
-                      Selling Rate: ₹{batch?.sellingRate}
-                    </p>
+                    <div className="text-[var(--color-text-light)] flex items-center">
+                      <p>
+                        Purchase Rate:{" "}
+                        {batch.purchaseRate
+                          ? `₹${batch?.purchaseRate}`
+                          : "Returned"}
+                      </p>
+                      <HelpTooltip
+                        message={
+                          <div>
+                            <p>
+                              {batch?.purchaseRate}₹/{inventory?.secondaryUnit}
+                            </p>
+                            <p>
+                              {batch?.purchaseRate *
+                                inventory?.conversionFactor}
+                              ₹/{inventory?.primaryUnit}
+                            </p>
+                          </div>
+                        }
+                      />
+                    </div>
+                    <div className="text-[var(--color-text-light)] flex items-center">
+                      <p>
+                        Selling Rate:{" "}
+                        {batch.sellingRate}
+                      </p>
+                      <HelpTooltip
+                        message={
+                          <div>
+                            <p>
+                              {batch?.sellingRate}₹/{inventory?.secondaryUnit}
+                            </p>
+                            <p>
+                              {batch?.sellingRate *
+                                inventory?.conversionFactor}
+                              ₹/{inventory?.primaryUnit}
+                            </p>
+                          </div>
+                        }
+                      />
+                    </div>
                   </div>
 
                   {/* Container image */}

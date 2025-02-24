@@ -63,16 +63,20 @@ const SaleForm = ({ setRefetch = () => {}, closeModal = () => {} }) => {
   };
 
   useEffect(() => {
-    const calculatedSubTotal = watchedProducts.reduce(
-      (acc, curr) =>
-      acc + ((curr.mrp || curr.sellingRate) * curr.quantity || 0),
-      0
-    ).toFixed(1);
-    const calculatedDiscount = watchedProducts.reduce(
-      (acc, curr) =>
-        acc + (curr.mrp ? curr.mrp - curr.sellingRate : 0) * curr.quantity,
-      0
-    ).toFixed(1);
+    const calculatedSubTotal = watchedProducts
+      .reduce(
+        (acc, curr) =>
+          acc + ((curr.mrp || curr.sellingRate) * curr.quantity || 0),
+        0
+      )
+      .toFixed(1);
+    const calculatedDiscount = watchedProducts
+      .reduce(
+        (acc, curr) =>
+          acc + (curr.mrp ? curr.mrp - curr.sellingRate : 0) * curr.quantity,
+        0
+      )
+      .toFixed(1);
     setValue("subTotal", calculatedSubTotal);
     setValue("discount", calculatedDiscount);
     setValue("totalAmount", calculatedSubTotal - calculatedDiscount);
@@ -93,7 +97,7 @@ const SaleForm = ({ setRefetch = () => {}, closeModal = () => {} }) => {
         {
           method: "POST",
           headers: {
-          "Content-Type": "application/json",
+            "Content-Type": "application/json",
           },
           body: JSON.stringify({
             customerMobile: values.customerMobile,
@@ -206,6 +210,11 @@ const SaleForm = ({ setRefetch = () => {}, closeModal = () => {} }) => {
                   <div className="w-1/5 min-w-[100px] flex flex-col items-start pr-2 relative">
                     <input
                       type="number"
+                      title={`${product?.sellingRate}₹/${
+                        product?.secondaryUnit
+                      }, ${
+                        product?.sellingRate * product?.conversionFactor
+                      }₹/${product.primaryUnit}`}
                       {...register(`products.${index}.sellingRate`, {
                         valueAsNumber: true,
                         required: `Rate is required`,
@@ -229,6 +238,9 @@ const SaleForm = ({ setRefetch = () => {}, closeModal = () => {} }) => {
                         "border-red-500 text-red-500 focus:text-red-500"
                       } outline-none border-b placeholder:text-sm bg-transparent border-[var(--color-accent)] p-1`}
                     />
+                    <span className="text-xs absolute top-1/2 -translate-y-1/2 right-2 rounded-lg bg-accent text-white px-2">
+                      ₹/{product.secondaryUnit}
+                    </span>
                     {errors?.products?.[index]?.sellingRate && (
                       <p className="text-red-500 text-xs absolute top-full">
                         {errors?.products?.[index]?.sellingRate.message}
@@ -238,6 +250,7 @@ const SaleForm = ({ setRefetch = () => {}, closeModal = () => {} }) => {
                   <div className="w-1/5 min-w-[120px] relative">
                     <input
                       type="number"
+                      title={`1 ${product?.primaryUnit} = ${product?.conversionFactor} ${product?.secondaryUnit}`}
                       placeholder="Quantity"
                       min={
                         product.secondaryUnit === "kg" ||
@@ -413,7 +426,7 @@ const SaleForm = ({ setRefetch = () => {}, closeModal = () => {} }) => {
               title="add"
               setValue={setValue}
               customer={customerDetails}
-              setCustomer={setCustomerDetails}  
+              setCustomer={setCustomerDetails}
             />
           </div>
           <div className="w-full flex flex-col md:flex-row gap-2">
