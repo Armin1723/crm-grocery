@@ -16,7 +16,6 @@ const supplierSchema = new mongoose.Schema({
         type: String,
         lowercase: true,
         trim: true,
-        validate: [validator.isEmail, "Please provide a valid email"],
     },
     phone: {
         type: String,
