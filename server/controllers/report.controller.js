@@ -52,30 +52,6 @@ const customerLookup = {
   },
 };
 
-const mergeSortedArrays = (arr1, arr2, key) => {
-  let i = 0,
-    j = 0;
-  const mergedArray = [];
-  while (i < arr1.length && j < arr2.length) {
-    if (arr1[i][key] > arr2[j][key]) {
-      mergedArray.push(arr1[i]);
-      i++;
-    } else {
-      mergedArray.push(arr2[j]);
-      j++;
-    }
-  }
-  while (i < arr1.length) {
-    mergedArray.push(arr1[i]);
-    i++;
-  }
-  while (j < arr2.length) {
-    mergedArray.push(arr2[j]);
-    j++;
-  }
-  return mergedArray;
-};
-
 // Controller to fetch the Expense Report
 const getExpenseReport = async (req, res) => {
   const { startDate, endDate } = req.query;
@@ -155,6 +131,19 @@ const getExpenseReport = async (req, res) => {
     },
   ]);
 
+  const creditQuery = Purchase.aggregate([
+    matchStage(startDate, endDate, req),
+    {
+      $match: {
+        $expr: { $gt: ["$deficitAmount", 0] },
+      },
+    },
+    {$group:{
+      _id : null,
+      totalCredit : {$sum : {$subtract : ["$totalAmount", "$paidAmount"]}}
+    }}
+  ]);
+
   const reportQuery = Purchase.aggregate([
     matchStage(startDate, endDate, req),
     { $unwind: "$products" },
@@ -227,11 +216,12 @@ const getExpenseReport = async (req, res) => {
   ]);
 
   // Run all queries concurrently
-  const [purchases, otherExpenses, purchaseReturns, report] =
+  const [purchases, otherExpenses, purchaseReturns, credit, report] =
     await Promise.all([
       purchaseQuery,
       otherExpensesQuery,
       purchaseReturnQuery,
+      creditQuery,
       reportQuery,
     ]);
 
@@ -246,6 +236,7 @@ const getExpenseReport = async (req, res) => {
         (acc, curr) => acc + curr.amount,
         0
       ),
+      totalCredit: credit[0]?.totalCredit || 0,
       totalReturns: purchaseReturns.reduce((acc, curr) => acc + curr.amount, 0),
       totalOtherExpenses: otherExpenses.reduce(
         (acc, curr) => acc + curr.amount,
