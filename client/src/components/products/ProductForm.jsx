@@ -243,7 +243,7 @@ const ProductForm = ({
             type="file"
             id="image-upload"
             accept="image/*"
-            className="w-full py-2 "
+            className="w-full py-2"
             onChange={handleImageChange}
           />
         </div>

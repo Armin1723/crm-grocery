@@ -95,8 +95,8 @@ const SalesSummary = ({
                     expanded === index ? "max-h-screen" : "max-h-0"
                   } overflow-hidden transition-all duration-300 text-sm font-medium mt-2 flex flex-col`}
                 >
-                  <p>Cash In Hand: ₹{cashInHand?.toFixed(2)}</p>
-                  <p>Cash In Bank:₹{cashAtBank?.toFixed(2)}</p>
+                  <p>In Hand: ₹{cashInHand?.toFixed(2)}</p>
+                  <p>In Bank: ₹{cashAtBank?.toFixed(2)}</p>
                 </div>
               )}
             </div>

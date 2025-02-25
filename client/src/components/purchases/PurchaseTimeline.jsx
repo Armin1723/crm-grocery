@@ -3,6 +3,7 @@ import { BiTime } from "react-icons/bi";
 import { FaMoneyBillWave, FaCreditCard, FaPlus } from "react-icons/fa";
 import { AiFillCheckCircle, AiFillWarning } from "react-icons/ai";
 import { toast } from "react-toastify";
+import { useQueryClient } from "@tanstack/react-query";
 
 const PurchaseTimeline = ({
   purchase,
@@ -12,6 +13,8 @@ const PurchaseTimeline = ({
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [newPayment, setNewPayment] = useState({ amount: "", notes: "" });
   const [error, setError] = useState("");
+
+  const queryClient = useQueryClient();
 
   // Calculate total amount paid
   const totalPaid =
@@ -63,6 +66,7 @@ const PurchaseTimeline = ({
         });
         closeModal();
         setRefetch((prev) => !prev);
+        queryClient.invalidateQueries("purchases");
       }
     } catch (error) {
       setError(error.message || "An error occurred. Please try again.");

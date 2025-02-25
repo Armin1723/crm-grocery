@@ -11,6 +11,8 @@ import HoverCard from "../shared/HoverCard";
 import AddPurchaseByBarcode from "./AddPurchaseByBarcode";
 import InventoryCard from "../inventory/InventoryCard";
 import { useQueryClient } from "@tanstack/react-query";
+import Modal from "../utils/Modal";
+import SupplierForm from "../suppliers/SupplierForm";
 
 const PurchaseForm = ({ setRefetch = () => {}, closeModal = () => {} }) => {
   const [loading, setLoading] = useState(false);
@@ -19,6 +21,7 @@ const PurchaseForm = ({ setRefetch = () => {}, closeModal = () => {} }) => {
   const [suggestedProducts, setSuggestedProducts] = useState([]);
   const [productUnits, setProductUnits] = useState({});
   const [setProductPreviewModal] = useState(false);
+  const [supplierModalOpen, setSupplierModalOpen] = useState(false);
 
   const navigate = useNavigate();
   const queryClient = useQueryClient();
@@ -241,346 +244,377 @@ const PurchaseForm = ({ setRefetch = () => {}, closeModal = () => {} }) => {
   };
 
   return (
-    <form
-      onSubmit={handleSubmit(addPurchase)}
-      onKeyDown={handleKeyDown}
-      className="flex flex-col max-sm:px-2 gap-2 w-full flex-1 h-full min-h-[50vh] justify-between"
-    >
-      <p className="my-1 font-semibold text-lg max-sm:text-base">Supplier</p>
-      <div className="supplier-input w-full flex flex-col relative group">
-        <input
-          type="text"
-          placeholder="Enter Supplier Name"
-          autoComplete="off"
-          className={`outline-none border-b border-[var(--color-accent)] !z-[10] bg-transparent focus:border-[var(--color-accent-dark)] transition-all duration-300 peer ${
-            errors.supplier && "border-red-500 focus:!border-red-500"
-          }`}
-          {...register("supplier", {
-            required: "Supplier name is required",
-            onChange: fetchSuggestedSuppliers,
-          })}
-        />
-        {suggestedSuppliers.length > 0 && (
-          <div className="suggested-suppliers w-full z-[99] absolute top-full left-0 bg-[var(--color-card)] rounded-md shadow-md border border-neutral-500/50">
-            {suggestedSuppliers.map((supplier) => (
-              <div
-                key={supplier._id}
-                className="supplier-option px-3 py-2 text-sm hover:bg-accentDark/20 transition-all duration-300 ease-in cursor-pointer"
-                onClick={() => {
-                  setValue("supplier", supplier.name);
-                  setSupplierId(supplier._id);
-                  setSuggestedSuppliers([]);
-                }}
-              >
-                {supplier.name}
-              </div>
-            ))}
-          </div>
-        )}
-        {errors.supplier && (
-          <span className="text-red-500 text-sm">
-            {errors.supplier.message}
-          </span>
-        )}
-      </div>
-
-      <div className="title flex justify-between flex-wrap">
-        <p className="my-1 font-semibold text-lg max-sm:text-base">Products</p>
-        <SaveReload
-          products={getValues("products")}
-          setProducts={(products) => setValue("products", products)}
-          name="purchaseData"
-        />
-      </div>
-
-      <div className="add-product w-full relative flex items-center justify-between flex-wrap gap-2">
-        <div className="left flex items-center flex-wrap gap-2">
-          <PurchaseProductSuggestion
-            getValues={getValues}
-            setValue={setValue}
-            suggestedProducts={suggestedProducts}
-            setSuggestedProducts={setSuggestedProducts}
-            disabled={getValues("supplier") === ""}
-          />
-          <AddProductModal />
+    <>
+      <div className="flex items-center gap-2">
+        <p className="my-1 font-semibold text-lg max-sm:text-base">Supplier</p>
+        <div
+          onClick={() => setSupplierModalOpen(true)}
+          className="bg-[var(--color-primary)] hover:bg-[var(--color-sidebar)] cursor-pointer px-2 border border-neutral-500/50 rounded-md"
+        >
+          +
         </div>
-        <AddPurchaseByBarcode
-          getValues={getValues}
-          setValue={setValue}
-          disabled={getValues("supplier") === ""}
-        />
       </div>
 
-      <div className="table-wrapper flex relative max-h-[55vh] min-h-fit flex-1 my-2 min-w-full overflow-x-scroll">
-        {watchedProducts.length > 0 ? (
-          <div className="products-container overflow-x-scroll table flex-col min-w-[1000px] w-full max-sm:text-sm">
-            <div className="th flex w-fit min-w-full flex-1 justify-between items-center gap-4 border border-neutral-500/50 bg-[var(--color-card)] font-semibold rounded-t-md px-2 py-1 sticky top-0 z-[99]">
-              <p className="w-[5%] min-w-[30px]">*</p>
-              <p className="w-1/5 min-w-[100px]">Name</p>
-              <p className="w-1/5 min-w-[120px]">Expiry</p>
-              <p className="w-1/5 min-w-[120px]">Purchase Rate</p>
-              <p className="w-1/5 min-w-[120px]">Selling Rate</p>
-              <p className="w-1/5 min-w-[50px]">MRP</p>
-              <p className="w-1/5 min-w-[80px]">Quantity</p>
-              <p className="w-1/5 min-w-[80px] flex justify-end">Price</p>
-            </div>
-            {watchedProducts &&
-              watchedProducts.map((product, index) => (
+      <form
+        onSubmit={handleSubmit(addPurchase)}
+        onKeyDown={handleKeyDown}
+        className="flex flex-col max-sm:px-2 gap-2 w-full flex-1 h-full min-h-[50vh] justify-between"
+      >
+        <div className="supplier-input w-full flex flex-col relative group">
+          <input
+            type="text"
+            placeholder="Enter Supplier Name"
+            autoComplete="off"
+            className={`outline-none border-b border-[var(--color-accent)] !z-[10] bg-transparent focus:border-[var(--color-accent-dark)] transition-all duration-300 peer ${
+              errors.supplier && "border-red-500 focus:!border-red-500"
+            }`}
+            {...register("supplier", {
+              required: "Supplier name is required",
+              onChange: fetchSuggestedSuppliers,
+            })}
+          />
+          {suggestedSuppliers.length > 0 && (
+            <div className="suggested-suppliers w-full z-[99] absolute top-full left-0 bg-[var(--color-card)] rounded-md shadow-md border border-neutral-500/50">
+              {suggestedSuppliers.map((supplier) => (
                 <div
-                  key={index}
-                  className={`${
-                    index % 2 !== 0
-                      ? "bg-[var(--color-card)]"
-                      : "bg-[var(--color-primary)]"
-                  } tr min-w-full w-fit flex-1 px-2 py-3 gap-4 border-l border-r border-neutral-500/50 product-item flex justify-between items-center`}
+                  key={supplier._id}
+                  className="supplier-option px-3 py-2 text-sm hover:bg-accentDark/20 transition-all duration-300 ease-in cursor-pointer"
+                  onClick={() => {
+                    setValue("supplier", supplier.name);
+                    setSupplierId(supplier._id);
+                    setSuggestedSuppliers([]);
+                  }}
                 >
-                  <button
-                    type="button"
-                    onClick={() => removeProduct(index)}
-                    className="w-[5%] min-w-[30px] text-red-500 hover:text-red-600 transition-all duration-300 ease-in"
-                  >
-                    <IoCloseCircle />
-                  </button>
-                  <p
-                    onClick={() => setProductPreviewModal(true)}
-                    className="w-1/5 min-w-[100px] flex-wrap flex-grow"
-                  >
-                    <HoverCard title={product?.name} otherClasses="max-w-3xl">
-                      <InventoryCard upid={product?.upid} />
-                    </HoverCard>
-                  </p>
-                  <div className="w-1/5 min-w-[120px]">
-                    <input
-                      type="date"
-                      min={new Date().toISOString().split("T")[0]}
-                      className="border-b placeholder:text-sm bg-transparent border-[var(--color-accent)] outline-none p-1 w-full"
-                      {...register(`products.${index}.expiry`)}
-                    />
-                  </div>
-                  <div className="purchaseRate w-1/5 min-w-[120px] relative">
-                    <input
-                      type="number"
-                      readOnly
-                      title={`${product?.purchaseRate}₹/${
-                        product?.secondaryUnit
-                      }, ${
-                        product?.purchaseRate * product?.conversionFactor
-                      }₹/${product?.primaryUnit}`}
-                      className={`${
-                        product?.purchaseRate > product?.mrp && "text-red-500"
-                      } w-full border-b border-accent bg-transparent outline-none p-1`}
-                      {...register(`products.${index}.purchaseRate`)}
-                    />
-                    <span className="text-xs absolute top-1/2 -translate-y-1/2 right-2 rounded-lg bg-accent text-white px-2">
-                      ₹/{product.secondaryUnit}
-                    </span>
-                  </div>
-                  <div className="selling-rate w-1/5 min-w-[120px] relative">
-                    <input
-                      type="number"
-                      title={`${product?.sellingRate}₹/${
-                        product?.secondaryUnit
-                      }, ${product?.sellingRate * product?.conversionFactor}₹/${
-                        product?.primaryUnit
-                      }`}
-                      step={product.secondaryUnit === "gram" ? 0.001 : 1}
-                      className={`${
-                        errors?.products?.[index]?.sellingRate &&
-                        "text-red-700 border-red-500"
-                      } border-b w-full placeholder:text-sm bg-transparent border-[var(--color-accent)] outline-none p-1`}
-                      {...register(`products.${index}.sellingRate`, {
-                        required: "Selling Rate is required",
-                        valueAsNumber: true,
-                        min: {
-                          value:
-                            productUnits[index] === "primary"
-                              ? getValues(`products.${index}.purchaseRate`) /
-                                product.conversionFactor
-                              : getValues(`products.${index}.purchaseRate`),
-                          message:
-                            "Selling rate should be greater than purchase rate",
-                        },
-                      })}
-                    />
-                    <span className="text-xs absolute top-1/2 -translate-y-1/2 right-2 rounded-lg bg-accent text-white px-2">
-                      ₹/{product.secondaryUnit}
-                    </span>
-                    {errors && errors?.products?.[index]?.sellingRate && (
-                      <span className="text-red-500 text-xs absolute top-full left-0">
-                        {errors.products[index].sellingRate.message}
-                      </span>
-                    )}
-                  </div>
-                  <div className="mrp w-1/5 min-w-[80px]">
-                    <input
-                      type="number"
-                      min={Math.ceil(product.purchaseRate)}
-                      placeholder="MRP"
-                      defaultValue={product.mrp}
-                      className="border-b placeholder:text-sm bg-transparent border-[var(--color-accent)] outline-none p-1 w-20"
-                      {...register(`products.${index}.mrp`)}
-                    />
-                  </div>
-                  <div className="quantity w-1/5 min-w-[80px] relative">
-                    <input
-                      type="number"
-                      min="1"
-                      className="border-b placeholder:text-sm bg-transparent border-[var(--color-accent)] outline-none p-1 w-full"
-                      {...register(`products.${index}.quantity`, {
-                        required: "Quantity is required",
-                        valueAsNumber: true,
-                        min: {
-                          value: 1,
-                          message: "Quantity should be greater than 0",
-                        },
-                        onChange: () => {
-                          updateProductCalculations(index);
-                        },
-                      })}
-                    />
-                    <button
-                      type="button"
-                      onClick={() => handleUnitToggle(index)}
-                      title={`1 ${product?.primaryUnit} = ${product?.conversionFactor} ${product?.secondaryUnit}`}
-                      className="absolute text-xs px-2 rounded-lg bg-accent hover:bg-accent-dark text-white right-2 top-1/2 -translate-y-1/2 capitalize cursor-pointer flex items-center gap-1"
-                    >
-                      {!productUnits[index] || productUnits[index] === "primary"
-                        ? product.primaryUnit
-                        : product.secondaryUnit}
-
-                      <span className="text-[10px]">↓</span>
-                    </button>
-                  </div>
-                  <div className="price w-1/5 min-w-[80px] flex justify-end relative">
-                    <input
-                      type="number"
-                      placeholder="Price"
-                      {...register(`products.${index}.price`, {
-                        required: "Price is required",
-                        valueAsNumber: true,
-                        min: {
-                          value: 1,
-                          message: "Price should be greater than 0",
-                        },
-                        onChange: () => {
-                          updateProductCalculations(index);
-                        },
-                      })}
-                      className={`${
-                        errors &&
-                        errors?.products?.[index]?.price &&
-                        "text-red-500 border-red-500"
-                      } border-b placeholder:text-sm bg-transparent text-right border-[var(--color-accent)] outline-none p-1 w-20`}
-                    />
-                    {errors && errors?.products?.[index]?.price && (
-                      <span className="text-red-500 text-xs absolute top-full">
-                        {errors.products[index].price.message}
-                      </span>
-                    )}
-                  </div>
+                  {supplier.name}
                 </div>
               ))}
+            </div>
+          )}
+          {errors.supplier && (
+            <span className="text-red-500 text-sm">
+              {errors.supplier.message}
+            </span>
+          )}
+        </div>
 
-            <div className="table-footer flex-1 flex flex-col items-end w-fit min-w-full py-1 bg-[var(--color-card)] px-2 border border-neutral-500/50 rounded-b-md">
-              <div className="text-right flex items-center">
-                Sub Total:{" "}
-                <input
-                  type="number"
-                  readOnly
-                  className="border-b placeholder:text-sm bg-transparent text-right border-[var(--color-accent)] outline-none p-1 w-20"
-                  {...register("subTotal", {
-                    valueAsNumber: true,
-                    min: {
-                      value: 0,
-                      message: "Subtotal should be greater than 0",
-                    },
-                  })}
-                />
-                ₹
+        <div className="title flex justify-between flex-wrap">
+          <p className="my-1 font-semibold text-lg max-sm:text-base">
+            Products
+          </p>
+          <SaveReload
+            products={getValues("products")}
+            setProducts={(products) => setValue("products", products)}
+            name="purchaseData"
+          />
+        </div>
+
+        <div className="add-product w-full relative flex items-center justify-between flex-wrap gap-2">
+          <div className="left flex items-center flex-wrap gap-2">
+            <PurchaseProductSuggestion
+              getValues={getValues}
+              setValue={setValue}
+              suggestedProducts={suggestedProducts}
+              setSuggestedProducts={setSuggestedProducts}
+              disabled={getValues("supplier") === ""}
+            />
+            <AddProductModal />
+          </div>
+          <AddPurchaseByBarcode
+            getValues={getValues}
+            setValue={setValue}
+            disabled={getValues("supplier") === ""}
+          />
+        </div>
+
+        <div className="table-wrapper flex relative max-h-[55vh] min-h-fit flex-1 my-2 min-w-full overflow-x-scroll">
+          {watchedProducts.length > 0 ? (
+            <div className="products-container overflow-x-scroll table flex-col min-w-[1000px] w-full max-sm:text-sm">
+              <div className="th flex w-fit min-w-full flex-1 justify-between items-center gap-4 border border-neutral-500/50 bg-[var(--color-card)] font-semibold rounded-t-md px-2 py-1 sticky top-0 z-[99]">
+                <p className="w-[5%] min-w-[30px]">*</p>
+                <p className="w-1/5 min-w-[100px]">Name</p>
+                <p className="w-1/5 min-w-[120px]">Expiry</p>
+                <p className="w-1/5 min-w-[120px]">Purchase Rate</p>
+                <p className="w-1/5 min-w-[120px]">Selling Rate</p>
+                <p className="w-1/5 min-w-[50px]">MRP</p>
+                <p className="w-1/5 min-w-[80px]">Quantity</p>
+                <p className="w-1/5 min-w-[80px] flex justify-end">Price</p>
               </div>
-              <div className="text-right flex items-center">
-                <div className="title flex items-center gap-2">
-                  <span
-                    className="text-accent/80 hover:text-accentDark transition-all duration-300 ease-in cursor-pointer"
-                    onClick={normaliseCharges}
+              {watchedProducts &&
+                watchedProducts.map((product, index) => (
+                  <div
+                    key={index}
+                    className={`${
+                      index % 2 !== 0
+                        ? "bg-[var(--color-card)]"
+                        : "bg-[var(--color-primary)]"
+                    } tr min-w-full w-fit flex-1 px-2 py-3 gap-4 border-l border-r border-neutral-500/50 product-item flex justify-between items-center`}
                   >
-                    <FaRobot />
-                  </span>
-                  <span>Other Charges: </span>
+                    <button
+                      type="button"
+                      onClick={() => removeProduct(index)}
+                      className="w-[5%] min-w-[30px] text-red-500 hover:text-red-600 transition-all duration-300 ease-in"
+                    >
+                      <IoCloseCircle />
+                    </button>
+                    <p
+                      onClick={() => setProductPreviewModal(true)}
+                      className="w-1/5 min-w-[100px] flex-wrap flex-grow"
+                    >
+                      <HoverCard title={product?.name} otherClasses="max-w-3xl">
+                        <InventoryCard upid={product?.upid} />
+                      </HoverCard>
+                    </p>
+                    <div className="w-1/5 min-w-[120px]">
+                      <input
+                        type="date"
+                        min={new Date().toISOString().split("T")[0]}
+                        className="border-b placeholder:text-sm bg-transparent border-[var(--color-accent)] outline-none p-1 w-full"
+                        {...register(`products.${index}.expiry`)}
+                      />
+                    </div>
+                    <div className="purchaseRate w-1/5 min-w-[120px] relative">
+                      <input
+                        type="number"
+                        readOnly
+                        title={`${product?.purchaseRate}₹/${
+                          product?.secondaryUnit
+                        }, ${
+                          product?.purchaseRate * product?.conversionFactor
+                        }₹/${product?.primaryUnit}`}
+                        className={`${
+                          product?.purchaseRate > product?.mrp && "text-red-500"
+                        } w-full border-b border-accent bg-transparent outline-none p-1`}
+                        {...register(`products.${index}.purchaseRate`)}
+                      />
+                      <span className="text-xs absolute top-1/2 -translate-y-1/2 right-2 rounded-lg bg-accent text-white px-2">
+                        ₹/{product.secondaryUnit}
+                      </span>
+                    </div>
+                    <div className="selling-rate w-1/5 min-w-[120px] relative">
+                      <input
+                        type="number"
+                        title={`${product?.sellingRate}₹/${
+                          product?.secondaryUnit
+                        }, ${
+                          product?.sellingRate * product?.conversionFactor
+                        }₹/${product?.primaryUnit}`}
+                        step={product.secondaryUnit === "gram" ? 0.001 : 1}
+                        className={`${
+                          errors?.products?.[index]?.sellingRate &&
+                          "text-red-700 border-red-500"
+                        } border-b w-full placeholder:text-sm bg-transparent border-[var(--color-accent)] outline-none p-1`}
+                        {...register(`products.${index}.sellingRate`, {
+                          required: "Selling Rate is required",
+                          valueAsNumber: true,
+                          min: {
+                            value:
+                              productUnits[index] === "primary"
+                                ? getValues(`products.${index}.purchaseRate`) /
+                                  product.conversionFactor
+                                : getValues(`products.${index}.purchaseRate`),
+                            message:
+                              "Selling rate should be greater than purchase rate",
+                          },
+                        })}
+                      />
+                      <span className="text-xs absolute top-1/2 -translate-y-1/2 right-2 rounded-lg bg-accent text-white px-2">
+                        ₹/{product.secondaryUnit}
+                      </span>
+                      {errors && errors?.products?.[index]?.sellingRate && (
+                        <span className="text-red-500 text-xs absolute top-full left-0">
+                          {errors.products[index].sellingRate.message}
+                        </span>
+                      )}
+                    </div>
+                    <div className="mrp w-1/5 min-w-[80px]">
+                      <input
+                        type="number"
+                        min={Math.ceil(product.purchaseRate)}
+                        placeholder="MRP"
+                        defaultValue={product.mrp}
+                        className="border-b placeholder:text-sm bg-transparent border-[var(--color-accent)] outline-none p-1 w-20"
+                        {...register(`products.${index}.mrp`)}
+                      />
+                    </div>
+                    <div className="quantity w-1/5 min-w-[80px] relative">
+                      <input
+                        type="number"
+                        min="1"
+                        className="border-b placeholder:text-sm bg-transparent border-[var(--color-accent)] outline-none p-1 w-full"
+                        {...register(`products.${index}.quantity`, {
+                          required: "Quantity is required",
+                          valueAsNumber: true,
+                          min: {
+                            value: 1,
+                            message: "Quantity should be greater than 0",
+                          },
+                          onChange: () => {
+                            updateProductCalculations(index);
+                          },
+                        })}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => handleUnitToggle(index)}
+                        title={`1 ${product?.primaryUnit} = ${product?.conversionFactor} ${product?.secondaryUnit}`}
+                        className="absolute text-xs px-2 rounded-lg bg-accent hover:bg-accent-dark text-white right-2 top-1/2 -translate-y-1/2 capitalize cursor-pointer flex items-center gap-1"
+                      >
+                        {!productUnits[index] ||
+                        productUnits[index] === "primary"
+                          ? product.primaryUnit
+                          : product.secondaryUnit}
+
+                        <span className="text-[10px]">↓</span>
+                      </button>
+                    </div>
+                    <div className="price w-1/5 min-w-[80px] flex justify-end relative">
+                      <input
+                        type="number"
+                        placeholder="Price"
+                        {...register(`products.${index}.price`, {
+                          required: "Price is required",
+                          valueAsNumber: true,
+                          min: {
+                            value: 1,
+                            message: "Price should be greater than 0",
+                          },
+                          onChange: () => {
+                            updateProductCalculations(index);
+                          },
+                        })}
+                        className={`${
+                          errors &&
+                          errors?.products?.[index]?.price &&
+                          "text-red-500 border-red-500"
+                        } border-b placeholder:text-sm bg-transparent text-right border-[var(--color-accent)] outline-none p-1 w-20`}
+                      />
+                      {errors && errors?.products?.[index]?.price && (
+                        <span className="text-red-500 text-xs absolute top-full">
+                          {errors.products[index].price.message}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                ))}
+
+              <div className="table-footer flex-1 flex flex-col items-end w-fit min-w-full py-1 bg-[var(--color-card)] px-2 border border-neutral-500/50 rounded-b-md">
+                <div className="text-right flex items-center">
+                  Sub Total:{" "}
+                  <input
+                    type="number"
+                    readOnly
+                    className="border-b placeholder:text-sm bg-transparent text-right border-[var(--color-accent)] outline-none p-1 w-20"
+                    {...register("subTotal", {
+                      valueAsNumber: true,
+                      min: {
+                        value: 0,
+                        message: "Subtotal should be greater than 0",
+                      },
+                    })}
+                  />
+                  ₹
                 </div>
-                <input
-                  type="number"
-                  min="0"
-                  step="0.1"
-                  className="border-b placeholder:text-sm bg-transparent text-right border-[var(--color-accent)] outline-none p-1 w-20"
-                  {...register("otherCharges", {
-                    valueAsNumber: true,
-                  })}
-                />
-                ₹
-              </div>
-              <div className="text-right flex items-center">
-                Discount:{" "}
-                <input
-                  type="number"
-                  step="0.1"
-                  className="border-b placeholder:text-sm bg-transparent text-right border-[var(--color-accent)] outline-none p-1 w-20"
-                  {...register("discount", {
-                    valueAsNumber: true,
-                    min: {
-                      value: 0,
-                      message: "Discount should be greater than 0",
-                    },
-                  })}
-                />
-                ₹
-              </div>
-              <div className="text-right flex items-center">
-                Total:{" "}
-                <input
-                  type="number"
-                  readOnly
-                  className="border-b placeholder:text-sm bg-transparent text-right border-[var(--color-accent)] outline-none p-1 w-20"
-                  {...register("totalAmount", {
-                    valueAsNumber: true,
-                  })}
-                  value={
-                    Number(watch("subTotal", 0)) -
-                    Number(watch("discount", 0)) +
-                    Number(watch("otherCharges", 0))
-                  }
-                />
-                ₹
-              </div>
-              <div className="text-right flex items-center">
-                Paid Amount:{" "}
-                <input
-                  type="number"
-                  min="0"
-                  defaultValue={watch("totalAmount", 0)}
-                  max={watch("totalAmount", 0)}
-                  className="border-b placeholder:text-sm bg-transparent text-right border-[var(--color-accent)] outline-none p-1 w-20"
-                  {...register("paidAmount")}
-                />
-                ₹
+                <div className="text-right flex items-center">
+                  <div className="title flex items-center gap-2">
+                    <span
+                      className="text-accent/80 hover:text-accentDark transition-all duration-300 ease-in cursor-pointer"
+                      onClick={normaliseCharges}
+                    >
+                      <FaRobot />
+                    </span>
+                    <span>Other Charges: </span>
+                  </div>
+                  <input
+                    type="number"
+                    min="0"
+                    step="0.1"
+                    className="border-b placeholder:text-sm bg-transparent text-right border-[var(--color-accent)] outline-none p-1 w-20"
+                    {...register("otherCharges", {
+                      valueAsNumber: true,
+                    })}
+                  />
+                  ₹
+                </div>
+                <div className="text-right flex items-center">
+                  Discount:{" "}
+                  <input
+                    type="number"
+                    step="0.1"
+                    className="border-b placeholder:text-sm bg-transparent text-right border-[var(--color-accent)] outline-none p-1 w-20"
+                    {...register("discount", {
+                      valueAsNumber: true,
+                      min: {
+                        value: 0,
+                        message: "Discount should be greater than 0",
+                      },
+                    })}
+                  />
+                  ₹
+                </div>
+                <div className="text-right flex items-center">
+                  Total:{" "}
+                  <input
+                    type="number"
+                    readOnly
+                    className="border-b placeholder:text-sm bg-transparent text-right border-[var(--color-accent)] outline-none p-1 w-20"
+                    {...register("totalAmount", {
+                      valueAsNumber: true,
+                    })}
+                    value={
+                      Number(watch("subTotal", 0)) -
+                      Number(watch("discount", 0)) +
+                      Number(watch("otherCharges", 0))
+                    }
+                  />
+                  ₹
+                </div>
+                <div className="text-right flex items-center">
+                  Paid Amount:{" "}
+                  <input
+                    type="number"
+                    min="0"
+                    defaultValue={watch("totalAmount", 0)}
+                    max={watch("totalAmount", 0)}
+                    className="border-b placeholder:text-sm bg-transparent text-right border-[var(--color-accent)] outline-none p-1 w-20"
+                    {...register("paidAmount")}
+                  />
+                  ₹
+                </div>
               </div>
             </div>
-          </div>
-        ) : (
-          <div className="flex items-center justify-center w-full min-h-[25vh] my-1 bg-[var(--color-card)] text-[var(--color-text-light)] rounded-md border border-neutral-500/50">
-            <p className="text-sm">No products added</p>
-          </div>
-        )}
-      </div>
+          ) : (
+            <div className="flex items-center justify-center w-full min-h-[25vh] my-1 bg-[var(--color-card)] text-[var(--color-text-light)] rounded-md border border-neutral-500/50">
+              <p className="text-sm">No products added</p>
+            </div>
+          )}
+        </div>
 
-      <button
-        type="submit"
-        disabled={Object.keys(errors).length > 0 || loading || watchedProducts?.length === 0}
-        className="px-3 py-1.5 my-2 capitalize rounded-md disabled:bg-gray-600 disabled:opacity-35 disabled:cursor-not-allowed disabled:hover:none bg-accent hover:bg-accentDark text-white"
-      >
-        Add Purchase
-      </button>
-    </form>
+        <button
+          type="submit"
+          disabled={
+            Object.keys(errors).length > 0 ||
+            loading ||
+            watchedProducts?.length === 0
+          }
+          className="px-3 py-1.5 my-2 capitalize rounded-md disabled:bg-gray-600 disabled:opacity-35 disabled:cursor-not-allowed disabled:hover:none bg-accent hover:bg-accentDark text-white"
+        >
+          Add Purchase
+        </button>
+      </form>
+
+      {supplierModalOpen && (
+        <Modal
+          title="Add Supplier"
+          isOpen={supplierModalOpen}
+          onClose={() => setSupplierModalOpen(false)}
+        >
+          <SupplierForm
+            title="add"
+            closeModal={() => setSupplierModalOpen(false)}
+          />
+        </Modal>
+      )}
+    </>
   );
 };
 
