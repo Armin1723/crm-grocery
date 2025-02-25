@@ -140,7 +140,7 @@ const getExpenseReport = async (req, res) => {
     },
     {$group:{
       _id : null,
-      totalCredit : {$sum : {$subtract : ["$totalAmount", "$paidAmount"]}}
+      totalCredit : {$sum : { $ceil: "$deficitAmount"}}
     }}
   ]);
 
