@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
+import Divider from "../utils/Divider";
 
 const CustomerForm = ({
   title = "add",
@@ -9,6 +10,7 @@ const CustomerForm = ({
   setValue = () => {},
   closeModal = () => {},
   setRefetch = () => {},
+  expanded = false,
 }) => {
   const [loading, setLoading] = useState(false);
   const [customerData, setCustomerData] = useState(customer ? customer : null);
@@ -25,6 +27,7 @@ const CustomerForm = ({
       email: customerData?.email || "",
       phone: customerData?.phone || "",
       address: customerData?.address || "",
+      description: customerData?.description || "",
     },
   });
 
@@ -47,6 +50,7 @@ const CustomerForm = ({
             email: "",
             phone: getValues("phone"),
             address: "",
+            description: "",
           });
           throw new Error(data.message || "Failed to fetch customer");
         } else {
@@ -98,8 +102,9 @@ const CustomerForm = ({
         e.preventDefault();
         handleSubmit(addCustomer)(e);
       }}
-      className="flex flex-col gap-2 w-full py-4 text-[var(--color-text)]"
+      className="flex flex-col gap-2 w-full space-y-2 text-[var(--color-text)]"
     >
+      <Divider title="Basic Details" />
       <div className="phone-email-group w-full flex flex-col lg:flex-row justify-center gap-4">
         <div className="phone-input w-full flex flex-col relative group my-2">
           <input
@@ -217,10 +222,31 @@ const CustomerForm = ({
         </div>
       </div>
 
+      {expanded && (
+        <div className="flex flex-col gap-3">
+          <Divider title="Other Details" />
+          <div className="notes-input w-full flex flex-col relative group my-3">
+            <textarea
+              rows="5"
+              name="description"
+              placeholder="Enter Description (optional)"
+              className="input peer text-sm placeholder:text-sm placeholder:italic"
+              {...register("description")}
+            />
+            <label
+              htmlFor="desccription"
+              className="input-label peer-focus:text-[var(--color-accent-dark)]"
+            >
+              Description
+            </label>
+          </div>
+        </div>
+      )}
+
       <button
         type="button"
         onClick={(e) => addCustomer(getValues(), e)}
-        disabled={Object.keys(errors).length > 0}
+        disabled={Object.keys(errors).length > 0 || loading}
         className="rounded-md bg-accent hover:bg-accentDark disabled:opacity-30 disabled:hover:bg-gray-300 disabled:cursor-not-allowed text-white cursor-pointer px-3 py-1 w-full capitalize"
       >
         {title} Customer

@@ -11,6 +11,7 @@ import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import CustomerSuggestion from "../utils/CustomerSuggestion";
 import { useQueryClient } from "@tanstack/react-query";
+import { FaEnvelope, FaPhoneAlt, FaUser, FaWallet } from "react-icons/fa";
 
 const SaleForm = ({ setRefetch = () => {}, closeModal = () => {} }) => {
   const [suggestedProducts, setSuggestedProducts] = useState([]);
@@ -41,6 +42,7 @@ const SaleForm = ({ setRefetch = () => {}, closeModal = () => {} }) => {
       subTotal: 0,
       discount: 0,
       totalAmount: 0,
+      paidAmount: 0,
       paymentType: "cash",
     },
   });
@@ -80,6 +82,7 @@ const SaleForm = ({ setRefetch = () => {}, closeModal = () => {} }) => {
     setValue("subTotal", calculatedSubTotal);
     setValue("discount", calculatedDiscount);
     setValue("totalAmount", calculatedSubTotal - calculatedDiscount);
+    setValue("paidAmount", calculatedSubTotal - calculatedDiscount);
   }, [watchedProducts, setValue]);
 
   const removeProduct = (index) => {
@@ -89,6 +92,7 @@ const SaleForm = ({ setRefetch = () => {}, closeModal = () => {} }) => {
   };
 
   const addSale = async (values) => {
+
     const id = toast.loading("Adding sale...");
     setLoading(true);
     try {
@@ -105,6 +109,7 @@ const SaleForm = ({ setRefetch = () => {}, closeModal = () => {} }) => {
             subTotal: values.subTotal,
             discount,
             totalAmount: values.totalAmount,
+            paidAmount: values.paidAmount,
             paymentType: values.paymentType,
           }),
           credentials: "include",
@@ -333,7 +338,9 @@ const SaleForm = ({ setRefetch = () => {}, closeModal = () => {} }) => {
                 type="number"
                 readOnly
                 className="border-b placeholder:text-sm bg-transparent text-right border-[var(--color-accent)] outline-none p-1 w-20"
-                {...register("subTotal")}
+                {...register("subTotal", {
+                  valueAsNumber: true,
+                })}
               />
               ₹
             </div>
@@ -390,34 +397,38 @@ const SaleForm = ({ setRefetch = () => {}, closeModal = () => {} }) => {
               />
               ₹
             </div>
-            {/* {customerDetails?.phone && (
-              <div className="text-right flex items-center">
-                Paid:{" "}
-                <input
-                  type="number"
-                  className="border-b placeholder:text-sm bg-transparent text-right border-[var(--color-accent)] outline-none p-1 w-20"
-                  {...register("paidAmount", {
-                    min: {
-                      value: 0,
-                      message: "Invalid Amount",
-                    },
-                    max: {
-                      value:
-                        Number(watch("subTotal", 0)) -
-                        Number(watch("discount", 0)) +
-                        Number(watch("tax", 0)),
-                      message: "Amount greater than total",
-                    },
-                  })}
-                  defaultValue={
-                    Number(watch("subTotal", 0)) -
-                    Number(watch("discount", 0)) +
-                    Number(watch("tax", 0))
-                  }
-                />
-                ₹
+            {customerDetails?.phone && (
+              <div
+                className={`text-right flex flex-col items-end ${
+                  errors?.paidAmount && "border-red-500 text-red-500"
+                }`}
+              >
+                <div className="flex items-center">
+                  Paid:{" "}
+                  <input
+                    type="number"
+                    className={` ${
+                      errors?.paidAmount && "border-red-500 text-red-500"
+                    } border-b placeholder:text-sm bg-transparent text-right border-[var(--color-accent)] outline-none p-1 w-20`}
+                    {...register("paidAmount", {
+                      min: {
+                        value: 0,
+                        message: "Invalid Amount",
+                      },
+                      max: {
+                        value:
+                          Number(watch("subTotal", 0)) -
+                          Number(watch("discount", 0)) +
+                          Number(watch("tax", 0)),
+                        message: "Paid Amount greater than total",
+                      },
+                    })}
+                  />
+                  ₹
+                </div>
+                {errors?.paidAmount && <p>{errors?.paidAmount?.message}</p>}
               </div>
-            )} */}
+            )}
             <div className="text-right flex items-center">
               Type:{" "}
               <select
@@ -488,19 +499,34 @@ const SaleForm = ({ setRefetch = () => {}, closeModal = () => {} }) => {
               </div>
             }
           />
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-stretch">
-            <p className="w-full rounded-md border border-accent p-2">
-              {customerDetails?.name || "Name"}
-            </p>
-            <p className="w-full rounded-md border border-accent p-2">
-              {customerDetails?.email || "Email"}
-            </p>
-            <p className="w-full rounded-md border border-accent p-2">
-              {customerDetails?.phone || "Phone"}
-            </p>
-            <p className="w-full rounded-md border border-accent p-2">
-              {customerDetails?.address || "Address"}
-            </p>
+          <div className="grid grid-cols-1 md:grid-cols-2 text-sm gap-4 p-4 bg-[var(--color-primary)] shadow-md rounded-lg">
+            <div className="flex items-center gap-2 ">
+              <FaUser className="text-blue-500" />
+              <span className="font-medium">
+                {customerDetails?.name || "Name"}
+              </span>
+            </div>
+
+            <div className="flex items-center gap-2 ">
+              <FaEnvelope className="text-green-500" />
+              <span className=" font-medium">
+                {customerDetails?.email || "Email"}
+              </span>
+            </div>
+
+            <div className="flex items-center gap-2 ">
+              <FaPhoneAlt className="text-green-500" />
+              <span className=" font-medium">
+                {customerDetails?.phone || "Phone"}
+              </span>
+            </div>
+
+            <div className="flex items-center gap-2 ">
+              <FaWallet className="text-yellow-600" />
+              <span className="font-">
+                Balance: ₹{customerDetails?.balance?.toFixed(2) || "0.00"}
+              </span>
+            </div>
           </div>
         </div>
       )}

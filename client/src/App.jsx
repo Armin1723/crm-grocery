@@ -26,6 +26,10 @@ import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsOfUse from "./pages/TermsOfUse";
 import Settings from "./components/home/Settings";
 import ViewSettings from "./components/settings/ViewSettings";
+import Customers from "./components/home/Customers";
+import ViewCustomers from "./components/customer/ViewCustomers";
+import AddCustomer from "./components/customer/AddCustomer";
+import CustomerDetails from "./components/customer/CustomerDetails";
 const Seller = lazy(() => import("./pages/Seller"));
 const TopLoadingBar = lazy(() => import("./components/shared/TopLoadingBar"));
 const SellerSales = lazy(() => import("./components/seller/sales/SellerSales"));
@@ -228,6 +232,13 @@ const App = () => {
                 <Route path="" element={<ViewSuppliers />} />
                 <Route path="add" element={<AddSuppliers />} />
                 <Route path=":id" element={<SupplierDetails />} />
+              </Route>
+
+              {/* Customer Routes */}
+              <Route path="customers" element={<Customers />}>
+                <Route path="" element={<ViewCustomers />} />
+                <Route path="add" element={<AddCustomer />} />
+                <Route path=":id" element={<CustomerDetails />} />
               </Route>
 
               {/* Reports */}
