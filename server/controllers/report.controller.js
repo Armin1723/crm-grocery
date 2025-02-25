@@ -407,10 +407,24 @@ const getSalesReport = async (req, res) => {
     },
   ]);
 
+  const creditQuery = Sale.aggregate([
+    matchStage(startDate, endDate, req),
+    {
+      $match: {
+        $expr: { $gt: ["$deficitAmount", 0] },
+      },
+    },
+    {$group:{
+      _id : null,
+      totalCredit : {$sum : { $ceil: "$deficitAmount"}}
+    }}
+  ]);
+
   // Run all queries concurrently
-  const [sales, salesReturns, report] = await Promise.all([
+  const [sales, salesReturns, credit, report] = await Promise.all([
     salesQuery,
     salesReturnQuery,
+    creditQuery,
     reportQuery,
   ]);
 
@@ -420,6 +434,7 @@ const getSalesReport = async (req, res) => {
     0
   );
   const netSales = totalSales - totalSalesReturns;
+  const totalCredit = credit[0]?.totalCredit || 0;
 
   // Calculate cashInHand and cashAtBank
   const cashInHand =
@@ -437,6 +452,7 @@ const getSalesReport = async (req, res) => {
       cashAtBank,
       totalSalesReturns,
       netSales,
+      totalCredit,
       ...report[0],
       salesList: [...sales.map((sale) => ({ ...sale, source: "sales" }))],
       returnsList: salesReturns,

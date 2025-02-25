@@ -49,7 +49,6 @@ const companySchema = new mongoose.Schema({
     },
     licenseKey: {
         type: String,
-        unique: true,
         select: false
     },
     subscription: {

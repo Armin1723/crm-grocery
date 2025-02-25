@@ -38,6 +38,12 @@ const saleSchema = new mongoose.Schema(
     totalAmount: {
       type: Number,
     },
+    paidAmount: {
+      type: Number,
+    },
+    deficitAmount: {
+      type: Number,
+    },
     paymentMode: {
       type: String,
       enum: ["cash", "card", "upi"],

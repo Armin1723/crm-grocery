@@ -236,6 +236,7 @@ const addSale = async (req, res) => {
     discount,
     totalAmount,
     paidAmount,
+    deficitAmount: totalAmount - paidAmount,
     paymentMode,
   });
 
@@ -298,7 +299,7 @@ const addSale = async (req, res) => {
   await sale.save();
 
   // update customer balance
-  if (customer && totalAmount > paidAmount) {
+  if (customer && (totalAmount > paidAmount)) {
     customer.balance += totalAmount - paidAmount;
     await customer.save();
   }
