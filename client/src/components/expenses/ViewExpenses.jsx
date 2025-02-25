@@ -5,14 +5,17 @@ import { expenseCategoryColors, expenseTypes, formatDate } from "../utils";
 import CategorySelection from "../utils/CategorySelection";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import DateRangeSelection from "../utils/DateRangeSelection";
+import { Link } from "react-router-dom";
+import { useSelector } from "react-redux";
 
 const ViewExpenses = () => {
-
   const [limit, setLimit] = useState(10);
   const [page, setPage] = useState(1);
   const [sort, setSort] = useState("createdAt");
   const [sortType, setSortType] = useState("desc");
   const [category, setCategory] = useState("");
+
+  const user = useSelector((state) => state.user);
 
   const [dateRange, setDateRange] = useState({
     startDate: new Date().toISOString().slice(0, 10),
@@ -26,12 +29,17 @@ const ViewExpenses = () => {
     queryClient.invalidateQueries({ queryKey: ["expenses"] });
   };
   const { data: results, isFetching: loading } = useQuery({
-    queryKey: ["expenses", { sort, category, sortType, limit, page, dateRange }],
+    queryKey: [
+      "expenses",
+      { sort, category, sortType, limit, page, dateRange },
+    ],
     queryFn: async () => {
       const response = await fetch(
         `${
           import.meta.env.VITE_BACKEND_URL
-        }/api/v1/expenses?sort=${sort}&category=${category}&sortType=${sortType}&limit=${limit}&page=${page}&startDate=${dateRange?.startDate}&endDate=${dateRange?.endDate}`,
+        }/api/v1/expenses?sort=${sort}&category=${category}&sortType=${sortType}&limit=${limit}&page=${page}&startDate=${
+          dateRange?.startDate
+        }&endDate=${dateRange?.endDate}`,
         {
           credentials: "include",
         }
@@ -39,7 +47,7 @@ const ViewExpenses = () => {
       return await response.json();
     },
     staleTime: 5 * 60 * 1000,
-  })
+  });
 
   return (
     <div className="p-3 rounded-md flex h-full flex-col gap-2 border border-neutral-500/50 bg-[var(--color-sidebar)]">
@@ -58,7 +66,7 @@ const ViewExpenses = () => {
           setCategory={setCategory}
           categories={expenseTypes}
         />
-        <DateRangeSelection dateRange={dateRange} setDateRange={setDateRange}/>
+        <DateRangeSelection dateRange={dateRange} setDateRange={setDateRange} />
       </div>
 
       <div className="table-wrapper flex relative flex-1 my-2 overflow-y-auto">
@@ -86,7 +94,7 @@ const ViewExpenses = () => {
                 setSortType={setSortType}
               />
             </div>
-            <div className="w-[25%] min-w-[80px] flex items-center  ">
+            <div className="w-[25%] min-w-[100px] flex items-center  ">
               <SortableLink
                 title="Description"
                 isActive={sort === "description"}
@@ -95,7 +103,7 @@ const ViewExpenses = () => {
                 setSortType={setSortType}
               />
             </div>
-            <div className="w-[15%] min-w-[50px] flex items-center  ">
+            <div className="w-[15%] min-w-[80px] flex items-center  ">
               <SortableLink
                 title="signedBy"
                 isActive={sort === "signedBy"}
@@ -139,11 +147,29 @@ const ViewExpenses = () => {
                       {expense?.amount || "N/A"}
                     </div>
                     <div
-                      className={`w-[25%] min-w-[80px] px-2 text-ellipsis truncate`}
+                      title={expense?.description}
+                      className={`w-[25%] min-w-[100px] px-2 flex-wrap overflow-hidden`}
                     >
-                      {expense?.description || "N/A"}
+                      {expense?.category?.toLowerCase() == "purchase" ? (
+                        <>
+                          {expense?.description
+                            .split(" ")
+                            .slice(0, -1)
+                            .join(" ")}{" "}
+                          <Link
+                          className="text-accent hover:text-accentDark hover:underline"
+                            to={user?.role === 'admin' ? `/purchases/${expense?.description
+                              .split(" ")
+                              .slice(-1)}` : ''}
+                          >
+                            {expense?.description.split(" ").slice(-1)}
+                          </Link>
+                        </>
+                      ) : (
+                        <>{expense?.description}</>
+                      )}
                     </div>
-                    <div className="w-[15%] min-w-[50px] px-2 capitalize">
+                    <div className="w-[15%] min-w-[80px] px-2 capitalize">
                       {expense?.signedBy?.name || "N/A"}
                     </div>
                     <div className="w-1/5 min-w-[50px] px-2 ">

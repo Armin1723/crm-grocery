@@ -13,16 +13,17 @@ import {
 import CountUp from "react-countup";
 import ExpenseTable from "./ExpenseTable";
 import ReportHeader from "./ReportHeader";
-import { FaChevronCircleDown } from "react-icons/fa";
+import { FaChevronCircleDown, FaInfoCircle } from "react-icons/fa";
 import { useReport } from "../../context/ReportContext";
 import { useQuery } from "@tanstack/react-query";
-import { toast } from "react-toastify";
 import SubscriptionOverlay from "../utils/SubscriptionOverlay";
+import HelpTooltip from "../utils/HelpTooltip";
 
 const ExpenseSummary = ({
   totalPurchases = 0,
   totalOtherExpenses = 0,
   totalReturns = 0,
+  totalCredit = 0,
 }) => {
   const [expanded, setExpanded] = useState(false);
 
@@ -63,6 +64,12 @@ const ExpenseSummary = ({
                     onClick={() =>
                       setExpanded((p) => (p === index ? null : index))
                     }
+                  />
+                )}
+                {item?.name === "Total Expenses" && (
+                  <HelpTooltip
+                  icon={FaInfoCircle}
+                    message={`Balance Due: ₹${totalCredit?.toFixed(2)}`}
                   />
                 )}
               </div>
@@ -248,6 +255,7 @@ const ExpenseReport = () => {
                 totalPurchases={data?.totalPurchases}
                 totalOtherExpenses={data?.totalOtherExpenses}
                 totalReturns={data?.totalReturns}
+                totalCredit={data?.totalCredit}
               />
 
               <ExpenseTable title="Purchase" data={data?.purchases} />

@@ -575,7 +575,7 @@ const PurchaseForm = ({ setRefetch = () => {}, closeModal = () => {} }) => {
 
       <button
         type="submit"
-        disabled={Object.keys(errors).length > 0 || loading}
+        disabled={Object.keys(errors).length > 0 || loading || watchedProducts?.length === 0}
         className="px-3 py-1.5 my-2 capitalize rounded-md disabled:bg-gray-600 disabled:opacity-35 disabled:cursor-not-allowed disabled:hover:none bg-accent hover:bg-accentDark text-white"
       >
         Add Purchase

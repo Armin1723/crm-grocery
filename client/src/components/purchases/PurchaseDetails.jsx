@@ -9,6 +9,8 @@ import SupplierCard from "../suppliers/SupplierCard";
 import PurchaseReturnCard from "./PurchaseReturnCard";
 import { pluralizeWord } from "../utils";
 import SubscriptionOverlay from "../utils/SubscriptionOverlay";
+import HelpTooltip from "../utils/HelpTooltip";
+import { FaInfoCircle } from "react-icons/fa";
 
 const PurchaseDetails = ({ idBackup = "" }) => {
   let { id } = useParams();
@@ -164,7 +166,10 @@ const PurchaseDetails = ({ idBackup = "" }) => {
               </thead>
               <tbody>
                 {purchase?.products.map((product) => (
-                  <tr key={product._id} className="border-b border-neutral-500">
+                  <tr
+                    key={product._id}
+                    className="border-b border-neutral-500/50"
+                  >
                     <td className="py-2 pl-4">
                       <Avatar
                         image={product.product.image}
@@ -176,11 +181,33 @@ const PurchaseDetails = ({ idBackup = "" }) => {
                     <td className="py-2 pl-4">
                       {product.quantity}{" "}
                       {pluralizeWord(
-                        product.quantity,
+                        product?.quantity,
                         product?.product?.secondaryUnit
                       )}
+                      {/* Tooltip to show secondary unit */}
+                      {product?.product?.conversionFactor !== 1 && (
+                        <HelpTooltip
+                          icon={FaInfoCircle}
+                          message={`${
+                            product?.quantity /
+                            product?.product?.conversionFactor
+                          } ${product?.product?.primaryUnit}`}
+                        />
+                      )}
                     </td>
-                    <td className="py-2 pl-4">₹{product?.purchaseRate}</td>
+                    <td className="py-2 pl-4">
+                      ₹{product?.purchaseRate}{" "}
+                      {/* Tooltip to show secondary unit purchase rate */}
+                      {product?.product?.conversionFactor !== 1 && (
+                        <HelpTooltip
+                          icon={FaInfoCircle}
+                          message={`${
+                            product?.purchaseRate *
+                            product?.product?.conversionFactor
+                          }₹/${product?.product?.primaryUnit}`}
+                        />
+                      )}
+                    </td>
                     <td className="py-2 pl-4">
                       ₹{Math.ceil(product?.purchaseRate * product?.quantity)}
                     </td>
@@ -188,9 +215,19 @@ const PurchaseDetails = ({ idBackup = "" }) => {
                 ))}
               </tbody>
             </table>
-            <div className="totalAmount flex justify-end items-center gap-2">
-              <p className="">Total Amount:</p>
-              <p className="">₹{Math.ceil(purchase?.totalAmount)}</p>
+            <div className="flex flex-col text-sm items-end pr-4">
+              <div className="subTotal flex justify-end items-center gap-4">
+                <p className="">Sub Total:</p>
+                <p className="">₹{Math.ceil(purchase?.subTotal)}</p>
+              </div>
+              <div className="otherCharges flex justify-end items-center gap-4">
+                <p className="">Other Charges:</p>
+                <p className="">₹{Math.ceil(purchase?.otherCharges)}</p>
+              </div>
+              <div className="totalAmount flex justify-end items-center gap-4">
+                <p className="">Total Amount:</p>
+                <p className="">₹{Math.ceil(purchase?.totalAmount)}</p>
+              </div>
             </div>
           </div>
 

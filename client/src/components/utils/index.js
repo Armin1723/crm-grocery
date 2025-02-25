@@ -478,6 +478,7 @@ export const expenseCategoryColors = {
   marketing: { bg: "bg-orange-500/10", border: "border-orange-400", text: "text-orange-500" },
   "office supplies": { bg: "bg-teal-500/10", border: "border-teal-400", text: "text-teal-500" },
   "petty expense": { bg: "bg-pink-500/10", border: "border-pink-400", text: "text-pink-500" },
+  purchase: { bg: "bg-violet-500/10", border: "border-violet-400", text: "text-violet-500" },
   rent: { bg: "bg-indigo-500/10", border: "border-indigo-400", text: "text-indigo-500" },
   salary: { bg: "bg-cyan-500/10", border: "border-cyan-400", text: "text-cyan-500" },
   travel: { bg: "bg-red-500/10", border: "border-red-400", text: "text-red-500" },

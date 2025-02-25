@@ -100,6 +100,18 @@ ipcMain.on("open-in-browser", (event, url) => {
 
 // Check for updates (triggered from frontend)
 ipcMain.on("check-updates", () => {
+
+  autoUpdater.on("update-available", () => {
+    log.info("Update available. Downloading...");
+    console.log("Update available. Downloading...");
+    mainWindow.webContents.send("update-log", "update-available");
+    new Notification({
+      title: "CRM Application",
+      body: "New Update Available",
+      icon: path.join(process.resourcesPath, "icon.png"),
+    }).show();
+  });
+
   autoUpdater.checkForUpdatesAndNotify();
 });
 
@@ -171,6 +183,11 @@ app.whenReady().then(async () => {
     log.info("No updates available.");
     console.log("No updates available.");
     mainWindow.webContents.send("update-log", "update-not-available");
+    new Notification({
+      title: "CRM Application",
+      body: "No Update Available",
+      icon: path.join(process.resourcesPath, "icon.png"),
+    }).show();
   });
 
   autoUpdater.on("update-downloaded", () => {

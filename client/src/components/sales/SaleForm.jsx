@@ -212,9 +212,9 @@ const SaleForm = ({ setRefetch = () => {}, closeModal = () => {} }) => {
                       type="number"
                       title={`${product?.sellingRate}₹/${
                         product?.secondaryUnit
-                      }, ${
-                        product?.sellingRate * product?.conversionFactor
-                      }₹/${product.primaryUnit}`}
+                      }, ${product?.sellingRate * product?.conversionFactor}₹/${
+                        product.primaryUnit
+                      }`}
                       {...register(`products.${index}.sellingRate`, {
                         valueAsNumber: true,
                         required: `Rate is required`,
@@ -390,6 +390,34 @@ const SaleForm = ({ setRefetch = () => {}, closeModal = () => {} }) => {
               />
               ₹
             </div>
+            {/* {customerDetails?.phone && (
+              <div className="text-right flex items-center">
+                Paid:{" "}
+                <input
+                  type="number"
+                  className="border-b placeholder:text-sm bg-transparent text-right border-[var(--color-accent)] outline-none p-1 w-20"
+                  {...register("paidAmount", {
+                    min: {
+                      value: 0,
+                      message: "Invalid Amount",
+                    },
+                    max: {
+                      value:
+                        Number(watch("subTotal", 0)) -
+                        Number(watch("discount", 0)) +
+                        Number(watch("tax", 0)),
+                      message: "Amount greater than total",
+                    },
+                  })}
+                  defaultValue={
+                    Number(watch("subTotal", 0)) -
+                    Number(watch("discount", 0)) +
+                    Number(watch("tax", 0))
+                  }
+                />
+                ₹
+              </div>
+            )} */}
             <div className="text-right flex items-center">
               Type:{" "}
               <select

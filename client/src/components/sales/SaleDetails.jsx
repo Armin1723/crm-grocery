@@ -3,11 +3,11 @@ import { useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import Divider from "../utils/Divider";
 import Avatar from "../utils/Avatar";
-import SaleDetailActions from "./SaleDetailActions";
 import SaleCard from "./SaleCard";
 import EmployeeCard from "../employee/EmployeeCard";
 import SaleReturnCard from "./SaleReturnCard";
-import { pluralizeWord } from "../utils";
+import {pluralizeWord} from "../utils";
+import SaleDetailActions from "./SaleDetailActions";
 import SubscriptionOverlay from "../utils/SubscriptionOverlay";
 
 const SaleDetails = ({ idBackup = "" }) => {
@@ -129,7 +129,7 @@ const SaleDetails = ({ idBackup = "" }) => {
                 ))}
               </tbody>
             </table>
-            <div className="totalAmount flex justify-end items-center gap-2">
+            <div className="totalAmount flex justify-end items-center gap-2 text-sm pr-6">
               <p className="">Total Amount:</p>
               <p className="">₹{sale?.totalAmount}</p>
             </div>

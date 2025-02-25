@@ -70,7 +70,7 @@ const ProfitLossReport = () => {
         <ReportHeader title="P/L" printRef={printRef} handleDownload={null} />
         {loading ? (
           <div className="w-full p-6 min-h-fit max-sm:p-3 bg-[var(--color-sidebar)] rounded-lg flex items-center justify-center">
-            <div className="spinner"></div>
+            <div className="spinner" />
           </div>
         ) : error ? (
           <div className="text-center text-red-500 py-8 flex-1 flex flex-col items-center justify-center">
@@ -228,6 +228,7 @@ const ProfitLossReport = () => {
                 </div>
               </div>
             </div>
+            
           </div>
         )}
       </div>

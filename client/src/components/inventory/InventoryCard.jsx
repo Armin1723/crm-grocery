@@ -11,7 +11,7 @@ import Divider from "../utils/Divider";
 import { Link } from "react-router-dom";
 import Wave from "react-wavify";
 import InventoryActions from "./InventoryActions";
-import { FaObjectGroup } from "react-icons/fa";
+import { FaInfoCircle, FaObjectGroup } from "react-icons/fa";
 import { toast } from "react-toastify";
 import { useSelector } from "react-redux";
 import HelpTooltip from "../utils/HelpTooltip";
@@ -177,36 +177,44 @@ const InventoryCard = ({ upid = "", inventoryData = {}, editable = false }) => {
                           ? `₹${batch?.purchaseRate}`
                           : "Returned"}
                       </p>
-                      <HelpTooltip
-                        message={
-                          <div>
-                            <p>
-                              {batch?.purchaseRate}₹/{inventory?.secondaryUnit}
-                            </p>
-                            <p>
-                              {batch?.purchaseRate *
-                                inventory?.conversionFactor}
-                              ₹/{inventory?.primaryUnit}
-                            </p>
-                          </div>
-                        }
-                      />
+                      {inventory?.conversionFactor !== 1 && (
+                        <HelpTooltip
+                          icon={FaInfoCircle}
+                          message={
+                            <div>
+                              <p>
+                                {batch?.purchaseRate}₹/
+                                {inventory?.secondaryUnit}
+                              </p>
+                              <p>
+                                {batch?.purchaseRate *
+                                  inventory?.conversionFactor}
+                                ₹/{inventory?.primaryUnit}
+                              </p>
+                            </div>
+                          }
+                        />
+                      )}
                     </div>
                     <div className="text-[var(--color-text-light)] flex items-center">
-                      <p>Selling Rate: {batch.sellingRate}</p>
-                      <HelpTooltip
-                        message={
-                          <div>
-                            <p>
-                              {batch?.sellingRate}₹/{inventory?.secondaryUnit}
-                            </p>
-                            <p>
-                              {batch?.sellingRate * inventory?.conversionFactor}
-                              ₹/{inventory?.primaryUnit}
-                            </p>
-                          </div>
-                        }
-                      />
+                      <p>Selling Rate: {`₹${batch.sellingRate}`}</p>
+                      {inventory?.conversionFactor !== 1 && (
+                        <HelpTooltip
+                          icon={FaInfoCircle}
+                          message={
+                            <div>
+                              <p>
+                                {batch?.sellingRate}₹/{inventory?.secondaryUnit}
+                              </p>
+                              <p>
+                                {batch?.sellingRate *
+                                  inventory?.conversionFactor}
+                                ₹/{inventory?.primaryUnit}
+                              </p>
+                            </div>
+                          }
+                        />
+                      )}
                     </div>
                   </div>
 

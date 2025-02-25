@@ -3,9 +3,11 @@ import React from "react";
 import { Link } from "react-router-dom";
 
 const SubscriptionOverlay = () => {
+  
   const openInBrowser = (url) => {
     window.electron.ipcRenderer.send("open-in-browser", url);
   };
+
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[999]">
       <motion.div
@@ -51,7 +53,7 @@ const SubscriptionOverlay = () => {
         </div>
         <div className="mt-4 flex flex-col gap-3">
           <Link
-            to="mailto:alam.airuz23@gmail.com?subject=Subscription Renewal Inquiry"
+            to="mailto:support@crm-grocery.com?subject=Subscription Renewal Enquiry"
             className="px-4 py-2 rounded bg-[var(--color-accent)] text-white hover:bg-[var(--color-accent-dark)] transition"
           >
             Contact Sales

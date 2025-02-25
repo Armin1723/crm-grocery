@@ -1,17 +1,18 @@
 import { useState } from "react";
+import { FaQuestion } from "react-icons/fa";
 
-const HelpTooltip = ({ message, position = "top" }) => {
+const HelpTooltip = ({ icon: Icon = null, message, position = "top" }) => {
   const [isVisible, setIsVisible] = useState(false);
 
   return (
-    <div className="relative inline-block mx-2">
+    <div className="relative inline-block mx-1">
       {/* Question Mark Icon */}
       <div
         className="cursor-pointer px-2 py-1 text-xs flex items-center justify-center rounded-md font-bold text-[var(--color-text-light)] bg-[var(--color-sidebar)] hover:bg-[var(--color-primary)] hover:shadow-md transition-all"
         onMouseEnter={() => setIsVisible(true)}
         onMouseLeave={() => setIsVisible(false)}
       >
-        ?
+        {Icon ? <Icon /> : <FaQuestion />}
       </div>
 
       {/* Tooltip Content */}
