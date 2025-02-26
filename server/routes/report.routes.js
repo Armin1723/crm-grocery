@@ -5,6 +5,7 @@ const {
   getSalesReport,
   getProfitLossReport,
   getTaxReport,
+  getBalanceReport,
 } = require("../controllers/report.controller.js");
 const authorize = require("../middleware/authorize.js");
 const { asyncHandler } = require("../middleware/errorHandler.js");
@@ -21,5 +22,7 @@ router.get("/sales", asyncHandler(getSalesReport));
 router.get("/profit-loss", asyncHandler(getProfitLossReport));
 
 router.get("/tax", asyncHandler(getTaxReport));
+
+router.get("/balances", asyncHandler(getBalanceReport));
 
 module.exports = router;

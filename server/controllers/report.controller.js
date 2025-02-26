@@ -138,10 +138,12 @@ const getExpenseReport = async (req, res) => {
         $expr: { $gt: ["$deficitAmount", 0] },
       },
     },
-    {$group:{
-      _id : null,
-      totalCredit : {$sum : { $ceil: "$deficitAmount"}}
-    }}
+    {
+      $group: {
+        _id: null,
+        totalCredit: { $sum: { $ceil: "$deficitAmount" } },
+      },
+    },
   ]);
 
   const reportQuery = Purchase.aggregate([
@@ -232,10 +234,7 @@ const getExpenseReport = async (req, res) => {
       purchases,
       otherExpenses,
       purchaseReturnsList: purchaseReturns,
-      totalPurchases: purchases.reduce(
-        (acc, curr) => acc + curr.amount,
-        0
-      ),
+      totalPurchases: purchases.reduce((acc, curr) => acc + curr.amount, 0),
       totalCredit: credit[0]?.totalCredit || 0,
       totalReturns: purchaseReturns.reduce((acc, curr) => acc + curr.amount, 0),
       totalOtherExpenses: otherExpenses.reduce(
@@ -414,10 +413,12 @@ const getSalesReport = async (req, res) => {
         $expr: { $gt: ["$deficitAmount", 0] },
       },
     },
-    {$group:{
-      _id : null,
-      totalCredit : {$sum : { $ceil: "$deficitAmount"}}
-    }}
+    {
+      $group: {
+        _id: null,
+        totalCredit: { $sum: { $ceil: "$deficitAmount" } },
+      },
+    },
   ]);
 
   // Run all queries concurrently
@@ -870,7 +871,9 @@ const getTaxReport = async (req, res) => {
             image: { $arrayElemAt: ["$productDetails.image", 0] },
             name: { $arrayElemAt: ["$productDetails.name", 0] },
             upid: { $arrayElemAt: ["$productDetails.upid", 0] },
-            secondaryUnit: {$arrayElemAt: ["$productDetails.secondaryUnit", 0] },
+            secondaryUnit: {
+              $arrayElemAt: ["$productDetails.secondaryUnit", 0],
+            },
             quantity: "$products.quantity",
             rate: "$products.sellingRate",
             tax: { $arrayElemAt: ["$productDetails.tax", 0] },
@@ -878,8 +881,8 @@ const getTaxReport = async (req, res) => {
           },
         },
         createdAt: { $first: "$createdAt" },
-        signedBy: { $first: {$arrayElemAt : ["$signedBy.name", 0]} },
-        signedById: { $first: {$arrayElemAt : ["$signedBy._id", 0]} },
+        signedBy: { $first: { $arrayElemAt: ["$signedBy.name", 0] } },
+        signedById: { $first: { $arrayElemAt: ["$signedBy._id", 0] } },
       },
     },
     {
@@ -965,7 +968,9 @@ const getTaxReport = async (req, res) => {
             image: { $arrayElemAt: ["$productDetails.image", 0] },
             name: { $arrayElemAt: ["$productDetails.name", 0] },
             upid: { $arrayElemAt: ["$productDetails.upid", 0] },
-            secondaryUnit: {$arrayElemAt: ["$productDetails.secondaryUnit", 0] },
+            secondaryUnit: {
+              $arrayElemAt: ["$productDetails.secondaryUnit", 0],
+            },
             quantity: "$products.quantity",
             rate: "$products.purchaseRate",
             tax: { $arrayElemAt: ["$productDetails.tax", 0] },
@@ -973,8 +978,8 @@ const getTaxReport = async (req, res) => {
           },
         },
         createdAt: { $first: "$createdAt" },
-        signedBy: { $first: {$arrayElemAt : ["$signedBy.name", 0]} },
-        signedById: { $first: {$arrayElemAt : ["$signedBy._id", 0]} },
+        signedBy: { $first: { $arrayElemAt: ["$signedBy.name", 0] } },
+        signedById: { $first: { $arrayElemAt: ["$signedBy._id", 0] } },
       },
     },
     {
@@ -1020,9 +1025,97 @@ const getTaxReport = async (req, res) => {
   });
 };
 
+// Controller to fetch balance report (credit and debit)
+const getBalanceReport = async (req, res) => {
+  const { startDate, endDate } = req.query;
+
+  // Aggregating Credit Data
+  const creditAggregation = await Sale.aggregate([
+    matchStage(startDate, endDate, req),
+    {
+      $match: {
+        $expr: { $gt: ["$deficitAmount", 0] },
+      },
+    },
+    {
+      $lookup: {
+        from: "users",
+        localField: "signedBy",
+        foreignField: "_id",
+        as: "signedBy",
+      },
+    },
+    {
+      $project: {
+        deficitAmount: 1,
+        _id: 1,
+        products: 1,
+        totalAmount: 1,
+        createdAt: 1,
+        signedByName: {"$arrayElemAt" : ["$signedBy.name",0]},
+        signedById: {"$arrayElemAt" : ["$signedBy._id",0]},
+      },
+    },
+  ]);
+
+  // Aggregating Debit Data
+  const debitAggregation = await Purchase.aggregate([
+    matchStage(startDate, endDate, req),
+    {
+      $match: {
+        $expr: { $gt: ["$deficitAmount", 0] },
+      },
+    },
+    {
+      $lookup: {
+        from: "users",
+        localField: "signedBy",
+        foreignField: "_id",
+        as: "signedBy",
+      },
+    },
+    {
+      $project: {
+        deficitAmount: 1,
+        _id: 1,
+        products: 1,
+        totalAmount: 1,
+        createdAt: 1,
+        signedByName: {"$arrayElemAt" : ["$signedBy.name",0]},
+        signedById: {"$arrayElemAt" : ["$signedBy._id",0]},
+      },
+    },
+  ]);
+
+  // Calculate total credit balance
+  const totalCreditBalance = creditAggregation.reduce(
+    (sum, item) => sum + (item.deficitAmount || 0),
+    0
+  );
+
+  // Calculate total debit balance
+  const totalDebitBalance = debitAggregation.reduce(
+    (sum, item) => sum + (item.deficitAmount || 0),
+    0
+  );
+
+  // Calculate net balance (credit - debit)
+  const netBalance = totalCreditBalance - totalDebitBalance;
+
+  // Send Response
+  res.status(200).json({
+    creditAggregation,
+    debitAggregation,
+    totalCreditBalance,
+    totalDebitBalance,
+    netBalance,
+  });
+};
+
 module.exports = {
   getExpenseReport,
   getSalesReport,
   getProfitLossReport,
   getTaxReport,
+  getBalanceReport,
 };
