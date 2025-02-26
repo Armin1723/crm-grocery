@@ -6,7 +6,7 @@ import Avatar from "../utils/Avatar";
 import SaleCard from "./SaleCard";
 import EmployeeCard from "../employee/EmployeeCard";
 import SaleReturnCard from "./SaleReturnCard";
-import {pluralizeWord} from "../utils";
+import { pluralizeWord } from "../utils";
 import SaleDetailActions from "./SaleDetailActions";
 import SubscriptionOverlay from "../utils/SubscriptionOverlay";
 
@@ -58,13 +58,13 @@ const SaleDetails = ({ idBackup = "" }) => {
       </div>
     );
   else if (error && !error.subscription) {
-      return (
-        <div className="p-3 rounded-md flex h-full flex-col items-center justify-center gap-2 min-h-[40vh] bg-[var(--color-sidebar)] w-full">
-          <p className="text-red-500">
-            {error.message || "Something went wrong"}
-          </p>
-        </div>
-      );
+    return (
+      <div className="p-3 rounded-md flex h-full flex-col items-center justify-center gap-2 min-h-[40vh] bg-[var(--color-sidebar)] w-full">
+        <p className="text-red-500">
+          {error.message || "Something went wrong"}
+        </p>
+      </div>
+    );
   }
 
   return (
@@ -86,9 +86,14 @@ const SaleDetails = ({ idBackup = "" }) => {
         <SubscriptionOverlay />
       ) : (
         <div className="wrapper flex-1 overflow-y-auto px-2">
-          <p className="text-sm text-[var(--color-text-light)]">
-            Invoice ID: {sale?._id}
-          </p>
+          <div className="text-sm text-[var(--color-text-light)] flex items-center gap-1">
+            <p>Invoice ID: {sale?._id}</p>
+            {sale?.deficitAmount > 0 && (
+              <span className="text-red-500 bg-red-500/10 border border-red-500 px-2 rounded-md text-xs">
+                Unpaid
+              </span>
+            )}
+          </div>
 
           {/* Sale Products */}
           <Divider title="Sale Products" />
@@ -129,9 +134,23 @@ const SaleDetails = ({ idBackup = "" }) => {
                 ))}
               </tbody>
             </table>
-            <div className="totalAmount flex justify-end items-center gap-2 text-sm pr-6">
-              <p className="">Total Amount:</p>
-              <p className="">₹{sale?.totalAmount}</p>
+            <div className="flex flex-col text-sm items-end pr-4">
+              <div className="total flex justify-end items-center gap-4">
+                <p className="">Total:</p>
+                <p className="">₹{Math.ceil(sale?.totalAmount)}</p>
+              </div>
+              {sale?.deficitAmount > 0 && (
+                <>
+                  <div className="paidAmount flex justify-end items-center gap-4">
+                    <p className="">Paid Amount:</p>
+                    <p className="">₹{Math.ceil(sale?.paidAmount)}</p>
+                  </div>
+                  <div className="deficit flex justify-end items-center gap-4">
+                    <p className="">Balance:</p>
+                    <p className="">₹{Math.ceil(sale?.deficitAmount)}</p>
+                  </div>
+                </>
+              )}
             </div>
           </div>
 
@@ -139,7 +158,17 @@ const SaleDetails = ({ idBackup = "" }) => {
           <Divider title="Sale Summary" />
           <SaleCard sale={sale} />
 
-          {/* Supplier Information */}
+          { /* Sale Description */}
+          {sale?.description && (
+            <>
+              <Divider title="Sale Description" />
+              <div className="description bg-[var(--color-card)] p-3 rounded-md">
+                <p className="text-sm text-[var(--color-text-light)] capitalize">{sale?.description}</p>
+              </div>
+            </>
+          )}
+
+          {/* Biller Information */}
           <Divider title="Biller Information" />
           <EmployeeCard employee={sale?.signedBy} />
 

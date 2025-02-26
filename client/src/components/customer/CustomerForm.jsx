@@ -82,13 +82,13 @@ const CustomerForm = ({
       );
       const data = await res.json();
       if (!res.ok) {
-        throw new Error(data.message || "Failed to add/edit customer");
+        throw new Error(data.message || `Failed to ${title} customer`);
       }
-      toast.success("Customer added successfully");
+      toast.success(`Customer ${title === 'add' ? 'added' : 'updated'} successfully`);
       setCustomer(data?.customer);
       setValue("customerMobile", values.phone);
     } catch (error) {
-      console.error("Error adding customer:", error.message);
+      console.error(`Error ${title === 'add' ? 'adding' : 'updating' } customer:, ${error.message}`);
     } finally {
       setLoading(false);
       setRefetch((p) => !p);

@@ -74,7 +74,11 @@ const CustomerDetails = () => {
         )
       ) : (
         <div className="wrapper flex-1 space-y-6 overflow-y-auto px-2 w-full">
-          <CustomerCard customer={customer} loading={loading} />
+          <CustomerCard
+            customer={customer}
+            loading={loading}
+            setRefetch={setRefetch}
+          />
           <Divider title="Customer Sales" />
           <CustomerSales />
           <>

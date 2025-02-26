@@ -13,10 +13,11 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import { FaChevronCircleDown } from "react-icons/fa";
+import { FaChevronCircleDown, FaInfoCircle } from "react-icons/fa";
 import { useReport } from "../../context/ReportContext";
 import { useQuery } from "@tanstack/react-query";
 import { toast } from "react-toastify";
+import HelpTooltip from "../utils/HelpTooltip";
 
 const COLORS = [
   "#4299E1", // Blue
@@ -33,6 +34,7 @@ const SalesSummary = ({
   cashInHand,
   cashAtBank,
   netSales,
+  totalCredit = 0,
 }) => {
   return (
     <div className="bg-[var(--color-card)] shadow-md rounded-lg p-3">
@@ -70,6 +72,9 @@ const SalesSummary = ({
                       setExpanded((p) => (p === index ? null : index))
                     }
                   />
+                )}
+                {item?.name === "Total Sales" && (
+                  <HelpTooltip icon={FaInfoCircle} message={`Balances Due: ${totalCredit}`} />
                 )}
               </div>
               <div
@@ -209,7 +214,9 @@ const SalesReport = () => {
             <div className="spinner"></div>
           </div>
         ) : error ? (
-          <div className="text-center text-red-500 py-8 flex-1 flex flex-col items-center justify-center">{error.message || "Something went wrong"}</div>
+          <div className="text-center text-red-500 py-8 flex-1 flex flex-col items-center justify-center">
+            {error.message || "Something went wrong"}
+          </div>
         ) : (
           <>
             <div className="flex flex-col gap-2" ref={printRef}>
@@ -219,6 +226,7 @@ const SalesReport = () => {
                 cashInHand={data?.cashInHand}
                 cashAtBank={data?.cashAtBank}
                 netSales={data?.netSales}
+                totalCredit={data?.totalCredit}
               />
 
               <SalesTable data={data?.salesList} title="sales" />

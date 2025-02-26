@@ -7,6 +7,7 @@ import Pagination from "../utils/Pagination";
 const CustomerSales = () => {
   const { id } = useParams();
   const [results, setResults] = useState({});
+  const [loading, setLoading] = useState(true);
   const [sort, setSort] = useState("createdAt");
   const [sortType, setSortType] = useState("desc");
   const [page, setPage] = useState(1);
@@ -15,6 +16,7 @@ const CustomerSales = () => {
 
   useEffect(() => {
     const fetchCustomerSales = async () => {
+      setLoading(true);
       try {
         const response = await fetch(
           `${
@@ -31,6 +33,8 @@ const CustomerSales = () => {
         setResults(data);
       } catch (error) {
         console.error("Error fetching supplier purchases:", error.message);
+      } finally {
+        setLoading(false);
       }
     };
     fetchCustomerSales();
@@ -61,6 +65,7 @@ const CustomerSales = () => {
               />
             </th>
             <th className="p-3 text-left">Paid</th>
+            <th className="p-3 text-left">Deficit</th>
             <th className="p-3 text-left">
               <SortableLink
                 title="Status"
@@ -89,7 +94,10 @@ const CustomerSales = () => {
                     {formatDate(sale?.createdAt)}
                   </td>
                   <td className="p-3">₹{sale?.totalAmount}</td>
-                  <td className="p-3">₹{sale?.paidAmount || sale?.totalAmount}</td>
+                  <td className="p-3">
+                    ₹{sale?.paidAmount || sale?.totalAmount}
+                  </td>
+                  <td className="p-3">₹{sale?.deficitAmount || 0}</td>
                   <td className="p-3">
                     <span
                       className={`px-2 py-1 rounded-full text-sm ${
@@ -105,17 +113,29 @@ const CustomerSales = () => {
               );
             })}
 
-          {!results.sales?.length && (
+          {!results.sales?.length && !loading && (
             <tr>
-              <td colSpan="5" className="p-3 text-center">
+              <td colSpan="6" className="p-3 text-center">
                 No sales found
+              </td>
+            </tr>
+          )}
+          {loading && (
+            <tr>
+              <td
+                colSpan="6"
+                className="p-3 min-h-[30vh] text-center"
+              >
+                <div className="flex items-center justify-center w-full">
+                  <div className="spinner" />
+                </div>
               </td>
             </tr>
           )}
           <tr className="bg-[var(--color-card)] sticky -bottom-1">
             <td
               className="p-3 text-sm text-[var(--color-text-light)]"
-              colSpan={3}
+              colSpan={4}
             >
               <span>
                 Showing {(results.page - 1) * 10 + 1} -{" "}
