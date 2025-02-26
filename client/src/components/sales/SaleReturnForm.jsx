@@ -6,6 +6,7 @@ import Divider from "../utils/Divider";
 import { toast } from "react-toastify";
 import Modal from "../utils/Modal";
 import { useNavigate } from "react-router-dom";
+import { FaEnvelope, FaPhoneAlt, FaUser, FaWallet } from "react-icons/fa";
 
 const SaleReturnForm = ({ sale = {}, setSale = () => {} }) => {
   const [saleReturn, setSaleReturn] = useState({});
@@ -59,7 +60,6 @@ const SaleReturnForm = ({ sale = {}, setSale = () => {} }) => {
     });
   }, [watchedProducts, setError]);
 
-
   useEffect(() => {
     const calculatedSubTotal = watchedProducts.reduce(
       (acc, curr) =>
@@ -79,20 +79,20 @@ const SaleReturnForm = ({ sale = {}, setSale = () => {} }) => {
   const removeProduct = (index) => {
     const updatedProducts = [...watchedProducts];
     updatedProducts.splice(index, 1);
-    
+
     // First clear all product-related errors
-    Object.keys(errors).forEach(key => {
-      if (key.startsWith('products.')) {
+    Object.keys(errors).forEach((key) => {
+      if (key.startsWith("products.")) {
         clearErrors(key);
       }
     });
 
     // Reset the specific field
     resetField(`products.${index}`);
-    
+
     // Update the products array
     setValue("products", updatedProducts);
-    
+
     // Re-validate the remaining products
     updatedProducts.forEach((product, idx) => {
       // Check expiry
@@ -102,7 +102,7 @@ const SaleReturnForm = ({ sale = {}, setSale = () => {} }) => {
           message: "This product has expired",
         });
       }
-      
+
       // Validate quantity
       if (product.quantity) {
         if (product.quantity < 1) {
@@ -325,6 +325,30 @@ const SaleReturnForm = ({ sale = {}, setSale = () => {} }) => {
               />
               ₹
             </div>
+            {sale?.deficitAmount > 0 && (
+              <div className="text-right flex items-center">
+                Deficit:{" "}
+                <input
+                  type="number"
+                  readOnly
+                  value={sale?.deficitAmount}
+                  className="border-b placeholder:text-sm bg-transparent text-right border-[var(--color-accent)] outline-none p-1 w-20"
+                />
+                ₹
+              </div>
+            )}
+            {sale?.deficitAmount > 0 && (
+              <div className="text-right flex items-center">
+                Payable:{" "}
+                <input
+                  type="number"
+                  readOnly
+                  value={getValues("totalAmount") - sale?.deficitAmount}
+                  className="border-b placeholder:text-sm bg-transparent text-right border-[var(--color-accent)] outline-none p-1 w-20"
+                />
+                ₹
+              </div>
+            )}
           </div>
         </>
       ) : (
@@ -351,19 +375,39 @@ const SaleReturnForm = ({ sale = {}, setSale = () => {} }) => {
       )}
 
       {/* Customer info */}
-      <Divider title="Customer Details" />
-      <div className="flex max-sm:flex-col justify-between items-center w-full py-2">
-        <p className="w-full">
-          Name: {sale?.customer?.name || "Name not available"}
-        </p>
-        {sale?.customer?.phone && (
-          <div className="w-full flex items-center gap-2">
-            <p>Phone: {sale?.customer?.phone || "N/A"} </p>
+      {sale?.customer && (
+        <>
+          <Divider title="Customer Details" />
+          <div className="grid grid-cols-1 md:grid-cols-2 text-sm gap-4 p-4 shadow-md rounded-lg">
+            <div className="flex items-center gap-2 ">
+              <FaUser className="text-blue-500" />
+              <span className="font-medium">
+                {sale?.customer?.name || "Name: N/A"}
+              </span>
+            </div>
+
+            <div className="flex items-center gap-2 ">
+              <FaEnvelope className="text-green-500" />
+              <span className=" font-medium">
+                {sale?.customer?.email || "Email: N/A"}
+              </span>
+            </div>
+
+            <div className="flex items-center gap-2 ">
+              <FaPhoneAlt className="text-green-500" />
+              <span className=" font-medium">
+                {sale?.customer?.phone || "Phone: N/A"}
+              </span>
+            </div>
+
+            <div className="flex items-center gap-2 ">
+              <FaWallet className="text-yellow-600" />
+              <span className="font-">
+                Balance: ₹{sale?.customer?.balance?.toFixed(2) || "0.00"}
+              </span>
+            </div>
           </div>
-        )}
-      </div>
-      {sale?.customer?.email && (
-        <p className="w-full">Email: {sale?.customer?.email}</p>
+        </>
       )}
 
       <button

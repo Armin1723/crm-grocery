@@ -30,6 +30,7 @@ import Customers from "./components/home/Customers";
 import ViewCustomers from "./components/customer/ViewCustomers";
 import AddCustomer from "./components/customer/AddCustomer";
 import CustomerDetails from "./components/customer/CustomerDetails";
+import SellerCustomers from "./components/seller/customers/SellerCustomers";
 const Seller = lazy(() => import("./pages/Seller"));
 const TopLoadingBar = lazy(() => import("./components/shared/TopLoadingBar"));
 const SellerSales = lazy(() => import("./components/seller/sales/SellerSales"));
@@ -319,6 +320,11 @@ const App = () => {
                 <Route path="" element={<ViewSuppliers />} />
                 <Route path="add" element={<AddSuppliers />} />
                 <Route path=":id" element={<SupplierDetails />} />
+              </Route>
+              <Route path='customers' element={<SellerCustomers />}>
+                <Route path="" element={<ViewCustomers />} />
+                <Route path="add" element={<AddCustomer />} />
+                <Route path=":id" element={<CustomerDetails />} />
               </Route>
               <Route path="reports" element={<Reports />}>
                 <Route path="" element={<ExpenseReport />} />

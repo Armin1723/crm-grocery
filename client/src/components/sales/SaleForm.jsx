@@ -499,7 +499,7 @@ const SaleForm = ({ setRefetch = () => {}, closeModal = () => {} }) => {
               </div>
             }
           />
-          <div className="grid grid-cols-1 md:grid-cols-2 text-sm gap-4 p-4 bg-[var(--color-primary)] shadow-md rounded-lg">
+          <div className="grid grid-cols-1 md:grid-cols-2 text-sm gap-4 p-4 shadow-md rounded-lg">
             <div className="flex items-center gap-2 ">
               <FaUser className="text-blue-500" />
               <span className="font-medium">

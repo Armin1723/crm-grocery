@@ -47,7 +47,7 @@ const ViewSales = () => {
               loading && "animate-spin"
             } w-4 aspect-square rounded-full border-t border-b border-accent/90 cursor-pointer`}
             onClick={() => refetch()}
-          ></p>
+          />
         </div>
       </div>
 
@@ -69,10 +69,19 @@ const ViewSales = () => {
             </div>
             <div className="w-[15%] min-w-[80px] flex items-center  ">
               <SortableLink
-                title="totalAmount"
+                title="Total"
                 isActive={sort === "totalAmount"}
                 sortType={sortType}
-                setSort={setSort}
+                setSort={() => setSort("totalAmount")}
+                setSortType={setSortType}
+              />
+            </div>
+            <div className="w-[15%] min-w-[80px] flex items-center  ">
+              <SortableLink
+                title="Balance"
+                isActive={sort === "deficitAmount"}
+                sortType={sortType}
+                setSort={() => setSort("deficitAmount")}
                 setSortType={setSortType}
               />
             </div>
@@ -111,6 +120,14 @@ const ViewSales = () => {
                     </div>
                     <div className="w-[15%] min-w-[80px] px-2">
                       {sale?.totalAmount || "N/A"}
+                    </div>
+                    <div
+                      className={`w-[15%] min-w-[80px] px-2 ${
+                        sale?.deficitAmount > 0 &&
+                        "text-red-500 font-semibold"
+                      } `}
+                    >
+                      {sale?.deficitAmount || 0}
                     </div>
                     <div className="w-[15%] min-w-[50px] px-2 capitalize">
                       {sale?.signedBy?.name || "N/A"}
