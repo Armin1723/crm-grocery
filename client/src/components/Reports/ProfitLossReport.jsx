@@ -17,7 +17,7 @@ import { getMonthName } from "../utils";
 import { useReport } from "../../context/ReportContext";
 import { useQuery } from "@tanstack/react-query";
 import { toast } from "react-toastify";
-import { FaDownload } from "react-icons/fa";
+import { FaDownload, FaInfoCircle } from "react-icons/fa";
 
 const ProfitLossReport = () => {
   const printRef = useRef(null);
@@ -178,6 +178,7 @@ const ProfitLossReport = () => {
                       Gross Profit/Loss
                     </h3>
                     <HelpTooltip
+                      icon={FaInfoCircle}
                       position="right"
                       message="Gross Profit = Net Sales - Net Purchases"
                     />
@@ -209,6 +210,7 @@ const ProfitLossReport = () => {
                       Net Profit/Loss
                     </h3>
                     <HelpTooltip
+                      icon={FaInfoCircle}
                       position="right"
                       message="Net Profit = Gross Profit - Total Expenses"
                     />

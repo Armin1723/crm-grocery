@@ -6,6 +6,7 @@ import {
   FaBalanceScale,
   FaChartLine,
   FaFileInvoiceDollar,
+  FaReceipt,
 } from "react-icons/fa";
 import { ReportProvider } from "../../context/ReportContext";
 import { useSelector } from "react-redux";
@@ -36,6 +37,11 @@ const Reports = () => {
       icon: FaBalanceScale,
       to: `${baseUrl}/reports/profit-loss`,
     },
+    {
+      label: "Balances",
+      icon: FaReceipt,
+      to: `${baseUrl}/reports/balances`,
+    }
   ];
 
   return (

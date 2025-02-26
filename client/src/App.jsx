@@ -31,6 +31,7 @@ import ViewCustomers from "./components/customer/ViewCustomers";
 import AddCustomer from "./components/customer/AddCustomer";
 import CustomerDetails from "./components/customer/CustomerDetails";
 import SellerCustomers from "./components/seller/customers/SellerCustomers";
+import BalanceReport from "./components/Reports/BalanceReport";
 const Seller = lazy(() => import("./pages/Seller"));
 const TopLoadingBar = lazy(() => import("./components/shared/TopLoadingBar"));
 const SellerSales = lazy(() => import("./components/seller/sales/SellerSales"));
@@ -249,6 +250,7 @@ const App = () => {
                 <Route path="sales" element={<SalesReport />} />
                 <Route path="tax" element={<TaxReport />} />
                 <Route path="profit-loss" element={<ProfitLossReport />} />
+                <Route path="balances" element={<BalanceReport />} />
               </Route>
 
               {/* Employee Routes */}
@@ -332,6 +334,7 @@ const App = () => {
                 <Route path="sales" element={<SalesReport />} />
                 <Route path="tax" element={<TaxReport />} />
                 <Route path="profit-loss" element={<ProfitLossReport />} />
+                <Route path="balances" element={<BalanceReport />} />
               </Route>
               <Route path="settings" element={<Settings />}>
                 <Route path="" element={<ViewSettings />} />
