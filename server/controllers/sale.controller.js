@@ -83,6 +83,8 @@ const getSale = async (req, res) => {
     subTotal: sale.subTotal,
     discount: sale.discount,
     totalAmount: sale.totalAmount,
+    paidAmount: sale.paidAmount,
+    deficitAmount: sale.deficitAmount || 0,
     createdAt: sale.createdAt,
     paymentMode: sale.paymentMode,
     invoice: sale.invoice,
