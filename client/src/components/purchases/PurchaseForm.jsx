@@ -227,7 +227,7 @@ const PurchaseForm = ({ setRefetch = () => {}, closeModal = () => {} }) => {
         });
         reset();
         setRefetch((prev) => !prev);
-        queryClient.invalidateQueries("purchases");
+        queryClient.invalidateQueries({queryKey: ["purchases"]});
         closeModal();
         navigate("/purchases");
       }
