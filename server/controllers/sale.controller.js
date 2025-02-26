@@ -437,7 +437,7 @@ const addSaleReturn = async (req, res) => {
     const deductible = Math.min(sale.deficitAmount, saleReturn.totalAmount);
     sale.deficitAmount -= deductible;
     sale.paidAmount += deductible;
-    sale.description = (sale?.description || '') `Return of ₹${deductible} received on ${new Date().toLocaleString()} signed by ${
+    sale.description = `${sale?.description || ''} Return of ₹${deductible} received on ${new Date().toLocaleString()} signed by ${
       req.user.id
     }. `;
     await Sale.findByIdAndUpdate(sale._id, {
@@ -446,7 +446,7 @@ const addSaleReturn = async (req, res) => {
       description: sale.description,
     });
     await Customer.findByIdAndUpdate(sale.customer, {
-      balance: balance - deductible
+      $inc : { balance: -deductible },
     });
   }
 
