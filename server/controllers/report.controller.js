@@ -1037,23 +1037,24 @@ const getBalanceReport = async (req, res) => {
         $expr: { $gt: ["$deficitAmount", 0] },
       },
     },
+    userLookup,
     {
       $lookup: {
-        from: "users",
-        localField: "signedBy",
+        from: "customers",
+        localField: "customer",
         foreignField: "_id",
-        as: "signedBy",
+        as: "customerDetails",
       },
     },
     {
       $project: {
         deficitAmount: 1,
         _id: 1,
-        products: 1,
+        customer: { $arrayElemAt: ["$customerDetails", 0] },
         totalAmount: 1,
         createdAt: 1,
-        signedByName: {"$arrayElemAt" : ["$signedBy.name",0]},
-        signedById: {"$arrayElemAt" : ["$signedBy._id",0]},
+        signedByName: { $arrayElemAt: ["$signedBy.name", 0] },
+        signedById: { $arrayElemAt: ["$signedBy._id", 0] },
       },
     },
   ]);
@@ -1066,23 +1067,24 @@ const getBalanceReport = async (req, res) => {
         $expr: { $gt: ["$deficitAmount", 0] },
       },
     },
+    userLookup,
     {
       $lookup: {
-        from: "users",
-        localField: "signedBy",
+        from: "suppliers",
+        localField: "supplier",
         foreignField: "_id",
-        as: "signedBy",
+        as: "supplierDetails",
       },
     },
     {
       $project: {
         deficitAmount: 1,
         _id: 1,
-        products: 1,
+        supplier: { $arrayElemAt: ["$supplierDetails", 0] },
         totalAmount: 1,
         createdAt: 1,
-        signedByName: {"$arrayElemAt" : ["$signedBy.name",0]},
-        signedById: {"$arrayElemAt" : ["$signedBy._id",0]},
+        signedByName: { $arrayElemAt: ["$signedBy.name", 0] },
+        signedById: { $arrayElemAt: ["$signedBy._id", 0] },
       },
     },
   ]);
