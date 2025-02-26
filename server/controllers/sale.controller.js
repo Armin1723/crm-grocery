@@ -107,6 +107,7 @@ const getSale = async (req, res) => {
           name: sale?.customer?.name,
           phone: sale?.customer?.phone,
           email: sale?.customer?.email,
+          balance: sale?.customer?.balance,
         }
       : null,
     signedBy: sale?.signedBy,
@@ -132,7 +133,7 @@ const deleteSale = async (req, res) => {
     });
   }
 
-  if(sale?.deficitAmount > 0) {
+  if (sale?.deficitAmount > 0) {
     return res.status(400).json({
       success: false,
       message: "Sale has a deficit amount. Cannot delete sale.",
@@ -309,7 +310,7 @@ const addSale = async (req, res) => {
   await sale.save();
 
   // update customer balance
-  if (customer && (totalAmount > paidAmount)) {
+  if (customer && totalAmount > paidAmount) {
     customer.balance += totalAmount - paidAmount;
     await customer.save();
   }
@@ -429,6 +430,24 @@ const addSaleReturn = async (req, res) => {
     }
     inventory.totalQuantity += product.quantity;
     await inventory.save();
+  }
+
+  // Adjust sale deficit (if any) and customer balance
+  if (sale.deficitAmount > 0) {
+    const deductible = Math.min(sale.deficitAmount, saleReturn.totalAmount);
+    sale.deficitAmount -= deductible;
+    sale.paidAmount += deductible;
+    sale.description = (sale?.description || '') `Return of ₹${deductible} received on ${new Date().toLocaleString()} signed by ${
+      req.user.id
+    }. `;
+    await Sale.findByIdAndUpdate(sale._id, {
+      deficitAmount: sale.deficitAmount,
+      paidAmount: sale.paidAmount,
+      description: sale.description,
+    });
+    await Customer.findByIdAndUpdate(sale.customer, {
+      balance: balance - deductible
+    });
   }
 
   // Generate a sales return invoice
