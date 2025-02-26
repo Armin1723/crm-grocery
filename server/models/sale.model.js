@@ -59,7 +59,7 @@ const saleSchema = new mongoose.Schema(
     transactionId: {
       type: String,
     },
-    notes: {
+    description: {
       type: String,
     },
     company: {

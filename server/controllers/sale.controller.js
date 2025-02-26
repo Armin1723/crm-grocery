@@ -85,6 +85,7 @@ const getSale = async (req, res) => {
     totalAmount: sale.totalAmount,
     paidAmount: sale.paidAmount,
     deficitAmount: sale.deficitAmount || 0,
+    description: sale.description,
     createdAt: sale.createdAt,
     paymentMode: sale.paymentMode,
     invoice: sale.invoice,
@@ -128,6 +129,13 @@ const deleteSale = async (req, res) => {
     return res.status(400).json({
       success: false,
       message: "Sale has a return. Cannot delete sale.",
+    });
+  }
+
+  if(sale?.deficitAmount > 0) {
+    return res.status(400).json({
+      success: false,
+      message: "Sale has a deficit amount. Cannot delete sale.",
     });
   }
 

@@ -2,6 +2,7 @@ const mongoose = require("mongoose");
 
 const Customer = require("../models/customer.model");
 const Sale = require("../models/sale.model");
+const User = require("../models/user.model");
 
 const escapeRegExp = (string) => {
   return string.replace(/[.*+?^=!:${}()|\[\]\/\\]/g, "\\$&");
@@ -183,10 +184,41 @@ const getCustomerProducts = async (req, res) => {
   });
 };
 
+const addCustomerRepayments = async (req, res) => {
+  const {id} = req.params;
+  const {sales, amount} = req.body;
+
+  const customer = await Customer.findById(id);
+  if (!customer) {
+    return res.status(404).json({message: "Customer not found"});
+  }
+
+  // Update all sales
+  for (const saleId of sales) {
+    const sale = await Sale.findById(saleId);
+    if (!sale) {
+      return res.status(404).json({message: "One or more sales not found"});
+    }
+    const biller = await User.findById(req.user.id).select("name");
+    const remainingAmount = sale?.deficitAmount;
+    sale.deficitAmount = 0;
+    sale.paidAmount = sale?.totalAmount;
+    sale.description = (sale?.description || '') + "Repayment of ₹" + remainingAmount + " received on " + new Date().toLocaleString() + " signed by " + biller.name + ". ";
+    await sale.save();
+  }
+
+  // Update customer balance
+  customer.balance -= amount;
+  await customer.save();
+
+  res.json({success: true, message: "Repayment added successfully"});
+};
+
 module.exports = {
   getCustomer,
   getCustomers,
   addEditCustomer,
   getCustomerSales,
   getCustomerProducts,
+  addCustomerRepayments,
 };
