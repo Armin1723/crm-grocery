@@ -412,6 +412,7 @@ const addSaleReturn = async (req, res) => {
             quantity: product.quantity,
             mrp: product.mrp,
             sellingRate: product.sellingRate,
+            purchaseRate: product?.purchaseRate,
             expiry: product.expiry,
           },
         ],
@@ -425,6 +426,7 @@ const addSaleReturn = async (req, res) => {
         quantity: product.quantity,
         mrp: product.mrp,
         sellingRate: product.sellingRate,
+        purchaseRate: product?.purchaseRate,
         expiry: product.expiry,
       });
     }
