@@ -23,20 +23,20 @@ const addProduct = async (req, res) => {
     company: req.user.company,
     $or: [],
   };
-  
+
   if (upc) {
     query.$or.push({ upc });
   }
-  
+
   if (name) {
     query.$or.push({ name });
   }
-  
+
   if (query.$or.length > 0) {
     const existingProduct = await Product.findOne(query);
     if (existingProduct) {
       let message = "Product already exists";
-  
+
       if (upc && name) {
         message = "Product with this upc or name already exists";
       } else if (upc) {
@@ -44,14 +44,13 @@ const addProduct = async (req, res) => {
       } else if (name) {
         message = "Product with this name already exists";
       }
-  
+
       return res.status(400).json({
         message,
         success: false,
       });
     }
   }
-  
 
   const product = await Product.create({
     ...req.body,
@@ -61,7 +60,9 @@ const addProduct = async (req, res) => {
   // Upload image to cloudinary
   if (req.files) {
     const { image } = req.files;
-    const company = await Company.findById(req.user.company).select("licenseKey").lean();
+    const company = await Company.findById(req.user.company)
+      .select("licenseKey")
+      .lean();
     if (image) {
       try {
         const cloudinaryResponse = await cloudinary.uploader.upload(
@@ -105,7 +106,9 @@ const getProducts = async (req, res) => {
     const products = await Product.find({
       company: req.user.company,
       name: { $regex: name, $options: "i" },
-    }).limit(5).lean();
+    })
+      .limit(5)
+      .lean();
 
     return res.json({ success: true, products });
   }
@@ -140,7 +143,7 @@ const getTrendingProducts = async (req, res) => {
         createdAt: {
           $gte: new Date(new Date().setDate(new Date().getDate() - 30)),
         },
-        company:  new mongoose.Types.ObjectId(req.user.company),
+        company: new mongoose.Types.ObjectId(req.user.company),
       },
     },
     { $unwind: "$products" },
@@ -175,13 +178,19 @@ const searchProduct = async (req, res) => {
   const company = await Company.findById(req.user.company);
 
   if (query.startsWith(company?.initials)) {
-    const product = await Product.findOne({ upid: query, company: req.user.company });
+    const product = await Product.findOne({
+      upid: query,
+      company: req.user.company,
+    });
     if (product) {
       return res.json({ success: true, products: product });
     }
     return res.json({ success: false, message: "Product not found" });
   } else if (query.length == 12) {
-    const product = await Product.findOne({ upc: query, company: req.user.company });
+    const product = await Product.findOne({
+      upc: query,
+      company: req.user.company,
+    });
     if (product) {
       return res.json({ success: true, products: product });
     }
@@ -393,23 +402,33 @@ const setStockPreference = async (req, res) => {
     ? quantity
     : undefined;
 
-  if (product.stockAlert.preference) {
-    sendMail(
-      (to = process.env.ADMIN_EMAIL),
-      (subject = "Stock Alert Set"),
-      (message = stockAlertMailTemplate(product, product.company))
-    );
-  }
-
   await product.save();
   res.json({ success: true, product, message: "Stock preference updated" });
+
+  // Send email to company admin if stock alert is set (in background)
+  process.nextTick(async () => {
+    const company = await Company.findOne({ admin: req.user.id })
+      .select("email")
+      .lean();
+    if (product.stockAlert.preference && company.email) {
+      await sendMail(
+        (to = company.email),
+        (subject = "Stock Alert Set"),
+        (message = stockAlertMailTemplate(product, product.company))
+      );
+    }
+  });
 };
 
 const editProduct = async (req, res) => {
   let updateData = { ...req.body };
 
   //Check if units are updated and inventory exists
-  if (updateData.primaryUnit || updateData.secondaryUnit || updateData.conversionFactor) {
+  if (
+    updateData.primaryUnit ||
+    updateData.secondaryUnit ||
+    updateData.conversionFactor
+  ) {
     const inventory = await Inventory.findOne({
       product: req.params.id,
       company: req.user.company,
@@ -420,13 +439,15 @@ const editProduct = async (req, res) => {
         message: "Product units cannot be updated as inventory exists",
       });
     }
-  };
+  }
 
   if (req.files) {
     const { image } = req.files;
     if (image) {
       try {
-        const company = await Company.findById(req.user.company).select("licenseKey").lean();
+        const company = await Company.findById(req.user.company)
+          .select("licenseKey")
+          .lean();
         const cloudinaryResponse = await cloudinary.uploader.upload(
           image[0].path,
           { folder: `${company?.licenseKey}/products` }

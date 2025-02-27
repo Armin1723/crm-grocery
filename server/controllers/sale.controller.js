@@ -98,6 +98,7 @@ const getSale = async (req, res) => {
       secondaryUnit: item?.product?.secondaryUnit,
       expiry: item?.expiry,
       mrp: item?.mrp,
+      purchaseRate: item?.purchaseRate,
       sellingRate: item?.sellingRate,
       discount: item?.discount,
       price: item?.sellingRate * item?.quantity,
@@ -344,6 +345,7 @@ const regenerateSaleInvoice = async (req, res) => {
 
 const addSaleReturn = async (req, res) => {
   const { invoiceId, products = [] } = req.body;
+
   const sale = await Sale.findById(invoiceId).populate("customer").lean();
   if (!sale) {
     return res.status(404).json({ success: false, message: "Sale not found." });
@@ -356,7 +358,7 @@ const addSaleReturn = async (req, res) => {
         (item) => item.product.toString() === product.product.toString()
       ).quantity < product.quantity
     ) {
-      return res.status(400).json({ error: "Invalid quantity returned." });
+      return res.status(400).json({ message: "Invalid quantity returned." });
     }
   }
 
