@@ -10,7 +10,6 @@ const getMatchStage = (req) => ({
   },
 });
 
-
 const getProductsFromInventory = async (req, res) => {
   const { name, barcode, page = 1, limit = 10 } = req.query;
   const skip = (page - 1) * limit;
@@ -353,18 +352,19 @@ const getInventoryListGroupedByCategory = async (req, res) => {
 };
 
 const getExpiringInventory = async (req, res) => {
-  const { page = 1, limit = 10, query = '', category, time = 'day'} = req.query;
-  const skip = (page - 1) * limit;
+  const { query = "", category, time = "day", page = 1, limit = 5 } = req.query;
+  const pageNum = Math.max(1, parseInt(page));
+  const pageSize = Math.max(1, parseInt(limit));
 
   const getExpiryDateRange = (timePeriod) => {
     const now = new Date();
     switch (timePeriod) {
-      case "day": 
+      case "day":
         return {
           $gte: new Date(now.setHours(0, 0, 0, 0)),
           $lte: new Date(now.setHours(23, 59, 59, 999)),
         };
-      case "week": 
+      case "week":
         const endOfWeek = new Date(now.setDate(now.getDate() + (7 - now.getDay())));
         endOfWeek.setHours(23, 59, 59, 999);
         return { $gte: new Date(), $lte: endOfWeek };
@@ -376,7 +376,7 @@ const getExpiringInventory = async (req, res) => {
         const nextYear = new Date(now.setFullYear(now.getFullYear() + 1));
         nextYear.setHours(23, 59, 59, 999);
         return { $gte: new Date(), $lte: nextYear };
-      default: 
+      default:
         return null;
     }
   };
@@ -394,17 +394,20 @@ const getExpiringInventory = async (req, res) => {
       },
     },
     { $unwind: "$details" },
+    { $unwind: "$batches" },
 
-    // Filter products based on expiry date
-    ...(expiryDateRange ?
-    [{
-      $match: {
-        "batches.expiry": expiryDateRange,
-      },
-    }]
-    : []),
-    
-    // Filter products based on the category if provided
+    // Filter based on expiry date range
+    ...(expiryDateRange
+      ? [
+          {
+            $match: {
+              "batches.expiry": expiryDateRange,
+            },
+          },
+        ]
+      : []),
+
+    // Filter by category if provided
     ...(category
       ? [
           {
@@ -414,54 +417,59 @@ const getExpiringInventory = async (req, res) => {
           },
         ]
       : []),
-    
-      // Filter products based on search query
+
+    // Search query filter
     ...(query
       ? [
-        {
-          $match: {
-            $or: [
-              { "details.name": { $regex: query, $options: "i" } },
-              { "details.category": { $regex: query, $options: "i" } },
-              { "details.subCategory": { $regex: query, $options: "i" } },
-              { "details.description": { $regex: query, $options: "i" } },
-              { "details.tags": { $regex: query, $options: "i" } },
-            ],
-        }
-      },
-    ]
-    : []),
+          {
+            $match: {
+              $or: [
+                { "details.name": { $regex: query, $options: "i" } },
+                { "details.category": { $regex: query, $options: "i" } },
+                { "details.subCategory": { $regex: query, $options: "i" } },
+                { "details.description": { $regex: query, $options: "i" } },
+                { "details.tags": { $regex: query, $options: "i" } },
+              ],
+            },
+          },
+        ]
+      : []),
 
+    // Group by product to find minimum expiry date per product
     {
-      $project: {
-        upid: "$details.upid",
-        category: "$details.category",
+      $group: {
+        _id: "$details._id",
+        upid: { $first: "$details.upid" },
+        category: { $first: "$details.category" },
+        minExpiry: { $min: "$batches.expiry" }, // Get the earliest expiry
       },
     },
-    { $skip: skip },
-    { $limit: limit },
-    { $sort: { expiry: 1 } },
 
-    // Group by product category and aggregate products
+    { $sort: { minExpiry: 1 } }, // Sort by earliest expiry first
+
+    // Pagination: Skip and limit results
+    { $skip: (pageNum - 1) * pageSize },
+    { $limit: pageSize + 1 }, // Fetch one extra to check if `hasMore` is needed
+
     {
       $group: {
         _id: "$category",
-        products: {
-          $push: {
-            upid: "$upid",
-          },
-        },
+        products: { $push: { upid: "$upid", minExpiry: "$minExpiry" } },
       },
     },
   ];
 
   const inventory = await Inventory.aggregate(pipeline);
+  const hasMore = inventory.length > pageSize; // Check if there are more results
 
   res.status(200).json({
     success: true,
-    inventory,
+    hasMore,
+    page: pageNum,
+    inventory: hasMore ? inventory.slice(0, pageSize) : inventory, // Return only `limit` results
   });
 };
+
 
 const getRates = async (req, res) => {
   const { upid } = req.params;
