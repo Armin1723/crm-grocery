@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import SearchBar from "../utils/SearchBar";
 import InventoryCard from "./InventoryCard";
 import Divider from "../utils/Divider";
@@ -11,15 +11,13 @@ const InventoryGrid = () => {
   const [category, setCategory] = useState("");
   const [page, setPage] = useState(1);
   const [query, setQuery] = useState("");
-  const [isFetching, setIsFetching] = useState(false);  // New state to track active fetches
 
-  const scrollContainerRef = React.useRef(null);
+  const scrollContainerRef = useRef(null);
 
   // Fetch inventory data
   useEffect(() => {
     const fetchInventory = async () => {
       setLoading(true);
-      setIsFetching(true);  // Set fetching flag
       try {
         const response = await fetch(
           `${
@@ -33,17 +31,18 @@ const InventoryGrid = () => {
         if (!response.ok) {
           throw new Error(data.message || "Something went wrong");
         }
-        setResults(prevResults => ({
+        setResults((prevResults) => ({
           hasMore: data?.hasMore,
           page: data?.page,
           data:
-            data.page === 1 ? data?.data : [...(prevResults?.data || []), ...data?.data],
+            data.page === 1
+              ? data?.data
+              : [...(prevResults?.data || []), ...data?.data],
         }));
       } catch (error) {
         console.error("Error fetching inventory:", error.message);
       } finally {
         setLoading(false);
-        setIsFetching(false);  
       }
     };
 
@@ -53,11 +52,13 @@ const InventoryGrid = () => {
   // Reset page when filters change
   useEffect(() => {
     setPage(1);
-    setResults({}); 
+    setResults({});
   }, [query, category]);
 
   // Infinite scroll
   useEffect(() => {
+    let timer = null; 
+    
     const handleScroll = () => {
       const container = scrollContainerRef.current;
       if (!container) return;
@@ -69,15 +70,20 @@ const InventoryGrid = () => {
         container.scrollHeight - container.scrollTop - 50 <=
         container.clientHeight + buffer
       ) {
-        if (results?.hasMore && !loading && !isFetching) {
-          setPage((prev) => prev + 1);
+        if (results?.hasMore && !loading) {
+          if (timer) return; 
+
+        timer = setTimeout(() => {
+          setPage((prevPage) => prevPage + 1);
+          timer = null;
+        }, 500); 
         }
       }
     };
 
-    const container = scrollContainerRef.current;
+    const container = scrollContainerRef?.current;
     if (container) {
-      container.addEventListener("scroll", handleScroll);
+      container?.addEventListener("scroll", handleScroll);
     }
 
     return () => {
@@ -85,7 +91,7 @@ const InventoryGrid = () => {
         container.removeEventListener("scroll", handleScroll);
       }
     };
-  }, [results?.hasMore, loading, isFetching]);  
+  }, [results?.hasMore, loading]);
 
   const inventory = results?.data || [];
 
@@ -122,7 +128,7 @@ const InventoryGrid = () => {
                   />
                 </p>
                 <div className="flex gap-1 horizontal-scrollbar scroll-snap snap-x snap-mandatory min-w-full overflow-x-auto pb-4">
-                  {categoryData.products.map((product) => {
+                  {categoryData?.products?.map((product) => {
                     return (
                       <div
                         key={product._id}

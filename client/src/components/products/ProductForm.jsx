@@ -33,7 +33,7 @@ const ProductForm = ({
 
   const [loading, setLoading] = React.useState(false);
 
-  const queryClient = useQueryClient()
+  const queryClient = useQueryClient();
 
   const {
     register,
@@ -137,10 +137,8 @@ const ProductForm = ({
     formData.append("upc", values.upc);
     formData.append("barcodeInfo", values.barcodeInfo);
     if (isStockAlertEnabled && values.stockAlert) {
-      formData.append("stockAlert", {
-        preference: true,
-        quantity: values.stockAlert,
-      });
+      formData.append("stockAlert[preference]", true);
+      formData.append("stockAlert[quantity]", values.stockAlert);
     }
     // Append each tag individually to formData
     tags.forEach((tag) => {

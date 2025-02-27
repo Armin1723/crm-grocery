@@ -4,7 +4,7 @@ import Avatar from "../utils/Avatar";
 
 const ProductTable = ({ data = [] }) => {
   return (
-    <div className="bg-[var(--color-card)] shadow rounded-lg overflow-hidden p-2">
+    <div className="bg-[var(--color-card)] shadow rounded-lg overflow-hidden p-2 flex flex-col gap-2 overflow-y-auto overflow-x-auto">
       <h2 className="text-xl font-bold p-6 border-b border-neutral-500/50 capitalize">
         Product Details
       </h2>
@@ -49,14 +49,14 @@ const ProductTable = ({ data = [] }) => {
                     alt={data?.name}
                   />
                 </td>
-                <td className="px-3 py-2 whitespace-nowrap text-sm text-ellipsis truncate">
+                <td className="px-3 py-2 max-w-[100px] text-sm text-ellipsis truncate">
                   {data?.name}
                 </td>
                 <td className="px-3 py-2 whitespace-nowrap text-sm min-w-[150px]">
                   {data?.quantity} {data?.secondaryUnit}
                 </td>
                 <td className="px-3 py-2 whitespace-nowrap text-sm min-w-[150px]">
-                  ₹{data?.rate * data?.quantity}
+                  ₹{Math.round(data?.rate * data?.quantity)}
                 </td>
                 <td className="px-3 py-2 whitespace-nowrap text-sm ">
                   {data.tax}%
@@ -126,7 +126,7 @@ const TaxTable = ({ data = {}, title = "" }) => {
                     </HoverCard>
                   </td>
                   <td className="px-6 py-2 whitespace-nowrap text-sm ">
-                    ₹{data?.totalAmount}
+                    ₹{Math.round(data?.totalAmount)}
                   </td>
                   <td className="px-6 py-2 whitespace-nowrap text-sm ">
                     ₹{(data?.totalTax).toFixed(2)}

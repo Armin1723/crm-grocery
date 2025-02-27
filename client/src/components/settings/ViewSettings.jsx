@@ -12,7 +12,7 @@ const ViewSettings = () => {
   const [editModalOpen, setEditModalOpen] = useState(false);
 
   return (
-    <div className="flex flex-col gap-3 w-full bg-[var(--color-card)] flex-1 h-full p-3 rounded-md">
+    <div className="flex flex-col gap-3 w-full bg-[var(--color-sidebar)] border border-neutral-500/50 flex-1 h-full p-3 rounded-md">
       <Divider
         title={
           <div className="flex items-center gap-2">

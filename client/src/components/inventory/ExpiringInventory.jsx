@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import CategorySelection from "../products/CategorySelection";
 import InventoryCard from "./InventoryCard";
 import Divider from "../utils/Divider";
@@ -8,17 +8,23 @@ const ExpiringInventory = () => {
   const [category, setCategory] = useState("");
   const [refetch, setRefetch] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [timePeriod, setTimePeriod] = useState("");
+  const [timePeriod, setTimePeriod] = useState("month");
   const [results, setResults] = useState({});
+  const [page, setPage] = useState(1);
+
+  const [isFetching, setIsFetching] = useState(false);
+
+  const containerRef = useRef(null);
 
   useEffect(() => {
     setLoading(true);
+    setIsFetching(true);
     const fetchInventory = async () => {
       try {
         const response = await fetch(
           `${
             import.meta.env.VITE_BACKEND_URL
-          }/api/v1/inventory/expiring?category=${category}&time=${timePeriod}`,
+          }/api/v1/inventory/expiring?category=${category}&time=${timePeriod}&page=${page}`,
           {
             credentials: "include",
           }
@@ -27,16 +33,42 @@ const ExpiringInventory = () => {
         if (!response.ok) {
           throw new Error(data.message || "Something went wrong");
         }
-        setResults(data);
+        setResults({
+          ...data,
+          inventory:
+            page === 1
+              ? data?.inventory
+              : [...(results?.inventory || []), ...data?.inventory],
+        });
       } catch (error) {
         console.error("Error fetching expiring inventory:", error.message);
       } finally {
         setLoading(false);
+        setIsFetching(false);
       }
     };
 
     fetchInventory();
-  }, [refetch, category, timePeriod]);
+  }, [refetch, category, timePeriod, page]);
+
+  //Use Effect to handle the infinite scroll
+  useEffect(() => {
+    const handleScroll = () => {
+      if (
+        containerRef.current.scrollTop + containerRef.current.clientHeight >=
+        containerRef.current.scrollHeight
+      ) {
+        if (!isFetching && results.hasMore) {
+          setPage((prev) => prev + 1);
+        }
+      }
+    };
+    const container = containerRef.current;
+    if (container) {
+      container.addEventListener("scroll", handleScroll);
+    }
+    return () => container.removeEventListener("scroll", handleScroll);
+  }, [isFetching, results.hasMore]);
 
   const { inventory } = results;
 
@@ -63,33 +95,45 @@ const ExpiringInventory = () => {
         </div>
       </div>
 
-      <div className="flex flex-col flex-1 w-full overflow-y-auto">
+      <div
+        ref={containerRef}
+        className="flex flex-col flex-1 w-full overflow-y-auto"
+      >
         {inventory && inventory.length ? (
-          inventory.map((categoryData) => {
-            return (
-              <div key={categoryData?._id} className="flex flex-col gap-1">
-                <p className="text-lg max-lg:text-base font-bold pl-2">
-                  <Divider
-                    title={`${categoryData?._id} (${
-                      categoryData?.products?.length || 0
-                    } item)`}
-                  />
-                </p>
-                <div className="flex gap-1 horizontal-scrollbar scroll-snap snap-x snap-mandatory min-w-full overflow-x-auto pb-4">
-                  {categoryData.products.map((product) => {
-                    return (
-                      <div
-                        key={product._id}
-                        className="flex gap-1 min-w-full w-full snap-start p-4"
-                      >
-                        <InventoryCard upid={product.upid} editable />
-                      </div>
-                    );
-                  })}
+          <>
+            {inventory.map((categoryData) => {
+              return (
+                <div key={categoryData?._id} className="flex flex-col gap-1">
+                  <p className="text-lg max-lg:text-base font-bold pl-2">
+                    <Divider
+                      title={`${categoryData?._id} (${
+                        categoryData?.products?.length || 0
+                      } item)`}
+                    />
+                  </p>
+                  <div className="flex gap-1 horizontal-scrollbar scroll-snap snap-x snap-mandatory min-w-full overflow-x-auto pb-4">
+                    {categoryData.products.map((product) => {
+                      return (
+                        <div
+                          key={product._id}
+                          className="flex gap-1 min-w-full w-full snap-start p-4"
+                        >
+                          <InventoryCard upid={product.upid} editable />
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              );
+            })}
+            {results?.hasMore && (
+              <div className="flex justify-center p-2">
+                <div className="" onClick={() => setPage((page) => page + 1)}>
+                  {loading ? <div className="spinner" /> : <>Load More</>}
                 </div>
               </div>
-            );
-          })
+            )}
+          </>
         ) : loading ? (
           <div className="flex flex-col items-center justify-center w-full h-full">
             <div className="spinner"></div>

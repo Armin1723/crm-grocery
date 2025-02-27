@@ -199,7 +199,7 @@ const SaleReturnForm = ({ sale = {}, setSale = () => {} }) => {
                       />
                     </div>
                     <div className="w-1/5 min-w-[150px] flex-wrap flex-grow">
-                      {product.name}
+                      {product?.name}
                     </div>
                     <div
                       className={`w-1/5 min-w-[100px] ${
