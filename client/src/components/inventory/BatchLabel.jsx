@@ -1,6 +1,6 @@
 import React, { useState, useRef } from "react";
 import Barcode from "react-barcode";
-import { FaPrint, FaDownload } from "react-icons/fa";
+import { FaDownload } from "react-icons/fa";
 import Modal from "../utils/Modal";
 import { MdEdit } from "react-icons/md";
 import { toJpeg } from "html-to-image";
@@ -116,11 +116,12 @@ const BatchLabel = ({
         style={{
           display: "flex",
           flexDirection: "column",
+          gap:"0.1rem", 
           alignItems: "center",
           width: "fit-content",
-          color: "black",
+          color: "var(--color-text)",
           padding: "1rem",
-          backgroundColor: "white",
+          backgroundColor: "var(--color-primary)",
         }}
       >
         <h2
@@ -134,7 +135,7 @@ const BatchLabel = ({
         >
           {user?.company?.name}
         </h2>
-        <p style={{ display: "flex", gap: "0.25rem", alignItems: "center" }}>
+        <p style={{ display: "flex", gap: "0.5rem", alignItems: "center" }}>
           <span className="">{inventory?.name}</span>
           <span
             style={{
@@ -149,7 +150,7 @@ const BatchLabel = ({
           className="rates"
           style={{
             display: "flex",
-            gap: "0.25rem",
+            gap: "0.5rem",
             alignItems: "center",
             margin: 0,
             padding: 0,
@@ -171,7 +172,7 @@ const BatchLabel = ({
           <p
             style={{
               fontWeight: "bold",
-              fontSize: "1.2rem",
+              fontSize: "1.5rem",
             }}
           >
             Our Price: {batch?.sellingRate}₹
@@ -180,7 +181,7 @@ const BatchLabel = ({
         {/* Barcode Preview */}
         <div className="px-4">
           {inventory.upc || inventory.upid ? (
-            <Barcode value={inventory.upc || inventory.upid} />
+            <Barcode height={40} width={1} fontSize={12} value={inventory.upc || inventory.upid} />
           ) : (
             <span className="text-sm text-red-500">No barcode available</span>
           )}
