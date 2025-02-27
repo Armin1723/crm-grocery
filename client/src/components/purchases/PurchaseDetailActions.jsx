@@ -6,7 +6,6 @@ import Modal from "../utils/Modal";
 const PurchaseDetailActions = ({ purchase = {} }) => {
   const [showInvoice, setShowInvoice] = useState(false);
   const [showFollowUp, setShowFollowUp] = useState(false);
-  console.log(purchase);
   
   return (
     <>

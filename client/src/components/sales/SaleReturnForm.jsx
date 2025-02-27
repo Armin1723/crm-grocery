@@ -122,6 +122,7 @@ const SaleReturnForm = ({ sale = {}, setSale = () => {} }) => {
 
   // Handle form submission
   const handleReturn = async (values) => {
+    setLoading(true);
     const id = toast.loading("Processing sale return...");
     try {
       const res = await fetch(
@@ -157,6 +158,8 @@ const SaleReturnForm = ({ sale = {}, setSale = () => {} }) => {
         isLoading: false,
         autoClose: 3000,
       });
+    } finally {
+      setLoading(false);
     }
   };
 

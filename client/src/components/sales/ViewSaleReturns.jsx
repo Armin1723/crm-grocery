@@ -143,7 +143,7 @@ const ViewSaleReturns = () => {
                           </Link>
                         }
                       >
-                        <SaleDetails idBackup={saleReturn?.saleId} />
+                        <SaleDetails idBackup={saleReturn?.saleId} previewOnly/>
                       </HoverCard>
                     </div>
                     <div className="w-[15%] min-w-[80px] px-2">

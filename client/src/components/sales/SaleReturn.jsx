@@ -19,7 +19,7 @@ const SaleReturn = () => {
       );
       const data = await res.json();
       if (!res.ok) {
-        throw new Error(data.message || "No Such Sale Found.");
+        throw new Error("Invalid Invoice ID");  
       }
       setSale(data.sale);
     } catch (error) {

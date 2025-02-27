@@ -7,7 +7,7 @@ const DateRangeSelection = ({
   },
   setDateRange = () => {},
 }) => {
-  const [selectedRange, setSelectedRange] = React.useState("");
+  const [selectedRange, setSelectedRange] = React.useState("thisYear");
   const handleDropdownChange = (value) => {
     const today = new Date();
     const timezoneOffset = today.getTimezoneOffset();

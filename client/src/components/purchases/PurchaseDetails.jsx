@@ -12,7 +12,7 @@ import SubscriptionOverlay from "../utils/SubscriptionOverlay";
 import HelpTooltip from "../utils/HelpTooltip";
 import { FaInfoCircle } from "react-icons/fa";
 
-const PurchaseDetails = ({ idBackup = "" }) => {
+const PurchaseDetails = ({ idBackup = "", previewOnly = false }) => {
   let { id } = useParams();
 
   if (!id) id = idBackup;
@@ -57,7 +57,7 @@ const PurchaseDetails = ({ idBackup = "" }) => {
 
   if (loading)
     return (
-      <div className="p-3 rounded-md flex h-full flex-col items-center justify-center gap-2 min-h-[40vh] bg-[var(--color-sidebar)] ">
+      <div className="p-3 rounded-md flex h-full flex-col items-center justify-center gap-2 min-h-[40vh] min-w-[30vw] bg-[var(--color-sidebar)] ">
         <div className="spinner"></div>
       </div>
     );
@@ -82,7 +82,7 @@ const PurchaseDetails = ({ idBackup = "" }) => {
             onClick={() => setRefetch((p) => !p)}
           ></p>
         </div>
-        <PurchaseDetailActions purchase={purchase} />
+        {!previewOnly && <PurchaseDetailActions purchase={purchase} />}
       </div>
 
       {error && error.subscription ? (
@@ -209,7 +209,7 @@ const PurchaseDetails = ({ idBackup = "" }) => {
                       )}
                     </td>
                     <td className="py-2 pl-4">
-                      ₹{Math.ceil(product?.purchaseRate * product?.quantity)}
+                      ₹{Math.round(product?.purchaseRate * product?.quantity)}
                     </td>
                   </tr>
                 ))}
@@ -239,7 +239,10 @@ const PurchaseDetails = ({ idBackup = "" }) => {
           {purchase?.return && (
             <div className="flex flex-col gap-2 my-2">
               <Divider title="Return Information" />
-              <PurchaseReturnCard purchaseReturn={purchase?.return} />
+              <PurchaseReturnCard
+                purchaseReturn={purchase?.return}
+                previewOnly={previewOnly}
+              />
             </div>
           )}
         </div>

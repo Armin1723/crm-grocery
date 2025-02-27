@@ -128,6 +128,7 @@ const ViewPurchaseReturns = () => {
                       >
                         <PurchaseDetails
                           idBackup={purchaseReturn?.purchaseId}
+                          previewOnly
                         />
                       </HoverCard>
                     </div>

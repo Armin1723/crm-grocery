@@ -44,8 +44,8 @@ function createWindow() {
 
   // Prevent new windows from opening
   mainWindow.webContents.setWindowOpenHandler(({ url }) => {
-    mainWindow.loadURL(url); // Open link in the same window
-    return { action: 'deny' }; // Block new window creation
+    mainWindow.loadURL(url); 
+    return { action: 'deny' }; 
   });
 
   // Handle custom window controls

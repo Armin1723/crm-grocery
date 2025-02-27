@@ -20,6 +20,12 @@ const CategorySelection = ({ category = '', setCategory = ()=>{}, categories = [
             {cat.category}
           </option>
         ))}
+          <option
+            value="purchase"
+            className="!bg-[var(--color-card)]"
+          >
+            Purchase
+          </option>
       </select>
     </div>
   );

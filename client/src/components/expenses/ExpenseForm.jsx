@@ -3,6 +3,7 @@ import Divider from "../utils/Divider";
 import { useForm } from "react-hook-form";
 import { expenseTypes } from "../utils";
 import { toast } from "react-toastify";
+import { useQueryClient } from "@tanstack/react-query";
 
 const ExpenseForm = () => {
   const {
@@ -12,43 +13,54 @@ const ExpenseForm = () => {
     reset,
   } = useForm();
 
+  const [loading, setLoading] = React.useState(false);
+
+  const queryClient = useQueryClient();
+
   const addExpense = async (values) => {
+    setLoading(true);
     const id = toast.loading("Adding Expense...");
-    try{
-        const response = await fetch(
-            `${import.meta.env.VITE_BACKEND_URL}/api/v1/expenses`,
-            {
-                method: "POST",
-                headers: {
-                "Content-Type": "application/json",
-                },
-                credentials: "include",
-                body: JSON.stringify(values),
-            }
-            );
-        const data = await response.json();
-        if(!response.ok){
-            throw new Error(data.message);
+    try {
+      const response = await fetch(
+        `${import.meta.env.VITE_BACKEND_URL}/api/v1/expenses`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+          body: JSON.stringify(values),
         }
-        toast.update(id, {
-            render: "Expense added successfully",
-            type: "success",
-            isLoading: false,
-            autoClose: 2000,
-        });
-        reset();
+      );
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.message);
+      }
+      toast.update(id, {
+        render: "Expense added successfully",
+        type: "success",
+        isLoading: false,
+        autoClose: 2000,
+      });
+      queryClient.invalidateQueries({ queryKey: ["expenses"] });
+      reset();
     } catch (error) {
-        toast.update(id, {
-            render: "Failed to add Expense",
-            type: "error",
-            isLoading: false,
-            autoClose: 2000,
-        });
+      toast.update(id, {
+        render: "Failed to add Expense",
+        type: "error",
+        isLoading: false,
+        autoClose: 2000,
+      });
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <form onSubmit={handleSubmit(addExpense)} className="flex flex-col gap-3 flex-1 text-sm">
+    <form
+      onSubmit={handleSubmit(addExpense)}
+      className="flex flex-col gap-3 flex-1 text-sm"
+    >
       <Divider title="Expense Details" />
       <div className="amount-category w-full flex flex-col md:flex-row gap-2">
         <div className="amount-input w-full flex flex-col relative group my-2">
@@ -57,13 +69,15 @@ const ExpenseForm = () => {
             placeholder=" "
             min={0}
             className={`input peer ${
-              errors && errors.amount && "border-red-500 focus:!border-red-500 text-red-500"
+              errors &&
+              errors.amount &&
+              "border-red-500 focus:!border-red-500 text-red-500"
             }`}
             name="amount"
-            {...register("amount", { 
-            valueAsNumber: true,
-            validate: (value) => value > 0 || "Amount must be greater than 0"
-             })}
+            {...register("amount", {
+              valueAsNumber: true,
+              validate: (value) => value > 0 || "Amount must be greater than 0",
+            })}
           />
           <label
             htmlFor="amount"
@@ -133,8 +147,8 @@ const ExpenseForm = () => {
       </div>
       <button
         type="submit"
-        disabled={Object.keys(errors).length > 0}
-        className="w-full rounded-md px-3 py-1 bg-accent hover:bg-accentDark cursor-pointer text-white disabled:opacity-30 disabled:cursor-not-allowed"
+        disabled={Object.keys(errors).length > 0 || loading}
+        className="w-full rounded-md px-3 py-1 bg-accent hover:bg-accentDark cursor-pointer text-white disabled:opacity-30 disabled:cursor-not-allowed disabled:hoer:bg-none"
       >
         Add Expense
       </button>

@@ -3,8 +3,8 @@ import SortableLink from "../utils/SortableLink";
 import Pagination from "../utils/Pagination";
 import { formatDate } from "../utils";
 import PurchaseActionButton from "./PurchaseActionButton";
-import { Link } from "react-router-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useSelector } from "react-redux";
 
 const ViewPurchases = () => {
   const [limit, setLimit] = useState(10);
@@ -13,6 +13,9 @@ const ViewPurchases = () => {
   const [sortType, setSortType] = useState("desc");
 
   const steps = [10, 20, 50, 100];
+
+  const user = useSelector((state) => state.user);
+  const baseUrl = user?.role === "admin" ? "" : "/seller";
 
   const queryClient = useQueryClient();
   const refetch = () => {
@@ -117,12 +120,11 @@ const ViewPurchases = () => {
                     key={index}
                     className="tr flex w-full justify-between items-center py-2 px-4 max-sm:px-1 gap-2 hover:bg-accent/10"
                   >
-                    <Link
-                      to={`/suppliers/${purchase?.supplier?._id}`}
+                    <div
                       className="w-1/5 min-w-[50px] pl-2"
                     >
                       {purchase?.supplier?.name}
-                    </Link>
+                    </div>
                     <div className="w-[15%] min-w-[80px] px-2">
                       {purchase?.totalAmount || "N/A"}
                     </div>

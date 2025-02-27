@@ -10,7 +10,7 @@ import { pluralizeWord } from "../utils";
 import SaleDetailActions from "./SaleDetailActions";
 import SubscriptionOverlay from "../utils/SubscriptionOverlay";
 
-const SaleDetails = ({ idBackup = "" }) => {
+const SaleDetails = ({ idBackup = "", previewOnly = false }) => {
   let { id } = useParams();
   const [sale, setSale] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -53,7 +53,7 @@ const SaleDetails = ({ idBackup = "" }) => {
 
   if (loading)
     return (
-      <div className="p-3 rounded-md flex h-full flex-col items-center justify-center gap-2 min-h-[40vh] bg-[var(--color-sidebar)] w-full">
+      <div className="p-3 rounded-md flex h-full flex-col items-center justify-center gap-2 min-h-[40vh] min-w-[30vw] bg-[var(--color-sidebar)] w-full">
         <div className="spinner "></div>
       </div>
     );
@@ -79,7 +79,7 @@ const SaleDetails = ({ idBackup = "" }) => {
             onClick={() => setRefetch((p) => !p)}
           ></p>
         </div>
-        <SaleDetailActions sale={sale} />
+        {!previewOnly && <SaleDetailActions sale={sale} />}
       </div>
 
       {error && error.subscription ? (
@@ -176,7 +176,7 @@ const SaleDetails = ({ idBackup = "" }) => {
           {sale?.saleReturn && (
             <>
               <Divider title="Return Information" />
-              <SaleReturnCard saleReturn={sale?.saleReturn} />
+              <SaleReturnCard saleReturn={sale?.saleReturn} previewOnly={previewOnly} />
             </>
           )}
         </div>

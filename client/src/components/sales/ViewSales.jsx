@@ -4,6 +4,7 @@ import Pagination from "../utils/Pagination";
 import { formatDate } from "../utils";
 import SaleActionButton from "./SaleActionButton";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useSelector } from "react-redux";
 
 const ViewSales = () => {
   const [limit, setLimit] = useState(10);
@@ -12,6 +13,9 @@ const ViewSales = () => {
   const [sortType, setSortType] = useState("desc");
 
   const steps = [10, 20, 50, 100];
+
+  const user = useSelector((state) => state.user);
+  const baseUrl = user?.role === "admin" ? "" : "/seller";
 
   const queryClient = useQueryClient();
   const refetch = () => {

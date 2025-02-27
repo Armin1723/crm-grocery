@@ -5,7 +5,7 @@ import { FaFileInvoice } from "react-icons/fa";
 import Modal from "../utils/Modal";
 import { Link } from "react-router-dom";
 
-const SaleReturnCard = ({ saleReturn = {} }) => {
+const SaleReturnCard = ({ saleReturn = {}, previewOnly = false }) => {
   const [invoiceModalOpen, setInvoiceModalOpen] = useState(false);
   return (
     <div className="flex flex-col rounded-md p-3 bg-[var(--color-card)]">
@@ -16,10 +16,12 @@ const SaleReturnCard = ({ saleReturn = {} }) => {
           <div className="px-3 py-1 rounded-full bg-[var(--color-accent)] text-white">
             {formatDate(saleReturn?.createdAt) || "Today"}
           </div>
-          <FaFileInvoice
-            className="text-red-500 cursor-pointer hover:text-red-600"
-            onClick={() => setInvoiceModalOpen(true)}
-          />
+          {!previewOnly && (
+            <FaFileInvoice
+              className="text-red-500 cursor-pointer hover:text-red-600"
+              onClick={() => setInvoiceModalOpen(true)}
+            />
+          )}
           {invoiceModalOpen && (
             <Modal
               title="Sale Return Invoice"
@@ -40,7 +42,10 @@ const SaleReturnCard = ({ saleReturn = {} }) => {
       {/* Biller Information */}
       <div className="flex items-center gap-3 mt-3 text-sm text-[var(--color-text-light)]">
         <span className="font-semibold">Returned By:</span>
-        <Link to={`/employees/${saleReturn?.signedBy?.uuid}`} className="flex items-center gap-2 capitalize">
+        <Link
+          to={`/employees/${saleReturn?.signedBy?.uuid}`}
+          className="flex items-center gap-2 capitalize"
+        >
           <Avatar
             image={saleReturn?.signedBy?.avatar}
             withBorder={true}
@@ -62,9 +67,9 @@ const SaleReturnCard = ({ saleReturn = {} }) => {
         {/* Individual Stat */}
         <div className="flex flex-col items-center justify-center p-4 rounded-lg bg-[var(--color-sidebar)]">
           <span className="text-xl font-bold ">
-            {saleReturn?.products?.reduce((acc, item) =>{
-              return acc + item.quantity
-            },0) || "0"}
+            {saleReturn?.products?.reduce((acc, item) => {
+              return acc + item.quantity;
+            }, 0) || "0"}
           </span>
           <p className="text-sm text-[var(--color-text-light)]">Items</p>
         </div>
@@ -105,8 +110,8 @@ const SaleReturnCard = ({ saleReturn = {} }) => {
             ))}
           </tbody>
         </table>
-        <div className="totalAmount flex justify-end items-center gap-2">
-          <p className="">Total Amount:</p>
+        <div className="totalAmount flex justify-end items-center gap-2 px-4 text-sm">
+          <p className="">Total:</p>
           <p className="">₹{saleReturn?.totalAmount}</p>
         </div>
       </div>
@@ -123,3 +128,4 @@ const SaleReturnCard = ({ saleReturn = {} }) => {
 };
 
 export default SaleReturnCard;
+

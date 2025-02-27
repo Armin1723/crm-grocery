@@ -111,6 +111,7 @@ const TrendingProducts = () => {
                   fill: "var(--color-text)",
                   fontSize: 10,
                   fontWeight: "bold",
+                  textWrap: "none",
                 }}
               />
               <Tooltip
@@ -140,9 +141,9 @@ const TrendingProducts = () => {
                 fill="var(--color-accent)"
                 barSize={15}
                 label={{
-                  position: "bottom",
+                  position: "right",
                   fill: "var(--color-text)",
-                  fontSize: 12,
+                  fontSize: 11,
                   formatter: (value, name, props) =>
                     `${value} ${props?.payload?.secondaryUnit || "units"} sold`,
                 }}

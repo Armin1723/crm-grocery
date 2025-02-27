@@ -4,7 +4,7 @@ import Avatar from "../utils/Avatar";
 import { FaFileInvoice } from "react-icons/fa";
 import Modal from "../utils/Modal";
 
-const PurchaseReturnCard = ({ purchaseReturn = {} }) => {
+const PurchaseReturnCard = ({ purchaseReturn = {}, previewOnly = false }) => {
   const [invoiceModalOpen, setInvoiceModalOpen] = useState(false);
 
   return (
@@ -16,10 +16,10 @@ const PurchaseReturnCard = ({ purchaseReturn = {} }) => {
           <div className="px-3 py-1 rounded-full bg-[var(--color-accent)] text-white ">
             {formatDate(purchaseReturn?.createdAt) || "Today"}
           </div>
-          <FaFileInvoice
+          {!previewOnly && <FaFileInvoice
             className="text-red-500 cursor-pointer hover:text-red-600"
             onClick={() => setInvoiceModalOpen(true)}
-          />
+          />}
           {invoiceModalOpen && (
             <Modal
               title="Purchase Return Invoice"

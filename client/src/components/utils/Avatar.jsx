@@ -15,7 +15,7 @@ const Avatar = ({
       style={{
         width: `${width}px`,
       }}
-      className={` bg-[var(--bg-primary)] max-sm:w-8 aspect-square rounded-full ${
+      className={` bg-[var(--bg-primary)] max-sm:w-8 min-w-6 aspect-square rounded-full ${
         withBorder && "border"
       } border-neutral-500 shadow-md object-contain`}
     />

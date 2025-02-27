@@ -17,8 +17,10 @@ const ViewExpenses = () => {
 
   const user = useSelector((state) => state.user);
 
+  const thisYear = new Date().getFullYear();
+
   const [dateRange, setDateRange] = useState({
-    startDate: new Date().toISOString().slice(0, 10),
+    startDate: `${thisYear}-01-01`,
     endDate: new Date().toISOString().slice(0, 10),
   });
 
