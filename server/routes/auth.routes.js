@@ -6,6 +6,7 @@ const {
   validateUser,
   registerUser,
   verifyOtp,
+  updatePrefences,
 } = require("../controllers/auth.controller");
 
 const { isLoggedIn } = require("../middleware/index");
