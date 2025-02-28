@@ -50,7 +50,6 @@ const ProductSales = () => {
         loading={loading}
         renderItem={(sale) => <SaleCardSmall sale={sale} />}
       />
-
     </div>
   );
 };
