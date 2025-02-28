@@ -6,6 +6,7 @@ const {
   deleteSupplier,
   getSupplierPurchases,
   getSupplierProducts,
+  addSupplierRepayments,
 } = require("../controllers/supplier.controller");
 const { asyncHandler } = require("../middleware/errorHandler");
 
@@ -26,6 +27,8 @@ router.post("/", asyncHandler(addSupplier));
 router.get("/:id", asyncHandler(getSupplier));
 
 router.get("/:id/purchases", asyncHandler(getSupplierPurchases));
+
+router.post("/:id/payment", asyncHandler(addSupplierRepayments));
 
 router.get("/:id/products", asyncHandler(getSupplierProducts));
 

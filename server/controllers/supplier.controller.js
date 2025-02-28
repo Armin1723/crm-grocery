@@ -2,6 +2,7 @@ const { mongoose } = require("mongoose");
 
 const Purchase = require("../models/purchase.model");
 const Supplier = require("../models/supplier.model");
+const User = require("../models/user.model");
 
 const getSuppliers = async (req, res) => {
   const {
@@ -41,21 +42,66 @@ const getSupplierPurchases = async (req, res) => {
     page = 1,
     sort = "createdAt",
     sortType = "desc",
+    pending,
   } = req.query;
   const supplier = await Supplier.findById(req.params.id).select("_id").lean();
   if (!supplier) {
     return res.json({ success: false, message: "Supplier not found" });
   }
-  const purchases = await Purchase.find({ supplier: req.params.id })
+
+  const query = { supplier: req.params.id };
+  if (pending) {
+    query.deficitAmount = { $gt: 0 };
+  }
+  const purchases = await Purchase.find(query)
     .limit(limit)
     .skip((page - 1) * limit)
     .sort({ [sort]: sortType });
-  const totalResults = await Purchase.countDocuments({
-    supplier: req.params.id,
-  });
+  const totalResults = await Purchase.countDocuments(query);
   const totalPages = Math.ceil(totalResults / limit) || 1;
 
   res.json({ success: true, purchases, page, totalResults, totalPages });
+};
+
+const addSupplierRepayments = async (req, res) => {
+  const { id } = req.params;
+  const { purchases, amount } = req.body;
+
+  const supplier = await Supplier.findById(id);
+  if (!supplier) {
+    return res.status(404).json({ message: "Supplier not found" });
+  }
+
+  // Update all purchases
+  for (const purchaseId of purchases) {
+    const purchase = await Purchase.findById(purchaseId);
+    if (!purchase) {
+      return res
+        .status(404)
+        .json({ message: "One or more purchases not found" });
+    }
+    const biller = await User.findById(req.user.id).select("name");
+    purchase?.followUpPayments?.push({
+      paidAmount: purchase.deficitAmount,
+      createdAt: new Date(),
+      notes:
+        "Repayment of ₹" +
+        purchase.deficitAmount +
+        " received on " +
+        new Date().toLocaleString() +
+        " signed by " +
+        biller.name +
+        ". ",
+    });
+    purchase.deficitAmount = 0;
+    await purchase.save();
+  }
+
+  // Update supplier balance
+  supplier.balance -= amount;
+  await supplier.save();
+
+  res.json({ success: true, message: "Repayment added successfully" });
 };
 
 const getSupplierProducts = async (req, res) => {
@@ -158,6 +204,7 @@ module.exports = {
   getSuppliers,
   getSupplier,
   getSupplierPurchases,
+  addSupplierRepayments,
   getSupplierProducts,
   addSupplier,
   editSupplier,
