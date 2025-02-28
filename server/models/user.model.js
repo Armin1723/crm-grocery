@@ -96,8 +96,16 @@ userSchema.pre("save", function (next) {
       "employees",
       "companies",
       "reports",
+      "settings",
     ],
-    employee: ["products", "sales", "customers", "inventory", "salesReturns"],
+    employee: [
+      "products",
+      "sales",
+      "customers",
+      "settings",
+      "inventory",
+      "salesReturns",
+    ],
   };
   if (this.isNew || this.isModified("role")) {
     this.permissions = allPermissions[this.role] || [];

@@ -370,6 +370,17 @@ const validateUser = async (req, res) => {
   }
 };
 
+const updatePrefences = async (req, res) => {
+  const { preferences, uuid } = req.body;
+  const employee = await User.findOne({ uuid: uuid }).populate("company");
+  if (!employee) {
+    return res.json({ success: false, message: "User not found" });
+  }
+  employee.preferences = preferences;
+  await employee.save();
+  res.json({ success: true, user: employee });
+};
+
 module.exports = {
   loginUser,
   verifyOtp,
@@ -378,4 +389,5 @@ module.exports = {
   resetPassword,
   logoutUser,
   validateUser,
+  updatePrefences,
 };

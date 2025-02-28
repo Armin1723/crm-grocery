@@ -206,17 +206,6 @@ const editEmployee = async (req, res) => {
   }
 };
 
-const updatePrefences = async (req, res) => {
-  const { preferences, uuid } = req.body;
-  const employee = await User.findOne({ uuid: uuid }).populate("company");
-  if (!employee) {
-    return res.json({ success: false, message: "User not found" });
-  }
-  employee.preferences = preferences;
-  await employee.save();
-  res.json({ success: true, user: employee });
-};
-
 const updatePermissions = async (req, res) => {
   const { permissions, uuid } = req.body;
   const employee = await User.findOne({ uuid: uuid }).populate("company");
@@ -281,7 +270,6 @@ module.exports = {
   getEmployeeById,
   addEmployee,
   editEmployee,
-  updatePrefences,
   updatePermissions,
   getEmployeeSales,
   deleteEmployee,

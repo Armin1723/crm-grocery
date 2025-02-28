@@ -58,6 +58,8 @@ router.post("/reset-password", asyncHandler(resetPassword));
 
 router.get("/logout", asyncHandler(logoutUser));
 
+router.put("/update-preferences", asyncHandler(updatePrefences));
+
 router.get("/validate", isLoggedIn, asyncHandler(validateUser));
 
 module.exports = router;

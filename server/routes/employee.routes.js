@@ -5,7 +5,6 @@ const {
   editEmployee,
   deleteEmployee,
   getEmployeeSales,
-  updatePrefences,
   getEmployeeById,
   updatePermissions,
 } = require("../controllers/employee.controller");
@@ -24,9 +23,6 @@ router.use(authorize(["employees"]));
 router.get("/id/:id", asyncHandler(getEmployeeById));
 
 router.get("/", asyncHandler(getEmployees));
-
-router.put("/update-preferences", asyncHandler(updatePrefences));
-
 
 router.put("/update-permissions", asyncHandler(updatePermissions));
 
