@@ -372,13 +372,13 @@ const validateUser = async (req, res) => {
 
 const updatePrefences = async (req, res) => {
   const { preferences, uuid } = req.body;
-  const employee = await User.findOne({ uuid: uuid }).populate("company");
-  if (!employee) {
+  const user = await User.findOne({ uuid: uuid }).populate("company");
+  if (!user) {
     return res.json({ success: false, message: "User not found" });
   }
-  employee.preferences = preferences;
-  await employee.save();
-  res.json({ success: true, user: employee });
+  user.preferences = preferences;
+  await user.save();
+  res.json({ success: true, user });
 };
 
 module.exports = {
