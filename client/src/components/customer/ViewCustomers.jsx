@@ -5,9 +5,10 @@ import { Link } from "react-router-dom";
 import { FaArrowDown, FaArrowUp } from "react-icons/fa";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import CustomerActions from "./CustomerActions";
+import SearchBar from "../utils/SearchBar";
+import { useSelector } from "react-redux";
 
 const ViewCustomers = () => {
-
   const [limit, setLimit] = useState(10);
   const [page, setPage] = useState(1);
   const [sort, setSort] = useState("name");
@@ -15,6 +16,9 @@ const ViewCustomers = () => {
   const [query, setQuery] = useState("");
 
   const steps = [10, 20, 50, 100];
+
+  const user = useSelector((state) => state.user);
+  const baseUrl = user?.role === "admin" ? "" : "/seller";
 
   const queryClient = useQueryClient();
   const refetch = () => {
@@ -48,6 +52,7 @@ const ViewCustomers = () => {
             onClick={() => refetch()}
           ></p>
         </div>
+        <SearchBar query={query} setQuery={setQuery} />
       </div>
 
       <div className="table-wrapper flex relative flex-1 my-2 overflow-x-scroll ">
@@ -105,10 +110,10 @@ const ViewCustomers = () => {
                     className="tr flex w-full justify-between items-center py-2 px-4 max-sm:px-1 gap-2 hover:bg-accent/10"
                   >
                     <Link
-                      to={`${customer?._id}`}
+                      to={`${baseUrl}/customers/${customer?._id}`}
                       className="w-1/5 min-w-[50px] pl-2"
                     >
-                      {customer?.name || 'N/A'}
+                      {customer?.name || "N/A"}
                     </Link>
                     <div
                       className={`w-[10%] min-w-[50px] px-2 font-semibold flex items-center gap-2 ${
@@ -130,14 +135,17 @@ const ViewCustomers = () => {
                       {customer?.email || "N/A"}
                     </div>
                     <div className="actions w-[10%] min-w-[50px] flex items-center justify-center gap-2">
-                       <CustomerActions customer={customer} setRefetch={refetch} />
+                      <CustomerActions
+                        customer={customer}
+                        setRefetch={refetch}
+                      />
                     </div>
                   </div>
                 );
               })
             ) : (
               <div className="tr flex flex-col w-full flex-1 items-start py-2 px-4 max-sm:px-1 gap-2">
-                <p>No customers yet.</p>
+                <p>No customers.</p>
               </div>
             )}
           </div>
@@ -179,7 +187,10 @@ const ViewCustomers = () => {
                       return prev;
                     });
                   }}
-                  disabled={limit === steps[steps.length - 1] || limit > results?.totalResults}
+                  disabled={
+                    limit === steps[steps.length - 1] ||
+                    limit > results?.totalResults
+                  }
                   className="px-3 flex items-center justify-center rounded-md bg-[var(--color-primary)] w-6 aspect-square border border-neutral-500/50 hover:opacity-75 disabled:opacity-50 disabled:cursor-not-allowed disabled:border-neutral-500/20"
                 >
                   +

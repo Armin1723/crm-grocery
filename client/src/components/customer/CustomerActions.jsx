@@ -74,15 +74,10 @@ const CustomerActions = ({ customer = {}, setRefetch = () => {} }) => {
             <FaEdit />
             <p className="capitalize">Edit</p>
           </div>
-          <Link to={`/customers/${customer?._id}`}
+          <Link to={`${customer?._id}`}
             className="menu-item px-4 py-1 text-sm text-center hover:bg-accentDark/10 cursor-pointer transition-all duration-200 ease-in flex items-center gap-2"
             role="menuitem"
             tabIndex={0}
-            onClick={(e) => {
-              e.stopPropagation();
-              setMenuOpen(false);
-              setEditModalOpen(true);
-            }}
           >
             <FaEye />
             <p className="capitalize">View</p>

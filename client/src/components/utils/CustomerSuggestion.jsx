@@ -92,7 +92,7 @@ const CustomerSuggestion = ({ setCustomerDetails = () => {}, type = "name" }) =>
   };
 
   return (
-    <div className="relative w-full text-sm">
+    <div className="relative w-full text-xs">
       <input
         placeholder={`Search by Name/Phone`}
         value={inputValue}

@@ -7,6 +7,7 @@ import { toast } from "react-toastify";
 import Modal from "../utils/Modal";
 import { useNavigate } from "react-router-dom";
 import { FaEnvelope, FaPhoneAlt, FaUser, FaWallet } from "react-icons/fa";
+import { useQueryClient } from "@tanstack/react-query";
 
 const SaleReturnForm = ({ sale = {}, setSale = () => {} }) => {
   const [saleReturn, setSaleReturn] = useState({});
@@ -14,6 +15,8 @@ const SaleReturnForm = ({ sale = {}, setSale = () => {} }) => {
   const [loading, setLoading] = useState(false);
 
   const navigate = useNavigate();
+
+  const queryClient = useQueryClient();
 
   const {
     register,
@@ -145,6 +148,8 @@ const SaleReturnForm = ({ sale = {}, setSale = () => {} }) => {
       }
       reset();
       navigate("/sales");
+      queryClient.invalidateQueries({queryKey: ["salesReturns"]})
+      queryClient.invalidateQueries({queryKey: ["sales"]})
       toast.update(id, {
         render: "Sale returned successfully!",
         type: "success",

@@ -7,7 +7,7 @@ import Avatar from "../utils/Avatar";
 import PurchaseDetailActions from "./PurchaseDetailActions";
 import SupplierCard from "../suppliers/SupplierCard";
 import PurchaseReturnCard from "./PurchaseReturnCard";
-import { pluralizeWord } from "../utils";
+import { formatDate, pluralizeWord } from "../utils";
 import SubscriptionOverlay from "../utils/SubscriptionOverlay";
 import HelpTooltip from "../utils/HelpTooltip";
 import { FaInfoCircle } from "react-icons/fa";
@@ -82,7 +82,12 @@ const PurchaseDetails = ({ idBackup = "", previewOnly = false }) => {
             onClick={() => setRefetch((p) => !p)}
           ></p>
         </div>
-        {!previewOnly && <PurchaseDetailActions purchase={purchase} />}
+        <div className="flex items-center gap-2">
+          <span className="flex text-xs rounded-lg border border-accent bg-accent/10 text-accent px-2">
+            {formatDate(purchase?.createdAt)}
+          </span>
+          {!previewOnly && <PurchaseDetailActions purchase={purchase} />}
+        </div>
       </div>
 
       {error && error.subscription ? (
@@ -150,7 +155,6 @@ const PurchaseDetails = ({ idBackup = "", previewOnly = false }) => {
               </div>
             </div>
           </div>
-
           {/* Purchase Products */}
           <Divider title="Purchase Products" />
           <div className="purchaseProducts flex flex-col gap-2 w-full rounded-md p-3 bg-[var(--color-card)] overflow-x-auto">
