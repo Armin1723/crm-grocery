@@ -115,6 +115,7 @@ const addCustomerDetails = (doc, customer) => {
     .text("Customer Details:", { underline: true })
     .text(`Name   : ${customer?.name || "N/A"}`)
     .text(`Contact: ${customer?.phone || "N/A"}`)
+    .text(`Balance: ${formatCurrency(customer?.balance || 0)}`)
     .moveDown();
 };
 

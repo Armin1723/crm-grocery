@@ -265,6 +265,7 @@ const addSale = async (req, res) => {
       });
     }
     sale.customer = customer._id;
+    await sale.save();
   }
 
   // Update Inventory
@@ -307,14 +308,15 @@ const addSale = async (req, res) => {
     }
   }
 
-  sale.invoice = await generateSaleInvoice(sale._id);
-  await sale.save();
-
   // update customer balance
   if (customer && totalAmount > paidAmount) {
     customer.balance += totalAmount - paidAmount;
     await customer.save();
   }
+
+  sale.invoice = await generateSaleInvoice(sale._id);
+  await sale.save();
+
 
   res.json({ success: true, sale });
 
