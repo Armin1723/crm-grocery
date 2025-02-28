@@ -119,16 +119,6 @@ const RecentPurchase = () => {
                       fill="var(--color-accent)"
                       barSize={15}
                     >
-                      {recentPurchase.products.map((entry, index) => (
-                        <Cell
-                          key={`cell-${index}`}
-                          fill={
-                            index % 2 !== 0
-                              ? "var(--color-accent-dark)"
-                              : "var(--color-accent)"
-                          }
-                        />
-                      ))}
                     </Bar>
                   </BarChart>
                 </ResponsiveContainer>
