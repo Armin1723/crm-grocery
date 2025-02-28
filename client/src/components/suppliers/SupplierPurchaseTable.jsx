@@ -7,6 +7,7 @@ import Pagination from "../utils/Pagination";
 const SupplierPurchaseTable = () => {
   const { id } = useParams();
   const [results, setResults] = useState({});
+  const [loading, setLoading] = useState(false);
   const [sort, setSort] = useState("createdAt");
   const [sortType, setSortType] = useState("desc");
   const [page, setPage] = useState(1);
@@ -15,6 +16,7 @@ const SupplierPurchaseTable = () => {
 
   useEffect(() => {
     const fetchSupplierPurchases = async () => {
+      setLoading(true);
       try {
         const response = await fetch(
           `${
@@ -31,13 +33,15 @@ const SupplierPurchaseTable = () => {
         setResults(data);
       } catch (error) {
         console.error("Error fetching supplier purchases:", error.message);
+      } finally {
+        setLoading(false);
       }
     };
     fetchSupplierPurchases();
   }, [id, sort, sortType, page]);
 
   return (
-    <div className="overflow-y-auto max-h-[50vh] w-full">
+    <div className="overflow-y-auto w-full">
       <table className="min-w-full text-sm">
         <thead className="bg-[var(--color-card)] border-b border-neutral-500/50 sticky top-0">
           <tr className="">
@@ -105,10 +109,19 @@ const SupplierPurchaseTable = () => {
               );
             })}
 
-          {!results.purchases?.length && (
+          {!results.purchases?.length && !loading && (
             <tr>
               <td colSpan="5" className="p-3 text-center">
                 No purchases found
+              </td>
+            </tr>
+          )}
+          {loading && (
+            <tr>
+              <td colSpan="5" className="p-3 text-center">
+                <div className="flex items-center justify-center w-full h-full flex-1">
+                  <div className="spinner"></div>
+                </div>
               </td>
             </tr>
           )}

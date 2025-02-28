@@ -92,7 +92,6 @@ const SaleForm = ({ setRefetch = () => {}, closeModal = () => {} }) => {
   };
 
   const addSale = async (values) => {
-
     const id = toast.loading("Adding sale...");
     setLoading(true);
     try {
@@ -159,6 +158,78 @@ const SaleForm = ({ setRefetch = () => {}, closeModal = () => {} }) => {
       onKeyDown={handleKeyDown}
       className="flex flex-col w-full flex-1 px-2 overflow-y-auto"
     >
+      {/* Customer Section */}
+
+      <div className="flex flex-col w-full py-2">
+        <div className="flex items-center gap-2">
+          <p className="my-1 font-semibold text-lg max-sm:text-base">
+            Customer
+          </p>
+          <AddCustomerModal
+            title="add"
+            setValue={setValue}
+            customer={customerDetails}
+            setCustomer={setCustomerDetails}
+          />
+        </div>
+        <div className="w-full flex flex-col md:flex-row gap-2">
+          <CustomerSuggestion
+            setCustomerDetails={setCustomerDetails}
+            type="phone"
+          />
+        </div>
+      </div>
+
+      {/* Customer Details */}
+      {!customerLoading && (
+        <div
+          className={`flex flex-col bg-[var(--color-card)] p-2 rounded-md w-full ${!customerDetails && "hidden"} `}
+        >
+          <Divider
+            title={
+              <div className="flex items-center gap-2">
+                <p>Customer Details</p>
+                <AddCustomerModal
+                  title="edit"
+                  setValue={setValue}
+                  customer={customerDetails}
+                  setCustomer={setCustomerDetails}
+                />
+              </div>
+            }
+          />
+          <div className="grid grid-cols-1 md:grid-cols-2 text-sm gap-4 p-4 shadow-md rounded-lg">
+            <div className="flex items-center gap-2 ">
+              <FaUser className="text-blue-500" />
+              <span className="font-medium">
+                {customerDetails?.name || "Name"}
+              </span>
+            </div>
+
+            <div className="flex items-center gap-2 ">
+              <FaEnvelope className="text-green-500" />
+              <span className=" font-medium">
+                {customerDetails?.email || "Email"}
+              </span>
+            </div>
+
+            <div className="flex items-center gap-2 ">
+              <FaPhoneAlt className="text-green-500" />
+              <span className=" font-medium">
+                {customerDetails?.phone || "Phone"}
+              </span>
+            </div>
+
+            <div className="flex items-center gap-2 ">
+              <FaWallet className="text-yellow-600" />
+              <span className="font-">
+                Balance: ₹{customerDetails?.balance?.toFixed(2) || "0.00"}
+              </span>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Products Section */}
       <div className="title flex justify-between py-1">
         <p className="my-1 font-semibold text-lg max-sm:text-base">Products</p>
@@ -451,83 +522,6 @@ const SaleForm = ({ setRefetch = () => {}, closeModal = () => {} }) => {
       ) : (
         <div className="flex-1 flex min-h-[25vh] bg-[var(--color-card)] text-[var(--color-text-light)] justify-center items-center rounded-md my-2">
           <p className="text-center text-sm">No products added</p>
-        </div>
-      )}
-
-      {/* Customer Section */}
-      {watchedProducts.length > 0 && (
-        <div className="flex flex-col w-full py-2">
-          <div className="flex items-center gap-2">
-            <p className="my-1 font-semibold text-lg max-sm:text-base">
-              Customer
-            </p>
-            <AddCustomerModal
-              title="add"
-              setValue={setValue}
-              customer={customerDetails}
-              setCustomer={setCustomerDetails}
-            />
-          </div>
-          <div className="w-full flex flex-col md:flex-row gap-2">
-            <CustomerSuggestion
-              setCustomerDetails={setCustomerDetails}
-              type="phone"
-            />
-            <CustomerSuggestion
-              setCustomerDetails={setCustomerDetails}
-              type="name"
-            />
-          </div>
-        </div>
-      )}
-
-      {/* Customer Details */}
-      {!customerLoading && (
-        <div
-          className={`flex flex-col w-full ${!customerDetails && "hidden"} `}
-        >
-          <Divider
-            title={
-              <div className="flex items-center gap-2">
-                <p>Customer Details</p>
-                <AddCustomerModal
-                  title="edit"
-                  setValue={setValue}
-                  customer={customerDetails}
-                  setCustomer={setCustomerDetails}
-                />
-              </div>
-            }
-          />
-          <div className="grid grid-cols-1 md:grid-cols-2 text-sm gap-4 p-4 shadow-md rounded-lg">
-            <div className="flex items-center gap-2 ">
-              <FaUser className="text-blue-500" />
-              <span className="font-medium">
-                {customerDetails?.name || "Name"}
-              </span>
-            </div>
-
-            <div className="flex items-center gap-2 ">
-              <FaEnvelope className="text-green-500" />
-              <span className=" font-medium">
-                {customerDetails?.email || "Email"}
-              </span>
-            </div>
-
-            <div className="flex items-center gap-2 ">
-              <FaPhoneAlt className="text-green-500" />
-              <span className=" font-medium">
-                {customerDetails?.phone || "Phone"}
-              </span>
-            </div>
-
-            <div className="flex items-center gap-2 ">
-              <FaWallet className="text-yellow-600" />
-              <span className="font-">
-                Balance: ₹{customerDetails?.balance?.toFixed(2) || "0.00"}
-              </span>
-            </div>
-          </div>
         </div>
       )}
 

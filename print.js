@@ -173,6 +173,10 @@ const handlePrintSalesInvoice = (sale) => {
             <div class="bold underline">Customer Details:</div>
             <div>Name: ${sale.customer?.name || "N/A"}</div>
             <div>Contact: ${sale.customer?.phone || "N/A"}</div>
+            ${
+              sale.customer?.balance > 0 &&
+              `<div>Balance: ₹${sale.customer.balance}</div>`
+            }
             <div class="line"></div>
     
             <div class="bold underline">Items:</div>

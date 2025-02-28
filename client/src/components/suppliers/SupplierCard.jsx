@@ -1,13 +1,15 @@
 import React from "react";
-import { FaEdit, FaStore } from "react-icons/fa";
+import { FaEdit, FaStore, FaWallet } from "react-icons/fa";
 import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import Modal from "../utils/Modal";
 import SupplierForm from "./SupplierForm";
+import SupplierPaymentForm from "./SupplierPaymentForm";
 
 const SupplierCard = ({ supplier = {}, setRefetch = () => {} }) => {
   const user = useSelector((state) => state.user);
   const [editOpen, setEditOpen] = React.useState(false);
+  const [paymentFormModal, setPaymentFormModalOpen] = React.useState(false);
 
   const isAdmin = user?.role === "admin";
 
@@ -26,12 +28,18 @@ const SupplierCard = ({ supplier = {}, setRefetch = () => {} }) => {
               >
                 {supplier?.name || "Supplier Name"}
               </Link>
+              <div className="flex items-center gap-2">
               {isAdmin && (
                 <FaEdit
                   onClick={() => setEditOpen(true)}
                   className="text-accent/70 cursor-pointer hover:text-accent transition-colors"
                 />
               )}
+              <FaWallet
+                  onClick={() => setPaymentFormModalOpen(true)}
+                  className="text-accent/70 cursor-pointer hover:text-accent transition-colors"
+                />
+              </div>
             </div>
             <p className="text-sm text-[var(--color-text-light)]">
               {supplier?.email || "Email not provided"}
@@ -85,6 +93,22 @@ const SupplierCard = ({ supplier = {}, setRefetch = () => {} }) => {
             title="edit"
             supplier={supplier}
             closeModal={() => setEditOpen(false)}
+            setRefetch={setRefetch}
+          />
+        </Modal>
+      )}
+
+      {/* Payment Modal */}
+      {paymentFormModal && (
+        <Modal
+          title="Add Repayment."
+          isOpen={paymentFormModal}
+          onClose={() => setPaymentFormModalOpen(false)}
+        >
+          {/* Form */}
+          <SupplierPaymentForm
+            supplier={supplier}
+            closeModal={() => setPaymentFormModalOpen(false)}
             setRefetch={setRefetch}
           />
         </Modal>

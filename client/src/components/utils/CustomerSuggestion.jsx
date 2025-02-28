@@ -92,22 +92,21 @@ const CustomerSuggestion = ({ setCustomerDetails = () => {}, type = "name" }) =>
   };
 
   return (
-    <div className="relative w-full">
+    <div className="relative w-full text-sm">
       <input
-        type={type === "phone" ? "number" : "text"}
-        placeholder={`Search by ${type === "phone" ? "Phone" : "Name"}`}
+        placeholder={`Search by Name/Phone`}
         value={inputValue}
         onChange={fetchCustomerByName}
         onFocus={() => setDropdownVisible(suggestedCustomers.length > 0)}
         onBlur={handleBlur}
         onKeyDown={handleKeyDown}
-        className="outline-none border border-[var(--color-accent)] rounded-lg p-2 z-10 bg-transparent focus:border-[var(--color-accent-dark)] transition-all duration-300 peer w-full"
+        className="outline-none w-[250px] border border-[var(--color-accent)] rounded-lg px-3 py-1.5 z-10 bg-transparent focus:border-[var(--color-accent-dark)] transition-all duration-300 peer"
       />
 
       {isDropdownVisible && (
         <ul
           ref={dropdownRef}
-          className="absolute top-full left-0 w-full bg-[var(--color-card)] border border-neutral-500/40 rounded-lg shadow-md z-50 max-h-48 overflow-y-auto"
+          className="absolute top-full left-0 w-[250px] bg-[var(--color-card)] border border-neutral-500/40 rounded-b-lg shadow-md z-[999] max-h-48 overflow-y-auto"
         >
           {suggestedCustomers.map((customer, index) => (
             <li
@@ -118,8 +117,9 @@ const CustomerSuggestion = ({ setCustomerDetails = () => {}, type = "name" }) =>
               onClick={() => handleSelectCustomer(customer)}
               tabIndex="0"
               onMouseEnter={() => setActiveIndex(index)}
-            >
-              {highlightQuery(customer[type], inputValue)}
+            > 
+              <p>{highlightQuery(customer?.name, inputValue)}</p>
+              <p>{highlightQuery(customer[type], inputValue)}</p>
             </li>
           ))}
           {suggestedCustomers.length === 0 && (

@@ -48,7 +48,7 @@ const Carousel = ({
       {/* Scrollable Container */}
       <div
         ref={scrollRef}
-        className="flex w-full overflow-x-auto scroll-snap snap-x snap-mandatory scrollbar-hide items-center"
+        className="flex w-full overflow-x-auto scroll-snap snap-x snap-mandatory scrollbar-hide items-stretch "
         onScroll={checkScroll}
       >
         {items?.length === 0 && <p className="p-4">No items found</p>}
@@ -56,13 +56,13 @@ const Carousel = ({
         {items?.map((item, index) => (
           <div
             key={index}
-            className="flex flex-col min-w-full w-full md:w-1/2 md:min-w-[50%] xl:w-1/3 xl:min-w-[33%] rounded-md p-2 snap-start h-fit flex-shrink-0"
+            className="flex flex-col min-w-full w-full md:w-1/2 md:min-w-[50%] xl:w-1/3 xl:min-w-[33%] rounded-md p-2 snap-start min-h-full items-stretch flex-shrink-0"
           >
             {renderItem(item)}
           </div>
         ))}
         {hasMore && (
-          <div className="flex flex-col min-w-full w-full md:w-1/2 md:min-w-[50%] xl:w-1/3 xl:min-w-[33%] rounded-md px-4 py-2 snap-start h-fit flex-shrink-0">
+          <div className="flex flex-col min-w-full w-full md:w-1/2 md:min-w-[50%] xl:w-1/3 xl:min-w-[33%] rounded-md px-4 py-2 snap-start min-h-full flex-shrink-0">
             <div className="flex justify-center items-center h-full w-full p-4 mb-4 rounded-md border-neutral-500/50 ">
               <button
                 onClick={loadMore}

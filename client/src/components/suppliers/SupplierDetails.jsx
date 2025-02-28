@@ -15,6 +15,7 @@ const SupplierDetails = () => {
 
   useEffect(() => {
     const fetchSupplier = async () => {
+      setLoading(true);
       try {
         const res = await fetch(
           `${import.meta.env.VITE_BACKEND_URL}/api/v1/suppliers/${id}`,

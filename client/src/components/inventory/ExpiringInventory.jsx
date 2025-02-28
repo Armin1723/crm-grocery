@@ -53,13 +53,18 @@ const ExpiringInventory = () => {
 
   //Use Effect to handle the infinite scroll
   useEffect(() => {
+    let timer = null;
     const handleScroll = () => {
       if (
         containerRef.current.scrollTop + containerRef.current.clientHeight >=
         containerRef.current.scrollHeight
       ) {
         if (!isFetching && results.hasMore) {
-          setPage((prev) => prev + 1);
+          if (timer) return;
+          timer = setTimeout(() => {
+            setPage((prevPage) => prevPage + 1);
+            timer = null;
+          }, 500);
         }
       }
     };
