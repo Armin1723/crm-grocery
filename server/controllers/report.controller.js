@@ -1038,7 +1038,6 @@ const getBalanceReport = async (req, res) => {
       },
     },
     userLookup,
-    productLookup,
     {
       $lookup: {
         from: "customers",
@@ -1054,15 +1053,7 @@ const getBalanceReport = async (req, res) => {
         customer: { $arrayElemAt: ["$customerDetails", 0] },
         totalAmount: 1,
         createdAt: 1,
-        products: {
-          $push: {
-            name: { $arrayElemAt: ["$productDetails.name", 0] },
-            quantity: 1,
-            unit: { $arrayElemAt: ["$productDetails.secondaryUnit", 0] },
-            sellingRate: 1,
-            image: { $arrayElemAt: ["$productDetails.image", 0] },
-          },
-        },
+        products: 1,
         signedByName: { $arrayElemAt: ["$signedBy.name", 0] },
         signedById: { $arrayElemAt: ["$signedBy._id", 0] },
       },
@@ -1078,7 +1069,6 @@ const getBalanceReport = async (req, res) => {
       },
     },
     userLookup,
-    productLookup,
     {
       $lookup: {
         from: "suppliers",
@@ -1095,14 +1085,12 @@ const getBalanceReport = async (req, res) => {
         totalAmount: 1,
         createdAt: 1,
         products: {
-          $push: {
-            name: { $arrayElemAt: ["$productDetails.name", 0] },
+            name: { $first: "$productDetails.name" },
             quantity: 1,
             purchaseRate: 1,
-            unit: { $arrayElemAt: ["$productDetails.secondaryUnit", 0] },
-            image: { $arrayElemAt: ["$productDetails.image", 0] },
+            unit: { $first: "$productDetails.secondaryUnit" },
+            image: { $first: "$productDetails.image" },
           },
-        },
         signedByName: { $arrayElemAt: ["$signedBy.name", 0] },
         signedById: { $arrayElemAt: ["$signedBy._id", 0] },
       },
