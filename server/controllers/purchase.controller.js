@@ -95,6 +95,7 @@ const getPurchase = async (req, res) => {
   if (!isReturn) {
     const formattedPurchase = {
       _id: purchase._id,
+      createdAt: purchase.createdAt,
       products: purchase.products,
       supplier: purchase.supplier,
       signedBy: purchase.signedBy,
