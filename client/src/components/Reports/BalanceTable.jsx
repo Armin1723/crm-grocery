@@ -48,15 +48,13 @@ const BalanceTable = ({ data = {}, title = "" }) => {
                   } cursor-pointer`}
                 >
                   <td className="px-6 py-2 whitespace-nowrap text-sm ">
-                    <Link
-                      to={`${baseUrl}${
+                    <Link to={`${baseUrl}${
                         title.toLowerCase().includes("credit")
                           ? "/sales"
                           : "/purchases"
                       }/${data?._id}`}
-                      className="text-blue-500"
-                    >
-                      {data?._id.slice(0, 15)}...
+                      className="text-accent hover:text-accentDark hover:underline text-ellipsis truncate">
+                      {data?._id}
                     </Link>
                   </td>
                   <td className="px-6 py-2 whitespace-nowrap text-sm ">

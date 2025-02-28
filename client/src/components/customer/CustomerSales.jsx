@@ -3,6 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { formatDate } from "../utils";
 import SortableLink from "../utils/SortableLink";
 import Pagination from "../utils/Pagination";
+import { useSelector } from "react-redux";
 
 const CustomerSales = () => {
   const { id } = useParams();
@@ -13,6 +14,9 @@ const CustomerSales = () => {
   const [page, setPage] = useState(1);
 
   const navigate = useNavigate();
+
+  const user = useSelector((state) => state.user);
+  const baseUrl = user?.role === "admin" ? "" : "/seller";
 
   useEffect(() => {
     const fetchCustomerSales = async () => {
@@ -79,12 +83,12 @@ const CustomerSales = () => {
         </thead>
 
         <tbody>
-          {results.sales?.length &&
+          {results.sales?.length && 
             results?.sales?.map((sale, index) => {
               return (
                 <tr
                   key={index}
-                  onClick={() => navigate(`/sales/${sale._id}`)}
+                  onClick={() => navigate(`${baseUrl}/sales/${sale._id}`)}
                   className="border-b border-neutral-500/20 hover:bg-[var(--color-card)] hover:bg-opacity-60 cursor-pointer"
                 >
                   <td className="p-3 truncate text-ellipsis max-w-[100px]">

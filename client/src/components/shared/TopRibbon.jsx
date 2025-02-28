@@ -12,7 +12,7 @@ const TopRibbon = ({ pageRef }) => {
         <NavSmall />
         <p className="text-xl">
           Welcome <span className="font-semibold capitalize">{user?.name}</span>{" "}
-          <span className="max-sm:hidden">to the CRM dashboard</span>
+          <span className="max-sm:hidden">to the CRM Dashboard</span>
         </p>
       </div>
       <div className="right flex items-center justify-center gap-3">

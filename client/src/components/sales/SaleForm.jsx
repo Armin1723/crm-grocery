@@ -11,7 +11,13 @@ import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import CustomerSuggestion from "../utils/CustomerSuggestion";
 import { useQueryClient } from "@tanstack/react-query";
-import { FaEnvelope, FaPhoneAlt, FaUser, FaWallet } from "react-icons/fa";
+import {
+  FaCross,
+  FaEnvelope,
+  FaPhoneAlt,
+  FaUser,
+  FaWallet,
+} from "react-icons/fa";
 
 const SaleForm = ({ setRefetch = () => {}, closeModal = () => {} }) => {
   const [suggestedProducts, setSuggestedProducts] = useState([]);
@@ -160,34 +166,45 @@ const SaleForm = ({ setRefetch = () => {}, closeModal = () => {} }) => {
     >
       {/* Customer Section */}
 
-      <div className="flex flex-col w-full py-2">
-        <div className="flex items-center gap-2">
-          <p className="my-1 font-semibold text-lg max-sm:text-base">
-            Customer
-          </p>
-          <AddCustomerModal
-            title="add"
-            setValue={setValue}
-            customer={customerDetails}
-            setCustomer={setCustomerDetails}
-          />
+      {!customerDetails && (
+        <div className="flex flex-col w-full ">
+          <div className="flex items-center gap-2">
+            <p className="my-1 font-semibold text-lg max-sm:text-base">
+              Customer
+            </p>
+            <AddCustomerModal
+              title="add"
+              setValue={setValue}
+              customer={customerDetails}
+              setCustomer={setCustomerDetails}
+            />
+          </div>
+          <div className="w-full flex flex-col md:flex-row gap-2">
+            <CustomerSuggestion
+              setCustomerDetails={setCustomerDetails}
+              type="phone"
+            />
+          </div>
         </div>
-        <div className="w-full flex flex-col md:flex-row gap-2">
-          <CustomerSuggestion
-            setCustomerDetails={setCustomerDetails}
-            type="phone"
-          />
-        </div>
-      </div>
+      )}
 
       {/* Customer Details */}
-      {!customerLoading && (
+      {customerDetails && (
         <div
-          className={`flex flex-col bg-[var(--color-card)] p-2 rounded-md w-full ${!customerDetails && "hidden"} `}
+          className={`flex flex-col bg-[var(--color-card)] p-2 rounded-md w-full ${
+            !customerDetails && "hidden"
+          } `}
         >
           <Divider
             title={
               <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setCustomerDetails(null)}
+                  className="text-red-500 hover:text-red-600 transition-all duration-300 ease-in"
+                >
+                  <IoCloseCircle />
+                </button>
                 <p>Customer Details</p>
                 <AddCustomerModal
                   title="edit"
@@ -198,7 +215,7 @@ const SaleForm = ({ setRefetch = () => {}, closeModal = () => {} }) => {
               </div>
             }
           />
-          <div className="grid grid-cols-1 md:grid-cols-2 text-sm gap-4 p-4 shadow-md rounded-lg">
+          <div className="grid grid-cols-1 md:grid-cols-2 text-sm gap-3 p-2 rounded-lg">
             <div className="flex items-center gap-2 ">
               <FaUser className="text-blue-500" />
               <span className="font-medium">
@@ -236,7 +253,7 @@ const SaleForm = ({ setRefetch = () => {}, closeModal = () => {} }) => {
       </div>
 
       {/* Add Product */}
-      <div className="add-product flex items-center gap-3 py-2 w-full md:pr-2 flex-wrap relative justify-between">
+      <div className="add-product flex items-center gap-2 py-2 w-full md:pr-2 flex-wrap relative justify-between">
         <SaleProductSuggestion
           getValues={getValues}
           setValue={setValue}
