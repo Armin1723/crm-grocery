@@ -46,6 +46,7 @@ const CustomerSales = () => {
 
   return (
     <div className="overflow-y-auto min-h-fit flex-1 w-full">
+
       <table className="min-w-full text-sm">
         <thead className="bg-[var(--color-card)] border-b border-neutral-500/50 sticky top-0">
           <tr className="">

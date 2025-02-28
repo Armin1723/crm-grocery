@@ -9,7 +9,6 @@ import LogoutButton from "../../utils/LogoutButton";
 import HoverCard from "../../shared/HoverCard";
 import EmployeeCard from "../../employee/EmployeeCard";
 import Logo from "../../shared/Logo";
-import { MdSettings } from "react-icons/md";
 
 const SellerNavSmall = () => {
   const pathname = useLocation().pathname;
@@ -156,27 +155,6 @@ const SellerNavSmall = () => {
                   </li>
                 );
               })}
-
-              {/* Settings Icon */}
-              <Link
-                to="/seller/settings"
-                onClick={() => setNavOpen(false)}
-                className={`${
-                  pathname.includes("/settings")
-                    ? 'text-accent bg-accent/10 border-l-4 border-accent px-4' : 'px-5'
-                } link flex items-center gap-4 py-1 group hover:bg-accent/5 transition-all relative duration-300 ease-in group `}
-              >
-                <div
-                  className={`icon text-xl my-1 transition-all duration-300 ease-in group-hover:text-accent/80`}
-                >
-                  <MdSettings />
-                </div>
-                <p
-                  className={`${pathname.includes('/settings') && 'font-bold'} overflow-hidden transition-all duration-300 ease-in group-hover:text-accent`}
-                >
-                  Settings
-                </p>
-              </Link>
             </ul>
           </div>
 

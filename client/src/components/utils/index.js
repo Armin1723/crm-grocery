@@ -12,6 +12,7 @@ import {
   FaWallet,
 } from "react-icons/fa";
 import { BiSolidReport } from "react-icons/bi";
+import { MdSettings } from "react-icons/md";
 
 export const links = [
   {
@@ -98,6 +99,11 @@ export const links = [
     to: "/employees",
     protected: true,
   },
+  {
+    icon: MdSettings,
+    title: "Settings",
+    to: "/settings",
+  }
 ];
 
 export const categories = [

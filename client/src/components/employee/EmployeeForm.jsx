@@ -7,6 +7,7 @@ import Divider from "../utils/Divider";
 import { parseDate } from "../utils";
 import { setUser } from "../../redux/features/user/userSlice";
 import { useDispatch, useSelector } from "react-redux";
+import { useQueryClient } from "@tanstack/react-query";
 
 const EmployeeForm = ({
   employee = {},
@@ -29,6 +30,8 @@ const EmployeeForm = ({
   const dispatch = useDispatch();
 
   const [loading, setLoading] = React.useState(false);
+
+  const queryClient = useQueryClient();
 
   const {
     register,
@@ -148,6 +151,7 @@ const EmployeeForm = ({
           isLoading: false,
           autoClose: 2000,
         });
+        queryClient.invalidateQueries({queryKey: ["employees"]});
         if (title === "add") {
           reset();
           setAvatarPreview(null);

@@ -34,7 +34,7 @@ const SettingsForm = ({ closeModal = () => {} }) => {
       const response = await fetch(
         `${
           import.meta.env.VITE_BACKEND_URL
-        }/api/v1/employees/update-preferences`,
+        }/api/v1/auth/update-preferences`,
         {
           method: "PUT",
           headers: {
