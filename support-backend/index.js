@@ -13,7 +13,7 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: [process.env.FRONTEND_URL, 'http://localhost:5174'],
+    origin: [process.env.FRONTEND_URL, 'http://localhost:5174', process.env.CRM_BACKEND_URL],
     credentials: true,
   },
 });
@@ -22,7 +22,7 @@ const io = new Server(server, {
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));    
 app.use(cors({
-    origin: [process.env.FRONTEND_URL, 'http://localhost:5174'],
+    origin: [process.env.FRONTEND_URL, 'http://localhost:5174', process.env.CRM_BACKEND_URL],
     credentials: true
 }));
 app.use(cookieParser());
