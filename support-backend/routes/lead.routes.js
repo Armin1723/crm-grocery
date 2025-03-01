@@ -15,16 +15,16 @@ const router = require("express").Router();
 
 const leadRoutes = (io) => {
   
+  router.post(
+    "/",
+    asyncHandler((req, res, next) => addLead(req, res, next, io))
+  );
+
   router.use(isLoggedIn);
 
   router.get("/", asyncHandler(getLeads));
 
   router.get("/:id", asyncHandler(getLead));
-
-  router.post(
-    "/",
-    asyncHandler((req, res, next) => addLead(req, res, next, io))
-  );
 
   router.put("/:id", asyncHandler(editLead));
 
