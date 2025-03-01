@@ -17,7 +17,7 @@ const SaleDetails = ({ idBackup = "", previewOnly = false }) => {
   const [error, setError] = useState("");
   const [refetch, setRefetch] = useState(false);
 
-  if (!id) id = idBackup;
+  if (idBackup) id = idBackup;
 
   useEffect(() => {
     const fetchPurchase = async () => {

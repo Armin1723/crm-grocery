@@ -9,16 +9,17 @@ const CustomerPaymentForm = ({
   closeModal = () => {},
   setRefetch = () => {},
 }) => {
-
   const queryClient = useQueryClient();
 
   const { id: customerId } = useParams();
   const [sales, setSales] = React.useState([]);
 
   const [selectedSales, setSelectedSales] = React.useState([]);
+  const [loading, setLoading] = React.useState(false);
 
   React.useEffect(() => {
     const fetchPendingSales = async () => {
+      setLoading(true);
       try {
         const response = await fetch(
           `${import.meta.env.VITE_BACKEND_URL}/api/v1/customers/${
@@ -35,6 +36,8 @@ const CustomerPaymentForm = ({
         setSales(data.sales);
       } catch (error) {
         console.error(error);
+      } finally {
+        setLoading(false);
       }
     };
     fetchPendingSales();
@@ -72,7 +75,7 @@ const CustomerPaymentForm = ({
         isLoading: false,
         autoClose: 3000,
       });
-      queryClient.invalidateQueries({ queryKey: ["customers"] });  
+      queryClient.invalidateQueries({ queryKey: ["customers"] });
       setSelectedSales([]);
       setRefetch((prev) => !prev);
       closeModal();
@@ -93,15 +96,15 @@ const CustomerPaymentForm = ({
         Balance: {customer?.balance}
       </p>
 
-      {sales.length > 0 && (
+      {sales.length > 0 && !loading && (
         <div>
           <p className="font-medium">Pending Sales:</p>
           <table className="w-full text-sm">
             <thead className="bg-[var(--color-card)] border-b border-neutral-500/50 sticky top-0">
               <tr className="">
                 <th className="p-3 text-left max-w-[100px]">ID</th>
-                <th className="p-3 text-left pl-0 min-w-[80px]">Date</th>
-                <th className="p-3 text-left pl-0">Total</th>
+                <th className="p-3 text-left min-w-[80px]">Date</th>
+                <th className="p-3 text-left">Total</th>
                 <th className="p-3 text-left">Paid</th>
                 <th className="p-3 text-left">Balance</th>
                 <th className="p-3 text-left">Status</th>
@@ -166,6 +169,13 @@ const CustomerPaymentForm = ({
           </button>
         </div>
       )}
+
+      {loading && (
+        <div className="flex items-center justify-center w-full">
+          <div className="spinner" />
+        </div>
+      )}
+
     </div>
   );
 };

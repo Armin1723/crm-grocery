@@ -121,7 +121,7 @@ const BatchLabel = ({
           width: "fit-content",
           color: "var(--color-text)",
           padding: "1rem",
-          backgroundColor: "var(--color-primary)",
+          backgroundColor: "var(--color-card)",
         }}
       >
         <h2
@@ -189,7 +189,7 @@ const BatchLabel = ({
 
         {/* Additional Barcode Info */}
         <div
-          className="text-sm text-gray-500 mb-2 flex items-center gap-2"
+          className="text-sm text-[var(--color-text-light)] mb-2 flex items-center gap-2"
           style={{
             display: "flex",
             gap: "0.5rem",
