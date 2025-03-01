@@ -40,8 +40,7 @@ const SaleProductSuggestion = ({
 
   const handleAddProduct = (product) => {
     const isMatch = getValues("products").some(
-      (p) =>
-        p.batchId === product.batchId
+      (p) => p.batchId === product.batchId
     );
 
     if (isMatch) {
@@ -108,22 +107,30 @@ const SaleProductSuggestion = ({
             suggestedProducts.map((product, index) => (
               <div
                 key={index}
-                className={`supplier-option px-3 py-2 w-full flex items-center justify-between gap-4 text-sm hover:bg-accentDark/20 transition-all duration-300 ease-in cursor-pointer ${
+                className={`supplier-option px-3 py-2 w-full flex flex-col justify-between text-sm hover:bg-accentDark/20 transition-all duration-300 ease-in cursor-pointer ${
                   index === selectedIndex ? "bg-accentDark/20" : ""
                 }`}
                 onMouseEnter={() => setSelectedIndex(index)}
                 onClick={() => handleAddProduct(product)}
               >
-                <p>{product.name}</p>
-                <p
-                  className=""
-                  title={
-                    product.expiry &&
-                    `Expiry: ${formatDateIntl(product?.expiry)}`
-                  }
-                >
-                  {product.sellingRate}₹
-                </p>
+                <div className="flex items-center justify-between">
+                  <p className="text-ellipsis truncate">{product.name}</p>
+                  <p
+                    className=""
+                    title={
+                      product.purchaseRate &&
+                      `Purchase: ${product.purchaseRate}₹ | Selling: ${product.sellingRate}₹`
+                    }
+                  >
+                    {product.sellingRate}₹
+                  </p>
+                </div>
+                {product?.purchaseRate && (
+                  <p className="text-[var(--color-text-light)] text-xs">
+                    {product.mrp || ""}₹
+                    {product.expiry && ` | Expiry: ${formatDateIntl(product?.expiry)}`}
+                  </p>
+                )}
               </div>
             ))}
         </div>

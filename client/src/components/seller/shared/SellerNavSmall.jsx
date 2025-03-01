@@ -76,7 +76,7 @@ const SellerNavSmall = () => {
         >
           {/* Top Section */}
           <div className="top flex w-full justify-between px-4 relative pb-2 border-b border-neutral-500/50">
-            <div className="top-sub flex items-center justify-between w-full gap-2">
+            <div onClick={() => setNavOpen(false)} className="top-sub flex items-center justify-between w-full gap-2">
               {hasPermission ? (
                 <Logo />
               ) : (

@@ -107,7 +107,7 @@ const Login = () => {
       exit={{ opacity: 0, x: -50 }}
       transition={{ duration: 0.5 }}
       onSubmit={handleSubmit(handleLogin)}
-      className="flex flex-col gap-4 p-3 rounded-md py-6 w-3/4"
+      className="flex flex-col gap-3 p-3 rounded-md py-6 w-3/4 text-sm"
     >
       <div className="intro my-6 max-lg:my-4 max-sm:my-2">
         <h2 className="font-outfit font-bold text-xl sm:text-3xl md:text-3xl lg:text-3xl ">
@@ -189,6 +189,16 @@ const Login = () => {
           New here?
         </Link>
       </div>
+
+      {/* <div className="save-pass text-xs flex gap-2 items-center">
+        <input
+          type="checkbox"
+          name="remember"
+          id="remember"
+          style={{ accentColor: "var(--color-accent)" }}
+        />
+        <p>Save Credentials</p>
+      </div> */}
 
       <button
         type="submit"

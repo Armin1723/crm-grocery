@@ -8,6 +8,8 @@ const EditBatchForm = ({
   upid = "",
   closeModal = () => {},
 }) => {
+  const [loading, setLoading] = React.useState(false);
+
   const {
     register,
     formState: { errors },
@@ -21,6 +23,7 @@ const EditBatchForm = ({
   });
 
   const editBatch = async (values) => {
+    setLoading(true);
     try {
       const res = await fetch(
         `${import.meta.env.VITE_BACKEND_URL}/api/v1/inventory/${upid}/batches`,
@@ -48,6 +51,8 @@ const EditBatchForm = ({
     } catch (error) {
       console.error(error);
       toast.error(error.message);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -92,7 +97,7 @@ const EditBatchForm = ({
 
         <button
           type="submit"
-          disabled={Object.keys(errors).length > 0}
+          disabled={Object.keys(errors).length > 0 || loading}
           className="w-full px-3 py-1 disabled:opacity-30 disabled:cursor-not-allowed rounded-md bg-accent hover:bg-accentDark text-white cursor-pointer transition-all duration-300"
         >
           Edit Batch
