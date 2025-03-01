@@ -30,9 +30,9 @@ const AddCompany = () => {
   }, [user]);
 
   return (
-    <div className="flex flex-col items-center justify-center flex-1">
+    <div className="flex flex-col items-center justify-center flex-1 bg-[var(--color-primary)]">
       <Ribbon />
-      <div className="company-container flex-1 w-full p-3 rounded-lg bg-[var(--color-card)] overflow-y-auto">
+      <div className="company-container flex-1 w-full p-3 px-6 rounded-lg bg-[var(--color-card)] overflow-y-auto">
         <CompanyForm title="add" />
       </div>
     </div>

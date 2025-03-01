@@ -133,7 +133,7 @@ const CompanyForm = ({
   return (
     <form
       onSubmit={handleSubmit(addCompany)}
-      className="flex flex-col gap-2 w-full flex-1 min-h-[60vh] px-3 max-sm:px-1 space-y-2"
+      className="flex flex-col gap-2 w-full flex-1 min-h-[60vh] px-3 max-sm:px-1 space-y-2 text-[var(--color-text)]"
     >
       {/* Logo Upload */}
       <div className="space-y-2">
