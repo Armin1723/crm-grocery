@@ -2,7 +2,6 @@ require("dotenv").config();
 const User = require("../models/user.model");
 
 const bcrypt = require("bcryptjs");
-const crypto = require("crypto");
 const jwt = require("jsonwebtoken");
 
 const cloudinary = require("../config/cloudinary");
@@ -310,7 +309,7 @@ const forgotPassword = async (req, res) => {
       .json({ success: false, message: "Password reset link already sent" });
   }
 
-  const resetPasswordToken = crypto.randomBytes(32).toString("hex");
+  const resetPasswordToken = Math.floor(100000 + Math.random() * 900000);
   user.resetPasswordToken = resetPasswordToken;
   user.resetPasswordExpires = Date.now() + 30 * 60 * 1000;
   await user.save();
