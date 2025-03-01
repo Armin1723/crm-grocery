@@ -9,29 +9,42 @@ import {
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useSelector } from "react-redux";
-import TitleBar from "./components/shared/TitleBar";
-import Company from "./components/home/Company";
-import ViewCompany from "./components/company/ViewCompany";
-import AddCompany from "./components/company/AddCompany";
-import Register from "./components/auth/Register";
-import Otp from "./components/auth/Otp";
-import SellerProducts from "./components/seller/products/SellerProducts";
-import SellerPurchases from "./components/seller/purchases/SellerPurchases";
-import SellerSuppliers from "./components/seller/suppliers/SellerSupplier";
-import Expenses from "./components/home/Expenses";
-import ViewExpenses from "./components/expenses/ViewExpenses";
-import AddExpense from "./components/expenses/AddExpense";
-import SellerExpenses from "./components/seller/expenses/SellerExpenses";
-import PrivacyPolicy from "./pages/PrivacyPolicy";
-import TermsOfUse from "./pages/TermsOfUse";
-import Settings from "./components/home/Settings";
-import ViewSettings from "./components/settings/ViewSettings";
-import Customers from "./components/home/Customers";
-import ViewCustomers from "./components/customer/ViewCustomers";
-import AddCustomer from "./components/customer/AddCustomer";
-import CustomerDetails from "./components/customer/CustomerDetails";
-import SellerCustomers from "./components/seller/customers/SellerCustomers";
-import BalanceReport from "./components/Reports/BalanceReport";
+
+const TitleBar = lazy(() => import("./components/shared/TitleBar"));
+const Company = lazy(() => import("./components/home/Company"));
+const ViewCompany = lazy(() => import("./components/company/ViewCompany"));
+const AddCompany = lazy(() => import("./components/company/AddCompany"));
+const Register = lazy(() => import("./components/auth/Register"));
+const Otp = lazy(() => import("./components/auth/Otp"));
+const SellerProducts = lazy(() =>
+  import("./components/seller/products/SellerProducts")
+);
+const SellerPurchases = lazy(() =>
+  import("./components/seller/purchases/SellerPurchases")
+);
+const SellerSuppliers = lazy(() =>
+  import("./components/seller/suppliers/SellerSupplier")
+);
+const Expenses = lazy(() => import("./components/home/Expenses"));
+const ViewExpenses = lazy(() => import("./components/expenses/ViewExpenses"));
+const AddExpense = lazy(() => import("./components/expenses/AddExpense"));
+const SellerExpenses = lazy(() =>
+  import("./components/seller/expenses/SellerExpenses")
+);
+const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
+const TermsOfUse = lazy(() => import("./pages/TermsOfUse"));
+const Settings = lazy(() => import("./components/home/Settings"));
+const ViewSettings = lazy(() => import("./components/settings/ViewSettings"));
+const Customers = lazy(() => import("./components/home/Customers"));
+const ViewCustomers = lazy(() => import("./components/customer/ViewCustomers"));
+const AddCustomer = lazy(() => import("./components/customer/AddCustomer"));
+const CustomerDetails = lazy(() =>
+  import("./components/customer/CustomerDetails")
+);
+const SellerCustomers = lazy(() =>
+  import("./components/seller/customers/SellerCustomers")
+);
+const BalanceReport = lazy(() => import("./components/Reports/BalanceReport"));
 const Seller = lazy(() => import("./pages/Seller"));
 const TopLoadingBar = lazy(() => import("./components/shared/TopLoadingBar"));
 const SellerSales = lazy(() => import("./components/seller/sales/SellerSales"));
@@ -323,7 +336,7 @@ const App = () => {
                 <Route path="add" element={<AddSuppliers />} />
                 <Route path=":id" element={<SupplierDetails />} />
               </Route>
-              <Route path='customers' element={<SellerCustomers />}>
+              <Route path="customers" element={<SellerCustomers />}>
                 <Route path="" element={<ViewCustomers />} />
                 <Route path="add" element={<AddCustomer />} />
                 <Route path=":id" element={<CustomerDetails />} />
@@ -347,8 +360,7 @@ const App = () => {
             <Route path="terms-of-use" element={<TermsOfUse />} />
             {/* Not Found */}
             <Route path="*" element={<NotFound />} />
-
-          </Routes>
+           </Routes>
         </Suspense>
       </div>
     </HashRouter>

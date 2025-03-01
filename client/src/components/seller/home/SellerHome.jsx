@@ -34,74 +34,77 @@ const SellerHome = () => {
 
   return (
     <div className="flex flex-col rounded-md bg-[var(--color-sidebar)] select-none p-2 flex-1 w-full h-full gap-3 overflow-y-auto">
-      <div className="line-1 flex flex-col lg:flex-row w-full gap-2">
+      <div className="line-1 flex flex-col lg:flex-row gap-4 w-full ">
         <div className="salesChart flex-1">
-          <SellerSalesChart/>
+          <SellerSalesChart />
         </div>
-        <div className="w-full lg:w-1/4 h-full">
+        <div className="w-full lg:w-1/3 h-full">
           <SellerCategoryChart />
         </div>
       </div>
-      <div className="line-2 flex-1 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full">
-        {/* Sales Card */}
-        <div className="flex flex-col justify-between rounded-lg border border-neutral-500/50 bg-[var(--color-primary)] p-5">
-          <div className="flex items-center gap-4">
-            <div className="bg-accent text-white rounded-full p-3">
-              <FaChartLine />
+      <div className="line-2 flex-1 flex flex-col xl:flex-row gap-4 w-full">
+        <div className="flex flex-col tab:flex-row flex-1 gap-4 items-center">
+          {/* Sales Card */}
+          <div className="flex flex-col justify-between rounded-lg border border-neutral-500/50 bg-[var(--color-primary)] p-5 w-full text-sm">
+            <div className="flex items-center gap-4">
+              <div className="bg-accent text-white rounded-full p-3">
+                <FaChartLine />
+              </div>
+              <div>
+                <h3 className="text-lg font-semibold">Sales</h3>
+                <p className="text-sm text-gray-500">
+                  Track, manage and add sales efficiently.
+                </p>
+              </div>
             </div>
-            <div>
-              <h3 className="text-lg font-semibold">Sales</h3>
-              <p className="text-sm text-gray-500">
-                Track, manage and add sales efficiently.
-              </p>
+            <div className="text-[var(--color-text-light)] pl-3 py-2">
+              Your Sales Today:{" "}
+              <CountUp
+                end={stats?.totalSales}
+                duration={3}
+                separator=","
+                prefix="₹"
+                decimals={2}
+                decimal="."
+              />
             </div>
+            <Link
+              to="/seller/sales/add"
+              className="mt-4 inline-flex items-center justify-center w-full py-2 px-4 rounded-md bg-accent hover:bg-accentDark text-white font-medium transition-colors"
+            >
+              Go to Sales
+            </Link>
           </div>
-          <div className="text-[var(--color-text-light)] pl-3 py-2">
-            Your Sales Today:{" "}
-            <CountUp
-              end={stats?.totalSales}
-              duration={3}
-              separator=","
-              prefix="₹"
-              decimals={2}
-              decimal="."
-            />
-          </div>
-          <Link
-            to="/seller/sales/add"
-            className="mt-4 inline-flex items-center justify-center w-full py-2 px-4 rounded-md bg-accent hover:bg-accentDark text-white font-medium transition-colors"
-          >
-            Go to Sales
-          </Link>
-        </div>
 
-        {/* Inventory Card */}
-        <div className="flex flex-col justify-between rounded-lg border border-neutral-500/50 bg-[var(--color-primary)] p-5">
-          <div className="flex items-center gap-4">
-            <div className="bg-green-500 text-white rounded-full p-3">
-              <BsInboxesFill />
+          {/* Inventory Card */}
+          <div className="flex flex-col justify-between rounded-lg border border-neutral-500/50 bg-[var(--color-primary)] p-5 w-full text-sm">
+            <div className="flex items-center gap-4">
+              <div className="bg-green-500 text-white rounded-full p-3">
+                <BsInboxesFill />
+              </div>
+              <div>
+                <h3 className="text-lg font-semibold ">Inventory</h3>
+                <p className="text-sm text-gray-500">
+                  Manage stock levels and product details.
+                </p>
+              </div>
             </div>
-            <div>
-              <h3 className="text-lg font-semibold ">Inventory</h3>
-              <p className="text-sm text-gray-500">
-                Manage stock levels and product details.
-              </p>
+            <div className="text-[var(--color-text-light)] pl-3 py-2">
+              Items in Inventory:{" "}
+              <CountUp end={stats?.totalInventory} duration={3} />
             </div>
+            <Link
+              to="/seller/inventory"
+              className="mt-4 inline-flex items-center justify-center w-full py-2 px-4 rounded-md bg-green-500 hover:bg-green-600 text-white font-medium transition-colors"
+            >
+              Go to Inventory
+            </Link>
           </div>
-          <div className="text-[var(--color-text-light)] pl-3 py-2">
-            Items in Inventory: <CountUp end={stats?.totalInventory} duration={3} />
-          </div>
-          <Link
-            to="/seller/inventory"
-            className="mt-4 inline-flex items-center justify-center w-full py-2 px-4 rounded-md bg-green-500 hover:bg-green-600 text-white font-medium transition-colors"
-          >
-            Go to Inventory
-          </Link>
         </div>
 
         {/* Employee Card */}
-        <div className="rounded-lg transition-shadow border border-neutral-500/50 max-lg:last:col-span-full">
-          <EmployeeCard employee={user} otherClasses="h-full"/>
+        <div className="rounded-lg xl:w-1/3 transition-shadow border border-neutral-500/50 max-lg:last:col-span-full">
+          <EmployeeCard employee={user} otherClasses="h-full" />
         </div>
       </div>
     </div>

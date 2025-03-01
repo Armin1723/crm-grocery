@@ -10,11 +10,13 @@ const Ribbon = () => {
   return (
     <div className="w-full p-4 px-6 text-[var(--color-text)] text-center flex items-center justify-between border-b border-neutral-500/50">
       <div className="left">
-        <h2 className="text-xl font-semibold">Welcome <span className="text-accent capitalize">{user.name}</span></h2>
+        <h2 className="text-xl font-semibold">
+          Welcome <span className="text-accent capitalize">{user.name}</span>
+        </h2>
       </div>
       <div className="right flex items-center justify-center gap-4">
         <ThemeToggle />
-        <LogoutButton otherClasses='mt-0'/>
+        <LogoutButton otherClasses="mt-0" />
       </div>
     </div>
   );
@@ -24,10 +26,7 @@ const AddCompany = () => {
   const user = useSelector((state) => state.user);
 
   useEffect(() => {
-    toast({
-      message: "Please fill in the company details",
-      type: "info",
-    });
+    if (!user.company) toast.info(`Enter company details to get free trial.`);
   }, [user]);
 
   return (

@@ -223,7 +223,7 @@ const ResetPassword = () => {
         disabled={
           errors.password || errors.confirmPassword || otp.join("").length < 6
         }
-        className="rounded-md bg-[var(--color-accent)] hover:bg-[var(--color-accent-dark)] text-[#f6f7f5] px-3 py-1.5 my-2 disabled:cursor-not-allowed disabled:hover:bg-[var(--color-accent)] transition-all duration-300 flex items-center justify-center gap-2 "
+        className="rounded-md bg-[var(--color-accent)] hover:bg-[var(--color-accent-dark)] text-[#f6f7f5] px-3 py-1.5 my-2 disabled:cursor-not-allowed disabled:hover:bg-none disabled:opacity-30 transition-all duration-300 flex items-center justify-center gap-2 "
       >
         <p>Update Password.</p>
         <FaEdit />

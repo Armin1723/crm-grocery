@@ -16,7 +16,7 @@ const Register = ({}) => {
     formState: { errors },
     setValue,
   } = useForm({
-    mode: "onBlur",
+    mode: "onSubmit",
     defaultValues: {
       name: "",
       email: "",
@@ -74,7 +74,6 @@ const Register = ({}) => {
 
       const data = await response.json();
       if (!response.ok) {
-        const data = await response.json();
         throw new Error(data.message || "Failed to register.");
       } else {
         toast.update(id, {
@@ -155,12 +154,12 @@ const Register = ({}) => {
             />
           </div>
 
-          <div className="name-input flex-1 relative group">
+          <div className="name-input flex-1 group flex flex-col relative">
             <input
               type="text"
               placeholder=" "
               aria-invalid={errors?.name ? "true" : "false"}
-              className={`outline-none peer border-b border-[var(--color-accent)] w-full !z-[10] bg-transparent focus:border-[var(--color-accent-dark)] ${
+              className={`outline-none peer border-b border-[var(--color-accent)] w-full z-[10] bg-transparent focus:border-[var(--color-accent-dark)] ${
                 errors?.name && "!border-red-500 focus:!border-red-500"
               } transition-all duration-300`}
               {...register("name", {
@@ -169,7 +168,7 @@ const Register = ({}) => {
             />
             <label
               htmlFor="name"
-              className="absolute appearance-none z-[5] text-[var(--color-text-light)] transition-all duration-300 ease-in -translate-y-full -translate-x-3 scale-75 peer-focus:-translate-y-full peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-x-0 peer-placeholder-shown:-translate-y-1 peer-focus:scale-75 peer-focus:-translate-x-3 peer-focus:text-[var(--color-accent-dark)] start-1"
+              className="absolute appearance-none z-[5] text-sm text-[var(--color-text-light)] transition-all duration-300 ease-in -translate-y-full -translate-x-3 scale-75 peer-focus:-translate-y-full peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-x-0 peer-placeholder-shown:-translate-y-1 peer-focus:scale-75 peer-focus:-translate-x-3 peer-focus:text-[var(--color-accent-dark)] start-1"
             >
               Name*
             </label>
@@ -195,7 +194,7 @@ const Register = ({}) => {
           />
           <label
             htmlFor="email"
-            className="absolute appearance-none z-[5] text-[var(--color-text-light)] transition-all duration-300 ease-in -translate-y-full -translate-x-3 scale-75 peer-focus:-translate-y-full peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-x-0 peer-placeholder-shown:-translate-y-1 peer-focus:scale-75 peer-focus:-translate-x-3 peer-focus:text-[var(--color-accent-dark)] start-1"
+            className="absolute appearance-none z-[5] text-sm text-[var(--color-text-light)] transition-all duration-300 ease-in -translate-y-full -translate-x-3 scale-75 peer-focus:-translate-y-full peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-x-0 peer-placeholder-shown:-translate-y-1 peer-focus:scale-75 peer-focus:-translate-x-3 peer-focus:text-[var(--color-accent-dark)] start-1"
           >
             Email*{" "}
           </label>
@@ -207,8 +206,8 @@ const Register = ({}) => {
         </div>
 
         {/* Phone and DOB */}
-        <div className="phone-dob-group flex max-sm:flex-col items-end gap-2 w-full ">
-          <div className="w-1/2 max-sm:w-full relative group my-2">
+        <div className="phone-dob-group flex max-sm:flex-col items-end gap-2 w-full">
+          <div className="w-1/2 max-sm:w-full flex flex-col relative group my-2 ">
             <input
               type="tel"
               placeholder=" "
@@ -224,7 +223,7 @@ const Register = ({}) => {
             />
             <label
               htmlFor="phone"
-              className="absolute appearance-none z-[5] text-[var(--color-text-light)] transition-all duration-300 ease-in -translate-y-full -translate-x-3 scale-75 peer-focus:-translate-y-full peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-x-0 peer-placeholder-shown:-translate-y-1 peer-focus:scale-75 peer-focus:-translate-x-3 peer-focus:text-[var(--color-accent-dark)] start-1"
+              className="absolute appearance-none z-[5] text-sm text-[var(--color-text-light)] transition-all duration-300 ease-in -translate-y-full -translate-x-3 scale-75 peer-focus:-translate-y-full peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-x-0 peer-placeholder-shown:-translate-y-1 peer-focus:scale-75 peer-focus:-translate-x-3 peer-focus:text-[var(--color-accent-dark)] start-1"
             >
               Phone*{" "}
             </label>
@@ -235,13 +234,13 @@ const Register = ({}) => {
             )}
           </div>
 
-          <div className="w-1/2 max-sm:w-full relative group my-2">
+          <div className="w-1/2 max-sm:w-full relative group my-2 ">
             <label for="dob" className="text-[var(--color-text-light)] text-xs">
               Date of Birth*
             </label>
             <input
               type="date"
-              placeholder=" "   
+              placeholder=" "
               title="Date of Birth"
               aria-invalid={errors?.dob ? "true" : "false"}
               className={`outline-none peer border-b border-[var(--color-accent)] w-full z-[10] bg-transparent focus:border-[var(--color-accent-dark)] ${
@@ -260,21 +259,21 @@ const Register = ({}) => {
         </div>
 
         {/* Address */}
-        <div className="w-full relative group my-2">
+        <div className="w-full flex flex-col relative group my-2">
           <textarea
             placeholder=" "
             rows={1}
             aria-invalid={errors?.address ? "true" : "false"}
-            className={`outline-none peer border-b border-[var(--color-accent)] w-full z-[10] bg-transparent focus:border-[var(--color-accent-dark)] ${
+            className={`outline-none peer border-b border-[var(--color-accent)] text-sm w-full z-[10] bg-transparent focus:border-[var(--color-accent-dark)] ${
               errors?.address && "!border-red-500 focus:!border-red-500"
             } transition-all duration-300`}
             {...register("address")}
           />
           <label
             htmlFor="address"
-            className="absolute appearance-none z-[5] text-[var(--color-text-light)] transition-all duration-300 ease-in -translate-y-full -translate-x-3 scale-75 peer-focus:-translate-y-full peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-x-0 peer-placeholder-shown:-translate-y-1 peer-focus:scale-75 peer-focus:-translate-x-3 peer-focus:text-[var(--color-accent-dark)] start-1"
+            className="absolute appearance-none z-[5] text-sm text-[var(--color-text-light)] transition-all duration-300 ease-in -translate-y-full -translate-x-3 scale-75 peer-focus:-translate-y-full peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-x-0 peer-placeholder-shown:-translate-y-1 peer-focus:scale-75 peer-focus:-translate-x-3 peer-focus:text-[var(--color-accent-dark)] start-1"
           >
-            Address*{" "}
+            Address{" "}
           </label>
         </div>
 

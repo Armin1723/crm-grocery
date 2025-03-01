@@ -62,7 +62,7 @@ const EmployeeCard = ({ employee , otherClasses = ''}) => {
       {/* Divider */}
       <hr className="my-4 border-[var(--color-text-light)] opacity-20" />
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
         <div>
           <p>
             <span className="font-semibold text-[var(--color-text-light)]">
