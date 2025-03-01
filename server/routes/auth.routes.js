@@ -23,19 +23,23 @@ const rateLimit = require("express-rate-limit");
 const loginLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: 15, // limit each IP to 15 requests per windowMs
-  message: "Too many login attempts, please try again later.",
+  message: { message: "Too many login attempts, please try again later." },
 });
 
 const registerLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 3, // limit each IP to 3 registration attempts per windowMs
-  message: "Too many registration attempts, please try again later.",
+  max: 5, // limit each IP to 5 registration attempts per windowMs
+  message: {
+    message: "Too many registration attempts, please try again later.",
+  },
 });
 
 const forgotPasswordLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: 3, // limit each IP to 3 forgot-password attempts per windowMs
-  message: "Too many password reset requests, please try again later.",
+  message: {
+    message: "Too many password reset requests, please try again later.",
+  },
 });
 
 router.post("/login", loginLimiter, asyncHandler(loginUser));

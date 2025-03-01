@@ -260,20 +260,26 @@ const registerUser = async (req, res) => {
 
   await user.save();
 
-  // Generate a new lead on the backend
-  await fetch(`${process.env.SUPPORT_BACKEND_URL}/api/v1/leads`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      email: user.email,
-      name: user.name,
-      phone: user.phone,
-      dob: user.dob,
-      description: `Lead Generated organically through user signup form on ${new Date().toDateString()}`,
-    }),
-  });
+  // Generate a new lead on the backend support panel
+  (async () => {
+    try {
+      await fetch(`${process.env.SUPPORT_BACKEND_URL}/api/v1/leads`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email: user?.email,
+          name: user?.name,
+          phone: user?.phone,
+          dob: user?.dob,
+          description: `Lead Generated organically through user signup form on ${new Date().toDateString()}`,
+        }),
+      });
+    } catch (error) {
+      console.error("Lead generation failed:", error.message);
+    }
+  })();
 
   // Send email to user with password
   sendMail(
