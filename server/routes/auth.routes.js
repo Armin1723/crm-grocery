@@ -9,7 +9,7 @@ const {
   updatePrefences,
 } = require("../controllers/auth.controller");
 
-const { isLoggedIn } = require("../middleware/index");
+const { isLoggedIn, validateSchema } = require("../middleware/index");
 
 const { asyncHandler } = require("../middleware/errorHandler");
 
@@ -18,6 +18,12 @@ const router = require("express").Router();
 const multer = require("multer");
 const upload = multer({ dest: "/tmp" });
 const rateLimit = require("express-rate-limit");
+const {
+  loginSchema,
+  registerSchema,
+  forgotPasswordSchema,
+  resetPasswordSchema,
+} = require("../validations/auth.validation");
 
 // Rate Limiter
 const loginLimiter = rateLimit({
@@ -42,7 +48,12 @@ const forgotPasswordLimiter = rateLimit({
   },
 });
 
-router.post("/login", loginLimiter, asyncHandler(loginUser));
+router.post(
+  "/login",
+  loginLimiter,
+  validateSchema(loginSchema),
+  asyncHandler(loginUser)
+);
 
 router.post("/verify-otp", loginLimiter, asyncHandler(verifyOtp));
 
@@ -50,16 +61,22 @@ router.post(
   "/register",
   registerLimiter,
   upload.fields([{ name: "avatar" }]),
+  validateSchema(registerSchema),
   asyncHandler(registerUser)
 );
 
 router.post(
   "/forgot-password",
   forgotPasswordLimiter,
+  validateSchema(forgotPasswordSchema),
   asyncHandler(forgotPassword)
 );
 
-router.post("/reset-password", asyncHandler(resetPassword));
+router.post(
+  "/reset-password",
+  validateSchema(resetPasswordSchema),
+  asyncHandler(resetPassword)
+);
 
 router.get("/logout", asyncHandler(logoutUser));
 

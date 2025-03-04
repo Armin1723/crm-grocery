@@ -1,5 +1,6 @@
 const jwt = require("jsonwebtoken");
 const User = require("../models/user.model");
+const { ZodError } = require("zod");
 
 const isLoggedIn = (req, res, next) => {
   try {
@@ -60,6 +61,24 @@ const isSubscriptionActive = async (req, res, next) => {
   next();
 };
 
+const validateSchema = (schema) => async (req, res, next) => {
+  try {
+    schema.parse(req.body); // Validate request body
+    next();
+  } catch (error) {
+    if (error instanceof ZodError) {
+      return res.status(400).json({
+        success: false,
+        errors: error.errors.map((err) => ({
+          path: err.path.join("."),
+          message: err.message,
+        })),
+      });
+    }
+    next(error);
+  }
+};
+
 const verifyApiKey = (req, res, next) => {
   const apiKey = req.headers["x-api-key"];
 
@@ -70,4 +89,4 @@ const verifyApiKey = (req, res, next) => {
   next();
 };
 
-module.exports = { isLoggedIn, isAdmin, isSubscriptionActive, verifyApiKey };
+module.exports = { isLoggedIn, isAdmin, isSubscriptionActive, validateSchema, verifyApiKey };
