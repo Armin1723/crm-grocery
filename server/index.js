@@ -12,6 +12,7 @@ const rateLimit = require("express-rate-limit");
 const helmet = require("helmet");
 const xss = require("xss-clean");
 const mongoSanitize = require("express-mongo-sanitize");
+const inventoryAlertCron = require("./crons/inventoryAlertCron.js");
 
 const app = express();
 
@@ -70,6 +71,7 @@ loadSubscriptionsToCache();
 // Cron Jobs
 dailySubscriptionsCacheLoadCron();
 expiringProductsCron();
+inventoryAlertCron();
 
 // Error Handler middleware
 app.use(errorHandler);
