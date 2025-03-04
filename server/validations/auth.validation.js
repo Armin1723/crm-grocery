@@ -8,9 +8,6 @@ const registerSchema = z.object({
     .regex(/^[0-9]+$/, "Phone number must be numeric")
     .min(10, "Phone number must be at least 10 characters")
     .max(10, "Phone number must be at most 10 characters"),
-  dob: z.date().refine((val) => val < new Date(), {
-    message: "Date of birth must be in the past",
-  }),
 });
 
 const loginSchema = z.object({
@@ -34,7 +31,7 @@ const forgotPasswordSchema = z.object({
 });
 
 const resetPasswordSchema = z.object({
-  password: z
+  newPassword: z
     .string()
     .min(8, "Password must be at least 8 characters")
     .regex(/[A-Z]/, "Password must contain at least one uppercase letter")
