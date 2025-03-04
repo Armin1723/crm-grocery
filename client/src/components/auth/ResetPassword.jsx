@@ -29,7 +29,7 @@ const ResetPassword = () => {
   });
 
   const handleOtpChange = (element, index) => {
-    clearErrors("otp");
+    clearErrors();
     if (isNaN(element.value)) return false;
     setOtp([...otp.map((d, idx) => (idx === index ? element.value : d))]);
 

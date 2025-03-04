@@ -15,6 +15,7 @@ const Register = ({}) => {
     handleSubmit,
     formState: { errors },
     setValue,
+    setError,
   } = useForm({
     mode: "onSubmit",
     defaultValues: {
@@ -74,6 +75,11 @@ const Register = ({}) => {
 
       const data = await response.json();
       if (!response.ok) {
+        if (data.errors) {
+          Object.entries(data.errors).forEach(([field, message]) => {
+            setError(field, { type: "manual", message });
+          });
+        }
         throw new Error(data.message || "Failed to register.");
       } else {
         toast.update(id, {

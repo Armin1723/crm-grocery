@@ -215,6 +215,10 @@ const CompanyForm = ({
             }`}
             {...register("initials", {
               required: "Company initials are required",
+              pattern: {
+                value: /^[A-Z]{3}$/i,
+                message: "Invalid initials",
+              },
               minLength: {
                 value: 3,
                 message: "Initials must be 3 characters",
