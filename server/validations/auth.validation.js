@@ -3,16 +3,14 @@ const { z } = require("zod");
 const registerSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
   email: z.string().email("Invalid email format"),
-  password: z
+  phone: z
     .string()
-    .min(8, "Password must be at least 8 characters")
-    .regex(/[A-Z]/, "Password must contain at least one uppercase letter")
-    .regex(/[a-z]/, "Password must contain at least one lowercase letter")
-    .regex(/[0-9]/, "Password must contain at least one number")
-    .regex(/[\W_]/, "Password must contain at least one special character")
-    .refine((val) => !/\s/.test(val), {
-      message: "Password must not contain spaces",
-    }),
+    .regex(/^[0-9]+$/, "Phone number must be numeric")
+    .min(10, "Phone number must be at least 10 characters")
+    .max(10, "Phone number must be at most 10 characters"),
+  dob: z.date().refine((val) => val < new Date(), {
+    message: "Date of birth must be in the past",
+  }),
 });
 
 const loginSchema = z.object({
