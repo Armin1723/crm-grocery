@@ -69,7 +69,7 @@ const validateSchema = (schema) => async (req, res, next) => {
     if (error instanceof ZodError) {
       // Convert Zod errors to React Hook Form-compatible format
       const formattedErrors = error.errors.reduce((acc, err) => {
-        acc[err.path[0]] = { message: err.message }; 
+        acc[err.path[0]] =  err.message || "Invalid value"; 
         return acc;
       }, {});
 
