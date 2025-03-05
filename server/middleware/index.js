@@ -67,12 +67,15 @@ const validateSchema = (schema) => async (req, res, next) => {
     next();
   } catch (error) {
     if (error instanceof ZodError) {
+      // Convert Zod errors to React Hook Form-compatible format
+      const formattedErrors = error.errors.reduce((acc, err) => {
+        acc[err.path[0]] = { message: err.message }; 
+        return acc;
+      }, {});
+
       return res.status(400).json({
         success: false,
-        errors: error.errors.map((err) => ({
-          path: err.path.join("."),
-          message: err.message,
-        })),
+        errors: formattedErrors,
       });
     }
     next(error);
